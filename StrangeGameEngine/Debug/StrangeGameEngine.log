@@ -1,0 +1,4 @@
+﻿  render.cpp
+c:\users\bryanws\documents\visual studio 2015\projects\strange game engine\strangegameengine\render.cpp(480): warning C4101: 'rowData': unreferenced local variable
+  StrangeGameEngine.vcxproj -> C:\Users\bryanws\Documents\Visual Studio 2015\Projects\Strange Game Engine\Debug\Strange Game Engine.exe
+  StrangeGameEngine.vcxproj -> C:\Users\bryanws\Documents\Visual Studio 2015\Projects\Strange Game Engine\Debug\Strange Game Engine.pdb (Partial PDB)
