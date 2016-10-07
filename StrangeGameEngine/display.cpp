@@ -11,7 +11,7 @@ namespace SGE
 		float frameBufferRatio = 0.0f;
 
 		//Handle to call the OpenGL texture we are using
-		GLuint textureHandle;
+		GLuint textureHandle = 0;
 
 		//Snag the Open context for our targetWindow, unless for some strange reason it's already suppose to close.
 		if (!glfwWindowShouldClose(targetWindow))

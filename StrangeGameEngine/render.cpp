@@ -477,8 +477,6 @@ namespace SGE
 			unsigned char pixelRed;
 			unsigned char pixelGreen;
 			unsigned char pixelBlue;
-			unsigned int* rowData;
-			
 
 			//Attempt to open the bitmap file
 			//Open in binary read mode.

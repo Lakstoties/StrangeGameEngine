@@ -61,7 +61,7 @@ void AnimationPattern(bool& testPatternRunning, SGE::VirtualDisplay* targetDispl
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));
 	}
 
-	delete testDataBlock;
+	delete[] testDataBlock;
 }
 
 void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::SoundSystem* targetSoundSystem)

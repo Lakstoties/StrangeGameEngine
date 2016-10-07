@@ -22,10 +22,14 @@ namespace SGE
 
 		for (int i = 0; i < numberOfSelections; i++)
 		{
-			tempCount = strnlen_s(targetMenuItems[i], 255);
+			//Grab the target menu item's length
+			tempCount = strlen(targetMenuItems[i]) + 1;
 
-			menuItemText[i] = new char[tempCount+1];
-			strcpy_s(menuItemText[i], tempCount+1, targetMenuItems[i]);
+			//Create a place to put the new item
+			menuItemText[i] = new char[tempCount];
+
+			//Copy it over
+			strcpy(menuItemText[i], targetMenuItems[i]);
 		}
 
 		//Derived bits that once need to be calculated once or so...
@@ -134,9 +138,11 @@ namespace SGE
 		//Get the length of the string with terminating null
 		tempCount = strlen(menuItemText[selection]) + 1;
 
+		//Create a place to put the string
 		tempString = new char[tempCount];
 
-		strcpy_s(tempString, tempCount, menuItemText[selection]);
+		//Copy it over
+		strcpy(tempString, menuItemText[selection]);
 
 		return tempString;
 	}
@@ -155,13 +161,13 @@ namespace SGE
 		tempCount = strlen(targetString) + 1;
 
 		//Clear out old material
-
 		delete menuItemText[selection];
 
-
+		//Create a new place to put the new string
 		menuItemText[selection] = new char[tempCount];
 
-		strcpy_s(menuItemText[selection], tempCount, targetString);
+		//Copy the string over
+		strcpy(menuItemText[selection], targetString);
 	}
 
 
