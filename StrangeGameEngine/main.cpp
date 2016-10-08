@@ -122,16 +122,27 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 	for (int i = 0; i < 10; i++)
 	{
 		//Load SineWave in channel
-		targetSoundSystem->soundChannels[i].LoadSoundBuffer(testFile.numberOfSamples, testFile.audioData[0]);
+		//targetSoundSystem->soundChannels[i].LoadSoundBuffer(testFile.numberOfSamples, testFile.audioData[0]);
+		targetSoundSystem->soundChannels[i].LoadSoundBuffer(SGE::SoundSystem::SAMPLE_RATE, testSineWave);
+
 
 		//Set the key of the channel
-		targetSoundSystem->soundChannels[i].SetKey(targetSoundSystem->MIDI_NOTE_FRENQUENCY[60]);
+		targetSoundSystem->soundChannels[i].SetKey(1);
 
 		//Set the pitches of the channel
 		targetSoundSystem->soundChannels[i].SetPitch(targetSoundSystem->MIDI_NOTE_FRENQUENCY[i + 60]);
 
 		//Set the channel to loop
-		targetSoundSystem->soundChannels[i].Loop(false);
+		targetSoundSystem->soundChannels[i].loop = true;
+
+
+		//Set ADSR
+		targetSoundSystem->soundChannels[i].attackRate = 0.001f;
+		targetSoundSystem->soundChannels[i].decayRate = 0.01f;
+		targetSoundSystem->soundChannels[i].sustainLevel = 0.90f;
+		targetSoundSystem->soundChannels[i].releaseRate = .0001f;
+
+		targetSoundSystem->soundChannels[i].adsrActive = true;
 	}
 
 
@@ -245,6 +256,32 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 
 
 
+		//ADSR Toggle
+		if (lastKeyboardState.KeyChanged(GLFW_KEY_M))
+		{
+			if (lastKeyboardState.GetPreviousState(GLFW_KEY_M))
+			{
+				
+			}
+			else
+			{
+				for (int i = 0; i < targetSoundSystem->MAX_CHANNELS; i++)
+				{
+					if (targetSoundSystem->soundChannels[i].adsrActive)
+					{
+						targetSoundSystem->soundChannels[i].adsrActive = false;
+					}
+					else
+					{
+						targetSoundSystem->soundChannels[i].adsrActive = true;
+					}
+				}
+			}
+		}
+
+
+
+
 
 
 		//Sound keys stuff
@@ -253,11 +290,11 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		{
 			if (lastKeyboardState.GetPreviousState(GLFW_KEY_0))
 			{
-				targetSoundSystem->soundChannels[0].Stop();
+				targetSoundSystem->soundChannels[0].Release();
 			}
 			else
 			{
-				targetSoundSystem->soundChannels[0].Play();
+				targetSoundSystem->soundChannels[0].Trigger();
 			}
 		}
 
@@ -266,11 +303,11 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		{
 			if (lastKeyboardState.GetPreviousState(GLFW_KEY_1))
 			{
-				targetSoundSystem->soundChannels[1].Stop();
+				targetSoundSystem->soundChannels[1].Release();
 			}
 			else
 			{
-				targetSoundSystem->soundChannels[1].Play();
+				targetSoundSystem->soundChannels[1].Trigger();
 			}
 		}
 
@@ -279,11 +316,11 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		{
 			if (lastKeyboardState.GetPreviousState(GLFW_KEY_2))
 			{
-				targetSoundSystem->soundChannels[2].Stop();
+				targetSoundSystem->soundChannels[2].Release();
 			}
 			else
 			{
-				targetSoundSystem->soundChannels[2].Play();
+				targetSoundSystem->soundChannels[2].Trigger();
 			}
 		}
 
@@ -292,11 +329,11 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		{
 			if (lastKeyboardState.GetPreviousState(GLFW_KEY_3))
 			{
-				targetSoundSystem->soundChannels[3].Stop();
+				targetSoundSystem->soundChannels[3].Release();
 			}
 			else
 			{
-				targetSoundSystem->soundChannels[3].Play();
+				targetSoundSystem->soundChannels[3].Trigger();
 			}
 		}
 
@@ -305,11 +342,11 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		{
 			if (lastKeyboardState.GetPreviousState(GLFW_KEY_4))
 			{
-				targetSoundSystem->soundChannels[4].Stop();
+				targetSoundSystem->soundChannels[4].Release();
 			}
 			else
 			{
-				targetSoundSystem->soundChannels[4].Play();
+				targetSoundSystem->soundChannels[4].Trigger();
 			}
 		}
 
@@ -318,11 +355,11 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		{
 			if (lastKeyboardState.GetPreviousState(GLFW_KEY_5))
 			{
-				targetSoundSystem->soundChannels[5].Stop();
+				targetSoundSystem->soundChannels[5].Release();
 			}
 			else
 			{
-				targetSoundSystem->soundChannels[5].Play();
+				targetSoundSystem->soundChannels[5].Trigger();
 			}
 		}
 
@@ -331,11 +368,11 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		{
 			if (lastKeyboardState.GetPreviousState(GLFW_KEY_6))
 			{
-				targetSoundSystem->soundChannels[6].Stop();
+				targetSoundSystem->soundChannels[6].Release();
 			}
 			else
 			{
-				targetSoundSystem->soundChannels[6].Play();
+				targetSoundSystem->soundChannels[6].Trigger();
 			}
 		}
 
@@ -344,11 +381,11 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		{
 			if (lastKeyboardState.GetPreviousState(GLFW_KEY_7))
 			{
-				targetSoundSystem->soundChannels[7].Stop();
+				targetSoundSystem->soundChannels[7].Release();
 			}
 			else
 			{
-				targetSoundSystem->soundChannels[7].Play();
+				targetSoundSystem->soundChannels[7].Trigger();
 			}
 		}
 
@@ -357,11 +394,11 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		{
 			if (lastKeyboardState.GetPreviousState(GLFW_KEY_8))
 			{
-				targetSoundSystem->soundChannels[8].Stop();
+				targetSoundSystem->soundChannels[8].Release();
 			}
 			else
 			{
-				targetSoundSystem->soundChannels[8].Play();
+				targetSoundSystem->soundChannels[8].Trigger();
 			}
 		}
 
@@ -370,11 +407,11 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		{
 			if (lastKeyboardState.GetPreviousState(GLFW_KEY_9))
 			{
-				targetSoundSystem->soundChannels[9].Stop();
+				targetSoundSystem->soundChannels[9].Release();
 			}
 			else
 			{
-				targetSoundSystem->soundChannels[9].Play();
+				targetSoundSystem->soundChannels[9].Trigger();
 			}
 		}
 

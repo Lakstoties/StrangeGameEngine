@@ -172,32 +172,9 @@ namespace SGE
 	//Default constructor for a SoundChannel
 	SoundChannel::SoundChannel()
 	{
-		//Set status flags
-		playing = false;
-		stopped = true;
-		loaded = false;
-		paused = false;
+		//Most initialization done in declaration.
 
-		//Set offset
-		offset = 0;
-
-		//Set offset Increment
-		offsetIncrement = 0.0;
-
-		//Set buffer size
-		bufferSize = 0;
-
-		//Set buffer pointer
-		buffer = nullptr;
-
-		//Set Volume
-		volume = 1.0;
-
-		//Set Pan
-		pan = 0.0;
-
-		//Set Pitch
-		currentPitch = 1.0;
+		//Reserved for any calculations
 	}
 
 
@@ -221,7 +198,7 @@ namespace SGE
 		//Starting at the offset, copy over samples to the buffer.
 		for (unsigned int i = 0; i < numberOfSamples; i++)
 		{
-			if (!playing)
+			if (statusState != STATUS_PLAYING_STATE)
 			{
 				sampleBuffer[i] = 0;
 			}
@@ -229,6 +206,111 @@ namespace SGE
 			{
 				//Copy source sample augmented by volume to the target buffer
 				sampleBuffer[i] = int(buffer[offset] * volume);
+
+				//If we are using an ADSR envelope
+				if (adsrActive)
+				{
+					//Apply 
+					sampleBuffer[i] = int (sampleBuffer[i] * adsrLevel);
+
+					//Check to see which state we are in
+					switch (adsrState)
+					{
+						//We are not active at all, stop playing!
+					case ADSR_NONE_STATE:
+						statusState = STATUS_LOADED_STATE;
+						break;
+
+						//If we are in the attack state
+					case ADSR_ATTACK_STATE:
+
+						//And we have a valid Attack Rate  (No negatives, please...)
+						//And we the attack level doesn't exceed the maximum attack level
+						//Zero just means we don't have a attack for all practical purposes.
+						if (attackRate > 0 && adsrLevel < maxAttackLevel)
+						{
+							//Increase the adsr level by the attack rate
+							adsrLevel += attackRate;
+
+							//Kick it ot the next sample.
+							break;
+						}
+						//If there's no valid attack rate, just transition to the next state.
+						else
+						{
+							//Set the adsrLevel to the maximum;
+							adsrLevel = maxAttackLevel;
+
+							//Go to the next state
+							adsrState = ADSR_DECAY_STATE;
+						}
+
+						//If we are in the decay state
+					case ADSR_DECAY_STATE:
+
+						//And we have a valid decay rate (No negatives, it's just confusing on the math...
+						//And the adsrlevel isn't below the sustain level
+						//Zero just means we don't have a decay for all practical purposes.
+						if (decayRate > 0 && adsrLevel > sustainLevel)
+						{
+							//Decrease the adsr level by the decay rate
+							adsrLevel -= decayRate;
+
+							//Kick it to the next sample.
+							break;
+						}
+
+						//If there's no valid decay rate, just transistion to the next state.
+						else
+						{
+							//Set the adsrLevel to the sustain level
+							adsrLevel = sustainLevel;
+
+							//Got to the next state
+							adsrState = ADSR_SUSTAIN_STATE;
+						}
+						
+						//If we are in the sustain state
+					case ADSR_SUSTAIN_STATE:
+
+						//And we are presently triggered and have a valid sustainLevel
+						//Continue
+
+						//Other wise...
+						if (!adsrTriggered || sustainLevel <= 0)
+						{
+							//Transition to the next state
+							adsrState = ADSR_RELEASE_STATE;
+						}
+
+						break;
+
+						//If we are in the release state
+					case ADSR_RELEASE_STATE:
+
+						//And we have a valid release rate
+						//And the level is still valid
+						if (releaseRate > 0.0 && adsrLevel > 0)
+						{
+							adsrLevel -= releaseRate;
+						}
+
+						//If there's no release rate, just transition to off.
+						else
+						{
+							//Set the adsr level to 0
+							adsrLevel = 0;
+
+							//Change to the rest state
+							adsrLevel = ADSR_NONE_STATE;
+
+							//Hard stop the channel
+							statusState = STATUS_LOADED_STATE;
+						}
+
+						break;
+					}
+				}
 
 				//Calculate offset increment
 				offsetIncrement = offsetIncrement + currentPitch;
@@ -255,6 +337,30 @@ namespace SGE
 			}
 		}
 	}
+
+	void SoundChannel::Trigger()
+	{
+		//If ADSR active, set it up appropriately
+		if (adsrActive)
+		{
+			adsrTriggered = true;
+			adsrState = ADSR_ATTACK_STATE;
+		}
+		Play();
+	}
+
+	void SoundChannel::Release()
+	{
+		adsrTriggered = false;
+
+		//If we currently aren't using ADSR envelopes
+		//Just hard cut it.
+		if (!adsrActive)
+		{
+			Stop();
+		}
+	}
+
 
 	//Function to set the pan of a channel, with protection to keep it within the +/- 1.0 range
 	void SoundChannel::SetPan(float targetPan)
@@ -283,12 +389,11 @@ namespace SGE
 	//Function signals the channel is playing, so it will be rendered.
 	void SoundChannel::Play()
 	{
-		if (loaded)
+		//If the channel is at least loaded
+		if (statusState >= STATUS_LOADED_STATE)
 		{
 			//Set the flags properly
-			playing = true;
-			stopped = false;
-			paused = false;
+			statusState = STATUS_PLAYING_STATE;
 
 			//Reset the play offset
 			offset = 0;
@@ -321,9 +426,10 @@ namespace SGE
 		memcpy(buffer, samples, sizeof(buffer[0]) * numOfSamples);
 
 		//Set the buffer as loaded
-		loaded = true;
+		statusState = STATUS_LOADED_STATE;
 	}
 
+	//Set the key pitch for the channel audio
 	void SoundChannel::SetKey(float pitch)
 	{
 		if (pitch > 0)
@@ -332,30 +438,28 @@ namespace SGE
 		}
 	}
 
+	//Stop the currently playing audio
 	void SoundChannel::Stop()
 	{
-		//Set the flags
-		stopped = true;
-		playing = false;
-		paused = false;
+		//If the channel at least is loaded with some data
+		if (statusState >= STATUS_LOADED_STATE)
+		{
+			//Set the flags
+			statusState = STATUS_LOADED_STATE;
 
-		//Reset the playing offset
-		offset = 0;
-		offsetIncrement = 0.0;
+			//Reset the playing offset
+			offset = 0;
+			offsetIncrement = 0.0;
+		}
 	}
 
-	void SoundChannel::Loop(bool active)
-	{
-		loop = active;
-	}
-
-
+	//Get the keyed pitch
 	float SoundChannel::GetKey()
 	{
 		return keyedPitch;
 	}
 
-
+	//Set the new pitch for the audio
 	void SoundChannel::SetPitch(float newPitch)
 	{
 		if (newPitch > 0)
@@ -365,7 +469,7 @@ namespace SGE
 		}		
 	}
 
-
+	//Get the new audio pitch
 	float SoundChannel::GetPitch()
 	{
 		return targetPitch;
@@ -380,6 +484,7 @@ namespace SGE
 		}
 	}
 
+	//
 	float SoundChannel::GetVolume()
 	{
 		return volume;

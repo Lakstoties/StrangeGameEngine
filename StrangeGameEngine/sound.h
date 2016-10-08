@@ -13,40 +13,22 @@ namespace SGE
 	class SoundChannel
 	{
 	private:
-
 		//Pitch bits
 		float keyedPitch = 1.0;
 		float currentPitch = 1.0;
 		float targetPitch = 1.0;
 		
 		//Buffer bits
-		short *buffer;
-		unsigned int bufferSize;
-		unsigned int offset;
+		short *buffer = nullptr;
+		unsigned int bufferSize = 0;
+		unsigned int offset = 0;
 
-		float offsetIncrement;
-
-		//ADSR
-		float attackRate;
-		float decayRate;
-		float sustainLevel;
-		float releaseRate;
+		float offsetIncrement = 0.0f;
 
 
-		//Flag bits
-		bool playing;
-		bool stopped;
-		bool loaded;
-		bool paused;
-		bool loop;
 
-		//ADSR Flag bits
-		bool attackState;
-		bool decayState;
-		bool sustainState;
-		bool releaseState;
+		
 
-	
 	public:
 		SoundChannel();
 		~SoundChannel();
@@ -65,27 +47,6 @@ namespace SGE
 
 		//Stops the channel, and holds the playback offset
 		void Pause();
-
-		//ADSR Functions
-		//ADSR activation control
-		void ADSRActive(bool newState);
-		bool ADSRActive();
-
-		//Attack Functions
-		void ADSRAttack(float attackRate);
-		float ADSRAttack();
-
-		//Decay Functions
-		void ADSRDecay(float decayRate);
-		float ADSRDecay();
-
-		//Sustain Function
-		void ADSRSustain(float sustainPoint);
-		float ADSRSustain();
-
-		//Release Functions
-		void ADSRRelease(float releaseRate);
-		float ADSRRelease();
 
 		//Trigger Functions
 		//Soft play, if a channel is already playing, it will go to the Attack state.
@@ -115,30 +76,66 @@ namespace SGE
 		void SetPan(float pan);
 		float GetPan();
 
+		//Status State Flags
+		static const int STATUS_NOTLOADED_STATE = 0;
+		static const int STATUS_LOADED_STATE = 1;
+		static const int STATUS_PLAYING_STATE = 2;
+		static const int STATIS_PAUSED_STATE = 3;
 
-		void Loop(bool active);
-
-		//Status functions
-		bool Playing();
-		bool Stopped();
-		bool Loaded();
-		bool Active();
-		bool Paused();
+		//Status State
+		int statusState = STATUS_NOTLOADED_STATE;
 
 		//Load buffer with some sample.  Uses SoundSystem sample rate and sample resolution.
 		void LoadSoundBuffer(unsigned int numOfSamples, short *samples);
 
 		//Volume float
-		float volume;
+		float volume = 1.0f;
 
 		//Pan float
-		float pan;
+		float pan = 0.0f;
+
+		//Looping flag
+		bool loop = false;
+
+		//ADSR State Flags
+		static const int ADSR_NONE_STATE = 0;
+		static const int ADSR_ATTACK_STATE = 1;
+		static const int ADSR_DECAY_STATE = 2;
+		static const int ADSR_SUSTAIN_STATE = 3;
+		static const int ADSR_RELEASE_STATE = 4;
+
+		//ADSR State
+		int adsrState = ADSR_NONE_STATE;
+
+		//ADSR
+		//Rates
+		float attackRate = 0.0f;
+		float decayRate = 0.0f;
+		float releaseRate = 0.0f;
+
+		//Levels
+		float maxAttackLevel = 1.0f;
+		float sustainLevel = 0.0f;
+
+		float adsrLevel = 0.0f;
+
+		//Flags
+		bool adsrActive = false;
+
+		bool adsrTriggered = false;
+
+
+
+
 	};
 
-
+	//Class for the Sound System of the game engine.
+	//Typically only one instance is used.
 	class SoundSystem
 	{
+
 	private:
+		//A thread reserved to run management functions for the sound system
 		std::thread SoundManagerThread;
 
 		//Current Frame Buffer Sizes
@@ -153,12 +150,16 @@ namespace SGE
 		//Clear the mixing buffers
 		void ClearMixingBuffers();
 
-		bool paInitializeReturnedError = false;		//Flag to indicate if this object's attempt to initialize port audio threw an error
+		//Flag to indicate if this object's attempt to initialize port audio threw an error
+		bool paInitializeReturnedError = false;
 
-		PaError portAudioError;						//PortAudio Error variable
+		//PortAudio Error variable
+		PaError portAudioError;
 
-		PaStream *soundSystemStream;				//PortAudio Stream
+		//PortAudio Stream
+		PaStream *soundSystemStream;
 
+		//PortAudio Stream Parameters
 		PaStreamParameters outputParameters;
 
 		//Class object specific method callback for PortAudio
@@ -167,8 +168,6 @@ namespace SGE
 			unsigned long frameCount,
 			const PaStreamCallbackTimeInfo* timeInfo,
 			PaStreamCallbackFlags statusFlags);
-
-		short *soundSystemBuffer;
 
 		//Static PortAudio callback that serves as a wrapper to allow the SoundSystem object to be passed and the actual callback be called.
 		static int PortAudioCallback(
@@ -180,37 +179,52 @@ namespace SGE
 			void *userData);
 
 	public:
-		static const int MAX_CHANNELS = 32;				//Number of channels for the system
+		//Number of channels for the system
+		static const int MAX_CHANNELS = 32;				
 
-		SoundChannel soundChannels[MAX_CHANNELS];		//All the system's sound channels
+		//All the system's sound channels
+		SoundChannel soundChannels[MAX_CHANNELS];		
 		
-		int* renderedChannelBuffers[MAX_CHANNELS];	//All the sound channel target render buffers
+		//All the sound channel target render buffers
+		int* renderedChannelBuffers[MAX_CHANNELS];	
 
 		//32-bit mixing buffers
-		int* mixingFrameBufferRight;					//Mixing buffer for Right Channel
-		int* mixingFrameBufferLeft;						//Mixing buffer for Left Channel
+		int* mixingFrameBufferRight;	//Mixing buffer for Right Channel
+		int* mixingFrameBufferLeft;		//Mixing buffer for Left Channel
 
 		//Initialize size for the Render Frame Buffers
 		const unsigned long INITIAL_RENDER_FRAME_BUFFER_SIZE = 1024;
 
-
-		float masterVolume;								//Master volume for the system
+		//Master volume for the system
+		float masterVolume;								
 		
+		//Default constructor
+		SoundSystem();		
 
-		SoundSystem();					//Default constructor
-		~SoundSystem();					//Explicit destructor to handle closing out stuff.
+		//Explicit destructor to handle closing out stuff.
+		~SoundSystem();
 
+		//Sound system sample rate
+		static const int SAMPLE_RATE = 44100;
+
+		//Sound system bit depth
+		static const int SAMPLE_BITS = 16;
+
+		//MIDI frequency note array
+		static const float MIDI_NOTE_FRENQUENCY[128];
+
+		//Half PI to Float resolution
+		static const float HALF_PI_FLOAT;
+
+		//PI to float resolution
+		static const float PI_FLOAT;
+
+		//Two PI to float resolution
+		static const float TWO_PI_FLOAT;				
+
+		//Maximum Amplitude given the sample bit depth
+		static const int SAMPLE_MAX_AMPLITUDE;
 		
-		static const int SAMPLE_RATE = 44100;			//Sound system sample rate
-		static const int SAMPLE_BITS = 16;				//Sound system bit depth
-		static const float MIDI_NOTE_FRENQUENCY[128];	//MIDI frequency not
-		static const float HALF_PI_FLOAT;				//Half PI to Float resolution
-		static const float PI_FLOAT;					//PI resolution
-		static const float TWO_PI_FLOAT;				//Two PI resolution
-
-		static const int SAMPLE_MAX_AMPLITUDE;			//Maximum Amplitude given the sample bit depth
-
-
 		//System Managagement
 		void Start();
 		void Stop();
