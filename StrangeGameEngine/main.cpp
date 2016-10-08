@@ -176,6 +176,22 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		targetDisplay->refreshHold.unlock();
 
 
+		//Channel 0 Pan
+		//Pan to Left
+		if (SGE::Controls::keyboardStatus[GLFW_KEY_O])
+		{
+			targetSoundSystem->soundChannels[0].SetPan(targetSoundSystem->soundChannels[0].GetPan() - 0.01f);
+			printf("Debug - Channel 0 Pan: %f\n", targetSoundSystem->soundChannels[0].GetPan());
+		}
+
+		//Pan to Right
+		if (SGE::Controls::keyboardStatus[GLFW_KEY_P])
+		{
+			targetSoundSystem->soundChannels[0].SetPan(targetSoundSystem->soundChannels[0].GetPan() + 0.01f);
+			printf("Debug - Channel 0 Pan: %f\n", targetSoundSystem->soundChannels[0].GetPan());
+		}
+
+
 		//Sound Volume
 		//Decrease volume
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_Q])

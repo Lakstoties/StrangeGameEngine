@@ -26,9 +26,6 @@ namespace SGE
 
 		float offsetIncrement;
 
-		//Pan float
-		float pan;
-
 		//ADSR
 		float attackRate;
 		float decayRate;
@@ -133,6 +130,9 @@ namespace SGE
 
 		//Volume float
 		float volume;
+
+		//Pan float
+		float pan;
 	};
 
 

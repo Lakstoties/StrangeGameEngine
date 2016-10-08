@@ -66,5 +66,8 @@ namespace SGE
 
 		//Called from the main thread to perform event handling
 		void HandleEvents();
+
+		//Strange Game Engine Logo Splash Screen
+		void SplashScreen();
 	}
 }

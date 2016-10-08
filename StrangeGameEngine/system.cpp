@@ -147,5 +147,12 @@ namespace SGE
 		{
 			return SGE::Controls::HandleEvents(mainWindow);
 		}
+
+
+		//This function looks for the main display window and sound system does a splash screen.
+		void SplashScreen()
+		{
+
+		}
 	}
 }

@@ -2,6 +2,7 @@
 
 namespace SGE
 {
+	//A list of MIDI notes and their associated frequencies.
 	const float SoundSystem::MIDI_NOTE_FRENQUENCY[]=
 	{
 		//Octave -1
@@ -155,12 +156,20 @@ namespace SGE
 		12543.853516f	//G		127
 	};
 
+	//Precalculated PI to float precision
 	const float SoundSystem::PI_FLOAT = 3.14159265358979323846f;
+
+	//Precalculated 2*PI to float precision 
 	const float SoundSystem::TWO_PI_FLOAT = 6.28318530717958647692f;
+
+	//Precalculated PI/2 to float precision
 	const float SoundSystem::HALF_PI_FLOAT = PI_FLOAT / 2.0f;
 
+	//This is the maximum amplitude an audio sample can have given the bit depth.
 	const int SoundSystem::SAMPLE_MAX_AMPLITUDE = int(pow(2, SoundSystem::SAMPLE_BITS) / 2);
 	
+
+	//Default constructor for a SoundChannel
 	SoundChannel::SoundChannel()
 	{
 		//Set status flags
@@ -185,12 +194,14 @@ namespace SGE
 		volume = 1.0;
 
 		//Set Pan
-		pan = 1.0;
+		pan = 0.0;
 
 		//Set Pitch
 		currentPitch = 1.0;
 	}
 
+
+	//Deconstructor for a SoundChannel
 	SoundChannel::~SoundChannel()
 	{
 		//Check to see if there's pointer to some memory
@@ -245,7 +256,31 @@ namespace SGE
 		}
 	}
 
+	//Function to set the pan of a channel, with protection to keep it within the +/- 1.0 range
+	void SoundChannel::SetPan(float targetPan)
+	{
+		//Try to keep the pan within a +/- 1.0 range.
+		if (targetPan > 1.0)
+		{
+			pan = 1.0;
+		}
+		else if (targetPan < -1.0)
+		{
+			pan = -1.0;
+		}
+		else
+		{
+			pan = targetPan;
+		}
+	}
 
+	//Returns the current pan of a channel
+	float SoundChannel::GetPan()
+	{
+		return pan;
+	}
+
+	//Function signals the channel is playing, so it will be rendered.
 	void SoundChannel::Play()
 	{
 		if (loaded)
@@ -261,6 +296,7 @@ namespace SGE
 		}
 	}
 
+	//Load the SoundChannel with audio data from a sample source
 	void SoundChannel::LoadSoundBuffer(unsigned int numOfSamples, short* samples)
 	{
 		//Check for valid sample amount
@@ -394,8 +430,8 @@ namespace SGE
 		{
 			for (unsigned int j = 0; j < frameCount; j++)
 			{
-				mixingFrameBufferRight[j] += renderedChannelBuffers[i][j];
-				mixingFrameBufferLeft[j] += renderedChannelBuffers[i][j];
+				mixingFrameBufferRight[j] += int(renderedChannelBuffers[i][j] * (1 + soundChannels[i].pan));
+				mixingFrameBufferLeft[j] += int(renderedChannelBuffers[i][j] * (1 - soundChannels[i].pan));
 			}
 		}
 
@@ -411,6 +447,7 @@ namespace SGE
 			mixingFrameBufferRight[i] = int (mixingFrameBufferRight[i] * masterVolume);
 
 			//Check for things hitting the upper and lower ends of the range
+			//For the left channel
 			if (mixingFrameBufferLeft[i] > SAMPLE_MAX_AMPLITUDE)
 			{
 				*outputBuffer++ = SAMPLE_MAX_AMPLITUDE - 1;
@@ -424,7 +461,7 @@ namespace SGE
 				*outputBuffer++ = mixingFrameBufferLeft[i];
 			}
 
-
+			//For the right channel
 			if (mixingFrameBufferRight[i] > SAMPLE_MAX_AMPLITUDE)
 			{
 				*outputBuffer++ = SAMPLE_MAX_AMPLITUDE - 1;
@@ -444,7 +481,7 @@ namespace SGE
 		return paContinue;
 	}
 
-	
+	//Start the audio system.
 	void SoundSystem::Start()
 	{
 		//Check to make sure the stream isn't already active
@@ -465,6 +502,7 @@ namespace SGE
 		}
 	}
 
+	//Stop the audio system
 	void SoundSystem::Stop()
 	{
 		//Check to see if the stream isn't already stopped.
@@ -633,7 +671,7 @@ namespace SGE
 		return tempBuffer;
 	}
 
-
+	//Default constructor for the SoundSystem
 	SoundSystem::SoundSystem()
 	{
 		//Initialize PortAudio
@@ -693,6 +731,7 @@ namespace SGE
 		masterVolume = 1.0f;
 	}
 
+	//Creates and sets up frame buffers for audio data
 	void SoundSystem::GenerateFrameBuffers(unsigned long newFrameBufferSize)
 	{
 		//Set the new render frame buffer size
@@ -709,6 +748,7 @@ namespace SGE
 		mixingFrameBufferRight = new int[frameBufferSize];
 	}
 
+	//Deletes and cleans up Frame buffers that were holding audio data
 	void SoundSystem::DeleteFrameBuffers()
 	{
 		//Delete old render frame buffers
@@ -722,6 +762,7 @@ namespace SGE
 		delete mixingFrameBufferRight;
 	}
 
+	//Clears and zeros out data in the mixing buffers
 	void SoundSystem::ClearMixingBuffers()
 	{
 		//Initialize the mixing buffers
@@ -730,6 +771,7 @@ namespace SGE
 		memset(mixingFrameBufferRight, 0, frameBufferSize * 4);
 	}
 
+	//Deconstructor for the Soundsystem
 	SoundSystem::~SoundSystem()
 	{
 		//Close the PortAudio stream
@@ -764,13 +806,14 @@ namespace SGE
 		}
 	}
 
-
+	//Default constructor for a SoundSystemWaveFile
 	SoundSystemWaveFile::SoundSystemWaveFile()
 	{
 		audioData = nullptr;
 		numberOfSamples = 0;
 	}
 
+	//Deconstructor for a SoundSystemWaveFile
 	SoundSystemWaveFile::~SoundSystemWaveFile()
 	{
 		//If audio data actually got loaded, delete it!
@@ -787,7 +830,8 @@ namespace SGE
 		}
 	}
 
-
+	//Load audio data from a file into a collection of audio buffers
+	//Returns a 0 if all is well, something else if there is an error.
 	int SoundSystemWaveFile::LoadFile(char* targetFilename)
 	{
 		FILE* soundFile;
