@@ -164,6 +164,16 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 	testBitmap.LoadFile("TestImage.bmp");
 
 
+	//Vector Point List
+	SGE::Render::VertexPoint testVertexPoint[4]=
+	{
+		{25, 25},
+		{125, 25},
+		{125, 125},
+		{25,125}
+	};
+
+
 
 
 
@@ -177,7 +187,10 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		//SGE::Render::ZBlank(targetDisplay);
 
 		//Copy over background image
-		SGE::Render::DrawDataBlock(targetDisplay, 0, 0, 320, 240, testBitmap.imageData);
+		SGE::Render::DrawDataBlock(targetDisplay, 0, 0, testBitmap.image.width, testBitmap.image.height, testBitmap.image.imageData);
+
+		//Draw VertexPoints
+		SGE::Render::DrawVectorShape(targetDisplay, 0, 0, 4, testVertexPoint, 255, 128, 0);
 
 		
 		//Draw Menu

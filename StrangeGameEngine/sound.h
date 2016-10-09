@@ -121,11 +121,7 @@ namespace SGE
 
 		//Flags
 		bool adsrActive = false;
-
 		bool adsrTriggered = false;
-
-
-
 
 	};
 

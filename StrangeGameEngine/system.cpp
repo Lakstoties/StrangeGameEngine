@@ -17,7 +17,6 @@ namespace SGE
 		GLFWwindow* mainWindow = nullptr;
 
 
-
 		//Startup Function that performs all initializations to the system overall
 		//Needs to be called first.   Really...  Call it first...
 		void Startup()
@@ -39,7 +38,6 @@ namespace SGE
 			//Start up the sound system
 			mainSoundSystem->Start();
 
-
 			//Flag that the system has been started up properly... in theory...
 			systemStarted = true;
 		}
@@ -48,14 +46,11 @@ namespace SGE
 		void Shutdown()
 		{
 			//Clean UP!
-
 			//Make sure the mainDisplay has stopped drawing.
 			mainDisplay->StopDrawing();
 
 			//Make sure the mainSoundSystem has stopped running.
 			mainSoundSystem->Stop();
-
-
 
 			//Check to make sure there's something there to delete
 			if (mainDisplay != nullptr)

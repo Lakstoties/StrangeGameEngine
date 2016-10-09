@@ -174,7 +174,7 @@ namespace SGE
 			if (deltaX == 0)
 			{
 				//No change in X, this is probably a Column that needs to be drawn.
-				DrawColumn(targetDisplay, startX, startY, endY - startX, rColor, gColor, bColor);
+				DrawColumn(targetDisplay, startX, startY, endY - startY, rColor, gColor, bColor);
 				return;
 			}
 
@@ -281,27 +281,57 @@ namespace SGE
 			//Do the calculations once for common bits
 
 			//Figure out the starting point in video RAM
-			int startRAMByte = (startX + startY*targetDisplay->virtualVideoX);
-
-			//Linear translation of VRAM location for the maximum width
-			int rowBytes = (startY + 1) * targetDisplay->virtualVideoX;
+			int currentRAM = (startX + startY*targetDisplay->virtualVideoX);
 
 			//Figure out the maximum VRAM size
 			int displayRAMSize = targetDisplay->virtualVideoX * targetDisplay->virtualVideoY;
+
+			//Direction and amount to step in ram
+			int ramStep = 0;
 
 			//Pack those colors up
 			unsigned int colorValues = PackColors(rColor, gColor, bColor);
 
 
-			//Start marking some dots
-			for (int i = startRAMByte;
-				i < (startRAMByte + width) &&			//Don't draw pass desired width
-				i < rowBytes &&							//Don't draw past the current row
-				i < (displayRAMSize);					//Don't go outside the available video RAM
-				i++)
+			//Check to see which direction we are going
+			//If the width is negative and going to the left
+			if (width < 0)
 			{
-				//Set color of pixel
-				targetDisplay->virtualVideoRAM[i] = colorValues;
+				//Set ram stepping
+				ramStep = -1;
+
+				//Flip the width sign to make the for loop happy
+				width *= -1;
+			}
+			//If the width is positive and going to the right
+			else if (width > 0)
+			{
+				//Set the ram stepping
+				ramStep = 1;
+			}
+			//If the width is zero...
+			else
+			{
+				//There's nothing to do, since there's no width.
+				return;
+			}
+
+
+			//Assume we are given valid direction and width
+			for (int i = 0; i < width; i++)
+			{
+				//But check to see if we go well outside normal bounds
+				if (currentRAM < 0 || currentRAM >= displayRAMSize)
+				{
+					//Get of the loop we are done and at the limits
+					break;
+				}
+
+				//Dump the values to memory
+				memcpy(&targetDisplay->virtualVideoRAM[currentRAM], &colorValues, 4);
+
+				//Go to the next ram location
+				currentRAM += ramStep;
 			}
 		}
 
@@ -316,27 +346,60 @@ namespace SGE
 			unsigned char bColor)					//8-bit (0-255) Blue color component
 		{
 			//Do some fairly static calculations once
-
 			//Starting point in Video RAM
-			int startRAM = (startX + startY*targetDisplay->virtualVideoX);
-
-			//Linear translation in Video RAM of the maximum height
-			int columnMaxBytes = startRAM + targetDisplay->virtualVideoX * height;
+			int currentRAM = (startX + startY*targetDisplay->virtualVideoX);
 
 			//Calculate the total display RAM size
 			int displayRAMSize = targetDisplay->virtualVideoX * targetDisplay->virtualVideoY;
 
+			//Direct to which to step around in the RAM
+			int ramStep = 0;
+
+
 			//Pack the color components up
 			unsigned int colorValues = PackColors(rColor, gColor, bColor);
 
-			//Start marking some pixels
-			for (int i = startRAM;
-				i < columnMaxBytes &&							//Don't go past desired row for column
-				i < (displayRAMSize);							//Don't go outside the available video RAM
-				i = i + targetDisplay->virtualVideoX)
+
+			//Check to see which direction we are going
+			//If we are going up
+			if (height < 0)
 			{
-				//Set color of pixel
-				targetDisplay->virtualVideoRAM[i] = colorValues;
+				//Set the ramstep
+				ramStep = -targetDisplay->virtualVideoX;
+
+				//Flip the sign on the height, so the for loop is happy.
+				height *= -1;
+			}
+			//If we are going down
+			else if (height > 0)
+			{
+				ramStep = targetDisplay->virtualVideoX;
+			}
+			//If we aren't... going anywhere...
+			else
+			{
+				//Height 0 doesn't make sense, there's nothing to do
+				//... so return.
+				return;
+			}
+
+
+			//Assuming we are drawing down a legitmate path
+			for (int i = 0; i < height; i++)
+			{
+				//Check to make sure we haven't gone off the rails
+				//and are about to violate memory regions.
+				if (currentRAM < 0 || currentRAM >= displayRAMSize)
+				{
+					//Break out of the loop, we have reached the end of valid territory.
+					break;
+				}
+
+				//Dump the values to the memory location
+				memcpy(&targetDisplay->virtualVideoRAM[currentRAM], &colorValues, 4);
+
+				//Go to the next point
+				currentRAM += ramStep;
 			}
 		}
 
@@ -454,20 +517,46 @@ namespace SGE
 			return ((uint32_t)redValue) | ((uint32_t)greenValue << 8) | ((uint32_t)blueValue << 16);
 		}
 
-		RenderBitmapFile::RenderBitmapFile()
+
+
+		void DrawVectorShape(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor)
 		{
-			height = 0;
-			width = 0;
-			imageData = nullptr;
+			//Go through the vertex point list and draw lines
+
+			for (int i = 0; i < numberOfVertexes; i++)
+			{
+				//Draw a line between two points on the vertex, wrapping the last and first at the very end.
+				DrawLine(targetDisplay, startX + vertexes[i].x, startY + vertexes[i].y, startX + vertexes[(i + 1) % numberOfVertexes].x, startY + vertexes[(i + 1) % numberOfVertexes].y, rColor, gColor, bColor);
+			}
 		}
 
-		RenderBitmapFile::~RenderBitmapFile()
+
+
+
+
+		ImageData::ImageData()
 		{
-			//If something got allocated to the imageData pointer, nuke it!
+
+		}
+
+		ImageData::~ImageData()
+		{
 			if (imageData != nullptr)
 			{
 				delete imageData;
 			}
+		}
+
+		//Default constructor RenderBitmapFile
+		RenderBitmapFile::RenderBitmapFile()
+		{
+			//Reserved for setup functions
+		}
+
+		//Deconstructor for RenderBitmapFile
+		RenderBitmapFile::~RenderBitmapFile()
+		{
+			//Reserved for clean up functions
 		}
 
 		int RenderBitmapFile::LoadFile(char* targetFilename)
@@ -535,7 +624,12 @@ namespace SGE
 			fseek(bitmapFile, bitmapHeader.offset, SEEK_SET);
 
 			//Create a spot to put the image data
-			imageData = new unsigned int[bitmapInfo.bitmapHeight * bitmapInfo.bitmapWidth];
+			image.imageData = new unsigned int[bitmapInfo.bitmapHeight * bitmapInfo.bitmapWidth];
+
+			//Set the other aspects of the image
+			image.height = bitmapInfo.bitmapHeight;
+			image.width = bitmapInfo.bitmapWidth;
+			image.imageDataSize = bitmapInfo.imageSize;
 
 			//Loop in a way to reverse the row order... because bitmaps are stored mirror from normal coordinate systems.
 			//For... reasons...
@@ -553,7 +647,7 @@ namespace SGE
 					fread(&pixelRed, 1, 1, bitmapFile);
 
 					//Rearrange the pixel color data to something we can use
-					imageData[j+i] = ((uint32_t)pixelRed) | ((uint32_t)pixelGreen << 8) | ((uint32_t)pixelBlue << 16);
+					image.imageData[j+i] = ((uint32_t)pixelRed) | ((uint32_t)pixelGreen << 8) | ((uint32_t)pixelBlue << 16);
 				}
 			}
 							
