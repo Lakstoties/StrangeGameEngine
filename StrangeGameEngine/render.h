@@ -86,12 +86,12 @@ namespace SGE
 			bool SetNumberOfPages(unsigned int targetNumberOfPages);
 		};
 
+		//Structure to handle simple 2D vertex points
 		struct VertexPoint
 		{
 			int x;
 			int y;
 		};
-
 
 		//Draw a character to the screen
 		void Draw8x8Character(SGE::VirtualDisplay* targetDisplay, char character, const unsigned long long characterROM[], int targetX, int targetY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
@@ -129,16 +129,8 @@ namespace SGE
 		//Pack the byte colors in to a 4 byte pixel to use.
 		unsigned int PackColors(unsigned char redValue, unsigned char greenValue, unsigned char blueValue);
 
-
-
-
-
 		//Arbitrary Vector Shape drawing
-		void DrawVectorShape(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor);
-
-
-
-
+		void DrawVectorShape(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Character ROM for an 8x8 character set
 		//The 8x8 Character ROM that maps to the extendned ASCII standard

@@ -67,7 +67,7 @@ namespace SGE
 							//AND mask the character row in question to see if there's a 1 in that particular bit spot.
 							if (characterToDraw[i] & (0x01 << j))
 							{
-								targetDisplay->virtualVideoRAM[currentRAM] = targetColor;
+								memcpy(&targetDisplay->virtualVideoRAM[currentRAM], &targetColor, 4);
 							}
 							//Hop to the next spot in RAM regardless
 							currentRAM++;
@@ -202,7 +202,7 @@ namespace SGE
 				if (deltaY > 0)
 					loopRAMJump = targetDisplay->virtualVideoX;
 				else
-					loopRAMJump = -targetDisplay->virtualVideoY;
+					loopRAMJump = -targetDisplay->virtualVideoX;
 
 				//Set the DeltaL
 				deltaL = std::abs(deltaX);
@@ -247,7 +247,7 @@ namespace SGE
 				i++)
 			{
 				//Plot point
-				targetDisplay->virtualVideoRAM[currentRAM] = colorValues;
+				memcpy(&targetDisplay->virtualVideoRAM[currentRAM], &colorValues, 4);
 
 				//Increment to the next RAM location
 				currentRAM += loopRAMStep;
@@ -519,14 +519,23 @@ namespace SGE
 
 
 
-		void DrawVectorShape(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor)
+		void DrawVectorShape(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor)
 		{
-			//Go through the vertex point list and draw lines
 
+
+
+			//Go through the vertex point list and draw lines
 			for (int i = 0; i < numberOfVertexes; i++)
 			{
 				//Draw a line between two points on the vertex, wrapping the last and first at the very end.
-				DrawLine(targetDisplay, startX + vertexes[i].x, startY + vertexes[i].y, startX + vertexes[(i + 1) % numberOfVertexes].x, startY + vertexes[(i + 1) % numberOfVertexes].y, rColor, gColor, bColor);
+				DrawLine(targetDisplay, 
+					startX + int((vertexes[i].x) * scalingFactor), 
+					startY + int((vertexes[i].y) * scalingFactor), 
+					startX + int((vertexes[(i + 1) % numberOfVertexes].x) * scalingFactor), 
+					startY + int((vertexes[(i + 1) % numberOfVertexes].y) * scalingFactor), 
+					rColor, 
+					gColor, 
+					bColor);
 			}
 		}
 
@@ -629,7 +638,7 @@ namespace SGE
 			//Set the other aspects of the image
 			image.height = bitmapInfo.bitmapHeight;
 			image.width = bitmapInfo.bitmapWidth;
-			image.imageDataSize = bitmapInfo.imageSize;
+			image.imageDataSize = image.height * image.width;
 
 			//Loop in a way to reverse the row order... because bitmaps are stored mirror from normal coordinate systems.
 			//For... reasons...

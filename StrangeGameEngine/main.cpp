@@ -167,10 +167,42 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 	//Vector Point List
 	SGE::Render::VertexPoint testVertexPoint[4]=
 	{
-		{25, 25},
-		{125, 25},
-		{125, 125},
-		{25,125}
+		{10, 25},
+		{125, 10},
+		{125, 175},
+		{30,125}
+	};
+
+	SGE::Render::VertexPoint letterSVectorPoints[28]=
+	{
+		{2,0},
+		{7,0},
+		{9,2},
+		{9,4},
+		{7,4},
+		{7,3},
+		{6,2},
+		{3,2},
+		{2,3},
+		{2,5},
+		{3,6},
+		{7,6},
+		{9,8},
+		{9,12},
+		{7,14},
+		{2,14},
+		{0,12},
+		{0,10},
+		{2,10},
+		{2,11},
+		{3,12},
+		{6,12},
+		{7,11},
+		{7,9},
+		{6,8},
+		{2,8},
+		{0,6},
+		{0,2}
 	};
 
 
@@ -190,7 +222,7 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		SGE::Render::DrawDataBlock(targetDisplay, 0, 0, testBitmap.image.width, testBitmap.image.height, testBitmap.image.imageData);
 
 		//Draw VertexPoints
-		SGE::Render::DrawVectorShape(targetDisplay, 0, 0, 4, testVertexPoint, 255, 128, 0);
+		SGE::Render::DrawVectorShape(targetDisplay, 0, 0, 10.0, 28, letterSVectorPoints, 255, 128, 0);
 
 		
 		//Draw Menu
