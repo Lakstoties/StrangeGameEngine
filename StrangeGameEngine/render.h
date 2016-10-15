@@ -114,7 +114,7 @@ namespace SGE
 		//Draw a line column
 		void DrawColumn(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int height, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
-		//Draw a recntagle
+		//Draw a rectangle
 		void DrawRectangle(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int width, int height, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Draw a filled box
@@ -131,6 +131,9 @@ namespace SGE
 
 		//Arbitrary Vector Shape drawing
 		void DrawVectorShape(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor);
+
+		//Draw a filled triangle
+		void DrawFilledTriangle(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Character ROM for an 8x8 character set
 		//The 8x8 Character ROM that maps to the extendned ASCII standard

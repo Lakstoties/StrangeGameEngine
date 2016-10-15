@@ -48,7 +48,7 @@ namespace SGE
 
 			//Upload the data for the texture to the actual video card.
 			glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, virtualVideoX, virtualVideoY, 0, GL_RGBA, GL_UNSIGNED_BYTE, virtualVideoRAM);
-			
+
 			//Unlock the refresh mutex
 			refreshHold.unlock();
 

@@ -521,9 +521,6 @@ namespace SGE
 
 		void DrawVectorShape(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor)
 		{
-
-
-
 			//Go through the vertex point list and draw lines
 			for (int i = 0; i < numberOfVertexes; i++)
 			{
@@ -538,6 +535,136 @@ namespace SGE
 					bColor);
 			}
 		}
+
+
+		void DrawFilledTriangle(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor)
+		{
+			//Pack the colors up into something useful
+			unsigned int targetColor = PackColors(rColor, gColor, bColor);
+
+			//Apply offsets and scaling
+			vertex1.x = vertex1.x * scalingFactor + startX;
+			vertex1.y = vertex1.y * scalingFactor + startY;
+			vertex2.x = vertex2.x * scalingFactor + startX;
+			vertex2.y = vertex2.y * scalingFactor + startY;
+			vertex3.x = vertex3.x * scalingFactor + startX;
+			vertex3.y = vertex3.y * scalingFactor + startY;
+
+			//Set the initial maxes and mins to the first vertex
+			//For comparison purposes.
+			int xMax = vertex1.x;
+			int xMin = vertex1.x;
+			int yMax = vertex1.y;
+			int yMin = vertex1.y;
+
+			//Determine bounding box of triangle
+
+			//Compare vertex 2 against vertex 1's values
+			//X Max comparison
+			if (vertex2.x > xMax)
+			{
+				xMax = vertex2.x;
+			}
+
+			//X Min comparison
+			if (vertex2.x < xMin)
+			{
+				xMin = vertex2.x;
+			}
+
+			//Y Max comparison
+			if (vertex2.y > yMax)
+			{
+				yMax = vertex2.y;
+			}
+
+			//Y Min comparison
+			if (vertex2.y < yMin)
+			{
+				yMin = vertex2.y;
+			}
+
+			//Compare vertex 3 against the current Max/Min values
+			//X Max Comparison
+			if (vertex3.x > xMax)
+			{
+				xMax = vertex3.x;
+			}
+
+			//X Min comparison
+			if (vertex3.x < xMin)
+			{
+				xMin = vertex3.x;
+			}
+
+			//Y Max comparison
+			if (vertex3.y > yMax)
+			{
+				yMax = vertex3.y;
+			}
+
+			//Y Min comparison
+			if (vertex3.y < yMin)
+			{
+				yMin = vertex3.y;
+			}
+
+			//Use half-space functions to determine if the pixel is in the space of the triangle or not
+
+			//Same pre-calculations of unchanging values
+			VertexPoint spanningVector12 = {vertex1.x - vertex2.x, vertex1.y - vertex2.y};
+			VertexPoint spanningVector23 = {vertex2.x - vertex3.x, vertex2.y - vertex3.y};
+			VertexPoint spanningVector31 = {vertex3.x - vertex1.x, vertex3.y - vertex1.y};
+
+			//Partial crossproducts geared towards the Y element of the looping
+			int partialProductY12 = spanningVector12.x * (yMin - vertex1.y);
+			int partialProductY23 = spanningVector23.x * (yMin - vertex2.y);
+			int partialProductY31 = spanningVector31.x * (yMin - vertex3.y);
+
+			//Partial crossproducts geared towards the X element of the looping
+			int partialProductX12 = spanningVector12.y * (xMin - vertex1.x);
+			int partialProductX23 = spanningVector23.y * (xMin - vertex2.x);
+			int partialProductX31 = spanningVector31.y * (xMin - vertex3.x);
+
+			int resetPartialProductX12 = partialProductX12;
+			int resetPartialProductX23 = partialProductX23;
+			int resetPartialProductX31 = partialProductX31;
+
+			
+
+			//Go through the bounded, looking for which pixels are within the triangle
+			for (int y = yMin; y < yMax; y++)
+			{
+				for (int x = xMin; x < xMax; x++)
+				{
+					if (partialProductY12 - partialProductX12 > 0 &&
+						partialProductY23 - partialProductX23 > 0 &&
+						partialProductY31 - partialProductX31 > 0)
+					{
+						//Copy the color over.
+						memcpy(&targetDisplay->virtualVideoRAM[x + (y*targetDisplay->virtualVideoX)], &targetColor, 4);
+					}
+					//Increment the partial product
+					partialProductX12 += spanningVector12.y;
+					partialProductX23 += spanningVector23.y;
+					partialProductX31 += spanningVector31.y;
+
+				}
+
+				//Increment the partial product
+				partialProductY12 += spanningVector12.x;
+				partialProductY23 += spanningVector23.x;
+				partialProductY31 += spanningVector31.x;
+
+				//Reset the X partial products
+				partialProductX12 = resetPartialProductX12;
+				partialProductX23 = resetPartialProductX23;
+				partialProductX31 = resetPartialProductX31;
+			}
+
+		}
+
+
 
 
 

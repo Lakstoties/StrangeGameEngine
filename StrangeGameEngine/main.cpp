@@ -205,7 +205,7 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		{0,2}
 	};
 
-
+	
 
 
 
@@ -223,6 +223,9 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 
 		//Draw VertexPoints
 		SGE::Render::DrawVectorShape(targetDisplay, 0, 0, 10.0, 28, letterSVectorPoints, 255, 128, 0);
+
+		//Draw fileld triangle
+		SGE::Render::DrawFilledTriangle(targetDisplay, 10, 10, 1.0, { 100,0 }, { 0,100 }, { 200,200 }, 255, 255, 0);
 
 		
 		//Draw Menu
