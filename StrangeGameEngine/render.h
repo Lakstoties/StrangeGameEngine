@@ -133,7 +133,10 @@ namespace SGE
 		void DrawVectorShape(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Draw a filled triangle
-		void DrawFilledTriangle(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawFilledTriangleTrue(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+
+		//Draw a fille triangle (New method)
+		void DrawFilledTriangleFast(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Character ROM for an 8x8 character set
 		//The 8x8 Character ROM that maps to the extendned ASCII standard

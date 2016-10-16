@@ -206,7 +206,7 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 	};
 
 	
-
+	bool triangleFlip = false;
 
 
 	while (testInputRunning)
@@ -221,15 +221,43 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		//Copy over background image
 		SGE::Render::DrawDataBlock(targetDisplay, 0, 0, testBitmap.image.width, testBitmap.image.height, testBitmap.image.imageData);
 
+
+		//Draw alignment lines
+		SGE::Render::DrawRow(targetDisplay, 0, 110, 10, 128, 128, 128);
+		SGE::Render::DrawRow(targetDisplay, 0, 10, 110, 128, 128, 128);
+		SGE::Render::DrawRow(targetDisplay, 0, 210, 10, 128, 128, 128);
+		SGE::Render::DrawColumn(targetDisplay, 210, 0, 10, 128, 128, 128);
+
+
+
 		//Draw VertexPoints
 		SGE::Render::DrawVectorShape(targetDisplay, 0, 0, 10.0, 28, letterSVectorPoints, 255, 128, 0);
 
-		//Draw fileld triangle
-		SGE::Render::DrawFilledTriangle(targetDisplay, 10, 10, 1.0, { 100,0 }, { 0,100 }, { 200,200 }, 255, 255, 0);
+		if (triangleFlip)
+		{
+			//Draw filled triangle
+			SGE::Render::DrawFilledTriangleTrue(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 0, 255);
+
+			//Draw filled triangle
+			SGE::Render::DrawFilledTriangleFast(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 255, 0);
+
+		}
+		else
+		{
+			//Draw filled triangle
+			SGE::Render::DrawFilledTriangleFast(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 255, 0);
+
+			//Draw filled triangle
+			SGE::Render::DrawFilledTriangleTrue(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 0, 255);
+		}
+
+
+
+
 
 		
 		//Draw Menu
-		testMenu.Draw(targetDisplay);
+		//testMenu.Draw(targetDisplay);
 		
 		//Unlock the display refresh
 		targetDisplay->refreshHold.unlock();
@@ -302,6 +330,27 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 			printf("Debug - Master Volume: %f\n", targetSoundSystem->masterVolume);
 		}
 
+
+
+		if (lastKeyboardState.KeyChanged(GLFW_KEY_T))
+		{
+
+			if (lastKeyboardState.GetPreviousState(GLFW_KEY_M))
+			{
+
+			}
+			else
+			{
+				if (triangleFlip)
+				{
+					triangleFlip = false;
+				}
+				else
+				{
+					triangleFlip = true;
+				}
+			}
+		}
 
 
 		//ADSR Toggle

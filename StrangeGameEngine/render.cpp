@@ -536,19 +536,253 @@ namespace SGE
 			}
 		}
 
+		void DrawFilledTriangles(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, unsigned char rColor, unsigned char gColor, unsigned char bColor)
+		{
 
-		void DrawFilledTriangle(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor)
+		}
+
+
+		void DrawFilledTriangleFast(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor)
+		{
+			//Pack the colors up
+			unsigned int targetColor = PackColors(rColor, gColor, bColor);
+
+			//Pixel Buffer to mass copy memory from
+			unsigned int* targetPixelBuffer = nullptr;
+			int targetPixelBufferSize = 0;
+
+			//Variables to hold the top most, bottom most, and middle point vertexes
+			VertexPoint topMostVertex;
+			VertexPoint bottomMostVertex;
+			VertexPoint middlePointVertex;
+
+			//Do some comparison to figure out the max, mins, and vertexes.
+
+			//Find the topMostVertex
+
+			//Vertex 1 is above Vertex 2
+			if (vertex1.y < vertex2.y)
+			{
+				//Vertex 1 is above Vertex 3
+				if (vertex1.y < vertex3.y)
+				{
+					//Vertex 1 is topmost
+					topMostVertex = vertex1;
+
+					//Compare the remain two figure out the Bottom and middle
+					//If Vertex 2 is above Vertex 3
+					if (vertex2.y < vertex3.y)
+					{
+						middlePointVertex = vertex2;
+						bottomMostVertex = vertex3;
+					}
+					else
+					{
+						middlePointVertex = vertex3;
+						bottomMostVertex = vertex2;
+					}
+				}
+				
+				//Vertex 3 is above Vertex 1
+				else
+				{
+					//Vertex 3 is topmost
+					topMostVertex = vertex3;
+
+					//Compare the remain two figure out the Bottom and middle
+					//If Vertex 1 is above Vertex 2
+					if (vertex1.y < vertex2.y)
+					{
+						middlePointVertex = vertex1;
+						bottomMostVertex = vertex2;
+					}
+					else
+					{
+						middlePointVertex = vertex2;
+						bottomMostVertex = vertex1;
+					}
+				}
+
+			}
+			
+			//Vertex 2 is higher than Vertex 1 (or equal)
+			else
+			{
+				//Vertex 2 is above Vertex 3
+				if (vertex2.y < vertex3.y)
+				{
+					//Vertex 2 is topmost
+					topMostVertex = vertex2;
+
+					//Compare the remain two figure out the Bottom and middle
+					//If Vertex 1 is above Vertex 3
+					if (vertex1.y < vertex3.y)
+					{
+						middlePointVertex = vertex1;
+						bottomMostVertex = vertex3;
+					}
+					else
+					{
+						middlePointVertex = vertex3;
+						bottomMostVertex = vertex1;
+					}
+				}
+
+				//Vertex 3 is above Vertex 2
+				else
+				{
+					//Vertex 3 is topmost
+					topMostVertex = vertex3;
+
+					//Compare the remain two figure out the Bottom and middle
+					//If Vertex 1 is above Vertex 2
+					if (vertex1.y < vertex2.y)
+					{
+						middlePointVertex = vertex1;
+						bottomMostVertex = vertex2;
+					}
+					else
+					{
+						middlePointVertex = vertex2;
+						bottomMostVertex = vertex1;
+					}
+				}
+			}
+
+			float topMostToBottomMostVector = 0.0f;
+			float topMostToMiddlePointVector = 0.0f;
+			float middlePointToBottomMostVector = 0.0f;
+
+			//Calculate the slopes for the lines in the triangle
+			//And...
+			//Catch any possible divde by 0 errors.
+			if (bottomMostVertex.y - topMostVertex.y != 0)
+			{
+				topMostToBottomMostVector = float(bottomMostVertex.x - topMostVertex.x) / float(bottomMostVertex.y - topMostVertex.y);
+			}
+
+			if (middlePointVertex.y - topMostVertex.y != 0)
+			{
+				topMostToMiddlePointVector = float(middlePointVertex.x - topMostVertex.x) / float(middlePointVertex.y - topMostVertex.y);
+			}
+
+			if (bottomMostVertex.y - middlePointVertex.y != 0)
+			{
+				middlePointToBottomMostVector = float(bottomMostVertex.x - middlePointVertex.x) / float(bottomMostVertex.y - middlePointVertex.y);
+			}
+
+			//Given the vertexes, figure out the pixel buffer needed
+			int topMostPointVSMiddlePointX = abs(topMostVertex.x - middlePointVertex.x);
+			int bottomMostPointVSMiddlePointX = abs(bottomMostVertex.x - middlePointVertex.x);
+
+			//Figure out which one is bigger
+			if (topMostPointVSMiddlePointX > bottomMostPointVSMiddlePointX)
+			{
+				targetPixelBufferSize = topMostPointVSMiddlePointX;
+			}
+			else
+			{
+				targetPixelBufferSize = bottomMostPointVSMiddlePointX;
+			}
+
+			//Create and load up the pixel buffer
+			targetPixelBuffer = new unsigned int[targetPixelBufferSize];
+
+			for (int i = 0; i < targetPixelBufferSize; i++)
+			{
+				memcpy(&targetPixelBuffer[i], &targetColor, 4);
+			}
+
+			//Start from the top most and go a long the lines between top and bottom, and top and middle.
+			float currentTopMostToBottomMostX = float (topMostVertex.x + startX);
+			float currentOtherLineX = float (middlePointVertex.x + startX);
+
+			//Variable to keep track of current Y position
+			int currentY = topMostVertex.y + startY;
+
+			//Calculate points along the lines between TopMost and BottomMost, and TopMost and MiddlePoint
+			for (; currentY < middlePointVertex.y + startY; currentY++)
+			{
+				//Given currentY, compare to the two points along the X axis
+				int fillWidth = int(currentTopMostToBottomMostX - currentOtherLineX) * 4;
+
+				//Flip the sign if needed
+				//If fillWidth is below 0
+				if (fillWidth < 0)
+				{
+					fillWidth = -fillWidth;
+				}
+
+				//Add 4 to the fillWidth to make sure one 4-byte pixel is at least written per line.  (And to offset any 0 indexing logic.)
+				fillWidth += 4;
+
+				//Check to see which is furthest left
+				if (currentTopMostToBottomMostX < currentOtherLineX)
+				{
+					memcpy(&targetDisplay->virtualVideoRAM[int(currentTopMostToBottomMostX) + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
+				}
+				else
+				{
+					memcpy(&targetDisplay->virtualVideoRAM[int(currentOtherLineX) + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
+				}
+
+				//Calculate the X points from Y using a modified slope intercept.
+				currentTopMostToBottomMostX += topMostToBottomMostVector;
+				currentOtherLineX += topMostToMiddlePointVector;
+			}
+
+			//Calculate points along the lines between TopMost and BottomMost, and MiddlePoint and BottomMost
+			for (; currentY < bottomMostVertex.y +startY; currentY++)
+			{
+				//Given currentY, compare to the two points along the X axis
+				int fillWidth = int(currentTopMostToBottomMostX - currentOtherLineX) * 4;
+
+				//Flip the sign if needed
+				//If fillWidth is below 0
+				if (fillWidth < 0)
+				{
+					fillWidth = -fillWidth;
+				}
+
+				//Add 4 to the fillWidth to make sure one 4-byte pixel is at least written per line.  (And to offset any 0 indexing logic.)
+				fillWidth += 4;
+
+				//Check to see which is furthest left
+				if (currentTopMostToBottomMostX < currentOtherLineX)
+				{
+					memcpy(&targetDisplay->virtualVideoRAM[int(currentTopMostToBottomMostX) + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
+				}
+				else
+				{
+					memcpy(&targetDisplay->virtualVideoRAM[int(currentOtherLineX) + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
+				}
+
+				//Calculate the X points from Y using a modified slope intercept.
+				currentTopMostToBottomMostX += topMostToBottomMostVector;
+				currentOtherLineX += middlePointToBottomMostVector;
+			}
+
+			//Draw in the three points of the triangle just to make sure they are there
+			//Sometimes the algorithm will stop right before the point
+			//Much simpler and efficient to just put the points in.
+			memcpy(&targetDisplay->virtualVideoRAM[(vertex1.x + startX) + (vertex1.y + startX)* targetDisplay->virtualVideoX], &targetColor, 4);
+			memcpy(&targetDisplay->virtualVideoRAM[(vertex2.x + startX) + (vertex2.y + startX)* targetDisplay->virtualVideoX], &targetColor, 4);
+			memcpy(&targetDisplay->virtualVideoRAM[(vertex3.x + startX) + (vertex3.y + startX)* targetDisplay->virtualVideoX], &targetColor, 4);
+
+		}
+
+		void DrawFilledTriangleTrue(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor)
 		{
 			//Pack the colors up into something useful
 			unsigned int targetColor = PackColors(rColor, gColor, bColor);
 
 			//Apply offsets and scaling
-			vertex1.x = vertex1.x * scalingFactor + startX;
-			vertex1.y = vertex1.y * scalingFactor + startY;
-			vertex2.x = vertex2.x * scalingFactor + startX;
-			vertex2.y = vertex2.y * scalingFactor + startY;
-			vertex3.x = vertex3.x * scalingFactor + startX;
-			vertex3.y = vertex3.y * scalingFactor + startY;
+			vertex1.x = int(vertex1.x * scalingFactor + startX);
+			vertex1.y = int(vertex1.y * scalingFactor + startY);
+			vertex2.x = int(vertex2.x * scalingFactor + startX);
+			vertex2.y = int(vertex2.y * scalingFactor + startY);
+			vertex3.x = int(vertex3.x * scalingFactor + startX);
+			vertex3.y = int(vertex3.y * scalingFactor + startY);
 
 			//Set the initial maxes and mins to the first vertex
 			//For comparison purposes.
@@ -633,13 +867,13 @@ namespace SGE
 			
 
 			//Go through the bounded, looking for which pixels are within the triangle
-			for (int y = yMin; y < yMax; y++)
+			for (int y = yMin; y <= yMax; y++)
 			{
-				for (int x = xMin; x < xMax; x++)
+				for (int x = xMin; x <= xMax; x++)
 				{
-					if (partialProductY12 - partialProductX12 > 0 &&
-						partialProductY23 - partialProductX23 > 0 &&
-						partialProductY31 - partialProductX31 > 0)
+					if (partialProductY12 - partialProductX12 >= 0 &&
+						partialProductY23 - partialProductX23 >= 0 &&
+						partialProductY31 - partialProductX31 >= 0)
 					{
 						//Copy the color over.
 						memcpy(&targetDisplay->virtualVideoRAM[x + (y*targetDisplay->virtualVideoX)], &targetColor, 4);
@@ -648,7 +882,6 @@ namespace SGE
 					partialProductX12 += spanningVector12.y;
 					partialProductX23 += spanningVector23.y;
 					partialProductX31 += spanningVector31.y;
-
 				}
 
 				//Increment the partial product
@@ -661,13 +894,7 @@ namespace SGE
 				partialProductX23 = resetPartialProductX23;
 				partialProductX31 = resetPartialProductX31;
 			}
-
 		}
-
-
-
-
-
 
 
 		ImageData::ImageData()
