@@ -538,10 +538,20 @@ namespace SGE
 
 		void DrawFilledTriangles(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, unsigned char rColor, unsigned char gColor, unsigned char bColor)
 		{
+			//Figure out how many full triangle we have
+			int numberOfFullTriangles = numberOfVertexes / 3;
+			int numberOfVertexesToUse = numberOfFullTriangles * 3;
 
+			for (int i = 0; i < numberOfVertexesToUse; i = i + 3)
+			{
+				DrawFilledTriangleFast(targetDisplay, startX, startY, scalingFactor, vertexArray[i], vertexArray[i + 1], vertexArray[i + 2], rColor, gColor, bColor);
+				//DrawFilledTriangleTrue(targetDisplay, startX, startY, scalingFactor, vertexArray[i], vertexArray[i + 1], vertexArray[i + 2], rColor, gColor, bColor);
+			}
 		}
 
 
+		//Uses a variant of the Bresenham algorithm to calculate the two X points along the X-axis for each Y
+		//Then mass memcpys from a created pixel buffer to fill in the gaps.
 		void DrawFilledTriangleFast(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor)
 		{
 			//Pack the colors up
@@ -551,13 +561,22 @@ namespace SGE
 			unsigned int* targetPixelBuffer = nullptr;
 			int targetPixelBufferSize = 0;
 
+			//Scale the vertexes
+			vertex1.x = int (vertex1.x * scalingFactor);
+			vertex1.y = int (vertex1.y * scalingFactor);
+			vertex2.x = int (vertex2.x * scalingFactor);
+			vertex2.y = int (vertex2.y * scalingFactor);
+			vertex3.x = int (vertex3.x * scalingFactor);
+			vertex3.y = int (vertex3.y * scalingFactor);
+			
 			//Variables to hold the top most, bottom most, and middle point vertexes
 			VertexPoint topMostVertex;
 			VertexPoint bottomMostVertex;
 			VertexPoint middlePointVertex;
 
 			//Do some comparison to figure out the max, mins, and vertexes.
-
+			//Basically figure out how this triangle is configured and arrangement
+			//So we can make some decisions about how to draw it.
 			//Find the topMostVertex
 
 			//Vertex 1 is above Vertex 2
@@ -672,21 +691,34 @@ namespace SGE
 			}
 
 			//Given the vertexes, figure out the pixel buffer needed
-			int topMostPointVSMiddlePointX = abs(topMostVertex.x - middlePointVertex.x);
-			int bottomMostPointVSMiddlePointX = abs(bottomMostVertex.x - middlePointVertex.x);
+			int topMostPointVSMiddlePointX = topMostVertex.x - middlePointVertex.x;
+			int bottomMostPointVSMiddlePointX = bottomMostVertex.x - middlePointVertex.x;
 
+			//If negative, flip to get the absolute value
+			if (topMostPointVSMiddlePointX < 0)
+			{
+				topMostPointVSMiddlePointX = -topMostPointVSMiddlePointX;
+			}
+
+			//If negative, flip to get the absolute value
+			if (bottomMostPointVSMiddlePointX < 0)
+			{
+				bottomMostPointVSMiddlePointX = -bottomMostPointVSMiddlePointX;
+			}
+			
 			//Figure out which one is bigger
 			if (topMostPointVSMiddlePointX > bottomMostPointVSMiddlePointX)
 			{
-				targetPixelBufferSize = topMostPointVSMiddlePointX;
+				targetPixelBufferSize = topMostPointVSMiddlePointX + 1;
 			}
 			else
 			{
-				targetPixelBufferSize = bottomMostPointVSMiddlePointX;
+				targetPixelBufferSize = bottomMostPointVSMiddlePointX + 1;
 			}
 
 			//Create and load up the pixel buffer
-			targetPixelBuffer = new unsigned int[targetPixelBufferSize];
+			//targetPixelBuffer = new unsigned int[targetPixelBufferSize];
+			targetPixelBuffer = (unsigned int*) malloc(sizeof(unsigned int) * targetPixelBufferSize);
 
 			for (int i = 0; i < targetPixelBufferSize; i++)
 			{
@@ -694,8 +726,13 @@ namespace SGE
 			}
 
 			//Start from the top most and go a long the lines between top and bottom, and top and middle.
-			float currentTopMostToBottomMostX = float (topMostVertex.x + startX);
-			float currentOtherLineX = float (middlePointVertex.x + startX);
+			int currentTopMostToBottomMostX = topMostVertex.x + startX;
+			int currentOtherLineX = topMostVertex.x + startX;
+
+			//Error accumulators
+			//To determine when adjustments to slope need to be made
+			float currentTopMostToMostError = 0.0f;
+			float currentOtherLineError = 0.0f;
 
 			//Variable to keep track of current Y position
 			int currentY = topMostVertex.y + startY;
@@ -704,7 +741,7 @@ namespace SGE
 			for (; currentY < middlePointVertex.y + startY; currentY++)
 			{
 				//Given currentY, compare to the two points along the X axis
-				int fillWidth = int(currentTopMostToBottomMostX - currentOtherLineX) * 4;
+				int fillWidth = currentTopMostToBottomMostX - currentOtherLineX;
 
 				//Flip the sign if needed
 				//If fillWidth is below 0
@@ -714,28 +751,61 @@ namespace SGE
 				}
 
 				//Add 4 to the fillWidth to make sure one 4-byte pixel is at least written per line.  (And to offset any 0 indexing logic.)
-				fillWidth += 4;
+				fillWidth = (fillWidth + 1) * 4;
 
 				//Check to see which is furthest left
 				if (currentTopMostToBottomMostX < currentOtherLineX)
 				{
-					memcpy(&targetDisplay->virtualVideoRAM[int(currentTopMostToBottomMostX) + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
+					memcpy(&targetDisplay->virtualVideoRAM[currentTopMostToBottomMostX + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
 				}
 				else
 				{
-					memcpy(&targetDisplay->virtualVideoRAM[int(currentOtherLineX) + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
+					memcpy(&targetDisplay->virtualVideoRAM[currentOtherLineX + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
 				}
 
 				//Calculate the X points from Y using a modified slope intercept.
-				currentTopMostToBottomMostX += topMostToBottomMostVector;
-				currentOtherLineX += topMostToMiddlePointVector;
+				currentTopMostToBottomMostX += int(topMostToBottomMostVector);
+				currentOtherLineX += int (topMostToMiddlePointVector);
+
+				//Accumulate error
+				currentTopMostToMostError += topMostToBottomMostVector - int(topMostToBottomMostVector);
+				currentOtherLineError += topMostToMiddlePointVector - int(topMostToMiddlePointVector);
+
+				//Check to see if error is high enough to warrant a correction
+				if (currentTopMostToMostError > 1.0f)
+				{
+					currentTopMostToBottomMostX++;
+					currentTopMostToMostError -= 1.0f;
+				}
+				else if (currentTopMostToMostError < -1.0f)
+				{
+					currentTopMostToBottomMostX--;
+					currentTopMostToMostError += 1.0f;
+				}
+
+				if (currentOtherLineError > 1.0f)
+				{
+					currentOtherLineX++;
+					currentOtherLineError -= 1.0f;
+				}
+				else if (currentOtherLineError < -1.0f)
+				{
+					currentOtherLineX--;
+					currentOtherLineError += 1.0f;
+				}
 			}
 
+			//Reset the currentOtherLineX to the middlePointVertex
+			currentOtherLineX = middlePointVertex.x + startX;
+
+			//Reset the error on the current line, since it is starting from a new point
+			currentOtherLineError = 0.0f;
+
 			//Calculate points along the lines between TopMost and BottomMost, and MiddlePoint and BottomMost
-			for (; currentY < bottomMostVertex.y +startY; currentY++)
+			for (; currentY <= bottomMostVertex.y +startY; currentY++)
 			{
 				//Given currentY, compare to the two points along the X axis
-				int fillWidth = int(currentTopMostToBottomMostX - currentOtherLineX) * 4;
+				int fillWidth = currentTopMostToBottomMostX - currentOtherLineX;
 
 				//Flip the sign if needed
 				//If fillWidth is below 0
@@ -745,21 +815,49 @@ namespace SGE
 				}
 
 				//Add 4 to the fillWidth to make sure one 4-byte pixel is at least written per line.  (And to offset any 0 indexing logic.)
-				fillWidth += 4;
+				fillWidth = (fillWidth + 1) * 4;
 
 				//Check to see which is furthest left
 				if (currentTopMostToBottomMostX < currentOtherLineX)
 				{
-					memcpy(&targetDisplay->virtualVideoRAM[int(currentTopMostToBottomMostX) + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
+					memcpy(&targetDisplay->virtualVideoRAM[currentTopMostToBottomMostX + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
 				}
 				else
 				{
-					memcpy(&targetDisplay->virtualVideoRAM[int(currentOtherLineX) + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
+					memcpy(&targetDisplay->virtualVideoRAM[currentOtherLineX + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
 				}
 
 				//Calculate the X points from Y using a modified slope intercept.
-				currentTopMostToBottomMostX += topMostToBottomMostVector;
-				currentOtherLineX += middlePointToBottomMostVector;
+				currentTopMostToBottomMostX += int(topMostToBottomMostVector);
+				currentOtherLineX += int(middlePointToBottomMostVector);
+
+				//Accumulate error
+				currentTopMostToMostError += topMostToBottomMostVector - int(topMostToBottomMostVector);
+				currentOtherLineError += middlePointToBottomMostVector - int(middlePointToBottomMostVector);
+
+				//Check to see if error is high enough to warrant a correction
+				if (currentTopMostToMostError > 1.0f)
+				{
+					currentTopMostToBottomMostX++;
+					currentTopMostToMostError -= 1.0f;
+				}
+				else if (currentTopMostToMostError < -1.0f)
+				{
+					currentTopMostToBottomMostX--;
+					currentTopMostToMostError += 1.0f;
+				}
+
+				if (currentOtherLineError > 1.0f)
+				{
+					currentOtherLineX++;
+					currentOtherLineError -= 1.0f;
+				}
+				else if (currentOtherLineError < -1.0f)
+				{
+					currentOtherLineX--;
+					currentOtherLineError += 1.0f;
+				}
+
 			}
 
 			//Draw in the three points of the triangle just to make sure they are there
@@ -769,8 +867,14 @@ namespace SGE
 			memcpy(&targetDisplay->virtualVideoRAM[(vertex2.x + startX) + (vertex2.y + startX)* targetDisplay->virtualVideoX], &targetColor, 4);
 			memcpy(&targetDisplay->virtualVideoRAM[(vertex3.x + startX) + (vertex3.y + startX)* targetDisplay->virtualVideoX], &targetColor, 4);
 
+			//Clean up the pixel buffer
+			free(targetPixelBuffer);
 		}
 
+
+		//Uses the Barycentric Algorithm to calculate what pixels are within a defined triangle
+		//Accurate and true.... but expensive as can be computationally
+		//Useful for double checking the Fast Triangle draw function.
 		void DrawFilledTriangleTrue(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor)
 		{
 			//Pack the colors up into something useful
