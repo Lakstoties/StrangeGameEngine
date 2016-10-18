@@ -549,7 +549,6 @@ namespace SGE
 			}
 		}
 
-
 		//Uses a variant of the Bresenham algorithm to calculate the two X points along the X-axis for each Y
 		//Then mass memcpys from a created pixel buffer to fill in the gaps.
 		void DrawFilledTriangleFast(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor)
@@ -621,7 +620,6 @@ namespace SGE
 						bottomMostVertex = vertex1;
 					}
 				}
-
 			}
 			
 			//Vertex 2 is higher than Vertex 1 (or equal)
@@ -668,26 +666,62 @@ namespace SGE
 				}
 			}
 
+			//Vector
 			float topMostToBottomMostVector = 0.0f;
 			float topMostToMiddlePointVector = 0.0f;
 			float middlePointToBottomMostVector = 0.0f;
 
+			//Int Vectors
+			int topMostToBottomMostVectorInt = 0;
+			int topMostToMiddlePointVectorInt = 0;
+			int middlePointToBottomMostVectorInt = 0;
+
+			//Error leftover from Int appropximation
+			float topMostToBottomMostVectorError = 0.0f;
+			float topMostToMiddlePointVectorError = 0.0f;
+			float middlePointToBottomMostVectorError = 0.0f;
+
 			//Calculate the slopes for the lines in the triangle
 			//And...
 			//Catch any possible divde by 0 errors.
+
+			//Line from the TopMost to the BottomMost
 			if (bottomMostVertex.y - topMostVertex.y != 0)
 			{
+				//Figure out the delta between the points in relation to Y
 				topMostToBottomMostVector = float(bottomMostVertex.x - topMostVertex.x) / float(bottomMostVertex.y - topMostVertex.y);
+
+				//Precalculate the Int, so we don't have to do weird casting in calculations below
+				topMostToBottomMostVectorInt = int(topMostToBottomMostVector);
+
+				//Grab the error amount, so we don't have to recacluate everytime below, since it doesn't change.
+				topMostToBottomMostVectorError = topMostToBottomMostVector - float (topMostToBottomMostVectorInt);
 			}
 
+			//Line from the TopMost to the Middle Poiint
 			if (middlePointVertex.y - topMostVertex.y != 0)
 			{
+				//Figure out the delta between the points in relation to Y
 				topMostToMiddlePointVector = float(middlePointVertex.x - topMostVertex.x) / float(middlePointVertex.y - topMostVertex.y);
+
+				//Precalculate the Int, so we don't have to do weird casting in calculations below
+				topMostToMiddlePointVectorInt = int(topMostToMiddlePointVector);
+
+				//Grab the error amount, so we don't have to recacluate everytime below, since it doesn't change.
+				topMostToMiddlePointVectorError = topMostToMiddlePointVector - float(topMostToMiddlePointVectorInt);
 			}
 
+			//Line from the Middle Point to the Bottom Most
 			if (bottomMostVertex.y - middlePointVertex.y != 0)
 			{
+				//Figure out the delta between the points in relation to Y
 				middlePointToBottomMostVector = float(bottomMostVertex.x - middlePointVertex.x) / float(bottomMostVertex.y - middlePointVertex.y);
+
+				//Precalculate the Int, so we don't have to do weird casting in calculations below
+				middlePointToBottomMostVectorInt = int(middlePointToBottomMostVector);
+
+				//Grab the error amount, so we don't have to recacluate everytime below, since it doesn't change.
+				middlePointToBottomMostVectorError = middlePointToBottomMostVector - float(middlePointToBottomMostVectorInt);
 			}
 
 			//Given the vertexes, figure out the pixel buffer needed
@@ -763,35 +797,36 @@ namespace SGE
 					memcpy(&targetDisplay->virtualVideoRAM[currentOtherLineX + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
 				}
 
-				//Calculate the X points from Y using a modified slope intercept.
-				currentTopMostToBottomMostX += int(topMostToBottomMostVector);
-				currentOtherLineX += int (topMostToMiddlePointVector);
+				//Calculate the X points from Y using a modified Bresenham algorithm.
+				currentTopMostToBottomMostX += topMostToBottomMostVectorInt;
+				currentOtherLineX += topMostToMiddlePointVectorInt;
 
 				//Accumulate error
-				currentTopMostToMostError += topMostToBottomMostVector - int(topMostToBottomMostVector);
-				currentOtherLineError += topMostToMiddlePointVector - int(topMostToMiddlePointVector);
+				currentTopMostToMostError += topMostToBottomMostVectorError;
+				currentOtherLineError += topMostToMiddlePointVectorError;
 
 				//Check to see if error is high enough to warrant a correction
 				if (currentTopMostToMostError > 1.0f)
 				{
 					currentTopMostToBottomMostX++;
-					currentTopMostToMostError -= 1.0f;
+					currentTopMostToMostError--;
 				}
 				else if (currentTopMostToMostError < -1.0f)
 				{
 					currentTopMostToBottomMostX--;
-					currentTopMostToMostError += 1.0f;
+					currentTopMostToMostError++;
 				}
-
+				
+				//Check to see if error is high enough to warrant a correction
 				if (currentOtherLineError > 1.0f)
 				{
 					currentOtherLineX++;
-					currentOtherLineError -= 1.0f;
+					currentOtherLineError--;
 				}
 				else if (currentOtherLineError < -1.0f)
 				{
 					currentOtherLineX--;
-					currentOtherLineError += 1.0f;
+					currentOtherLineError++;
 				}
 			}
 
@@ -827,45 +862,38 @@ namespace SGE
 					memcpy(&targetDisplay->virtualVideoRAM[currentOtherLineX + targetDisplay->virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
 				}
 
-				//Calculate the X points from Y using a modified slope intercept.
-				currentTopMostToBottomMostX += int(topMostToBottomMostVector);
-				currentOtherLineX += int(middlePointToBottomMostVector);
+				//Calculate the X points from Y using a modified Bresenham algorithm.
+				currentTopMostToBottomMostX += topMostToBottomMostVectorInt;
+				currentOtherLineX += middlePointToBottomMostVectorInt;
 
 				//Accumulate error
-				currentTopMostToMostError += topMostToBottomMostVector - int(topMostToBottomMostVector);
-				currentOtherLineError += middlePointToBottomMostVector - int(middlePointToBottomMostVector);
+				currentTopMostToMostError += topMostToBottomMostVectorError;
+				currentOtherLineError += middlePointToBottomMostVectorError;
 
 				//Check to see if error is high enough to warrant a correction
 				if (currentTopMostToMostError > 1.0f)
 				{
 					currentTopMostToBottomMostX++;
-					currentTopMostToMostError -= 1.0f;
+					currentTopMostToMostError--;
 				}
 				else if (currentTopMostToMostError < -1.0f)
 				{
 					currentTopMostToBottomMostX--;
-					currentTopMostToMostError += 1.0f;
+					currentTopMostToMostError++;
 				}
 
+				//Check to see if error is high enough to warrant a correction
 				if (currentOtherLineError > 1.0f)
 				{
 					currentOtherLineX++;
-					currentOtherLineError -= 1.0f;
+					currentOtherLineError--;
 				}
 				else if (currentOtherLineError < -1.0f)
 				{
 					currentOtherLineX--;
-					currentOtherLineError += 1.0f;
+					currentOtherLineError++;
 				}
-
 			}
-
-			//Draw in the three points of the triangle just to make sure they are there
-			//Sometimes the algorithm will stop right before the point
-			//Much simpler and efficient to just put the points in.
-			memcpy(&targetDisplay->virtualVideoRAM[(vertex1.x + startX) + (vertex1.y + startX)* targetDisplay->virtualVideoX], &targetColor, 4);
-			memcpy(&targetDisplay->virtualVideoRAM[(vertex2.x + startX) + (vertex2.y + startX)* targetDisplay->virtualVideoX], &targetColor, 4);
-			memcpy(&targetDisplay->virtualVideoRAM[(vertex3.x + startX) + (vertex3.y + startX)* targetDisplay->virtualVideoX], &targetColor, 4);
 
 			//Clean up the pixel buffer
 			free(targetPixelBuffer);

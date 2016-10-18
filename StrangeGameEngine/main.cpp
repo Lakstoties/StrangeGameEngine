@@ -263,12 +263,12 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 			//Draw VertexPoints
 			SGE::Render::DrawVectorShape(targetDisplay, 10, 10, 15.0, 28, letterSVectorPoints, 255, 128, 0);
 			//Draw Filled triangles
-			SGE::Render::DrawFilledTriangles(targetDisplay, 10, 10, 15.0, letterSTriangleFill, 26 * 3, 128, 64, 0);
+			SGE::Render::DrawFilledTriangles(targetDisplay, 10, 10, 15.0, letterSTriangleFill, 3 * 26, 128, 64, 0);
 		}
 		else
 		{
 			//Draw Filled triangles
-			SGE::Render::DrawFilledTriangles(targetDisplay, 10, 10, 15.0, letterSTriangleFill, 26 * 3, 128, 64, 0);
+			SGE::Render::DrawFilledTriangles(targetDisplay, 10, 10, 15.0, letterSTriangleFill, 3 * 26, 128, 64, 0);
 			//Draw VertexPoints
 			SGE::Render::DrawVectorShape(targetDisplay, 10, 10, 15.0, 28, letterSVectorPoints, 255, 128, 0);
 		}
@@ -281,13 +281,13 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 			SGE::Render::DrawFilledTriangleTrue(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 0, 255);
 
 			//Draw filled triangle
-			//SGE::Render::DrawFilledTriangleFast(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 255, 0);
+			SGE::Render::DrawFilledTriangleFast(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 255, 0);
 
 		}
 		else
 		{
 			//Draw filled triangle
-			//SGE::Render::DrawFilledTriangleFast(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 255, 0);
+			SGE::Render::DrawFilledTriangleFast(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 255, 0);
 
 			//Draw filled triangle
 			SGE::Render::DrawFilledTriangleTrue(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 0, 255);
