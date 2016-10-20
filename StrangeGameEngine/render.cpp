@@ -186,6 +186,10 @@ namespace SGE
 				return;
 			}
 
+
+
+
+
 			//Determine orientation
 			//Here we determine which way the line is going to adjust parameters for drawing
 
@@ -666,10 +670,10 @@ namespace SGE
 				}
 			}
 
-			//Vector
-			float topMostToBottomMostVector = 0.0f;
-			float topMostToMiddlePointVector = 0.0f;
-			float middlePointToBottomMostVector = 0.0f;
+			//Int Vector based on the DRAWING_DECIMAL_RESOLUTION
+			int topMostToBottomMostVector = 0;
+			int topMostToMiddlePointVector = 0;
+			int middlePointToBottomMostVector = 0;
 
 			//Int Vectors
 			int topMostToBottomMostVectorInt = 0;
@@ -677,9 +681,9 @@ namespace SGE
 			int middlePointToBottomMostVectorInt = 0;
 
 			//Error leftover from Int appropximation
-			float topMostToBottomMostVectorError = 0.0f;
-			float topMostToMiddlePointVectorError = 0.0f;
-			float middlePointToBottomMostVectorError = 0.0f;
+			int topMostToBottomMostVectorError = 0;
+			int topMostToMiddlePointVectorError = 0;
+			int middlePointToBottomMostVectorError = 0;
 
 			//Calculate the slopes for the lines in the triangle
 			//And...
@@ -689,39 +693,39 @@ namespace SGE
 			if (bottomMostVertex.y - topMostVertex.y != 0)
 			{
 				//Figure out the delta between the points in relation to Y
-				topMostToBottomMostVector = float(bottomMostVertex.x - topMostVertex.x) / float(bottomMostVertex.y - topMostVertex.y);
+				topMostToBottomMostVector = (DRAWING_DECIMAL_RESOLUTION * (bottomMostVertex.x - topMostVertex.x)) / (bottomMostVertex.y - topMostVertex.y);
 
 				//Precalculate the Int, so we don't have to do weird casting in calculations below
-				topMostToBottomMostVectorInt = int(topMostToBottomMostVector);
+				topMostToBottomMostVectorInt = topMostToBottomMostVector / DRAWING_DECIMAL_RESOLUTION;
 
 				//Grab the error amount, so we don't have to recacluate everytime below, since it doesn't change.
-				topMostToBottomMostVectorError = topMostToBottomMostVector - float (topMostToBottomMostVectorInt);
+				topMostToBottomMostVectorError = topMostToBottomMostVector % DRAWING_DECIMAL_RESOLUTION;
 			}
 
 			//Line from the TopMost to the Middle Poiint
 			if (middlePointVertex.y - topMostVertex.y != 0)
 			{
 				//Figure out the delta between the points in relation to Y
-				topMostToMiddlePointVector = float(middlePointVertex.x - topMostVertex.x) / float(middlePointVertex.y - topMostVertex.y);
+				topMostToMiddlePointVector = (DRAWING_DECIMAL_RESOLUTION * (middlePointVertex.x - topMostVertex.x)) / (middlePointVertex.y - topMostVertex.y);
 
 				//Precalculate the Int, so we don't have to do weird casting in calculations below
-				topMostToMiddlePointVectorInt = int(topMostToMiddlePointVector);
+				topMostToMiddlePointVectorInt = topMostToMiddlePointVector / DRAWING_DECIMAL_RESOLUTION;
 
 				//Grab the error amount, so we don't have to recacluate everytime below, since it doesn't change.
-				topMostToMiddlePointVectorError = topMostToMiddlePointVector - float(topMostToMiddlePointVectorInt);
+				topMostToMiddlePointVectorError = topMostToMiddlePointVector % DRAWING_DECIMAL_RESOLUTION;
 			}
 
 			//Line from the Middle Point to the Bottom Most
 			if (bottomMostVertex.y - middlePointVertex.y != 0)
 			{
 				//Figure out the delta between the points in relation to Y
-				middlePointToBottomMostVector = float(bottomMostVertex.x - middlePointVertex.x) / float(bottomMostVertex.y - middlePointVertex.y);
+				middlePointToBottomMostVector = (DRAWING_DECIMAL_RESOLUTION * (bottomMostVertex.x - middlePointVertex.x)) / (bottomMostVertex.y - middlePointVertex.y);
 
 				//Precalculate the Int, so we don't have to do weird casting in calculations below
-				middlePointToBottomMostVectorInt = int(middlePointToBottomMostVector);
+				middlePointToBottomMostVectorInt = middlePointToBottomMostVector / DRAWING_DECIMAL_RESOLUTION;
 
 				//Grab the error amount, so we don't have to recacluate everytime below, since it doesn't change.
-				middlePointToBottomMostVectorError = middlePointToBottomMostVector - float(middlePointToBottomMostVectorInt);
+				middlePointToBottomMostVectorError = middlePointToBottomMostVector % DRAWING_DECIMAL_RESOLUTION;
 			}
 
 			//Given the vertexes, figure out the pixel buffer needed
@@ -765,8 +769,8 @@ namespace SGE
 
 			//Error accumulators
 			//To determine when adjustments to slope need to be made
-			float currentTopMostToMostError = 0.0f;
-			float currentOtherLineError = 0.0f;
+			int currentTopMostToMostError = 0;
+			int currentOtherLineError = 0;
 
 			//Variable to keep track of current Y position
 			int currentY = topMostVertex.y + startY;
@@ -806,27 +810,27 @@ namespace SGE
 				currentOtherLineError += topMostToMiddlePointVectorError;
 
 				//Check to see if error is high enough to warrant a correction
-				if (currentTopMostToMostError > 1.0f)
+				if (currentTopMostToMostError > DRAWING_DECIMAL_RESOLUTION)
 				{
 					currentTopMostToBottomMostX++;
-					currentTopMostToMostError--;
+					currentTopMostToMostError -= DRAWING_DECIMAL_RESOLUTION;
 				}
-				else if (currentTopMostToMostError < -1.0f)
+				else if (currentTopMostToMostError < -DRAWING_DECIMAL_RESOLUTION)
 				{
 					currentTopMostToBottomMostX--;
-					currentTopMostToMostError++;
+					currentTopMostToMostError += DRAWING_DECIMAL_RESOLUTION;
 				}
 				
 				//Check to see if error is high enough to warrant a correction
-				if (currentOtherLineError > 1.0f)
+				if (currentOtherLineError > DRAWING_DECIMAL_RESOLUTION)
 				{
 					currentOtherLineX++;
-					currentOtherLineError--;
+					currentOtherLineError -= DRAWING_DECIMAL_RESOLUTION;
 				}
-				else if (currentOtherLineError < -1.0f)
+				else if (currentOtherLineError < -DRAWING_DECIMAL_RESOLUTION)
 				{
 					currentOtherLineX--;
-					currentOtherLineError++;
+					currentOtherLineError += DRAWING_DECIMAL_RESOLUTION;
 				}
 			}
 
@@ -834,7 +838,7 @@ namespace SGE
 			currentOtherLineX = middlePointVertex.x + startX;
 
 			//Reset the error on the current line, since it is starting from a new point
-			currentOtherLineError = 0.0f;
+			currentOtherLineError = 0;
 
 			//Calculate points along the lines between TopMost and BottomMost, and MiddlePoint and BottomMost
 			for (; currentY <= bottomMostVertex.y +startY; currentY++)
@@ -871,27 +875,27 @@ namespace SGE
 				currentOtherLineError += middlePointToBottomMostVectorError;
 
 				//Check to see if error is high enough to warrant a correction
-				if (currentTopMostToMostError > 1.0f)
+				if (currentTopMostToMostError > DRAWING_DECIMAL_RESOLUTION)
 				{
 					currentTopMostToBottomMostX++;
-					currentTopMostToMostError--;
+					currentTopMostToMostError -= DRAWING_DECIMAL_RESOLUTION;
 				}
-				else if (currentTopMostToMostError < -1.0f)
+				else if (currentTopMostToMostError < -DRAWING_DECIMAL_RESOLUTION)
 				{
 					currentTopMostToBottomMostX--;
-					currentTopMostToMostError++;
+					currentTopMostToMostError += DRAWING_DECIMAL_RESOLUTION;
 				}
 
 				//Check to see if error is high enough to warrant a correction
-				if (currentOtherLineError > 1.0f)
+				if (currentOtherLineError > DRAWING_DECIMAL_RESOLUTION)
 				{
 					currentOtherLineX++;
-					currentOtherLineError--;
+					currentOtherLineError -= DRAWING_DECIMAL_RESOLUTION;
 				}
-				else if (currentOtherLineError < -1.0f)
+				else if (currentOtherLineError < -DRAWING_DECIMAL_RESOLUTION)
 				{
 					currentOtherLineX--;
-					currentOtherLineError++;
+					currentOtherLineError += DRAWING_DECIMAL_RESOLUTION;
 				}
 			}
 

@@ -141,6 +141,10 @@ namespace SGE
 		//Draw a list of triangles
 		void DrawFilledTriangles(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
+		//
+		const int DRAWING_DECIMAL_RESOLUTION = 1000;
+
+
 		//Character ROM for an 8x8 character set
 		//The 8x8 Character ROM that maps to the extendned ASCII standard
 		//Each 64-bit unsigned is a 8x8 bit array
