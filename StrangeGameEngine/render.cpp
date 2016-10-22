@@ -150,130 +150,267 @@ namespace SGE
 			unsigned char gColor,						//8-bit (0-255) Green component of the pixel color
 			unsigned char bColor)						//8-bit (0-255) Blue component of the pixel color
 		{
-			//Error check... 
-			//No negative points:  Correct to 0
-			//No out of bound points:  Correct to Max allowable.
-
-			//Error check:  StartX
-			//Check to see if startX is negative
-			if (startX < 0)
+			//Check for a completely invalid line
+			//If all points exist in the -x,-y quardrant... Fuck this shit... We're out!
+			if (startX < 0 && startY < 0 && endX < 0 && endY < 0)
 			{
-				//Out of bounds, clip to 0
-				startX = 0;
+				//This line cannot exist on the display in any shape or form.
+				//No need to continue processing.
+				return;
 			}
-			//Check to see if startX is out of bounds of the display
-			else if (startX >= targetDisplay->virtualVideoX)
-			{
-				//Out of bounds, clip to max
-				startX = targetDisplay->virtualVideoX - 1;
-			}
-
-			//Error check:  StartY
-			//Check to see if startY is negative
-			if (startY < 0)
-			{
-				startY = 0;
-			}
-			//Check to see if startY is out of bounds of the display
-			else if (startY >= targetDisplay->virtualVideoY)
-			{
-				startY = targetDisplay->virtualVideoY - 1;
-			}
-
-			//Error check:  EndX
-			//Check to see if EndX is negative
-			if (endX < 0)
-			{
-				endX = 0;
-			}
-			//Check ot see if the EndX is out of bounds of the display
-			else if (endX >= targetDisplay->virtualVideoX)
-			{
-				endX = targetDisplay->virtualVideoX - 1;
-			}
-
-			//Error check:  EndY
-			//Check to see if the EndY is negative
-			if (endY < 0)
-			{
-				endY = 0;
-			}
-			//Check to see if the EndY is out of bounds of the display
-			else if (endY >= targetDisplay->virtualVideoY)
-			{
-				endY = targetDisplay->virtualVideoY - 1;
-			}
-
+			
 			//Calculate the X and Y deltas
 			int deltaX = endX - startX;
 			int deltaY = endY - startY;
 
 			//Determine the type of traversal
 			//Variables to keep track important things
-			int bigDelta = 0;
-			int smallDelta = 0;
+			int iterationDelta = 0;
+			int otherDelta = 0;
 			int deltaRAMStep = 0;
 			int errorRAMStep = 0;
+			int iterationTruncation = 0;
 
+			//Check for any points outside the valid display bounds
+			//If found, use deltas to calculate new valid point
+
+			//Check startX and startY
+			//Checking startX
+			if (startX < 0)
+			{
+				//If deltaX is 0, there's NO WAY this line is getting to a valid point on the screen
+				if (deltaX == 0)
+				{
+					return;
+				}
+
+				//Calculate the new startY based on how far from 0 startX is.
+				startY += (-startX * deltaY) / deltaX;
+
+				//Set startX to 0
+				startX = 0;
+
+				//Recalculate the deltas
+				deltaX = endX - startX;
+				deltaY = endY - startY;
+			}
+			else if (startX >= targetDisplay->virtualVideoX)
+			{
+				//If deltaX is 0, there's NO WAY this line is getting to a valid point on the screen
+				if (deltaX == 0)
+				{
+					return;
+				}
+
+				//Calculate the new startY based on how far from the last horizontal pixel startX is.
+				startY -= ((startX - (targetDisplay->virtualVideoX - 1)) * deltaY) / deltaX;
+
+				//Start startX to the last horizontal pixel.
+				startX = targetDisplay->virtualVideoX - 1;
+
+				//Recalculate the deltas
+				deltaX = endX - startX;
+				deltaY = endY - startY;
+			}
+
+			//Checking startY
+			if (startY < 0)
+			{
+				//If deltaY is 0, there's NO WAY this line is getting to a valid point on the screen
+				if (deltaY == 0)
+				{
+					return;
+				}
+				
+				//Calculate the new startX based on how far from 0 startY is.
+				startX += (-startY * deltaX) / deltaY;
+
+				//Set startY to 0
+				startY = 0;
+
+				//Recalculate the deltas
+				deltaX = endX - startX;
+				deltaY = endY - startY;
+			}
+			else if (startY >= targetDisplay->virtualVideoY)
+			{
+				//If deltaY is 0, there's NO WAY this line is getting to a valid point on the screen
+				if (deltaY == 0)
+				{
+					return;
+				}
+
+				//Calculate the new startX basedo n how far fromthe last vertical pixel startY is.
+				startX -= ((startY - (targetDisplay->virtualVideoY - 1)) * deltaX) / deltaY;
+
+				//Set startY to the last vertical pixel.
+				startY = targetDisplay->virtualVideoY - 1;
+
+				//Recalculate the deltas
+				deltaX = endX - startX;
+				deltaY = endY - startY;
+			}
+
+			//If startX or startX are negative after attempts to calculate a point within the bounds of the display
+			//Then this line ain't happening.
+			if (startX < 0 || startY < 0)
+			{
+				//Point and slope done describe a valid lines to chart on the display
+				return;
+			}
+
+
+			//Check endX and endY
+			//Checking endX
+			if (endX < 0)
+			{
+				//If deltaX is 0, there's NO WAY this line is getting to a valid point on the screen
+				if (deltaX == 0)
+				{
+					return;
+				}
+
+				//Calculate the new startY based on how far from 0 startX is.
+				endY += (-endX * deltaY) / deltaX;
+
+				//Set startX to 0
+				endX = 0;
+
+				//Recalculate the deltas
+				deltaX = endX - startX;
+				deltaY = endY - startY;
+			}
+			else if (endX >= targetDisplay->virtualVideoX)
+			{
+				//If deltaX is 0, there's NO WAY this line is getting to a valid point on the screen
+				if (deltaX == 0)
+				{
+					return;
+				}
+
+				//Calculate the new startY based on how far from the last horizontal pixel startX is.
+				endY -= ((endX - (targetDisplay->virtualVideoX - 1)) * deltaY) / deltaX;
+
+				//Start startX to the last horizontal pixel.
+				endX = targetDisplay->virtualVideoX - 1;
+
+				//Recalculate the deltas
+				deltaX = endX - startX;
+				deltaY = endY - startY;
+			}
+
+			//Checking startY
+			if (endY < 0)
+			{
+				//If deltaY is 0, there's NO WAY this line is getting to a valid point on the screen
+				if (deltaY == 0)
+				{
+					return;
+				}
+
+				//Calculate the new startX based on how far from 0 startY is.
+				endX += (-endY * deltaX) / deltaY;
+
+				//Set startY to 0
+				endY = 0;
+
+				//Recalculate the deltas
+				deltaX = endX - startX;
+				deltaY = endY - startY;
+			}
+			else if (endY >= targetDisplay->virtualVideoY)
+			{
+				//If deltaY is 0, there's NO WAY this line is getting to a valid point on the screen
+				if (deltaY == 0)
+				{
+					return;
+				}
+
+				//Calculate the new startX basedo n how far fromthe last vertical pixel startY is.
+				endX -= ((endY - (targetDisplay->virtualVideoY - 1)) * deltaX) / deltaY;
+
+				//Set startY to the last vertical pixel.
+				endY = targetDisplay->virtualVideoY - 1;
+
+				//Recalculate the deltas
+				deltaX = endX - startX;
+				deltaY = endY - startY;
+			}
+
+			//If endX or endY are negative after attempts to calculate a point within the bounds of the display
+			//Then this line ain't happening.
+			if (endX < 0 || endY < 0)
+			{
+				//Point and slope done describe a valid lines to chart on the display
+				return;
+			}
+			
 			//Either X or Y traversal, depending on which delta is larger.
 			//Multipy both by themselves, to get rid of negative signs
 			//If X is the bigger delta
 			if (deltaX * deltaX > deltaY * deltaY)
 			{
 				//Set the big and small delta
-				bigDelta = deltaX;
-				smallDelta = deltaY;
+				iterationDelta = deltaX;
+				otherDelta = deltaY;
 
 				//Set the RAM stepping based on if the deltaX is negative or positive
 				if (deltaX > 0)
 				{
 					deltaRAMStep = 1;
+				}
+				else
+				{
+					deltaRAMStep = -1;			
+				}
 
-					//Set the error stepping based on if the deltaY is negative or positive
+				if (deltaY > 0)
+				{
 					errorRAMStep = targetDisplay->virtualVideoX;
 				}
 				else
 				{
-					deltaRAMStep = -1;
-
-					//Set the error stepping based on if the deltaY is negative or positive
 					errorRAMStep = -targetDisplay->virtualVideoX;
 				}
-
-				//Set the error stepping based on if the deltaY is negative or positive
-				errorRAMStep = targetDisplay->virtualVideoX;				
 			}
-			//Else Y is the bigger delta
+			//Else Y is the delta we need to iterate across.
 			else
 			{
 				//Set the big and small delta
-				bigDelta = deltaY;
-				smallDelta = deltaX;
+				iterationDelta = deltaY;
+				otherDelta = deltaX;
 
 				//Set the RAM stepping based on if the deltaY is negative or positive
 				if (deltaY > 0)
 				{
 					deltaRAMStep = targetDisplay->virtualVideoX;
-
-					//Set the error stepping
-					errorRAMStep = 1;
 				}
 				else
 				{
 					deltaRAMStep = -targetDisplay->virtualVideoX;
-
-					//Set the error stepping
-					errorRAMStep = -1;
 				}
 
-
+				if (deltaX > 0)
+				{
+					errorRAMStep = 1;
+				}
+				else
+				{
+					errorRAMStep = -1;
+				}
 			}
 
 			//Calculate the integer slope amount and error decimal
-			int errorDelta = (smallDelta * DRAWING_DECIMAL_RESOLUTION) / bigDelta;
+			int errorDelta = (otherDelta * DRAWING_DECIMAL_RESOLUTION) / iterationDelta;
+
+			//
+			if (errorDelta < 0)
+			{
+				errorDelta = -errorDelta;
+			}
 			
 			//Initialize the current error
-			int currentError = 0;
+			int currentError = -DRAWING_DECIMAL_RESOLUTION;
 
 			//Determine starting RAM location
 			int currentRAMLocation = startX + startY * targetDisplay->virtualVideoX;
@@ -283,13 +420,13 @@ namespace SGE
 			unsigned int pixelData = PackColors(rColor, gColor, bColor);
 
 			//Make sure the bigDelta sign if positive (get the cheap absolute value)
-			if (bigDelta < 0)
+			if (iterationDelta < 0)
 			{
-				bigDelta = -bigDelta;
+				iterationDelta = -iterationDelta;
 			}
 
 			//Step through each point, going the direction of the bigger delta
-			for (int i = 0; i < bigDelta; i++)
+			for (int i = 0; i <= iterationDelta; i++)
 			{
 				//Plot a point for the current location
 				memcpy(&targetDisplay->virtualVideoRAM[currentRAMLocation], &pixelData, 4);
@@ -302,16 +439,10 @@ namespace SGE
 
 				//Check to see if enough error has accumulated to warrant correction.
 				//In the negative direction
-				if (currentError <= -DRAWING_DECIMAL_RESOLUTION)
-				{
-					currentRAMLocation -= errorRAMStep;
-					currentError += DRAWING_DECIMAL_RESOLUTION;
-				}
-				//In the positive direction
-				else if (currentError >= DRAWING_DECIMAL_RESOLUTION)
+				if (currentError >= 0)
 				{
 					currentRAMLocation += errorRAMStep;
-					currentError -= DRAWING_DECIMAL_RESOLUTION;
+					currentError += -DRAWING_DECIMAL_RESOLUTION;
 				}
 			}
 		}
@@ -342,29 +473,18 @@ namespace SGE
 			//Pack the color components up into ready to write form
 			unsigned int colorValues = PackColors(rColor, gColor, bColor);
 
-			//Check for any straight lines and use the more efficient functions
+			//Truncate points that go outside the valid bounds
 
-			//The line is straight up or a column, draw as such
-			//if (deltaX == 0)
-			//{
-			//	//No change in X, this is probably a Column that needs to be drawn.
-			//	DrawColumn(targetDisplay, startX, startY, endY - startY, rColor, gColor, bColor);
-			//	return;
-			//}
 
-			//The line is horizontal or a row, draw as such
-			//if (deltaY == 0)
-			//{
-			//	//No change in Y, this is probably a row that needs to be drawn.
-			//	DrawRow(targetDisplay, startX, startY, endX - startX, rColor, gColor, bColor);
-			//	return;
-			//}
+
+
+
 
 			//Determine orientation
 			//Here we determine which way the line is going to adjust parameters for drawing
 
 			//X greater octet
-			if (std::abs(deltaX) > std::abs(deltaY))
+			if (abs(deltaX) > abs(deltaY))
 			{
 				//Determine X direction
 				if (deltaX > 0)
@@ -379,10 +499,10 @@ namespace SGE
 					loopRAMJump = -targetDisplay->virtualVideoX;
 
 				//Set the DeltaL
-				deltaL = std::abs(deltaX);
+				deltaL = abs(deltaX);
 
 				//Set the Error
-				errorL = std::abs(deltaY);
+				errorL = abs(deltaY);
 			}
 			//Y greater octet
 			else
@@ -400,10 +520,10 @@ namespace SGE
 					loopRAMStep = -targetDisplay->virtualVideoX;
 
 				//Set the DeltaL
-				deltaL = std::abs(deltaY);
+				deltaL = abs(deltaY);
 
 				//Set the Error
-				errorL = std::abs(deltaX);
+				errorL = abs(deltaX);
 			}
 
 			//Do some common and mostly static calculations

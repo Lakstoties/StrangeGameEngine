@@ -239,44 +239,42 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 	bool triangleFlip = false;
 
 
+	int testingOffsetX = 10;
+	int testingOffsetY = 10;
+
+
 	while (testInputRunning)
 	{
 		//Lock the display refresh
 		targetDisplay->refreshHold.lock();
 
 		//Blank the virtual display RAM
-		SGE::Render::Blank(targetDisplay, 0, 0, 0);
-		//SGE::Render::ZBlank(targetDisplay);
+		//SGE::Render::Blank(targetDisplay, 0, 0, 0);
+		SGE::Render::ZBlank(targetDisplay);
 
 		//Copy over background image
-		SGE::Render::DrawDataBlock(targetDisplay, 0, 0, testBitmap.image.width, testBitmap.image.height, testBitmap.image.imageData);
+		//SGE::Render::DrawDataBlock(targetDisplay, 0, 0, testBitmap.image.width, testBitmap.image.height, testBitmap.image.imageData);
 
-
-		//Draw alignment lines
-		SGE::Render::DrawRow(targetDisplay, 0, 110, 10, 128, 128, 128);
-		SGE::Render::DrawRow(targetDisplay, 0, 10, 110, 128, 128, 128);
-		SGE::Render::DrawRow(targetDisplay, 0, 210, 10, 128, 128, 128);
-		SGE::Render::DrawColumn(targetDisplay, 210, 0, 10, 128, 128, 128);
 
 		if (triangleFlip)
 		{
 			//Draw Filled triangles
-			SGE::Render::DrawFilledTriangles(targetDisplay, 10, 10, 15.0, letterSTriangleFill, 3 * 26, 128, 64, 0);
+			//SGE::Render::DrawFilledTriangles(targetDisplay, 10, 10, 15.0, letterSTriangleFill, 3 * 26, 128, 64, 0);
 
 			//Draw VertexPoints
-			SGE::Render::DrawVectorShape(targetDisplay, 10, 10, 15.0, 28, letterSVectorPoints, 255, 128, 0);
+			SGE::Render::DrawVectorShape(targetDisplay, testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 255, 128, 0);
 
 
-			SGE::Render::DrawVectorShapeNeo(targetDisplay, 10, 10, 15.0, 28, letterSVectorPoints, 0, 255, 128);
+			SGE::Render::DrawVectorShapeNeo(targetDisplay, testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 0, 255, 128);
 		}
 		else
 		{
 			//Draw Filled triangles
-			SGE::Render::DrawFilledTriangles(targetDisplay, 10, 10, 15.0, letterSTriangleFill, 3 * 26, 128, 64, 0);
+			//SGE::Render::DrawFilledTriangles(targetDisplay, 10, 10, 15.0, letterSTriangleFill, 3 * 26, 128, 64, 0);
 
-			SGE::Render::DrawVectorShapeNeo(targetDisplay, 10, 10, 15.0, 28, letterSVectorPoints, 0, 255, 128);
+			SGE::Render::DrawVectorShapeNeo(targetDisplay, testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 0, 255, 128);
 			//Draw VertexPoints
-			SGE::Render::DrawVectorShape(targetDisplay, 10, 10, 15.0, 28, letterSVectorPoints, 255, 128, 0);
+			SGE::Render::DrawVectorShape(targetDisplay, testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 255, 128, 0);
 		}
 
 		
