@@ -140,7 +140,181 @@ namespace SGE
 			}
 		}
 
+		void DrawLineNeo(
+			SGE::VirtualDisplay* targetDisplay,			//Target Display to render onto
+			int startX,									//Target X location to start drawing from
+			int startY,									//Target Y location to start drawing from
+			int endX,									//Target X location to end drawing at
+			int endY,									//Target Y location to end drawing at
+			unsigned char rColor,						//8-bit (0-255) Red component of the pixel color
+			unsigned char gColor,						//8-bit (0-255) Green component of the pixel color
+			unsigned char bColor)						//8-bit (0-255) Blue component of the pixel color
+		{
+			//Error check... 
+			//No negative points:  Correct to 0
+			//No out of bound points:  Correct to Max allowable.
 
+			//Error check:  StartX
+			//Check to see if startX is negative
+			if (startX < 0)
+			{
+				//Out of bounds, clip to 0
+				startX = 0;
+			}
+			//Check to see if startX is out of bounds of the display
+			else if (startX >= targetDisplay->virtualVideoX)
+			{
+				//Out of bounds, clip to max
+				startX = targetDisplay->virtualVideoX - 1;
+			}
+
+			//Error check:  StartY
+			//Check to see if startY is negative
+			if (startY < 0)
+			{
+				startY = 0;
+			}
+			//Check to see if startY is out of bounds of the display
+			else if (startY >= targetDisplay->virtualVideoY)
+			{
+				startY = targetDisplay->virtualVideoY - 1;
+			}
+
+			//Error check:  EndX
+			//Check to see if EndX is negative
+			if (endX < 0)
+			{
+				endX = 0;
+			}
+			//Check ot see if the EndX is out of bounds of the display
+			else if (endX >= targetDisplay->virtualVideoX)
+			{
+				endX = targetDisplay->virtualVideoX - 1;
+			}
+
+			//Error check:  EndY
+			//Check to see if the EndY is negative
+			if (endY < 0)
+			{
+				endY = 0;
+			}
+			//Check to see if the EndY is out of bounds of the display
+			else if (endY >= targetDisplay->virtualVideoY)
+			{
+				endY = targetDisplay->virtualVideoY - 1;
+			}
+
+			//Calculate the X and Y deltas
+			int deltaX = endX - startX;
+			int deltaY = endY - startY;
+
+			//Determine the type of traversal
+			//Variables to keep track important things
+			int bigDelta = 0;
+			int smallDelta = 0;
+			int deltaRAMStep = 0;
+			int errorRAMStep = 0;
+
+			//Either X or Y traversal, depending on which delta is larger.
+			//Multipy both by themselves, to get rid of negative signs
+			//If X is the bigger delta
+			if (deltaX * deltaX > deltaY * deltaY)
+			{
+				//Set the big and small delta
+				bigDelta = deltaX;
+				smallDelta = deltaY;
+
+				//Set the RAM stepping based on if the deltaX is negative or positive
+				if (deltaX > 0)
+				{
+					deltaRAMStep = 1;
+
+					//Set the error stepping based on if the deltaY is negative or positive
+					errorRAMStep = targetDisplay->virtualVideoX;
+				}
+				else
+				{
+					deltaRAMStep = -1;
+
+					//Set the error stepping based on if the deltaY is negative or positive
+					errorRAMStep = -targetDisplay->virtualVideoX;
+				}
+
+				//Set the error stepping based on if the deltaY is negative or positive
+				errorRAMStep = targetDisplay->virtualVideoX;				
+			}
+			//Else Y is the bigger delta
+			else
+			{
+				//Set the big and small delta
+				bigDelta = deltaY;
+				smallDelta = deltaX;
+
+				//Set the RAM stepping based on if the deltaY is negative or positive
+				if (deltaY > 0)
+				{
+					deltaRAMStep = targetDisplay->virtualVideoX;
+
+					//Set the error stepping
+					errorRAMStep = 1;
+				}
+				else
+				{
+					deltaRAMStep = -targetDisplay->virtualVideoX;
+
+					//Set the error stepping
+					errorRAMStep = -1;
+				}
+
+
+			}
+
+			//Calculate the integer slope amount and error decimal
+			int errorDelta = (smallDelta * DRAWING_DECIMAL_RESOLUTION) / bigDelta;
+			
+			//Initialize the current error
+			int currentError = 0;
+
+			//Determine starting RAM location
+			int currentRAMLocation = startX + startY * targetDisplay->virtualVideoX;
+
+			//Pack the colors up into useful data
+			//Since if we have gotten this far, we are actually going to try to plot this thing
+			unsigned int pixelData = PackColors(rColor, gColor, bColor);
+
+			//Make sure the bigDelta sign if positive (get the cheap absolute value)
+			if (bigDelta < 0)
+			{
+				bigDelta = -bigDelta;
+			}
+
+			//Step through each point, going the direction of the bigger delta
+			for (int i = 0; i < bigDelta; i++)
+			{
+				//Plot a point for the current location
+				memcpy(&targetDisplay->virtualVideoRAM[currentRAMLocation], &pixelData, 4);
+
+				//Move to the next place in memory
+				currentRAMLocation += deltaRAMStep;
+
+				//Process the error
+				currentError += errorDelta;
+
+				//Check to see if enough error has accumulated to warrant correction.
+				//In the negative direction
+				if (currentError <= -DRAWING_DECIMAL_RESOLUTION)
+				{
+					currentRAMLocation -= errorRAMStep;
+					currentError += DRAWING_DECIMAL_RESOLUTION;
+				}
+				//In the positive direction
+				else if (currentError >= DRAWING_DECIMAL_RESOLUTION)
+				{
+					currentRAMLocation += errorRAMStep;
+					currentError -= DRAWING_DECIMAL_RESOLUTION;
+				}
+			}
+		}
 
 		//Draw a free line
 		void DrawLine(
@@ -171,24 +345,20 @@ namespace SGE
 			//Check for any straight lines and use the more efficient functions
 
 			//The line is straight up or a column, draw as such
-			if (deltaX == 0)
-			{
-				//No change in X, this is probably a Column that needs to be drawn.
-				DrawColumn(targetDisplay, startX, startY, endY - startY, rColor, gColor, bColor);
-				return;
-			}
+			//if (deltaX == 0)
+			//{
+			//	//No change in X, this is probably a Column that needs to be drawn.
+			//	DrawColumn(targetDisplay, startX, startY, endY - startY, rColor, gColor, bColor);
+			//	return;
+			//}
 
 			//The line is horizontal or a row, draw as such
-			if (deltaY == 0)
-			{
-				//No change in Y, this is probably a row that needs to be drawn.
-				DrawRow(targetDisplay, startX, startY, endX - startX, rColor, gColor, bColor);
-				return;
-			}
-
-
-
-
+			//if (deltaY == 0)
+			//{
+			//	//No change in Y, this is probably a row that needs to be drawn.
+			//	DrawRow(targetDisplay, startX, startY, endX - startX, rColor, gColor, bColor);
+			//	return;
+			//}
 
 			//Determine orientation
 			//Here we determine which way the line is going to adjust parameters for drawing
@@ -536,6 +706,23 @@ namespace SGE
 					startY + int((vertexes[(i + 1) % numberOfVertexes].y) * scalingFactor), 
 					rColor, 
 					gColor, 
+					bColor);
+			}
+		}
+
+		void DrawVectorShapeNeo(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor)
+		{
+			//Go through the vertex point list and draw lines
+			for (int i = 0; i < numberOfVertexes; i++)
+			{
+				//Draw a line between two points on the vertex, wrapping the last and first at the very end.
+				DrawLineNeo(targetDisplay,
+					startX + int((vertexes[i].x) * scalingFactor),
+					startY + int((vertexes[i].y) * scalingFactor),
+					startX + int((vertexes[(i + 1) % numberOfVertexes].x) * scalingFactor),
+					startY + int((vertexes[(i + 1) % numberOfVertexes].y) * scalingFactor),
+					rColor,
+					gColor,
 					bColor);
 			}
 		}

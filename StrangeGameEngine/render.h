@@ -93,6 +93,40 @@ namespace SGE
 			int y;
 		};
 
+		//Structure to handle Color Data
+		struct ColorInfo
+		{
+			unsigned char red;
+			unsigned char green;
+			unsigned char blue;
+			unsigned char xData;
+		};
+
+
+		//Class that maintains time data and relevant vector, points, or other associated data.
+		class TimedVectors
+		{
+		private:
+
+		public:
+			unsigned int numberOfVectors;
+
+			VertexPoint* vectorList;
+			ColorInfo* colorList;
+			int* timeList;
+
+
+
+			TimedVectors();
+			~TimedVectors();
+
+			void StartTimer();
+			void StopTimer();
+			
+			int CheckpointTimer();
+		};
+
+
 		//Draw a character to the screen
 		void Draw8x8Character(SGE::VirtualDisplay* targetDisplay, char character, const unsigned long long characterROM[], int targetX, int targetY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
@@ -140,6 +174,12 @@ namespace SGE
 
 		//Draw a list of triangles
 		void DrawFilledTriangles(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+
+
+		void DrawVectorShapeNeo(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor);
+
+
+		void DrawLineNeo(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int endX, int endY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//
 		const int DRAWING_DECIMAL_RESOLUTION = 1000;
