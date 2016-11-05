@@ -144,12 +144,12 @@
     <ClCompile Include="system.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="display.h" />
-    <ClInclude Include="gui.h" />
-    <ClInclude Include="controls.h" />
-    <ClInclude Include="render.h" />
-    <ClInclude Include="sound.h" />
-    <ClInclude Include="system.h" />
+    <ClInclude Include="include\SGE\controls.h" />
+    <ClInclude Include="include\SGE\display.h" />
+    <ClInclude Include="include\SGE\gui.h" />
+    <ClInclude Include="include\SGE\render.h" />
+    <ClInclude Include="include\SGE\sound.h" />
+    <ClInclude Include="include\SGE\system.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

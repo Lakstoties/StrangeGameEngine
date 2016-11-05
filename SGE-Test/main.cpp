@@ -64,7 +64,7 @@ void AnimationPattern(bool& testPatternRunning, SGE::VirtualDisplay* targetDispl
 	delete[] testDataBlock;
 }
 
-void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::SoundSystem* targetSoundSystem)
+void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::Sound::SoundSystem* targetSoundSystem)
 {
 	char* menuItemText[5] =
 	{
@@ -108,12 +108,12 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 
 	//Generate Sine Wave some channel
 
-	short* testSineWave = targetSoundSystem->SineGenerator(1, SGE::SoundSystem::SAMPLE_RATE, 5000);
-	short* testTriangleWave = targetSoundSystem->TriangleGenerator(1, SGE::SoundSystem::SAMPLE_RATE, 5000);
-	short* testPulseWave = targetSoundSystem->PulseGenerator(1, 0.50, SGE::SoundSystem::SAMPLE_RATE, 5000);
+	short* testSineWave = SGE::Sound::Generators::SineGenerator(1, SGE::Sound::SAMPLE_RATE, 5000);
+	short* testTriangleWave = SGE::Sound::Generators::TriangleGenerator(1, SGE::Sound::SAMPLE_RATE, 5000);
+	short* testPulseWave = SGE::Sound::Generators::PulseGenerator(1, 0.50, SGE::Sound::SAMPLE_RATE, 5000);
 
 
-	SGE::SoundSystemWaveFile testFile;
+	SGE::Sound::SoundSystemWaveFile testFile;
 
 	testFile.LoadFile("TestSample.wav");
 
@@ -123,14 +123,14 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 	{
 		//Load SineWave in channel
 		//targetSoundSystem->soundChannels[i].LoadSoundBuffer(testFile.numberOfSamples, testFile.audioData[0]);
-		targetSoundSystem->soundChannels[i].LoadSoundBuffer(SGE::SoundSystem::SAMPLE_RATE, testSineWave);
+		targetSoundSystem->soundChannels[i].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testSineWave);
 
 
 		//Set the key of the channel
 		targetSoundSystem->soundChannels[i].SetKey(1);
 
 		//Set the pitches of the channel
-		targetSoundSystem->soundChannels[i].SetPitch(targetSoundSystem->MIDI_NOTE_FRENQUENCY[i + 60]);
+		targetSoundSystem->soundChannels[i].SetPitch(SGE::Sound::MIDI_NOTE_FRENQUENCY[i + 60]);
 
 		//Set the channel to loop
 		targetSoundSystem->soundChannels[i].loop = true;
@@ -313,15 +313,15 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		//Pan to Left
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_O])
 		{
-			targetSoundSystem->soundChannels[0].SetPan(targetSoundSystem->soundChannels[0].GetPan() - 0.01f);
-			printf("Debug - Channel 0 Pan: %f\n", targetSoundSystem->soundChannels[0].GetPan());
+			targetSoundSystem->soundChannels[0].pan -= 0.001f;
+			printf("Debug - Channel 0 Pan: %f\n", targetSoundSystem->soundChannels[0].pan);
 		}
 
 		//Pan to Right
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_P])
 		{
-			targetSoundSystem->soundChannels[0].SetPan(targetSoundSystem->soundChannels[0].GetPan() + 0.01f);
-			printf("Debug - Channel 0 Pan: %f\n", targetSoundSystem->soundChannels[0].GetPan());
+			targetSoundSystem->soundChannels[0].pan += 0.001f;
+			printf("Debug - Channel 0 Pan: %f\n", targetSoundSystem->soundChannels[0].pan);
 		}
 
 
@@ -329,15 +329,15 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		//Decrease volume
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_Q])
 		{
-			targetSoundSystem->soundChannels[0].volume -= .001f;
-			printf("Debug - Channel 0 Volume: %f\n", targetSoundSystem->soundChannels[0].volume);
+			targetSoundSystem->soundChannels[0].volume -= 0.001f;
+			printf("Debug - Channel 0 Volume Left: %f\n", targetSoundSystem->soundChannels[0].volume);
 		}
 
 		//Increase volume
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_W])
 		{
-			targetSoundSystem->soundChannels[0].volume += .001f;
-			printf("Debug - Channel 0 Volume: %f\n", targetSoundSystem->soundChannels[0].volume);
+			targetSoundSystem->soundChannels[0].volume += 0.001f;
+			printf("Debug - Channel 0 Volume Left: %f\n", targetSoundSystem->soundChannels[0].volume);
 		}
 
 
@@ -365,14 +365,14 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		//Decrease volume
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_Z])
 		{
-			targetSoundSystem->masterVolume -= .001f;
+			targetSoundSystem->masterVolume -= 0.001f;
 			printf("Debug - Master Volume: %f\n", targetSoundSystem->masterVolume);
 		}
 
 		//Increase volume
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_X])
 		{
-			targetSoundSystem->masterVolume += .001f;
+			targetSoundSystem->masterVolume += 0.001f;
 			printf("Debug - Master Volume: %f\n", targetSoundSystem->masterVolume);
 		}
 

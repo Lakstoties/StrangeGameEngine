@@ -1,4 +1,4 @@
-#include "display.h"
+#include "include\SGE\display.h"
 
 namespace SGE
 {
@@ -80,7 +80,6 @@ namespace SGE
 				//Load the identity matrix
 				glLoadIdentity();
 			
-
 				//Set this as the texture to use.
 				glBindTexture(GL_TEXTURE_2D, textureHandle);
 
@@ -93,7 +92,6 @@ namespace SGE
 
 				//Done Drawing that
 				glEnd();
-
 
 				//Display the new shit after we are done drawing it
 				glfwSwapBuffers(targetWindow);

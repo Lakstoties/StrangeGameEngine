@@ -1,4 +1,4 @@
 #pragma once
 
-#include "system.h"
+#include "include\SGE\system.h"
 #include <cmath>

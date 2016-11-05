@@ -1,4 +1,4 @@
-﻿#include "render.h"
+﻿#include "include\SGE\render.h"
 namespace SGE
 {
 	namespace Render
@@ -403,7 +403,7 @@ namespace SGE
 			//Calculate the integer slope amount and error decimal
 			int errorDelta = (otherDelta * DRAWING_DECIMAL_RESOLUTION) / iterationDelta;
 
-			//
+			//Get the absolute value of the erroDelta, so make sure it is positive.
 			if (errorDelta < 0)
 			{
 				errorDelta = -errorDelta;

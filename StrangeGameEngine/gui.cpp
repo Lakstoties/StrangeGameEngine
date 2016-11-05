@@ -1,4 +1,4 @@
-#include "gui.h"
+#include "include\SGE\gui.h"
 
 namespace SGE
 {

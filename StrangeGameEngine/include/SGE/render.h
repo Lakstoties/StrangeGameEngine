@@ -13,11 +13,11 @@ namespace SGE
 				//Bitmap File Header
 				struct BMPFileHeader
 				{
-					char idField[2];		//ID Field,  should be "BM" for Bitmap.
-					unsigned int bmpSize;	//Bitmap file size
+					char idField[2];				//ID Field,  should be "BM" for Bitmap.
+					unsigned int bmpSize;			//Bitmap file size
 					unsigned short reserved1;		//Reserved data that's application specific
 					unsigned short reserved2;		//Reserved data that's application specific
-					unsigned int offset;	//The offset/address where the bitmap image data can be found.
+					unsigned int offset;			//The offset/address where the bitmap image data can be found.
 				};
 
 				//Basic Bitmap info header... Mostly all the info we really need... hopefully.

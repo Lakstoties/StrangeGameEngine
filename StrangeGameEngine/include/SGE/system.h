@@ -37,7 +37,7 @@ namespace SGE
 		//Currently, there is no limitation on multiple sound systems, but some platforms and APIs don't support multiple PortAudio streams
 		//that would be created by multiple sound systems.
 		//Extern to keep the linker from being confused, defined in system.cpp
-		extern SGE::SoundSystem* mainSoundSystem;
+		extern SGE::Sound::SoundSystem* mainSoundSystem;
 
 		//Static method for the GLFW error callback
 		void GLFWErrorCallback(int error, const char* description);

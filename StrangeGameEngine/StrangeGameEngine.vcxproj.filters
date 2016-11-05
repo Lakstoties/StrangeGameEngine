@@ -35,22 +35,22 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="display.h">
+    <ClInclude Include="include\SGE\controls.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="system.h">
+    <ClInclude Include="include\SGE\display.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sound.h">
+    <ClInclude Include="include\SGE\gui.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="gui.h">
+    <ClInclude Include="include\SGE\render.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="render.h">
+    <ClInclude Include="include\SGE\sound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="controls.h">
+    <ClInclude Include="include\SGE\system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

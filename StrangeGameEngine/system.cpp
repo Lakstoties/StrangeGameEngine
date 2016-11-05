@@ -1,4 +1,4 @@
-#include "system.h"
+#include "include\SGE\system.h"
 
 namespace SGE
 {
@@ -8,7 +8,7 @@ namespace SGE
 		bool systemStarted = false;
 		
 		//Main sound system pointer
-		SGE::SoundSystem* mainSoundSystem = nullptr;
+		SGE::Sound::SoundSystem* mainSoundSystem = nullptr;
 
 		//Main virtual display pointer
 		SGE::VirtualDisplay* mainDisplay = nullptr;
@@ -33,7 +33,7 @@ namespace SGE
 			glfwSetErrorCallback(GLFWErrorCallback);
 
 			//Create a sound system
-			mainSoundSystem = new SGE::SoundSystem();
+			mainSoundSystem = new SGE::Sound::SoundSystem();
 
 			//Start up the sound system
 			mainSoundSystem->Start();

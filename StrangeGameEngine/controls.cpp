@@ -1,4 +1,4 @@
-#include "controls.h"
+#include "include\SGE\controls.h"
 
 namespace SGE
 {
