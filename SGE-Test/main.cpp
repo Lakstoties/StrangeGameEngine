@@ -1,69 +1,5 @@
 ﻿#include "main.h"
 
-
-void TestPattern(bool& testPatternRunning, int displayX, int displayY, unsigned int targetVideoRAM[])
-{
-	int rColor = 0;
-	int gColor = 0;
-	int bColor = 0;
-	int aColor = 255;
-
-	while (testPatternRunning)
-	{
-		//Test Pattern!
-		for (int i = 0; i < (displayX * displayY); i++)
-		{
-			rColor = (rColor + 1) % 256;
-			gColor = (gColor + 3) % 256;
-			bColor = (bColor + 5) % 256;
-
-			targetVideoRAM[i] = SGE::Render::PackColors(rColor, gColor, bColor);
-
-		}
-		rColor++;
-		gColor++;
-		bColor++;
-
-		//Wait a little after each iteration
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	}
-}
-
-
-void AnimationPattern(bool& testPatternRunning, SGE::VirtualDisplay* targetDisplay)
-{
-	int shiftDraw = 0;
-	unsigned int* testDataBlock;
-
-	testDataBlock = new unsigned int[25 * 25];
-	memset(testDataBlock, 255, 25 * 25 * 4);
-
-	while (testPatternRunning)
-	{
-		//Test Pattern!
-
-		//Lock the display refresh
-		targetDisplay->refreshHold.lock();
-
-		SGE::Render::ZBlank(targetDisplay);
-		SGE::Render::DrawRow(targetDisplay, 10, 201, 400, 20, 50, 150);
-		SGE::Render::DrawColumn(targetDisplay, 200, 20, 300, 150, 20, 50);
-		SGE::Render::DrawRectangle(targetDisplay, 0, 0, 319 - shiftDraw, 239 - shiftDraw, 50, 150, 20);
-		SGE::Render::DrawLine(targetDisplay, 50 + shiftDraw, 50, 200 - shiftDraw, 200, 75, 200, 200);
-		SGE::Render::DrawDataBlock(targetDisplay, 0+shiftDraw, 25, 25, 25, testDataBlock);
-
-		//Unlock the display refresh
-		targetDisplay->refreshHold.unlock();
-
-		shiftDraw = (shiftDraw + 1) % 239;
-
-		//Wait a little after each iteration
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
-	}
-
-	delete[] testDataBlock;
-}
-
 void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::Sound::SoundSystem* targetSoundSystem)
 {
 	char* menuItemText[5] =
@@ -145,11 +81,6 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		targetSoundSystem->soundChannels[i].adsrActive = true;
 	}
 
-
-
-
-
-	
 	bool previousReturnState = false;
 
 	testMenu.CursorOn();
@@ -259,51 +190,22 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		if (triangleFlip)
 		{
 			//Draw Filled triangles
-			//SGE::Render::DrawFilledTriangles(targetDisplay, 10, 10, 15.0, letterSTriangleFill, 3 * 26, 128, 64, 0);
+			SGE::Render::DrawFilledTriangles(targetDisplay, 10, 10, 15.0, letterSTriangleFill, 3 * 26, 128, 64, 0);
 
 			//Draw VertexPoints
 			SGE::Render::DrawVectorShape(targetDisplay, testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 255, 128, 0);
-
-
-			SGE::Render::DrawVectorShapeNeo(targetDisplay, testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 0, 255, 128);
 		}
 		else
 		{
 			//Draw Filled triangles
-			//SGE::Render::DrawFilledTriangles(targetDisplay, 10, 10, 15.0, letterSTriangleFill, 3 * 26, 128, 64, 0);
+			SGE::Render::DrawFilledTriangles(targetDisplay, 10, 10, 15.0, letterSTriangleFill, 3 * 26, 128, 64, 0);
 
-			SGE::Render::DrawVectorShapeNeo(targetDisplay, testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 0, 255, 128);
-			//Draw VertexPoints
-			SGE::Render::DrawVectorShape(targetDisplay, testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 255, 128, 0);
+			SGE::Render::DrawVectorShape(targetDisplay, testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 0, 255, 128);
 		}
 
-		
-
-		if (triangleFlip)
-		{
-			//Draw filled triangle
-			//SGE::Render::DrawFilledTriangleTrue(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 0, 255);
-
-			//Draw filled triangle
-			//SGE::Render::DrawFilledTriangleFast(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 255, 0);
-
-		}
-		else
-		{
-			//Draw filled triangle
-			//SGE::Render::DrawFilledTriangleFast(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 255, 0);
-
-			//Draw filled triangle
-			//SGE::Render::DrawFilledTriangleTrue(targetDisplay, 10, 10, 1.0, { 0,0 }, { 0,200 }, { 200,0 }, 255, 0, 255);
-		}
-
-
-
-
-
-		
+	
 		//Draw Menu
-		//testMenu.Draw(targetDisplay);
+		testMenu.Draw(targetDisplay);
 		
 		//Unlock the display refresh
 		targetDisplay->refreshHold.unlock();
@@ -421,11 +323,6 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 				}
 			}
 		}
-
-
-
-
-
 
 		//Sound keys stuff
 		//Number Key 0
@@ -558,9 +455,6 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 			}
 		}
 
-		
-
-
 		//Select box stuff
 		//If the Down key state has changed and it wasn't pressed previously
 		if (lastKeyboardState.KeyChanged(GLFW_KEY_DOWN) && !lastKeyboardState.GetPreviousState(GLFW_KEY_DOWN))
@@ -619,8 +513,6 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 //The starting point for all bad ideas...
 int main(int argc, char *argv[])
 {
-	bool patternCheck = false;
-	bool animationCheck = false;
 	bool inputCheck = true;
 
 	//Check the arguments
@@ -628,20 +520,7 @@ int main(int argc, char *argv[])
 	if (argc > 1)
 	{
 		//Check to see what it is
-		
-		//If "--PatternCheck" activate the patternCheck mode and disable the others.
-		if (strncmp(argv[1], "--PatternCheck", 14) == 0)
-		{
-			inputCheck = false;
-			patternCheck = true;
-		}
-
-		//If "--AnimationCheck" activate the animationCheck mode and disable the others.
-		else if (strncmp(argv[1], "--AnimationCheck", 16) == 0)
-		{
-			inputCheck = false;
-			animationCheck = true;
-		}
+	
 	}
 
 
@@ -658,16 +537,8 @@ int main(int argc, char *argv[])
 
 	//Launch the actual logic threads, before handling events.
 
-	//Test pattern system thread
-	std::thread testPatternThread(TestPattern, std::ref(patternCheck), SGE::System::mainDisplay->virtualVideoX, SGE::System::mainDisplay->virtualVideoY, SGE::System::mainDisplay->virtualVideoRAM);
-
-	//Animation check thread
-	std::thread testAnimationPatternThread(AnimationPattern, std::ref(animationCheck), SGE::System::mainDisplay);
-	
 	//Input Test thread
 	std::thread testInputThread(InputTest, std::ref(inputCheck), SGE::System::mainDisplay, SGE::System::mainSoundSystem);
-
-
 	
 	//Start drawing
 	SGE::System::StartDrawing();
@@ -682,19 +553,10 @@ int main(int argc, char *argv[])
 	SGE::System::StopDrawing();
 
 
-	//The program is pretty much done with the event handler quits, so start closing everything out.
-	//Signal Test Pattern to Stop
-	patternCheck = false;
-
-	//Signal Animation Check to Stop
-	animationCheck = false;
-
 	//Signal Input Check to Stop
 	inputCheck = false;
 	
 	//Wait for all the threads to join back
-	testPatternThread.join();
-	testAnimationPatternThread.join();
 	testInputThread.join();
 
 	//Shutdown the Strange Game Engine

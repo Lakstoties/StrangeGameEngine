@@ -142,12 +142,6 @@ namespace SGE
 		//Draw a line from one point to another
 		void DrawLine(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int endX, int endY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
-		//Draw a line row
-		void DrawRow(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int width, unsigned char rColor, unsigned char gColor, unsigned char bColor);
-
-		//Draw a line column
-		void DrawColumn(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int height, unsigned char rColor, unsigned char gColor, unsigned char bColor);
-
 		//Draw a rectangle
 		void DrawRectangle(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int width, int height, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
@@ -174,12 +168,6 @@ namespace SGE
 
 		//Draw a list of triangles
 		void DrawFilledTriangles(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, unsigned char rColor, unsigned char gColor, unsigned char bColor);
-
-
-		void DrawVectorShapeNeo(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor);
-
-
-		void DrawLineNeo(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int endX, int endY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//
 		const int DRAWING_DECIMAL_RESOLUTION = 1000;

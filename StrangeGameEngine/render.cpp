@@ -140,7 +140,7 @@ namespace SGE
 			}
 		}
 
-		void DrawLineNeo(
+		void DrawLine(
 			SGE::VirtualDisplay* targetDisplay,			//Target Display to render onto
 			int startX,									//Target X location to start drawing from
 			int startY,									//Target Y location to start drawing from
@@ -447,256 +447,6 @@ namespace SGE
 			}
 		}
 
-		//Draw a free line
-		void DrawLine(
-			SGE::VirtualDisplay* targetDisplay,			//Target Display to render onto
-			int startX,									//Target X location to start drawing from
-			int startY,									//Target Y location to start drawing from
-			int endX,									//Target X location to draw to
-			int endY,									//Target Y location to draw to
-			unsigned char rColor,						//8-bit (0-255) Red component of the pixel color
-			unsigned char gColor,						//8-bit (0-255) Green component of the pixel color
-			unsigned char bColor)						//8-bit (0-255) Blue component of the pixel color
-		{
-			int deltaL;									//The amount of error compensation per correction
-			int currentRAM;								//Current point in Video RAM to start drawing from
-			int loopRAMStep;							//Which way we are suppose to move in Video RAM to simulate moving via the X axis
-			int loopRAMJump;							//Which way we are suppose to move in Video RAM to simulate moving via the Y axis
-			int maxRAMBytes;							//The maximum size of Video RAM
-			int errorL;									//The amount of error accumulated for each step of drawing the line
-			int error;									//The amount of error accumulated from drawing the line so far
-
-			//Calculate deltas
-			int deltaX = endX - startX;					//The amount of change in X coordinate from start to end 
-			int deltaY = endY - startY;					//The amount of change in Y coordinate from start to end
-
-			//Pack the color components up into ready to write form
-			unsigned int colorValues = PackColors(rColor, gColor, bColor);
-
-			//Truncate points that go outside the valid bounds
-
-
-
-
-
-
-			//Determine orientation
-			//Here we determine which way the line is going to adjust parameters for drawing
-
-			//X greater octet
-			if (abs(deltaX) > abs(deltaY))
-			{
-				//Determine X direction
-				if (deltaX > 0)
-					loopRAMStep = 1;
-				else
-					loopRAMStep = -1;
-
-				//Determine Y direction
-				if (deltaY > 0)
-					loopRAMJump = targetDisplay->virtualVideoX;
-				else
-					loopRAMJump = -targetDisplay->virtualVideoX;
-
-				//Set the DeltaL
-				deltaL = abs(deltaX);
-
-				//Set the Error
-				errorL = abs(deltaY);
-			}
-			//Y greater octet
-			else
-			{
-				//Determine X direction
-				if (deltaX > 0)
-					loopRAMJump = 1;
-				else
-					loopRAMJump = -1;
-
-				//Determine Y direction
-				if (deltaY > 0)
-					loopRAMStep = targetDisplay->virtualVideoX;
-				else
-					loopRAMStep = -targetDisplay->virtualVideoX;
-
-				//Set the DeltaL
-				deltaL = abs(deltaY);
-
-				//Set the Error
-				errorL = abs(deltaX);
-			}
-
-			//Do some common and mostly static calculations
-			currentRAM = (startX + (startY * targetDisplay->virtualVideoX));
-			maxRAMBytes = targetDisplay->virtualVideoX * targetDisplay->virtualVideoY;
-
-
-			//Initialize error
-			error = -deltaL;
-
-			for (int i = 0;
-				i <= deltaL &&					//For the number of points to drop
-				currentRAM < maxRAMBytes &&		//Don't exceed maximum RAM
-				currentRAM >= 0;				//Don't exceed RAM the other way
-				i++)
-			{
-				//Plot point
-				memcpy(&targetDisplay->virtualVideoRAM[currentRAM], &colorValues, 4);
-
-				//Increment to the next RAM location
-				currentRAM += loopRAMStep;
-
-				//Calculate the error
-				error += errorL;
-
-				//Check for error jump
-				if (error >= 0)
-				{
-					//Adjust drawing position to compensate for error
-					currentRAM += loopRAMJump;
-
-					//Adjust error amount to show latest compensation
-					error -= deltaL;
-				}
-			}
-		}
-
-
-		//Draw a line row
-		void DrawRow(
-			SGE::VirtualDisplay* targetDisplay,		//Target Display to render onto
-			int startX,								//Starting X point (Upper Left Corner)
-			int startY,								//Starting Y point (Upper Left Corner)
-			int width,								//Desired width of row line
-			unsigned char rColor,					//8-bit (0-255) Red color component
-			unsigned char gColor,					//8-bit (0-255) Green color component
-			unsigned char bColor)					//8-bit (0-255) Blue color component
-		{
-			//Do the calculations once for common bits
-
-			//Figure out the starting point in video RAM
-			int currentRAM = (startX + startY*targetDisplay->virtualVideoX);
-
-			//Figure out the maximum VRAM size
-			int displayRAMSize = targetDisplay->virtualVideoX * targetDisplay->virtualVideoY;
-
-			//Direction and amount to step in ram
-			int ramStep = 0;
-
-			//Pack those colors up
-			unsigned int colorValues = PackColors(rColor, gColor, bColor);
-
-
-			//Check to see which direction we are going
-			//If the width is negative and going to the left
-			if (width < 0)
-			{
-				//Set ram stepping
-				ramStep = -1;
-
-				//Flip the width sign to make the for loop happy
-				width *= -1;
-			}
-			//If the width is positive and going to the right
-			else if (width > 0)
-			{
-				//Set the ram stepping
-				ramStep = 1;
-			}
-			//If the width is zero...
-			else
-			{
-				//There's nothing to do, since there's no width.
-				return;
-			}
-
-
-			//Assume we are given valid direction and width
-			for (int i = 0; i < width; i++)
-			{
-				//But check to see if we go well outside normal bounds
-				if (currentRAM < 0 || currentRAM >= displayRAMSize)
-				{
-					//Get of the loop we are done and at the limits
-					break;
-				}
-
-				//Dump the values to memory
-				memcpy(&targetDisplay->virtualVideoRAM[currentRAM], &colorValues, 4);
-
-				//Go to the next ram location
-				currentRAM += ramStep;
-			}
-		}
-
-		//Draw a line column
-		void DrawColumn(
-			SGE::VirtualDisplay* targetDisplay,		//Target Display to render onto
-			int startX,								//Starting X point to draw from (Upper Left Corner)
-			int startY,								//Starting Y point to draw from (Upper Left Corner)
-			int height,								//Height desired for column
-			unsigned char rColor,					//8-bit (0-255) Red color component
-			unsigned char gColor,					//8-bit (0-255) Green color component
-			unsigned char bColor)					//8-bit (0-255) Blue color component
-		{
-			//Do some fairly static calculations once
-			//Starting point in Video RAM
-			int currentRAM = (startX + startY*targetDisplay->virtualVideoX);
-
-			//Calculate the total display RAM size
-			int displayRAMSize = targetDisplay->virtualVideoX * targetDisplay->virtualVideoY;
-
-			//Direct to which to step around in the RAM
-			int ramStep = 0;
-
-
-			//Pack the color components up
-			unsigned int colorValues = PackColors(rColor, gColor, bColor);
-
-
-			//Check to see which direction we are going
-			//If we are going up
-			if (height < 0)
-			{
-				//Set the ramstep
-				ramStep = -targetDisplay->virtualVideoX;
-
-				//Flip the sign on the height, so the for loop is happy.
-				height *= -1;
-			}
-			//If we are going down
-			else if (height > 0)
-			{
-				ramStep = targetDisplay->virtualVideoX;
-			}
-			//If we aren't... going anywhere...
-			else
-			{
-				//Height 0 doesn't make sense, there's nothing to do
-				//... so return.
-				return;
-			}
-
-
-			//Assuming we are drawing down a legitmate path
-			for (int i = 0; i < height; i++)
-			{
-				//Check to make sure we haven't gone off the rails
-				//and are about to violate memory regions.
-				if (currentRAM < 0 || currentRAM >= displayRAMSize)
-				{
-					//Break out of the loop, we have reached the end of valid territory.
-					break;
-				}
-
-				//Dump the values to the memory location
-				memcpy(&targetDisplay->virtualVideoRAM[currentRAM], &colorValues, 4);
-
-				//Go to the next point
-				currentRAM += ramStep;
-			}
-		}
-
 		//Draw a hollow rectangle of a given color and in a desired location of a desired size
 		void DrawRectangle(
 			SGE::VirtualDisplay* targetDisplay,		//Target Display to render onto
@@ -709,16 +459,16 @@ namespace SGE
 			unsigned char bColor)					//8-bit (0-255) Blue color component
 		{
 			//Top Row Line
-			DrawRow(targetDisplay, startX, startY, width, rColor, gColor, bColor);
+			DrawLine(targetDisplay, startX, startY, startX + width - 1, startY, rColor, gColor, bColor);
 
 			//Bottom Row Line
-			DrawRow(targetDisplay, startX, startY + height - 1, width, rColor, gColor, bColor);
-
+			DrawLine(targetDisplay, startX, startY + height - 1, startX + width - 1, startY + height, rColor, gColor, bColor);
+			
 			//Left Column Line
-			DrawColumn(targetDisplay, startX, startY + 1, height - 1, rColor, gColor, bColor);
+			DrawLine(targetDisplay, startX, startY, startX, startY + height - 1, rColor, gColor, bColor);
 
 			//Right Column Line
-			DrawColumn(targetDisplay, startX + width - 1, startY + 1, height - 1, rColor, gColor, bColor);
+			DrawLine(targetDisplay, startX + width - 1, startY, startX + width - 1, startY + height - 1, rColor, gColor, bColor);
 		}
 
 
@@ -826,23 +576,6 @@ namespace SGE
 					startY + int((vertexes[(i + 1) % numberOfVertexes].y) * scalingFactor), 
 					rColor, 
 					gColor, 
-					bColor);
-			}
-		}
-
-		void DrawVectorShapeNeo(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor)
-		{
-			//Go through the vertex point list and draw lines
-			for (int i = 0; i < numberOfVertexes; i++)
-			{
-				//Draw a line between two points on the vertex, wrapping the last and first at the very end.
-				DrawLineNeo(targetDisplay,
-					startX + int((vertexes[i].x) * scalingFactor),
-					startY + int((vertexes[i].y) * scalingFactor),
-					startX + int((vertexes[(i + 1) % numberOfVertexes].x) * scalingFactor),
-					startY + int((vertexes[(i + 1) % numberOfVertexes].y) * scalingFactor),
-					rColor,
-					gColor,
 					bColor);
 			}
 		}
