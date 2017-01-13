@@ -10,6 +10,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SGE-Test", "SGE-Test\SGE-Te
 		{FB7761D7-0FBC-414C-BFAA-8C8AD46ED289} = {FB7761D7-0FBC-414C-BFAA-8C8AD46ED289}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Drug War X", "Drug War X\Drug War X.vcxproj", "{D3C29B42-FB98-4D1B-A75A-F4D7CD836279}"
+	ProjectSection(ProjectDependencies) = postProject
+		{FB7761D7-0FBC-414C-BFAA-8C8AD46ED289} = {FB7761D7-0FBC-414C-BFAA-8C8AD46ED289}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -34,6 +39,14 @@ Global
 		{5EFF9F00-4506-457E-9FE0-CB3533A31EE7}.Release|x64.Build.0 = Release|x64
 		{5EFF9F00-4506-457E-9FE0-CB3533A31EE7}.Release|x86.ActiveCfg = Release|Win32
 		{5EFF9F00-4506-457E-9FE0-CB3533A31EE7}.Release|x86.Build.0 = Release|Win32
+		{D3C29B42-FB98-4D1B-A75A-F4D7CD836279}.Debug|x64.ActiveCfg = Debug|x64
+		{D3C29B42-FB98-4D1B-A75A-F4D7CD836279}.Debug|x64.Build.0 = Debug|x64
+		{D3C29B42-FB98-4D1B-A75A-F4D7CD836279}.Debug|x86.ActiveCfg = Debug|Win32
+		{D3C29B42-FB98-4D1B-A75A-F4D7CD836279}.Debug|x86.Build.0 = Debug|Win32
+		{D3C29B42-FB98-4D1B-A75A-F4D7CD836279}.Release|x64.ActiveCfg = Release|x64
+		{D3C29B42-FB98-4D1B-A75A-F4D7CD836279}.Release|x64.Build.0 = Release|x64
+		{D3C29B42-FB98-4D1B-A75A-F4D7CD836279}.Release|x86.ActiveCfg = Release|Win32
+		{D3C29B42-FB98-4D1B-A75A-F4D7CD836279}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

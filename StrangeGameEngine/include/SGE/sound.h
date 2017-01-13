@@ -34,6 +34,18 @@ namespace SGE
 		//This is usually half the maximum number represented by the number of bits
 		const int SAMPLE_MAX_AMPLITUDE = (1 << (SAMPLE_BITS - 1)) - 1;
 
+		//Fixed point math bias
+		const int FIXED_POINT_BIAS = 1000;
+
+		//Max number of envelope entries
+		const int MAX_ENVELOPE_ENTRIES = 10;
+
+		//Number of channels for the system
+		const int MAX_CHANNELS = 32;
+
+		//Number of samples for the system
+		const int MAX_SAMPLE_BUFFERS = 256;
+
 
 		namespace Generators
 		{
@@ -56,27 +68,60 @@ namespace SGE
 		}
 
 
+		//Sample Buffer to contain audio data that sound channels will link to and play from.
+		//For the purposes of the Strange Game Engine.  The data put into these buffers are assumed to be PCM Signed 16-bit at 44.1Khz sample rate.
+		struct SoundSampleBuffer
+		{
+			//Buffer to contain the samples
+			short *buffer = nullptr;
+
+			//Size of the buffer
+			unsigned int bufferSize = 0;
+						
+			//Create a blank buffer of a certain sample size
+			int CreateBlankBuffer(unsigned int numOfSamples);
+
+			//Create a blank buffer, and then load data into it.
+			int LoadSoundBuffer(unsigned int numOfSamples, short *samples);
+
+			//Zero out a buffer completely
+			int ZeroBuffer();
+
+			//Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
+			int ResetBuffer();
+
+			//Destructor to make sure the buffer memory is freed upon destruction to prevent memory leaks.
+			~SoundSampleBuffer();			
+		};
 
 
-		class SoundChannel
+
+		struct SoundChannel
 		{
 		private:
 			//Pitch bits
 			float keyedPitch = 1.0;
-			float currentPitch = 1.0;
+			int currentPitch = 1;
 			float targetPitch = 1.0;
 
-			//Buffer bits
-			short *buffer = nullptr;
-			unsigned int bufferSize = 0;
+			//Offset bits
+			//Absolute sample offset
 			unsigned int offset = 0;
 
-			float offsetIncrement = 0.0f;
+			//Relative sample based timing offset for envelop calculations when the sample is being looped or pitched shifted
+			unsigned int timingOffset = 0;
+
+			//Amount to increment the offset by
+			int offsetIncrement = 0;
 
 		public:
 			SoundChannel();
 			~SoundChannel();
 
+			//Current Sound Sample Buffer in use
+			//Set to the maximum buffers, to indicate one hasn't been selected.
+			 SoundSampleBuffer* currentSampleBuffer = nullptr;
+			
 			//Render functions
 			void RenderSamples(unsigned int numerOfSamples, int* sampleBuffer);
 
@@ -107,54 +152,43 @@ namespace SGE
 			void SetPitch(float pitch);
 			float GetPitch();
 
-			//Functions to changing play offset
-			void SetOffset(unsigned int targetOffset);
-			unsigned int GetOffset();
-
 			//Status State Flags
-			static const int STATUS_NOTLOADED_STATE = 0;
-			static const int STATUS_LOADED_STATE = 1;
+			static const int STATUS_NOT_PLAYING_STATE = 0;
 			static const int STATUS_PLAYING_STATE = 2;
 			static const int STATIS_PAUSED_STATE = 3;
 
 			//Status State
-			int statusState = STATUS_NOTLOADED_STATE;
-
-			//Load buffer with some sample.  Uses SoundSystem sample rate and sample resolution.
-			void LoadSoundBuffer(unsigned int numOfSamples, short *samples);
+			int statusState = STATUS_NOT_PLAYING_STATE;
 
 			//Volumes/Panning
-			float volume = 1.0;
-			float pan  = 0.5;
+			int volume = FIXED_POINT_BIAS;
+			int rightVolume = FIXED_POINT_BIAS;
+			int leftVolume = FIXED_POINT_BIAS;
 			
 			//Looping flag
 			bool loop = false;
 
-			//ADSR State Flags
-			static const int ADSR_NONE_STATE = 0;
-			static const int ADSR_ATTACK_STATE = 1;
-			static const int ADSR_DECAY_STATE = 2;
-			static const int ADSR_SUSTAIN_STATE = 3;
-			static const int ADSR_RELEASE_STATE = 4;
+			//Envelope Table
+			unsigned int numberOfEnvelopeEntries = 0;		//Number of entries in the envelope table.  If it's zero envelopes aren't used.
+			unsigned int currentEnvelopeEntry = 0;			//Current point in the envelope table
+			int currentEnvelopVolume = 0;
 
-			//ADSR State
-			int adsrState = ADSR_NONE_STATE;
+			bool useEnvelope = false;						//Determine whether or not to use an envelope at all.
 
-			//ADSR
-			//Rates
-			float attackRate = 0.0f;
-			float decayRate = 0.0f;
-			float releaseRate = 0.0f;
+			//Sustain
+			unsigned int sustainEntry = 0;					//This determines which entry in the envelop table is the sustain point.
+			bool sustainEnabled = true;						//Determines if sustain is enabled.
 
-			//Levels
-			float maxAttackLevel = 1.0f;
-			float sustainLevel = 0.0f;
+			//State Flags
+			bool triggered = false;
+			
 
-			float adsrLevel = 0.0f;
+			bool sampleIndexExact = false;					//Determines if the sample point defined are relative or exact to handle looping samples and pitch shifting.
 
-			//Flags
-			bool adsrActive = false;
-			bool adsrTriggered = false;
+			unsigned int enveloptableSampleIndex[MAX_ENVELOPE_ENTRIES];
+			int enveloptableVolumeLevel[MAX_ENVELOPE_ENTRIES];
+
+			
 
 		};
 
@@ -211,14 +245,16 @@ namespace SGE
 			unsigned int maxBufferSize = 0;
 
 		public:
-			//Number of channels for the system
-			static const int MAX_CHANNELS = 32;
+
 
 			//All the system's sound channels
 			SoundChannel soundChannels[MAX_CHANNELS];
 
 			//All the sound channel target render buffers
 			int* renderedChannelBuffers[MAX_CHANNELS];
+
+			//All the sound samples in the system
+			SoundSampleBuffer soundSamplesBuffers[Sound::MAX_SAMPLE_BUFFERS];
 
 			//32-bit mixing buffers
 			int* mixingFrameBufferRight;	//Mixing buffer for Right Channel
@@ -228,7 +264,7 @@ namespace SGE
 			static const unsigned long INITIAL_RENDER_FRAME_BUFFER_SIZE = 1024;
 
 			//Master volume for the system
-			float masterVolume = 1.0f;
+			int masterVolume = FIXED_POINT_BIAS;
 
 			//Default constructor
 			SoundSystem();

@@ -9,8 +9,7 @@ namespace SGE
 	//Default frame rate for the frame rate limiter
 	const int DEFAULT_FRAME_RATE_LIMIT = 100;
 	const int DEFAULT_FRAME_WAIT_MILLISECONDS = 1000 / DEFAULT_FRAME_RATE_LIMIT;
-
-
+	
 	//The Virtual Display class to simulate the display component of the Strange Game Engine
 	class VirtualDisplay
 	{

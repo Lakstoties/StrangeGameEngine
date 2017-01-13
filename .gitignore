@@ -44,3 +44,5 @@ StrangeGameEngine/Win32/Debug/StrangeGameEngine.log
 StrangeGameEngine/Win32/Debug/Strange Game Engine.idb
 SGE-Test/Win32/Debug/SGE-Test.log
 SGE-Test/Win32/Release/SGE-Test.Build.CppClean.log
+Drug War X/Debug/Drug War X.Build.CppClean.log
+*.log

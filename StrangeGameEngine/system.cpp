@@ -1,4 +1,5 @@
 #include "include\SGE\system.h"
+#include <GLFW\glfw3.h>
 
 namespace SGE
 {
@@ -13,8 +14,19 @@ namespace SGE
 		//Main virtual display pointer
 		SGE::VirtualDisplay* mainDisplay = nullptr;
 
-		//Main window pointer
+		//GLFW Window pointer for the Strange Game Engine
+		//Typically there is only one Window
+		//Currently, there is no limitation on multiple windows, but that is outside the focus of the SGE
+		//And SGE functions will check to make sure to not open another windows at the moment.
 		GLFWwindow* mainWindow = nullptr;
+
+
+		//Callback to handle any error reporting from GLFW
+		void GLFWErrorCallback(int error, const char* description)
+		{
+			//Dump the error info straight to the stderr
+			fprintf(stderr, "GLFW Error: %s\n", description);
+		}
 
 
 		//Startup Function that performs all initializations to the system overall
@@ -65,12 +77,7 @@ namespace SGE
 
 
 
-		//Callback to handle any error reporting from GLFW
-		void GLFWErrorCallback(int error, const char* description)
-		{
-			//Dump the error info straight to the stderr
-			fprintf(stderr, "GLFW Error: %s\n", description);
-		}
+
 
 
 		//Function opens up the game window to the desired dimensions

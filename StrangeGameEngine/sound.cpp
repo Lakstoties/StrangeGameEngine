@@ -167,6 +167,12 @@ namespace SGE
 		//Precalculated PI/2 to float precision
 		const float HALF_PI_FLOAT = PI_FLOAT / 2.0f;
 
+		//
+		//
+		//  Sound Channel Definitions
+		//
+		//
+
 		//Default constructor for a SoundChannel
 		SoundChannel::SoundChannel()
 		{
@@ -179,156 +185,109 @@ namespace SGE
 		//Deconstructor for a SoundChannel
 		SoundChannel::~SoundChannel()
 		{
-			//Check to see if there's pointer to some memory
-			//If so, delete it.
-			if (buffer != nullptr)
-			{
-				delete buffer;
-			}
+			//Nothing to worry about here.
 		}
 
 		//Given arguments, render a number of samples asked and return a pointer to the buffer.
 		void SoundChannel::RenderSamples(unsigned int numberOfSamples, int* sampleBuffer)
 		{
-			//Copy samples over to target buffer
-			//We are going to assume the buffer pointer given to us is of no consequence and write over it.
+			int deltaSampleIndex = 0;
+			int deltaVolumeIndex = 0;
+			int deltaTimingOffset = 0;
+
+			//Calculate some numbers that typically don't change that often
+			//These are the deltas from the envelope table
+			//They need to calculated initially then, only when the current envelop entry changes.
+
+			deltaSampleIndex = enveloptableSampleIndex[currentEnvelopeEntry + 1] - enveloptableSampleIndex[currentEnvelopeEntry];
+			deltaVolumeIndex = enveloptableVolumeLevel[currentEnvelopeEntry + 1] - enveloptableVolumeLevel[currentEnvelopeEntry];
+			deltaTimingOffset = timingOffset - enveloptableSampleIndex[currentEnvelopeEntry];
+
 
 			//Starting at the offset, copy over samples to the buffer.
 			for (unsigned int i = 0; i < numberOfSamples; i++)
 			{
+				//If we are currently not playing or there's no valid sample buffer
 				if (statusState != STATUS_PLAYING_STATE)
 				{
 					sampleBuffer[i] = 0;
 				}
+				//Check for invalid envelop table and states
+				else if (numberOfEnvelopeEntries < 2 || currentEnvelopeEntry >= numberOfEnvelopeEntries)
+				{
+					sampleBuffer[i] = 0;
+
+					//Invalid envelope, we are done until you fix this shit.
+					statusState = STATUS_NOT_PLAYING_STATE;
+				}
 				else
 				{
-					//If we are not using ADSR					
-					if (!adsrActive)
-					{
-						//Copy source sample augmented by volume to the target buffer
-						sampleBuffer[i] = int(buffer[offset] * volume);
-					}
-					//If we are using an ADSR envelope
-					else
-					{
-						//Apply 
-						sampleBuffer[i] = int (buffer[offset] * adsrLevel * volume);
+					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
+					sampleBuffer[i] = currentSampleBuffer->buffer[offset] * volume / FIXED_POINT_BIAS;
 
-						//Check to see which state we are in
-						switch (adsrState)
+					//If we are using the envelope table, calculate the envelope volume based on the table
+					if (useEnvelope)
+					{
+						//Sanity check for divide by zero garbage
+						if (deltaSampleIndex != 0)
 						{
-							//We are not active at all, stop playing!
-						case ADSR_NONE_STATE:
-							statusState = STATUS_LOADED_STATE;
-							break;
-
-							//If we are in the attack state
-						case ADSR_ATTACK_STATE:
-
-							//And we have a valid Attack Rate  (No negatives, please...)
-							//And we the attack level doesn't exceed the maximum attack level
-							//Zero just means we don't have a attack for all practical purposes.
-							if (attackRate > 0 && adsrLevel < maxAttackLevel)
-							{
-								//Increase the adsr level by the attack rate
-								adsrLevel += attackRate;
-
-								//Kick it ot the next sample.
-								break;
-							}
-							//If there's no valid attack rate, just transition to the next state.
-							else
-							{
-								//Set the adsrLevel to the maximum;
-								adsrLevel = maxAttackLevel;
-
-								//Go to the next state
-								adsrState = ADSR_DECAY_STATE;
-							}
-
-							//If we are in the decay state
-						case ADSR_DECAY_STATE:
-
-							//And we have a valid decay rate (No negatives, it's just confusing on the math...
-							//And the adsrlevel isn't below the sustain level
-							//Zero just means we don't have a decay for all practical purposes.
-							if (decayRate > 0 && adsrLevel > sustainLevel)
-							{
-								//Decrease the adsr level by the decay rate
-								adsrLevel -= decayRate;
-
-								//Kick it to the next sample.
-								break;
-							}
-
-							//If there's no valid decay rate, just transistion to the next state.
-							else
-							{
-								//Set the adsrLevel to the sustain level
-								adsrLevel = sustainLevel;
-
-								//Got to the next state
-								adsrState = ADSR_SUSTAIN_STATE;
-							}
-						
-							//If we are in the sustain state
-						case ADSR_SUSTAIN_STATE:
-
-							//And we are presently triggered and have a valid sustainLevel
-							//Continue
-
-							//Other wise...
-							if (!adsrTriggered || sustainLevel <= 0)
-							{
-								//Transition to the next state
-								adsrState = ADSR_RELEASE_STATE;
-							}
-
-							break;
-
-							//If we are in the release state
-						case ADSR_RELEASE_STATE:
-
-							//And we have a valid release rate
-							//And the level is still valid
-							if (releaseRate > 0.0 && adsrLevel > 0)
-							{
-								adsrLevel -= releaseRate;
-							}
-
-							//If there's no release rate, just transition to off.
-							else
-							{
-								//Set the adsr level to 0
-								adsrLevel = 0;
-
-								//Change to the rest state
-								adsrLevel = ADSR_NONE_STATE;
-
-								//Hard stop the channel
-								statusState = STATUS_LOADED_STATE;
-							}
-
-							break;
+							//What's the envelop volume given the current and next envelop state and the relative timing offset
+							currentEnvelopVolume = enveloptableVolumeLevel[currentEnvelopeEntry] + (deltaTimingOffset * deltaVolumeIndex / deltaSampleIndex);
 						}
+
+						//Check to make sure we aren't still triggered and needing to sustain
+						if (!triggered || sustainEntry != currentEnvelopeEntry)
+						{
+							//Otherwise incrment the timing offsets
+
+							//Increment the relative offset
+							timingOffset++;
+
+							//Increment the delta timing offset
+							deltaTimingOffset++;
+						}
+
+						//Do we progress to the next state?
+						//If the timingOffset has moved to the next state
+						if (timingOffset >= enveloptableSampleIndex[currentEnvelopeEntry + 1])
+						{
+							//Move to the next Envelope entry
+							currentEnvelopeEntry++;
+
+							//Recalculate the deltas
+							deltaSampleIndex = enveloptableSampleIndex[currentEnvelopeEntry + 1] - enveloptableSampleIndex[currentEnvelopeEntry];
+							deltaVolumeIndex = enveloptableVolumeLevel[currentEnvelopeEntry + 1] - enveloptableVolumeLevel[currentEnvelopeEntry];
+
+							//Reculate the base delta
+							deltaTimingOffset = timingOffset - enveloptableSampleIndex[currentEnvelopeEntry];
+						}
+
+						//Are we at the end of the state table?
+						if (currentEnvelopeEntry == numberOfEnvelopeEntries)
+						{
+							Stop();
+						}
+
+						//Modify the volume of the sample in the buffer.
+						sampleBuffer[i] = sampleBuffer[i] * currentEnvelopVolume / FIXED_POINT_BIAS;
 					}
 
 					//Calculate offset increment
 					offsetIncrement += currentPitch;
 
 					//Increment the offset by the pitch shift
-					offset += unsigned int(offsetIncrement);
+					offset += (offsetIncrement / FIXED_POINT_BIAS);	//Integer Fixed Point Version
 
 					//Get rid of the whole numbers and keep the change
-					offsetIncrement -= int(offsetIncrement);
+					offsetIncrement %= FIXED_POINT_BIAS;			//Integer Fixed Point Version
 
 					//Check to see if offset has gotten to or past the end of the buffer
-					if (offset >= bufferSize)
+					if (offset >= currentSampleBuffer->bufferSize)
 					{
 						//If the sound channel loops
 						if (loop)
 						{
-							offset = offset % bufferSize;
+							offset = offset % currentSampleBuffer->bufferSize;
 						}
 						else
 						{
@@ -341,22 +300,17 @@ namespace SGE
 
 		void SoundChannel::Trigger()
 		{
-			//If ADSR active, set it up appropriately
-			if (adsrActive)
-			{
-				adsrTriggered = true;
-				adsrState = ADSR_ATTACK_STATE;
-			}
+			triggered = true;
 			Play();
 		}
 
 		void SoundChannel::Release()
 		{
-			adsrTriggered = false;
+			triggered = false;
 
 			//If we currently aren't using ADSR envelopes
 			//Just hard cut it.
-			if (!adsrActive)
+			if (!useEnvelope)
 			{
 				Stop();
 			}
@@ -366,7 +320,7 @@ namespace SGE
 		void SoundChannel::Play()
 		{
 			//If the channel is at least loaded
-			if (statusState >= STATUS_LOADED_STATE)
+			if (currentSampleBuffer != nullptr)
 			{
 				//Set the flags properly
 				statusState = STATUS_PLAYING_STATE;
@@ -374,35 +328,8 @@ namespace SGE
 				//Reset the play offset
 				offset = 0;
 				offsetIncrement = 0;
+				timingOffset = 0;
 			}
-		}
-
-		//Load the SoundChannel with audio data from a sample source
-		void SoundChannel::LoadSoundBuffer(unsigned int numOfSamples, short* samples)
-		{
-			//Check for valid sample amount
-			if (numOfSamples < 0)
-			{
-				return;
-			}
-		
-			//Check to see if the buffer is already in use by something
-			if (buffer == nullptr)
-			{
-				delete buffer;
-			}
-
-			//Create the buffer
-			buffer = new short[numOfSamples];
-
-			//Make note of the size of the buffer
-			bufferSize = numOfSamples;
-
-			//Copy the buffer over
-			memcpy(buffer, samples, sizeof(buffer[0]) * numOfSamples);
-
-			//Set the buffer as loaded
-			statusState = STATUS_LOADED_STATE;
 		}
 
 		//Set the key pitch for the channel audio
@@ -418,14 +345,16 @@ namespace SGE
 		void SoundChannel::Stop()
 		{
 			//If the channel at least is loaded with some data
-			if (statusState >= STATUS_LOADED_STATE)
+			if (currentSampleBuffer != nullptr)
 			{
 				//Set the flags
-				statusState = STATUS_LOADED_STATE;
+				statusState = STATUS_NOT_PLAYING_STATE;
 
 				//Reset the playing offset
 				offset = 0;
-				offsetIncrement = 0.0;
+				offsetIncrement = 0;
+				timingOffset = 0;
+				currentEnvelopeEntry = 0;
 			}
 		}
 
@@ -441,7 +370,7 @@ namespace SGE
 			if (newPitch > 0)
 			{
 				targetPitch = newPitch;
-				currentPitch = targetPitch / keyedPitch;
+				currentPitch = int((targetPitch / keyedPitch) * FIXED_POINT_BIAS);
 			}		
 		}
 
@@ -451,6 +380,101 @@ namespace SGE
 			return targetPitch;
 		}
 
+		//
+		//
+		// Sound Sample Buffer Defintions
+		//
+		//
+
+		//Create a blank buffer of a certain sample size
+		int SoundSampleBuffer::CreateBlankBuffer(unsigned int numOfSamples)
+		{
+			//Reset the buffer
+			ResetBuffer();
+
+			//Set the buffer size
+			bufferSize = numOfSamples;
+
+			//malloc some ram for the buffer
+			buffer = (short*)malloc(sizeof(short) * bufferSize);
+
+			//Zero out the buffer to make sure it is clean
+			//Some OSes don't make the ram is clean when given
+			ZeroBuffer();
+
+			//Everything thing should be okay.
+			return 0;
+		}
+
+		//Create a blank buffer, and then load data into it.
+		int SoundSampleBuffer::LoadSoundBuffer(unsigned int numOfSamples, short *samples)
+		{
+			//Get a clean buffer
+			CreateBlankBuffer(numOfSamples);
+
+			//memcpy over the data into the buffer
+			memcpy(buffer, samples, sizeof(short) * bufferSize);
+
+			//Everything should have gone okay...
+			return 0;
+		}
+
+		//Zero out a buffer completely
+		int SoundSampleBuffer::ZeroBuffer()
+		{
+			//Check to make sure there's actually a buffer to zero out
+			if (buffer == nullptr)
+			{
+				//Hey, there's no buffer to zero out!
+				return -1;
+			}
+
+			//Otherwise memset the bitch.
+			memset(buffer, 0, sizeof(short) * bufferSize);
+
+			//Everything happened okay in theory
+			return 0;
+		}
+
+		//Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
+		int SoundSampleBuffer::ResetBuffer()
+		{
+			//Check to make sure there's actually a buffer to free
+			if (buffer == nullptr)
+			{
+				//Hey, there's no buffer to free!
+				return -1;
+			}
+
+			//If there's a buffer there...
+			//Free it
+			free(buffer);
+
+			//Null the point out
+			buffer = nullptr;
+
+			//Reset the buffer size
+			bufferSize = 0;
+
+			//Everything happened okay in theory
+			return 0;
+		}
+
+		//Destructor to make sure the buffer memory is freed upon destruction to prevent memory leaks.
+		SoundSampleBuffer::~SoundSampleBuffer()
+		{
+			//Reset the buffer which will free the memory.
+			ResetBuffer();
+		}
+
+
+
+
+		//
+		//
+		//  Sound System Defintions
+		//
+		//
 
 		//Static callback function wrapper to call the callback of the particular SoundSystem object passed.
 		int SoundSystem::PortAudioCallback(
@@ -484,7 +508,7 @@ namespace SGE
 			{
 				DeleteFrameBuffers();
 				GenerateFrameBuffers(frameCount);
-				fprintf(stderr, "DEBUG:  Sound  System - Frame Buffer Size Increased. \n");
+				fprintf(stderr, "DEBUG:  Sound  System - Frame Buffer Size Increased to: %i\n", frameBufferSize);
 			}
 
 			//Mix the samples into buffer
@@ -492,13 +516,16 @@ namespace SGE
 			for (int i = 0; i < MAX_CHANNELS; i++)
 			{
 				//Go through all active channels and get samples from them
-				soundChannels[i].RenderSamples(frameCount, renderedChannelBuffers[i]);
+				//if (soundChannels[i].currentSampleBuffer != nullptr)
+				//{
+					soundChannels[i].RenderSamples(frameCount, renderedChannelBuffers[i]);
 
-				for (unsigned int j = 0; j < frameCount; j++)
-				{
-					mixingFrameBufferLeft[j]  += int(renderedChannelBuffers[i][j] * soundChannels[i].pan);
-					mixingFrameBufferRight[j] += int(renderedChannelBuffers[i][j] * (1.0f - soundChannels[i].pan));
-				}
+					for (unsigned int j = 0; j < frameCount; j++)
+					{
+						mixingFrameBufferLeft[j] += renderedChannelBuffers[i][j] * soundChannels[i].leftVolume / FIXED_POINT_BIAS;
+						mixingFrameBufferRight[j] += renderedChannelBuffers[i][j] * soundChannels[i].rightVolume / FIXED_POINT_BIAS;
+					}
+				//}
 			}
 
 			//Dump it into the output buffer
@@ -509,8 +536,8 @@ namespace SGE
 			for (unsigned int i = 0; i < frameCount; i++)
 			{
 				//Apply master volume to the mixing frame buffers
-				mixingFrameBufferLeft[i]  = int(mixingFrameBufferLeft[i]  * masterVolume);
-				mixingFrameBufferRight[i] = int(mixingFrameBufferRight[i] * masterVolume);
+				mixingFrameBufferLeft[i]  = mixingFrameBufferLeft[i]  * masterVolume / FIXED_POINT_BIAS;
+				mixingFrameBufferRight[i] = mixingFrameBufferRight[i] * masterVolume / FIXED_POINT_BIAS;
 
 				//Check for things hitting the upper and lower ends of the range
 				//For the left channel
@@ -590,6 +617,12 @@ namespace SGE
 			}
 		}
 
+
+		//
+		//
+		//  Generators Definitions
+		//
+		//
 
 		//Sample Generation Tools
 		//Generates a sine wave
@@ -738,6 +771,14 @@ namespace SGE
 			return tempBuffer;
 		}
 
+
+
+		//
+		//
+		//  Sound System Definitions
+		//
+		//
+
 		//Default constructor for the SoundSystem
 		SoundSystem::SoundSystem()
 		{
@@ -870,6 +911,15 @@ namespace SGE
 				fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
 			}
 		}
+
+
+
+
+		//
+		//
+		//  Sound System Wave File Definitions
+		//
+		//
 
 		//Default constructor for a SoundSystemWaveFile
 		SoundSystemWaveFile::SoundSystemWaveFile()
@@ -1198,6 +1248,5 @@ namespace SGE
 
 			return 0;
 		}
-	
 	}
 }

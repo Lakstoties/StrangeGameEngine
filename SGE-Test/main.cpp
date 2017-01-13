@@ -53,14 +53,17 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 
 	testFile.LoadFile("TestSample.wav");
 
+	//Load samples into the Sound System
+	targetSoundSystem->soundSamplesBuffers[0].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testSineWave);
+	targetSoundSystem->soundSamplesBuffers[1].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testTriangleWave);
+	targetSoundSystem->soundSamplesBuffers[2].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testPulseWave);
+
 
 	//Ready the channels
 	for (int i = 0; i < 10; i++)
 	{
 		//Load SineWave in channel
-		//targetSoundSystem->soundChannels[i].LoadSoundBuffer(testFile.numberOfSamples, testFile.audioData[0]);
-		targetSoundSystem->soundChannels[i].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testSineWave);
-
+		targetSoundSystem->soundChannels[i].currentSampleBuffer = &targetSoundSystem->soundSamplesBuffers[0];
 
 		//Set the key of the channel
 		targetSoundSystem->soundChannels[i].SetKey(1);
@@ -71,14 +74,32 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		//Set the channel to loop
 		targetSoundSystem->soundChannels[i].loop = true;
 
+		//Set the envelope
+		targetSoundSystem->soundChannels[i].useEnvelope = true;
+		targetSoundSystem->soundChannels[i].numberOfEnvelopeEntries = 5;
 
-		//Set ADSR
-		targetSoundSystem->soundChannels[i].attackRate = 0.001f;
-		targetSoundSystem->soundChannels[i].decayRate = 0.01f;
-		targetSoundSystem->soundChannels[i].sustainLevel = 0.90f;
-		targetSoundSystem->soundChannels[i].releaseRate = .0001f;
+		//Set the start
+		targetSoundSystem->soundChannels[i].enveloptableSampleIndex[0] = 0;
+		targetSoundSystem->soundChannels[i].enveloptableVolumeLevel[0] = 0;
 
-		targetSoundSystem->soundChannels[i].adsrActive = true;
+		//Set the attack
+		targetSoundSystem->soundChannels[i].enveloptableSampleIndex[1] = 500;
+		targetSoundSystem->soundChannels[i].enveloptableVolumeLevel[1] = SGE::Sound::FIXED_POINT_BIAS;
+
+		//Set the decay
+		targetSoundSystem->soundChannels[i].enveloptableSampleIndex[2] = 1000;
+		targetSoundSystem->soundChannels[i].enveloptableVolumeLevel[2] = 800;
+
+		//Set the sustain
+		targetSoundSystem->soundChannels[i].enveloptableSampleIndex[3] = 2000;
+		targetSoundSystem->soundChannels[i].enveloptableVolumeLevel[3] = 800;
+		targetSoundSystem->soundChannels[i].sustainEnabled = true;
+		targetSoundSystem->soundChannels[i].sustainEntry = 3;
+
+		//Set the release
+		targetSoundSystem->soundChannels[i].enveloptableSampleIndex[4] = 20000;
+		targetSoundSystem->soundChannels[i].enveloptableVolumeLevel[4] = 0;
+
 	}
 
 	bool previousReturnState = false;
@@ -215,15 +236,17 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		//Pan to Left
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_O])
 		{
-			targetSoundSystem->soundChannels[0].pan -= 0.001f;
-			printf("Debug - Channel 0 Pan: %f\n", targetSoundSystem->soundChannels[0].pan);
+			targetSoundSystem->soundChannels[0].rightVolume -= 1;
+			targetSoundSystem->soundChannels[0].leftVolume += 1;
+			printf("Debug - Channel 0 Left Volume: %i  Right Volume: %i\n", targetSoundSystem->soundChannels[0].leftVolume, targetSoundSystem->soundChannels[0].rightVolume);
 		}
 
 		//Pan to Right
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_P])
 		{
-			targetSoundSystem->soundChannels[0].pan += 0.001f;
-			printf("Debug - Channel 0 Pan: %f\n", targetSoundSystem->soundChannels[0].pan);
+			targetSoundSystem->soundChannels[0].rightVolume += 1;
+			targetSoundSystem->soundChannels[0].leftVolume -=1;
+			printf("Debug - Channel 0 Left Volume: %i  Right Volume: %i\n", targetSoundSystem->soundChannels[0].leftVolume, targetSoundSystem->soundChannels[0].rightVolume);
 		}
 
 
@@ -231,15 +254,15 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		//Decrease volume
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_Q])
 		{
-			targetSoundSystem->soundChannels[0].volume -= 0.001f;
-			printf("Debug - Channel 0 Volume Left: %f\n", targetSoundSystem->soundChannels[0].volume);
+			targetSoundSystem->soundChannels[0].volume -= 1;
+			printf("Debug - Channel 0 Volume Left: %i\n", targetSoundSystem->soundChannels[0].volume);
 		}
 
 		//Increase volume
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_W])
 		{
-			targetSoundSystem->soundChannels[0].volume += 0.001f;
-			printf("Debug - Channel 0 Volume Left: %f\n", targetSoundSystem->soundChannels[0].volume);
+			targetSoundSystem->soundChannels[0].volume += 1;
+			printf("Debug - Channel 0 Volume Left: %i\n", targetSoundSystem->soundChannels[0].volume);
 		}
 
 
@@ -267,15 +290,15 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 		//Decrease volume
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_Z])
 		{
-			targetSoundSystem->masterVolume -= 0.001f;
-			printf("Debug - Master Volume: %f\n", targetSoundSystem->masterVolume);
+			targetSoundSystem->masterVolume -= 1;
+			printf("Debug - Master Volume: %i\n", targetSoundSystem->masterVolume);
 		}
 
 		//Increase volume
 		if (SGE::Controls::keyboardStatus[GLFW_KEY_X])
 		{
-			targetSoundSystem->masterVolume += 0.001f;
-			printf("Debug - Master Volume: %f\n", targetSoundSystem->masterVolume);
+			targetSoundSystem->masterVolume += 1;
+			printf("Debug - Master Volume: %i\n", targetSoundSystem->masterVolume);
 		}
 
 
@@ -310,15 +333,15 @@ void InputTest(bool& testInputRunning, SGE::VirtualDisplay* targetDisplay, SGE::
 			}
 			else
 			{
-				for (int i = 0; i < targetSoundSystem->MAX_CHANNELS; i++)
+				for (int i = 0; i < SGE::Sound::MAX_CHANNELS; i++)
 				{
-					if (targetSoundSystem->soundChannels[i].adsrActive)
+					if (targetSoundSystem->soundChannels[i].useEnvelope)
 					{
-						targetSoundSystem->soundChannels[i].adsrActive = false;
+						targetSoundSystem->soundChannels[i].useEnvelope = false;
 					}
 					else
 					{
-						targetSoundSystem->soundChannels[i].adsrActive = true;
+						targetSoundSystem->soundChannels[i].useEnvelope = true;
 					}
 				}
 			}
@@ -522,9 +545,8 @@ int main(int argc, char *argv[])
 		//Check to see what it is
 	
 	}
-
-
-
+	
+	
 	//Start the Strange Game Engine
 	SGE::System::Startup();
 
