@@ -1,7 +1,4 @@
 #pragma once
-#include <GLFW\glfw3.h>
-#include <thread>
-
 namespace SGE
 {
 	namespace Controls
@@ -19,21 +16,6 @@ namespace SGE
 		//It's an extern to keep the linker from being confused
 		//Officially, defined in the control.cpp
 		extern bool keyboardScancodeStatus[NUMBER_OF_KEYS];
-
-		//Keyboard callback for GLFW
-		void KeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods);
-
-		//Mouse Cursor callback for GLFW
-		void CursorCallback(GLFWwindow* window, double xPosition, double yPosition);
-
-		//Mouse Button callback for GLFW
-		void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods);
-
-
-		//Method to handle polling events from desired SFML Window
-		//Should be called with main thread for compatibility with certain OSes that are strange with GUI I/O
-		void HandleEvents(GLFWwindow* targetWindow);
-
 
 		//This is a helper class to save the state of the keyboard and provide easy access to commonly used functions
 		class SavedKeyboardState

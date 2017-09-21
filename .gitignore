@@ -46,3 +46,11 @@ SGE-Test/Win32/Debug/SGE-Test.log
 SGE-Test/Win32/Release/SGE-Test.Build.CppClean.log
 Drug War X/Debug/Drug War X.Build.CppClean.log
 *.log
+*.ipch
+*.idb
+*.db-wal
+*.db-shm
+*.db
+*.opendb
+.vs/Strange Games Engine/v15/.suo
+UpgradeLog.htm

@@ -1,4 +1,6 @@
 #include "include\SGE\controls.h"
+#include <GLFW\glfw3.h>
+#include <thread>
 
 namespace SGE
 {
@@ -10,6 +12,35 @@ namespace SGE
 		//Keyboard status array that keeps track of which scancodes have been triggered
 		bool keyboardScancodeStatus[NUMBER_OF_KEYS];
 
+
+		//Keyboard callback for GLFW
+		void KeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+		{
+			//Update the key array for the state of the key
+			if (action == GLFW_PRESS)
+			{
+				keyboardStatus[key] = true;
+				keyboardScancodeStatus[scancode] = true;
+			}
+
+			else if (action == GLFW_RELEASE)
+			{
+				keyboardStatus[key] = false;
+				keyboardScancodeStatus[scancode] = false;
+			}
+		}
+
+		//Mouse Cursor callback for GLFW
+		void CursorCallback(GLFWwindow* window, double xPosition, double yPosition)
+		{
+
+		}
+
+		//Mouse Button callback for GLFW
+		void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
+		{
+
+		}
 
 		void HandleEvents(GLFWwindow* targetWindow)
 		{
@@ -49,39 +80,7 @@ namespace SGE
 				glfwWaitEvents();
 			}
 		}
-
-		//Keyboard callback for GLFW
-		void KeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-		{
-			//Update the key array for the state of the key
-			if (action == GLFW_PRESS)
-			{
-				keyboardStatus[key] = true;
-				keyboardScancodeStatus[scancode] = true;
-			}
-
-			else if (action == GLFW_RELEASE)
-			{
-				keyboardStatus[key] = false;
-				keyboardScancodeStatus[scancode] = false;
-			}
-		}
-
-		//Mouse Cursor callback for GLFW
-		void CursorCallback(GLFWwindow* window, double xPosition, double yPosition)
-		{
-
-		}
-
-		//Mouse Button callback for GLFW
-		void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
-		{
-
-		}
-
-
-
-
+		
 		SavedKeyboardState::SavedKeyboardState()
 		{
 			//Populate Keyboard State from Interface

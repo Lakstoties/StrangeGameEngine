@@ -1,33 +1,26 @@
 #include "include\SGE\system.h"
+#include "sharedinternal.h"
 #include <GLFW\glfw3.h>
 
 namespace SGE
 {
 	namespace System
 	{
-		//Flag to keep track if the Strange Game Engine is started.
-		bool systemStarted = false;
-		
-		//Main sound system pointer
-		SGE::Sound::SoundSystem* mainSoundSystem = nullptr;
-
-		//Main virtual display pointer
-		SGE::VirtualDisplay* mainDisplay = nullptr;
-
 		//GLFW Window pointer for the Strange Game Engine
 		//Typically there is only one Window
 		//Currently, there is no limitation on multiple windows, but that is outside the focus of the SGE
 		//And SGE functions will check to make sure to not open another windows at the moment.
-		GLFWwindow* mainWindow = nullptr;
+		extern GLFWwindow* mainWindow = nullptr;
 
-
+		//Flag to keep track if the Strange Game Engine is started.
+		bool systemStarted = false;
+		
 		//Callback to handle any error reporting from GLFW
 		void GLFWErrorCallback(int error, const char* description)
 		{
 			//Dump the error info straight to the stderr
 			fprintf(stderr, "GLFW Error: %s\n", description);
 		}
-
 
 		//Startup Function that performs all initializations to the system overall
 		//Needs to be called first.   Really...  Call it first...
@@ -44,11 +37,8 @@ namespace SGE
 			//Set the GLFW Error Callback
 			glfwSetErrorCallback(GLFWErrorCallback);
 
-			//Create a sound system
-			mainSoundSystem = new SGE::Sound::SoundSystem();
-
 			//Start up the sound system
-			mainSoundSystem->Start();
+			SGE::Sound::SoundSystem::Start();
 
 			//Flag that the system has been started up properly... in theory...
 			systemStarted = true;
@@ -59,14 +49,10 @@ namespace SGE
 		{
 			//Clean UP!
 			//Make sure the mainDisplay has stopped drawing.
-			mainDisplay->StopDrawing();
+			SGE::VirtualDisplay::StopDrawing();
 
 			//Make sure the mainSoundSystem has stopped running.
-			mainSoundSystem->Stop();
-
-			//Check to make sure there's something there to delete
-			if (mainDisplay != nullptr)
-				delete mainDisplay;
+			SGE::Sound::SoundSystem::Stop();
 
 			//Terminate GLFW, if the game engine is done, so are we.
 			glfwTerminate();
@@ -117,15 +103,8 @@ namespace SGE
 		//Function creates a virtual display and binds it to the mainWindow
 		void InitializeVirtualDisplay(int displayX, int displayY)
 		{
-			//Check to see if the mainWindow actually has something there
-			if (mainWindow == nullptr)
-			{
-				//The hell, they didn't even try to open a window
-				fprintf(stderr, "No game window initialized.\n");
-			}
-
 			//Fire off display
-			mainDisplay = new SGE::VirtualDisplay(displayX, displayY, mainWindow);
+			SGE::VirtualDisplay::Open(displayX, displayY);
 		}
 
 
@@ -133,14 +112,14 @@ namespace SGE
 		void StartDrawing()
 		{
 			//Start drawing
-			mainDisplay->StartDrawing();
+			SGE::VirtualDisplay::StartDrawing();
 		}
 
 
 		//Tells the virtual display to stop drawing
 		void StopDrawing()
 		{
-			mainDisplay->StopDrawing();
+			SGE::VirtualDisplay::StopDrawing();
 		}
 
 		//This function should be called by the main thread (usually the one that hits the "int main" entry point

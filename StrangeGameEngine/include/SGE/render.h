@@ -128,46 +128,46 @@ namespace SGE
 
 
 		//Draw a character to the screen
-		void Draw8x8Character(SGE::VirtualDisplay* targetDisplay, char character, const unsigned long long characterROM[], int targetX, int targetY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void Draw8x8Character(char character, const unsigned long long characterROM[], int targetX, int targetY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Draw a string of characters to the screen, from a null terminated string
-		void DrawString(SGE::VirtualDisplay* targetDisplay, char* characters, const unsigned long long characterROM[], int characterSpacing, int targetX, int targetY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawString(char* characters, const unsigned long long characterROM[], int characterSpacing, int targetX, int targetY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Draw a single pixel on the screen
-		void DrawPixel(SGE::VirtualDisplay* targetDisplay, int targetX, int targetY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawPixel(int targetX, int targetY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Draw a block of data from a source to target video ram
-		void DrawDataBlock(SGE::VirtualDisplay* targetDisplay, int targetX, int targetY, int sourceWidth, int sourceHeight, unsigned int* sourceDataBlock);
+		void DrawDataBlock(int targetX, int targetY, int sourceWidth, int sourceHeight, unsigned int* sourceDataBlock);
 
 		//Draw a line from one point to another
-		void DrawLine(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int endX, int endY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawLine(int startX, int startY, int endX, int endY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Draw a rectangle
-		void DrawRectangle(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int width, int height, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawRectangle(int startX, int startY, int width, int height, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Draw a filled box
-		void DrawBox(SGE::VirtualDisplay* targetDisplay, int startX, int startY, int width, int height, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawBox(int startX, int startY, int width, int height, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Blank the video ram a particular color
-		inline extern void Blank(SGE::VirtualDisplay* targetDisplay, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		inline extern void Blank(unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Blank the video ram with zero alpha black.  Or the blackest of blacks... it's like you can't get any blacker.
-		inline extern void ZBlank(SGE::VirtualDisplay* targetDisplay);
+		inline extern void ZBlank();
 
 		//Pack the byte colors in to a 4 byte pixel to use.
 		inline unsigned int PackColors(unsigned char redValue, unsigned char greenValue, unsigned char blueValue);
 
 		//Arbitrary Vector Shape drawing
-		void DrawVectorShape(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawVectorShape(int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Draw a filled triangle
-		void DrawFilledTriangleTrue(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawFilledTriangleTrue(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Draw a filled triangle (New method)
-		void DrawFilledTriangleFast(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawFilledTriangleFast(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Draw a list of triangles
-		void DrawFilledTriangles(SGE::VirtualDisplay* targetDisplay, int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawFilledTriangles(int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//
 		const int DRAWING_DECIMAL_RESOLUTION = 1000;

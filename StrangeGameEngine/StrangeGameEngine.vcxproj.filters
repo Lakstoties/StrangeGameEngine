@@ -53,5 +53,8 @@
     <ClInclude Include="include\SGE\system.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="sharedinternal.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

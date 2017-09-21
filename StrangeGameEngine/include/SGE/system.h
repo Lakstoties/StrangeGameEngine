@@ -1,10 +1,10 @@
 #pragma once
-#include <GLFW\glfw3.h>
 #include "display.h"
 #include "render.h"
 #include "controls.h"
 #include "sound.h"
 #include "gui.h"
+#include <GLFW\glfw3.h>
 
 namespace SGE
 {
@@ -18,29 +18,6 @@ namespace SGE
 		//Declared extern to keep the linker from freaking out over duplicate definitions.
 		//Officially declared in system.cpp
 		extern bool systemStarted;
-
-		//GLFW Window pointer for the Strange Game Engine
-		//Typically there is only one Window
-		//Currently, there is no limitation on multiple windows, but that is outside the focus of the SGE
-		//And SGE functions will check to make sure to not open another windows at the moment.
-		//Extern to keep the linker from being confused, defined in system.cpp
-		extern GLFWwindow* mainWindow;
-
-		//Main virtual display for the Strange Game Engine
-		//Typically there is only one display
-		//Currently, there is no limitation on multiple displays, but each virtual display should only be bound to only one GLFWWindow.
-		//extern to keep the linker from being confused, defined in system.cpp
-		extern SGE::VirtualDisplay* mainDisplay;
-
-		//Main sound system for the Strange Game Engine
-		//Typically there is only one sound system
-		//Currently, there is no limitation on multiple sound systems, but some platforms and APIs don't support multiple PortAudio streams
-		//that would be created by multiple sound systems.
-		//Extern to keep the linker from being confused, defined in system.cpp
-		extern SGE::Sound::SoundSystem* mainSoundSystem;
-
-		//Static method for the GLFW error callback
-		void GLFWErrorCallback(int error, const char* description);
 
 		//Opens a game window of X and Y size with the specified title
 		//Only one may be open at any given time.

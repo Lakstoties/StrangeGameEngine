@@ -1,5 +1,4 @@
 #pragma once
-#include <GLFW\glfw3.h>
 #include <thread>
 #include <mutex>
 
@@ -11,52 +10,32 @@ namespace SGE
 	const int DEFAULT_FRAME_WAIT_MILLISECONDS = 1000 / DEFAULT_FRAME_RATE_LIMIT;
 	
 	//The Virtual Display class to simulate the display component of the Strange Game Engine
-	class VirtualDisplay
+	namespace VirtualDisplay
 	{
-	private:
-
-		//OS generated display window for the system.
-		GLFWwindow* targetWindow;
-
 		//Scaling factor used when the display window differs from the simulated game resolution
-		float videoScaling;
+		extern float videoScaling;
 
-		//C++ thread pointer to keep track of the spawned drawing thread.
-		std::thread* drawingThread;
-
-		//Boolean used to control whether the draw thread keeps on running or not.
-		bool continueDrawing;
-
-		//Main update thread used to refresh the display independently from the rest of the system
-		void UpdateThread();
-
-		//
-		int frameWaitMilliseconds = DEFAULT_FRAME_WAIT_MILLISECONDS;
-
-	public:
+		//Minium wait time before the next frame is allowed
+		extern int frameWaitMilliseconds;
 
 		//The virtual video RAM.  Public accessible to allow other components to write to it directly.
-		unsigned int* virtualVideoRAM;
+		extern unsigned int* virtualVideoRAM;
 
 		//The virtual video horizontal resolution
-		int virtualVideoX;
+		extern int virtualVideoX;
 
 		//The virtual video vertical resolution
-		int virtualVideoY;
+		extern int virtualVideoY;
 
 		//A mutex that can be used to temporarily pause the drawing thread at a key point to allow the video ram to be updated fully.
 		//Prevents flicking and tearing by the display thread from updating mid way through writes to VRAM
-		std::mutex refreshHold;
+		extern std::mutex refreshHold;
 
-		//The default constructor!  Woo...
-		VirtualDisplay(
-			int newDisplayX,					//New display's X or width
-			int newDisplayY,					//New display's Y or height
-			GLFWwindow* newTargetWindow	//GLFW rendering window to use to output
-		);
+		//Start the Display
+		void Open(int newVideoX, int newVideoY);
 
-		//Deconstructor to handle some clean up bits
-		~VirtualDisplay();
+		//Stop the Display
+		void Close();
 
 		//Starts the thread to grab data from the virtual video RAM and dumping it to the virtual display
 		void StartDrawing();

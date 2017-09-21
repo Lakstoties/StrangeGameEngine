@@ -58,7 +58,7 @@ namespace SGE
 
 		Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, int targetNumberOfSelections, char** targetMenuItems);
 
-		void Draw(SGE::VirtualDisplay* targetDisplay);
+		void Draw();
 
 		void NextSelection();
 
