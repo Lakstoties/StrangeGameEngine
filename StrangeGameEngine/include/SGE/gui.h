@@ -75,6 +75,5 @@ namespace SGE
 		void MoveCursor(int location);
 
 		int GetCursorLocation();
-
 	};
 }

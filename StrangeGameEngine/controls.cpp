@@ -7,7 +7,7 @@ namespace SGE
 	namespace Controls
 	{
 		//Keyboard status array that keeps track of which keys are pressed
-		bool keyboardStatus[NUMBER_OF_KEYS];
+		bool KeyboardStatus[NUMBER_OF_KEYS];
 
 		//Keyboard status array that keeps track of which scancodes have been triggered
 		bool keyboardScancodeStatus[NUMBER_OF_KEYS];
@@ -19,13 +19,13 @@ namespace SGE
 			//Update the key array for the state of the key
 			if (action == GLFW_PRESS)
 			{
-				keyboardStatus[key] = true;
+				KeyboardStatus[key] = true;
 				keyboardScancodeStatus[scancode] = true;
 			}
 
 			else if (action == GLFW_RELEASE)
 			{
-				keyboardStatus[key] = false;
+				KeyboardStatus[key] = false;
 				keyboardScancodeStatus[scancode] = false;
 			}
 		}
@@ -49,7 +49,7 @@ namespace SGE
 			//Initialize the keyboard status array
 			for (int i = 0; i < 128; i++)
 			{
-				keyboardStatus[i] = false;
+				KeyboardStatus[i] = false;
 				keyboardScancodeStatus[i] = false;
 			}
 
@@ -92,13 +92,13 @@ namespace SGE
 		{
 			for (int i = 0; i < NUMBER_OF_KEYS; i++)
 			{
-				previousKeyboardState[i] = keyboardStatus[i];
+				previousKeyboardState[i] = KeyboardStatus[i];
 			}
 		}
 
 		bool SavedKeyboardState::KeyChanged(int key)
 		{
-			return previousKeyboardState[key] != keyboardStatus[key];
+			return previousKeyboardState[key] != KeyboardStatus[key];
 		}
 
 		bool SavedKeyboardState::GetPreviousState(int key)

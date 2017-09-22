@@ -114,9 +114,7 @@ namespace SGE
 			VertexPoint* vectorList;
 			ColorInfo* colorList;
 			int* timeList;
-
-
-
+			
 			TimedVectors();
 			~TimedVectors();
 
@@ -149,13 +147,13 @@ namespace SGE
 		void DrawBox(int startX, int startY, int width, int height, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Blank the video ram a particular color
-		inline extern void Blank(unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void Blank(unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
 		//Blank the video ram with zero alpha black.  Or the blackest of blacks... it's like you can't get any blacker.
-		inline extern void ZBlank();
+		void ZBlank();
 
 		//Pack the byte colors in to a 4 byte pixel to use.
-		inline unsigned int PackColors(unsigned char redValue, unsigned char greenValue, unsigned char blueValue);
+		unsigned int PackColors(unsigned char redValue, unsigned char greenValue, unsigned char blueValue);
 
 		//Arbitrary Vector Shape drawing
 		void DrawVectorShape(int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor);

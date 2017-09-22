@@ -457,16 +457,16 @@ namespace SGE
 		namespace SoundSystem
 		{
 			//All the sound samples in the system
-			SoundSampleBuffer soundSamplesBuffers[Sound::MAX_SAMPLE_BUFFERS];
+			SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
 
 			//All the system's sound channels
-			SoundChannel soundChannels[MAX_CHANNELS];
+			SoundChannel Channels[MAX_CHANNELS];
 
 			//Initialize size for the Render Frame Buffers
 			const unsigned long INITIAL_RENDER_FRAME_BUFFER_SIZE = 1024;
 
 			//Master volume for system
-			int masterVolume = FIXED_POINT_BIAS;
+			int MasterVolume = FIXED_POINT_BIAS;
 
 			//All the sound channel target render buffers
 			int* renderedChannelBuffers[MAX_CHANNELS];
@@ -569,12 +569,12 @@ namespace SGE
 					//Go through all active channels and get samples from them
 					//if (soundChannels[i].currentSampleBuffer != nullptr)
 					//{
-					soundChannels[i].RenderSamples(frameCount, renderedChannelBuffers[i]);
+					Channels[i].RenderSamples(frameCount, renderedChannelBuffers[i]);
 
 					for (unsigned int j = 0; j < frameCount; j++)
 					{
-						mixingFrameBufferLeft[j] += renderedChannelBuffers[i][j] * soundChannels[i].leftVolume / FIXED_POINT_BIAS;
-						mixingFrameBufferRight[j] += renderedChannelBuffers[i][j] * soundChannels[i].rightVolume / FIXED_POINT_BIAS;
+						mixingFrameBufferLeft[j] += renderedChannelBuffers[i][j] * Channels[i].leftVolume / FIXED_POINT_BIAS;
+						mixingFrameBufferRight[j] += renderedChannelBuffers[i][j] * Channels[i].rightVolume / FIXED_POINT_BIAS;
 					}
 					//}
 				}
@@ -587,8 +587,8 @@ namespace SGE
 				for (unsigned int i = 0; i < frameCount; i++)
 				{
 					//Apply master volume to the mixing frame buffers
-					mixingFrameBufferLeft[i] = mixingFrameBufferLeft[i] * masterVolume / FIXED_POINT_BIAS;
-					mixingFrameBufferRight[i] = mixingFrameBufferRight[i] * masterVolume / FIXED_POINT_BIAS;
+					mixingFrameBufferLeft[i] = mixingFrameBufferLeft[i] * MasterVolume / FIXED_POINT_BIAS;
+					mixingFrameBufferRight[i] = mixingFrameBufferRight[i] * MasterVolume / FIXED_POINT_BIAS;
 
 					//Check for things hitting the upper and lower ends of the range
 					//For the left channel

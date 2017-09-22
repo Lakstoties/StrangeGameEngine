@@ -1,6 +1,4 @@
 #pragma once
-#include <thread>
-#include <mutex>
 
 //Use the SGE namespace to keep things seperated
 namespace SGE
@@ -12,24 +10,23 @@ namespace SGE
 	//The Virtual Display class to simulate the display component of the Strange Game Engine
 	namespace VirtualDisplay
 	{
-		//Scaling factor used when the display window differs from the simulated game resolution
-		extern float videoScaling;
-
 		//Minium wait time before the next frame is allowed
 		extern int frameWaitMilliseconds;
 
 		//The virtual video RAM.  Public accessible to allow other components to write to it directly.
-		extern unsigned int* virtualVideoRAM;
+		extern unsigned int* VideoRAM;
 
 		//The virtual video horizontal resolution
-		extern int virtualVideoX;
+		extern int ResolutionX;
 
 		//The virtual video vertical resolution
-		extern int virtualVideoY;
+		extern int ResolutionY;
 
-		//A mutex that can be used to temporarily pause the drawing thread at a key point to allow the video ram to be updated fully.
-		//Prevents flicking and tearing by the display thread from updating mid way through writes to VRAM
-		extern std::mutex refreshHold;
+		//Block display refresh.  Useful for preventing screen tearing from draw operations happening in the middle of a display refresh
+		void BlockRefresh();
+
+		//Allow the virtual display fresh to allow drawing to continue.
+		void AllowRefresh();
 
 		//Start the Display
 		void Open(int newVideoX, int newVideoY);

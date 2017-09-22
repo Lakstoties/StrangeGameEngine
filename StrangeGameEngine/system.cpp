@@ -12,9 +12,6 @@ namespace SGE
 		//And SGE functions will check to make sure to not open another windows at the moment.
 		extern GLFWwindow* mainWindow = nullptr;
 
-		//Flag to keep track if the Strange Game Engine is started.
-		bool systemStarted = false;
-		
 		//Callback to handle any error reporting from GLFW
 		void GLFWErrorCallback(int error, const char* description)
 		{
@@ -39,9 +36,6 @@ namespace SGE
 
 			//Start up the sound system
 			SGE::Sound::SoundSystem::Start();
-
-			//Flag that the system has been started up properly... in theory...
-			systemStarted = true;
 		}
 
 		//Shutdown function that performs all the shutdown and termination bits for the system.
@@ -59,9 +53,6 @@ namespace SGE
 
 			//Terminate GLFW, if the game engine is done, so are we.
 			glfwTerminate();
-
-			//Strange Game Engine should be shutdown now
-			systemStarted = false;
 		}
 
 		//Function opens up the game window to the desired dimensions

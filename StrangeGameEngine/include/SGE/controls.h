@@ -10,7 +10,7 @@ namespace SGE
 		//Current keyboard key state array
 		//It's an extern to keep the linker from going crazy over multiple definitions between the headers.
 		//It's officially defined in the control.cpp
-		extern bool keyboardStatus[NUMBER_OF_KEYS];
+		extern bool KeyboardStatus[NUMBER_OF_KEYS];
 
 		//This is a helper class to save the state of the keyboard and provide easy access to commonly used functions
 		class SavedKeyboardState

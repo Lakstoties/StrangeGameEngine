@@ -13,11 +13,6 @@ namespace SGE
 		const int DEFAULT_FRAME_RATE_LIMIT = 100;
 		const int DEFAULT_FRAME_WAIT_MILLISECONDS = 1000 / DEFAULT_FRAME_RATE_LIMIT;
 
-		//Flag to indicate if the Strange Game Engine has been initialized by the Startup function
-		//Declared extern to keep the linker from freaking out over duplicate definitions.
-		//Officially declared in system.cpp
-		extern bool systemStarted;
-
 		//Opens a game window of X and Y size with the specified title
 		//Only one may be open at any given time.
 		void OpenGameWindow(int windowX, int windowY, const char* gameTitle);

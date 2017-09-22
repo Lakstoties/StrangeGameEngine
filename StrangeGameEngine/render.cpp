@@ -43,7 +43,7 @@ namespace SGE
 			unsigned char* characterToDraw = (unsigned char*)&characterROM[(unsigned char)character];
 
 			//Get the RAM position to start writing to in Video RAM
-			int currentRAM = targetX + (targetY * SGE::VirtualDisplay::virtualVideoX);
+			int currentRAM = targetX + (targetY * SGE::VirtualDisplay::ResolutionX);
 
 			//Pack the colors into pixel format
 			unsigned int targetColor = PackColors(rColor, gColor, bColor);
@@ -65,19 +65,19 @@ namespace SGE
 							//AND mask the character row in question to see if there's a 1 in that particular bit spot.
 							if (characterToDraw[i] & (0x01 << j))
 							{
-								memcpy(&SGE::VirtualDisplay::virtualVideoRAM[currentRAM], &targetColor, 4);
+								memcpy(&SGE::VirtualDisplay::VideoRAM[currentRAM], &targetColor, 4);
 							}
 							//Hop to the next spot in RAM regardless
 							currentRAM++;
 						}
 
 						//Hop to the next row in RAM from the end of the current row
-						currentRAM += (SGE::VirtualDisplay::virtualVideoX - 8);
+						currentRAM += (SGE::VirtualDisplay::ResolutionX - 8);
 					}
 					else
 					{
 						//Hop to the next row in RAM from the start of the current row
-						currentRAM += (SGE::VirtualDisplay::virtualVideoX);
+						currentRAM += (SGE::VirtualDisplay::ResolutionX);
 					}
 				}
 			}
@@ -94,13 +94,13 @@ namespace SGE
 			unsigned char bColor)						//8-bit (0-255) Blue component of the pixel color
 		{
 			//Set the location in video RAM
-			int targetRAM = targetX + targetY * SGE::VirtualDisplay::virtualVideoX;
+			int targetRAM = targetX + targetY * SGE::VirtualDisplay::ResolutionX;
 
 			//As long as we haven't left valid video RAM ranges...
-			if (targetRAM >= 0 && targetRAM < SGE::VirtualDisplay::virtualVideoX * SGE::VirtualDisplay::virtualVideoY)
+			if (targetRAM >= 0 && targetRAM < SGE::VirtualDisplay::ResolutionX * SGE::VirtualDisplay::ResolutionY)
 			{
 				//Write the pixel
-				SGE::VirtualDisplay::virtualVideoRAM[targetRAM] = PackColors(rColor, gColor, bColor);
+				SGE::VirtualDisplay::VideoRAM[targetRAM] = PackColors(rColor, gColor, bColor);
 			}
 		}
 
@@ -114,22 +114,22 @@ namespace SGE
 			unsigned int* sourceDataBlock)				//The source data block
 		{
 			//Set the starting point in VideoRAM
-			int targetRAM = (targetX + (targetY * SGE::VirtualDisplay::virtualVideoX));
+			int targetRAM = (targetX + (targetY * SGE::VirtualDisplay::ResolutionX));
 
 			//Set the starting pint in the source data block RAM
 			int sourceRAM = 0;
 
 			//Set the maximum range for the current video RAM
-			int maxRAM = SGE::VirtualDisplay::virtualVideoX * SGE::VirtualDisplay::virtualVideoY;
+			int maxRAM = SGE::VirtualDisplay::ResolutionX * SGE::VirtualDisplay::ResolutionY;
 
 			//For each row of the source block
 			for (int i = 0; i < sourceHeight; i++)
 			{
 				//Copy of row from the source over to the target
-				memcpy(&SGE::VirtualDisplay::virtualVideoRAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * 4);
+				memcpy(&SGE::VirtualDisplay::VideoRAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * 4);
 
 				//Increment to the next row in the display
-				targetRAM += SGE::VirtualDisplay::virtualVideoX;
+				targetRAM += SGE::VirtualDisplay::ResolutionX;
 
 				//Increment to the next row in the source
 				sourceRAM += sourceWidth;
@@ -189,7 +189,7 @@ namespace SGE
 				deltaX = endX - startX;
 				deltaY = endY - startY;
 			}
-			else if (startX >= SGE::VirtualDisplay::virtualVideoX)
+			else if (startX >= SGE::VirtualDisplay::ResolutionX)
 			{
 				//If deltaX is 0, there's NO WAY this line is getting to a valid point on the screen
 				if (deltaX == 0)
@@ -198,10 +198,10 @@ namespace SGE
 				}
 
 				//Calculate the new startY based on how far from the last horizontal pixel startX is.
-				startY -= ((startX - (SGE::VirtualDisplay::virtualVideoX - 1)) * deltaY) / deltaX;
+				startY -= ((startX - (SGE::VirtualDisplay::ResolutionX - 1)) * deltaY) / deltaX;
 
 				//Start startX to the last horizontal pixel.
-				startX = SGE::VirtualDisplay::virtualVideoX - 1;
+				startX = SGE::VirtualDisplay::ResolutionX - 1;
 
 				//Recalculate the deltas
 				deltaX = endX - startX;
@@ -227,7 +227,7 @@ namespace SGE
 				deltaX = endX - startX;
 				deltaY = endY - startY;
 			}
-			else if (startY >= SGE::VirtualDisplay::virtualVideoY)
+			else if (startY >= SGE::VirtualDisplay::ResolutionY)
 			{
 				//If deltaY is 0, there's NO WAY this line is getting to a valid point on the screen
 				if (deltaY == 0)
@@ -236,10 +236,10 @@ namespace SGE
 				}
 
 				//Calculate the new startX basedo n how far fromthe last vertical pixel startY is.
-				startX -= ((startY - (SGE::VirtualDisplay::virtualVideoY - 1)) * deltaX) / deltaY;
+				startX -= ((startY - (SGE::VirtualDisplay::ResolutionY - 1)) * deltaX) / deltaY;
 
 				//Set startY to the last vertical pixel.
-				startY = SGE::VirtualDisplay::virtualVideoY - 1;
+				startY = SGE::VirtualDisplay::ResolutionY - 1;
 
 				//Recalculate the deltas
 				deltaX = endX - startX;
@@ -275,7 +275,7 @@ namespace SGE
 				deltaX = endX - startX;
 				deltaY = endY - startY;
 			}
-			else if (endX >= SGE::VirtualDisplay::virtualVideoX)
+			else if (endX >= SGE::VirtualDisplay::ResolutionX)
 			{
 				//If deltaX is 0, there's NO WAY this line is getting to a valid point on the screen
 				if (deltaX == 0)
@@ -284,10 +284,10 @@ namespace SGE
 				}
 
 				//Calculate the new startY based on how far from the last horizontal pixel startX is.
-				endY -= ((endX - (SGE::VirtualDisplay::virtualVideoX - 1)) * deltaY) / deltaX;
+				endY -= ((endX - (SGE::VirtualDisplay::ResolutionX - 1)) * deltaY) / deltaX;
 
 				//Start startX to the last horizontal pixel.
-				endX = SGE::VirtualDisplay::virtualVideoX - 1;
+				endX = SGE::VirtualDisplay::ResolutionX - 1;
 
 				//Recalculate the deltas
 				deltaX = endX - startX;
@@ -313,7 +313,7 @@ namespace SGE
 				deltaX = endX - startX;
 				deltaY = endY - startY;
 			}
-			else if (endY >= SGE::VirtualDisplay::virtualVideoY)
+			else if (endY >= SGE::VirtualDisplay::ResolutionY)
 			{
 				//If deltaY is 0, there's NO WAY this line is getting to a valid point on the screen
 				if (deltaY == 0)
@@ -322,10 +322,10 @@ namespace SGE
 				}
 
 				//Calculate the new startX basedo n how far fromthe last vertical pixel startY is.
-				endX -= ((endY - (SGE::VirtualDisplay::virtualVideoY - 1)) * deltaX) / deltaY;
+				endX -= ((endY - (SGE::VirtualDisplay::ResolutionY - 1)) * deltaX) / deltaY;
 
 				//Set startY to the last vertical pixel.
-				endY = SGE::VirtualDisplay::virtualVideoY - 1;
+				endY = SGE::VirtualDisplay::ResolutionY - 1;
 
 				//Recalculate the deltas
 				deltaX = endX - startX;
@@ -361,11 +361,11 @@ namespace SGE
 
 				if (deltaY > 0)
 				{
-					errorRAMStep = SGE::VirtualDisplay::virtualVideoX;
+					errorRAMStep = SGE::VirtualDisplay::ResolutionX;
 				}
 				else
 				{
-					errorRAMStep = -SGE::VirtualDisplay::virtualVideoX;
+					errorRAMStep = -SGE::VirtualDisplay::ResolutionX;
 				}
 			}
 			//Else Y is the delta we need to iterate across.
@@ -378,11 +378,11 @@ namespace SGE
 				//Set the RAM stepping based on if the deltaY is negative or positive
 				if (deltaY > 0)
 				{
-					deltaRAMStep = SGE::VirtualDisplay::virtualVideoX;
+					deltaRAMStep = SGE::VirtualDisplay::ResolutionX;
 				}
 				else
 				{
-					deltaRAMStep = -SGE::VirtualDisplay::virtualVideoX;
+					deltaRAMStep = -SGE::VirtualDisplay::ResolutionX;
 				}
 
 				if (deltaX > 0)
@@ -408,7 +408,7 @@ namespace SGE
 			int currentError = -DRAWING_DECIMAL_RESOLUTION;
 
 			//Determine starting RAM location
-			int currentRAMLocation = startX + startY * SGE::VirtualDisplay::virtualVideoX;
+			int currentRAMLocation = startX + startY * SGE::VirtualDisplay::ResolutionX;
 
 			//Pack the colors up into useful data
 			//Since if we have gotten this far, we are actually going to try to plot this thing
@@ -424,7 +424,7 @@ namespace SGE
 			for (int i = 0; i <= iterationDelta; i++)
 			{
 				//Plot a point for the current location
-				memcpy(&SGE::VirtualDisplay::virtualVideoRAM[currentRAMLocation], &pixelData, 4);
+				memcpy(&SGE::VirtualDisplay::VideoRAM[currentRAMLocation], &pixelData, 4);
 
 				//Move to the next place in memory
 				currentRAMLocation += deltaRAMStep;
@@ -477,7 +477,7 @@ namespace SGE
 			unsigned char bColor)					//8-bit (0-255) Blue color component
 		{
 			//Get the starting point in video RAM based on desired location and size of the display
-			int targetRAM = (startX + (startY * SGE::VirtualDisplay::virtualVideoX));
+			int targetRAM = (startX + (startY * SGE::VirtualDisplay::ResolutionX));
 
 			//Starting point
 			int startingRAM = targetRAM;
@@ -489,21 +489,21 @@ namespace SGE
 			for (int i = 0; i < width; i++)
 			{
 				//Copy the color into video ram
-				memcpy(&SGE::VirtualDisplay::virtualVideoRAM[targetRAM+i], &targetColor, 4);
+				memcpy(&SGE::VirtualDisplay::VideoRAM[targetRAM+i], &targetColor, 4);
 			}
 			
 			//Then memcpy the rest of the rows from this one
 			//First move to the next row
-			targetRAM += SGE::VirtualDisplay::virtualVideoX;
+			targetRAM += SGE::VirtualDisplay::ResolutionX;
 
 			//Loop through the remaining rows
 			for (int i = 1; i < height; i++)
 			{
 				//Copy the first row to the rest of the rows
-				memcpy(&SGE::VirtualDisplay::virtualVideoRAM[targetRAM], &SGE::VirtualDisplay::virtualVideoRAM[startingRAM], width * 4);
+				memcpy(&SGE::VirtualDisplay::VideoRAM[targetRAM], &SGE::VirtualDisplay::VideoRAM[startingRAM], width * 4);
 
 				//Next Row
-				targetRAM += SGE::VirtualDisplay::virtualVideoX;
+				targetRAM += SGE::VirtualDisplay::ResolutionX;
 			}
 		}
 
@@ -511,10 +511,10 @@ namespace SGE
 		void ZBlank()
 		{
 			//Get the display RAM size in byte chunks
-			int displayRAMSize = SGE::VirtualDisplay::virtualVideoX * SGE::VirtualDisplay::virtualVideoY * sizeof(unsigned int);
+			int displayRAMSize = SGE::VirtualDisplay::ResolutionX * SGE::VirtualDisplay::ResolutionY * sizeof(unsigned int);
 
 			//Memset for the win!!
-			memset(SGE::VirtualDisplay::virtualVideoRAM, 0, displayRAMSize);
+			memset(SGE::VirtualDisplay::VideoRAM, 0, displayRAMSize);
 		}
 
 		//Blanks the video RAM completely with a choosen color
@@ -524,21 +524,21 @@ namespace SGE
 			unsigned char bColor)					//8-bit (0-255) Blue component of the color
 		{
 			//Get the display RAM size in 32-bit chunks
-			int displayRAMSize = SGE::VirtualDisplay::virtualVideoX * SGE::VirtualDisplay::virtualVideoY;
+			int displayRAMSize = SGE::VirtualDisplay::ResolutionX * SGE::VirtualDisplay::ResolutionY;
 
 			//Pack up the color components into a 32-bit chunk
 			unsigned int pixelValues = PackColors(rColor, gColor, bColor);
 
 			//Fill the first "row"
-			for (int i = 0; i < SGE::VirtualDisplay::virtualVideoX; i++)
+			for (int i = 0; i < SGE::VirtualDisplay::ResolutionX; i++)
 			{
-				memcpy(SGE::VirtualDisplay::virtualVideoRAM + i, &pixelValues, 4);
+				memcpy(SGE::VirtualDisplay::VideoRAM + i, &pixelValues, 4);
 			}
 
 			//File subsequent rows with the first
-			for (int i = SGE::VirtualDisplay::virtualVideoX; i < displayRAMSize; i = i + SGE::VirtualDisplay::virtualVideoX)
+			for (int i = SGE::VirtualDisplay::ResolutionX; i < displayRAMSize; i = i + SGE::VirtualDisplay::ResolutionX)
 			{
-				memcpy(&SGE::VirtualDisplay::virtualVideoRAM[i], SGE::VirtualDisplay::virtualVideoRAM, SGE::VirtualDisplay::virtualVideoX * 4);
+				memcpy(&SGE::VirtualDisplay::VideoRAM[i], SGE::VirtualDisplay::VideoRAM, SGE::VirtualDisplay::ResolutionX * 4);
 			}
 		}
 
@@ -826,11 +826,11 @@ namespace SGE
 				//Check to see which is furthest left
 				if (currentTopMostToBottomMostX < currentOtherLineX)
 				{
-					memcpy(&SGE::VirtualDisplay::virtualVideoRAM[currentTopMostToBottomMostX + SGE::VirtualDisplay::virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
+					memcpy(&SGE::VirtualDisplay::VideoRAM[currentTopMostToBottomMostX + SGE::VirtualDisplay::ResolutionX * (currentY)], targetPixelBuffer, fillWidth);
 				}
 				else
 				{
-					memcpy(&SGE::VirtualDisplay::virtualVideoRAM[currentOtherLineX + SGE::VirtualDisplay::virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
+					memcpy(&SGE::VirtualDisplay::VideoRAM[currentOtherLineX + SGE::VirtualDisplay::ResolutionX * (currentY)], targetPixelBuffer, fillWidth);
 				}
 
 				//Calculate the X points from Y using a modified Bresenham algorithm.
@@ -891,11 +891,11 @@ namespace SGE
 				//Check to see which is furthest left
 				if (currentTopMostToBottomMostX < currentOtherLineX)
 				{
-					memcpy(&SGE::VirtualDisplay::virtualVideoRAM[currentTopMostToBottomMostX + SGE::VirtualDisplay::virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
+					memcpy(&SGE::VirtualDisplay::VideoRAM[currentTopMostToBottomMostX + SGE::VirtualDisplay::ResolutionX * (currentY)], targetPixelBuffer, fillWidth);
 				}
 				else
 				{
-					memcpy(&SGE::VirtualDisplay::virtualVideoRAM[currentOtherLineX + SGE::VirtualDisplay::virtualVideoX * (currentY)], targetPixelBuffer, fillWidth);
+					memcpy(&SGE::VirtualDisplay::VideoRAM[currentOtherLineX + SGE::VirtualDisplay::ResolutionX * (currentY)], targetPixelBuffer, fillWidth);
 				}
 
 				//Calculate the X points from Y using a modified Bresenham algorithm.
@@ -1044,7 +1044,7 @@ namespace SGE
 						partialProductY31 - partialProductX31 >= 0)
 					{
 						//Copy the color over.
-						memcpy(&SGE::VirtualDisplay::virtualVideoRAM[x + (y*SGE::VirtualDisplay::virtualVideoX)], &targetColor, 4);
+						memcpy(&SGE::VirtualDisplay::VideoRAM[x + (y*SGE::VirtualDisplay::ResolutionX)], &targetColor, 4);
 					}
 					//Increment the partial product
 					partialProductX12 += spanningVector12.y;

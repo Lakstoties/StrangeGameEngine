@@ -335,13 +335,13 @@ namespace SGE
 		namespace SoundSystem
 		{
 			//Master volume for the system
-			extern int masterVolume;
+			extern int MasterVolume;
 
 			//All the sound samples in the system
-			extern SoundSampleBuffer soundSamplesBuffers[Sound::MAX_SAMPLE_BUFFERS];
+			extern SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
 
 			//All the system's sound channels
-			extern SoundChannel soundChannels[MAX_CHANNELS];
+			extern SoundChannel Channels[MAX_CHANNELS];
 
 			//System Managagement
 			void Start();
