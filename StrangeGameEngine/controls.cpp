@@ -1,4 +1,5 @@
 #include "include\SGE\controls.h"
+#include "sharedinternal.h"
 #include <GLFW\glfw3.h>
 #include <thread>
 
@@ -42,7 +43,7 @@ namespace SGE
 
 		}
 
-		void HandleEvents(GLFWwindow* targetWindow)
+		void HandleEvents()
 		{
 			//Initializations
 
@@ -58,13 +59,13 @@ namespace SGE
 			//
 
 			//Keyboard callback
-			glfwSetKeyCallback(targetWindow, KeyboardCallback);
+			glfwSetKeyCallback(SGE::System::mainWindow, KeyboardCallback);
 
 			//Mouse cursor callback
-			glfwSetCursorPosCallback(targetWindow, CursorCallback);
+			glfwSetCursorPosCallback(SGE::System::mainWindow, CursorCallback);
 
 			//Mouse button callback
-			glfwSetMouseButtonCallback(targetWindow, MouseButtonCallback);
+			glfwSetMouseButtonCallback(SGE::System::mainWindow, MouseButtonCallback);
 
 
 			//Start Handling Events through Main Interface
@@ -72,7 +73,7 @@ namespace SGE
 			//And in OSX this has to be done by the thread that invoked the main function of the program..  Fuckin' Macs...
 
 			//While the main window is going and isn't set to close...
-			while (!glfwWindowShouldClose(targetWindow))
+			while (!glfwWindowShouldClose(SGE::System::mainWindow))
 			{
 				//Poll for events
 				glfwPollEvents();

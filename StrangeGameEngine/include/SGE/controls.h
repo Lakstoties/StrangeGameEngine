@@ -12,6 +12,11 @@ namespace SGE
 		//It's officially defined in the control.cpp
 		extern bool KeyboardStatus[NUMBER_OF_KEYS];
 
+		//Start Handling Events through Main Interface
+		//This has to handled by the same thread that spawned the GUI window
+		//And in OSX this has to be done by the thread that invoked the main function of the program..  Fuckin' Macs...
+		void HandleEvents();
+
 		//This is a helper class to save the state of the keyboard and provide easy access to commonly used functions
 		class SavedKeyboardState
 		{

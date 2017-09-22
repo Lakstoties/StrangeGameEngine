@@ -13,30 +13,11 @@ namespace SGE
 		const int DEFAULT_FRAME_RATE_LIMIT = 100;
 		const int DEFAULT_FRAME_WAIT_MILLISECONDS = 1000 / DEFAULT_FRAME_RATE_LIMIT;
 
-		//Opens a game window of X and Y size with the specified title
-		//Only one may be open at any given time.
-		void OpenGameWindow(int windowX, int windowY, const char* gameTitle);
-
-		//Closes the currently active game window
-		void CloseGameWindow();
-
-		//Initialized the virtual display and binds it to the mainWindow
-		void InitializeVirtualDisplay(int virtualDisplayX, int virtualDisplayY);
-		
 		//Perform basic initialization of the system overall
-		void Startup();
+		void Startup(int windowX, int windowY, const char* gameTitle);
 
 		//Performs shutdown and termination operations
 		void Shutdown();
-				
-		//Tells the mainDisplay to start drawing
-		void StartDrawing();
-
-		//Tells the mainDisplay to stop drawing
-		void StopDrawing();
-
-		//Called from the main thread to perform event handling
-		void HandleEvents();
 
 		//Strange Game Engine Logo Splash Screen
 		void SplashScreen();
