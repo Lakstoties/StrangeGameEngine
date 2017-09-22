@@ -232,10 +232,10 @@ void InputTest(bool& testInputRunning)
 		//Unlock the display refresh
 		SGE::VirtualDisplay::refreshHold.unlock();
 
-
 		//Channel 0 Pan
 		//Pan to Left
-		if (SGE::Controls::keyboardStatus[GLFW_KEY_O])
+
+		if (SGE::Controls::keyboardStatus[SGE::Controls::Keymap::KEY_O])
 		{
 			SGE::Sound::SoundSystem::soundChannels[0].rightVolume -= 1;
 			SGE::Sound::SoundSystem::soundChannels[0].leftVolume += 1;
@@ -243,7 +243,7 @@ void InputTest(bool& testInputRunning)
 		}
 
 		//Pan to Right
-		if (SGE::Controls::keyboardStatus[GLFW_KEY_P])
+		if (SGE::Controls::keyboardStatus[SGE::Controls::Keymap::KEY_P])
 		{
 			SGE::Sound::SoundSystem::soundChannels[0].rightVolume += 1;
 			SGE::Sound::SoundSystem::soundChannels[0].leftVolume -=1;
@@ -253,14 +253,14 @@ void InputTest(bool& testInputRunning)
 
 		//Sound Volume
 		//Decrease volume
-		if (SGE::Controls::keyboardStatus[GLFW_KEY_Q])
+		if (SGE::Controls::keyboardStatus[SGE::Controls::Keymap::KEY_Q])
 		{
 			SGE::Sound::SoundSystem::soundChannels[0].volume -= 1;
 			printf("Debug - Channel 0 Volume Left: %i\n", SGE::Sound::SoundSystem::soundChannels[0].volume);
 		}
 
 		//Increase volume
-		if (SGE::Controls::keyboardStatus[GLFW_KEY_W])
+		if (SGE::Controls::keyboardStatus[SGE::Controls::Keymap::KEY_W])
 		{
 			SGE::Sound::SoundSystem::soundChannels[0].volume += 1;
 			printf("Debug - Channel 0 Volume Left: %i\n", SGE::Sound::SoundSystem::soundChannels[0].volume);
@@ -269,7 +269,7 @@ void InputTest(bool& testInputRunning)
 
 		//Pitch bend
 		//Decrease pitch
-		if (SGE::Controls::keyboardStatus[GLFW_KEY_A])
+		if (SGE::Controls::keyboardStatus[SGE::Controls::Keymap::KEY_A])
 		{
 			SGE::Sound::SoundSystem::soundChannels[0].SetPitch(SGE::Sound::SoundSystem::soundChannels[0].GetPitch() - 1);
 
@@ -278,7 +278,7 @@ void InputTest(bool& testInputRunning)
 		}
 
 		//Increase pitch
-		if (SGE::Controls::keyboardStatus[GLFW_KEY_S])
+		if (SGE::Controls::keyboardStatus[SGE::Controls::Keymap::KEY_S])
 		{
 			SGE::Sound::SoundSystem::soundChannels[0].SetPitch(SGE::Sound::SoundSystem::soundChannels[0].GetPitch() + 1);
 			//DEBUG Output
@@ -289,14 +289,14 @@ void InputTest(bool& testInputRunning)
 
 		//System Master Volume
 		//Decrease volume
-		if (SGE::Controls::keyboardStatus[GLFW_KEY_Z])
+		if (SGE::Controls::keyboardStatus[SGE::Controls::Keymap::KEY_Z])
 		{
 			SGE::Sound::SoundSystem::masterVolume -= 1;
 			printf("Debug - Master Volume: %i\n", SGE::Sound::SoundSystem::masterVolume);
 		}
 
 		//Increase volume
-		if (SGE::Controls::keyboardStatus[GLFW_KEY_X])
+		if (SGE::Controls::keyboardStatus[SGE::Controls::Keymap::KEY_X])
 		{
 			SGE::Sound::SoundSystem::masterVolume += 1;
 			printf("Debug - Master Volume: %i\n", SGE::Sound::SoundSystem::masterVolume);
@@ -304,10 +304,10 @@ void InputTest(bool& testInputRunning)
 
 
 
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_T))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_T))
 		{
 
-			if (lastKeyboardState.GetPreviousState(GLFW_KEY_M))
+			if (lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_M))
 			{
 
 			}
@@ -326,9 +326,9 @@ void InputTest(bool& testInputRunning)
 
 
 		//ADSR Toggle
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_M))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_M))
 		{
-			if (lastKeyboardState.GetPreviousState(GLFW_KEY_M))
+			if (lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_M))
 			{
 				
 			}
@@ -350,9 +350,9 @@ void InputTest(bool& testInputRunning)
 
 		//Sound keys stuff
 		//Number Key 0
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_0))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_0))
 		{
-			if (lastKeyboardState.GetPreviousState(GLFW_KEY_0))
+			if (lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_0))
 			{
 				SGE::Sound::SoundSystem::soundChannels[0].Release();
 			}
@@ -363,9 +363,9 @@ void InputTest(bool& testInputRunning)
 		}
 
 		//Number Key 1
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_1))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_1))
 		{
-			if (lastKeyboardState.GetPreviousState(GLFW_KEY_1))
+			if (lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_1))
 			{
 				SGE::Sound::SoundSystem::soundChannels[1].Release();
 			}
@@ -376,9 +376,9 @@ void InputTest(bool& testInputRunning)
 		}
 
 		//Number Key 2
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_2))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_2))
 		{
-			if (lastKeyboardState.GetPreviousState(GLFW_KEY_2))
+			if (lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_2))
 			{
 				SGE::Sound::SoundSystem::soundChannels[2].Release();
 			}
@@ -389,9 +389,9 @@ void InputTest(bool& testInputRunning)
 		}
 
 		//Number Key 3
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_3))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_3))
 		{
-			if (lastKeyboardState.GetPreviousState(GLFW_KEY_3))
+			if (lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_3))
 			{
 				SGE::Sound::SoundSystem::soundChannels[3].Release();
 			}
@@ -402,9 +402,9 @@ void InputTest(bool& testInputRunning)
 		}
 
 		//Number Key 4
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_4))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_4))
 		{
-			if (lastKeyboardState.GetPreviousState(GLFW_KEY_4))
+			if (lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_4))
 			{
 				SGE::Sound::SoundSystem::soundChannels[4].Release();
 			}
@@ -415,9 +415,9 @@ void InputTest(bool& testInputRunning)
 		}
 
 		//Number Key 5
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_5))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_5))
 		{
-			if (lastKeyboardState.GetPreviousState(GLFW_KEY_5))
+			if (lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_5))
 			{
 				SGE::Sound::SoundSystem::soundChannels[5].Release();
 			}
@@ -428,9 +428,9 @@ void InputTest(bool& testInputRunning)
 		}
 
 		//Number Key 6
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_6))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_6))
 		{
-			if (lastKeyboardState.GetPreviousState(GLFW_KEY_6))
+			if (lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_6))
 			{
 				SGE::Sound::SoundSystem::soundChannels[6].Release();
 			}
@@ -441,9 +441,9 @@ void InputTest(bool& testInputRunning)
 		}
 
 		//Number Key 7
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_7))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_7))
 		{
-			if (lastKeyboardState.GetPreviousState(GLFW_KEY_7))
+			if (lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_7))
 			{
 				SGE::Sound::SoundSystem::soundChannels[7].Release();
 			}
@@ -454,9 +454,9 @@ void InputTest(bool& testInputRunning)
 		}
 
 		//Number Key 8
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_8))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_8))
 		{
-			if (lastKeyboardState.GetPreviousState(GLFW_KEY_8))
+			if (lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_8))
 			{
 				SGE::Sound::SoundSystem::soundChannels[8].Release();
 			}
@@ -467,9 +467,9 @@ void InputTest(bool& testInputRunning)
 		}
 
 		//Number Key 9
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_9))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_9))
 		{
-			if (lastKeyboardState.GetPreviousState(GLFW_KEY_9))
+			if (lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_9))
 			{
 				SGE::Sound::SoundSystem::soundChannels[9].Release();
 			}
@@ -481,31 +481,31 @@ void InputTest(bool& testInputRunning)
 
 		//Select box stuff
 		//If the Down key state has changed and it wasn't pressed previously
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_DOWN) && !lastKeyboardState.GetPreviousState(GLFW_KEY_DOWN))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_DOWN) && !lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_DOWN))
 		{
 			testMenu.NextSelection();
 		}
 
 		//If the Up key state has changed and it wasn't pressed previously
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_UP) && !lastKeyboardState.GetPreviousState(GLFW_KEY_UP))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_UP) && !lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_UP))
 		{
 			testMenu.PreviousSelection();
 		}
 
 		//If the Left key state has changed and it wasn't pressed previously
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_LEFT) && !lastKeyboardState.GetPreviousState(GLFW_KEY_LEFT))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_LEFT) && !lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_LEFT))
 		{
 			testMenu.MoveCursor(testMenu.GetCursorLocation() - 1);
 		}
 
 		//If the Right key state has changed and it wasn't pressed previously
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_RIGHT) && !lastKeyboardState.GetPreviousState(GLFW_KEY_RIGHT))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_RIGHT) && !lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_RIGHT))
 		{
 			testMenu.MoveCursor(testMenu.GetCursorLocation() + 1);
 		}
 
 		//If the Add key state has changed and it wasn't pressed previously
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_KP_ADD) && !lastKeyboardState.GetPreviousState(GLFW_KEY_KP_ADD))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_KP_ADD) && !lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_KP_ADD))
 		{
 			//Grab the current string and increment the number
 			char * tempString = testMenu.GetMenuSelection();
@@ -515,7 +515,7 @@ void InputTest(bool& testInputRunning)
 		}
 
 		//If the Subtract key state has changed and it wasn't pressed previously
-		if (lastKeyboardState.KeyChanged(GLFW_KEY_KP_SUBTRACT) && !lastKeyboardState.GetPreviousState(GLFW_KEY_KP_SUBTRACT))
+		if (lastKeyboardState.KeyChanged(SGE::Controls::Keymap::KEY_KP_SUBTRACT) && !lastKeyboardState.GetPreviousState(SGE::Controls::Keymap::KEY_KP_SUBTRACT))
 		{
 			//Grab the current string and decrement the number
 			char * tempString = testMenu.GetMenuSelection();

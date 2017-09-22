@@ -4,7 +4,6 @@
 #include "controls.h"
 #include "sound.h"
 #include "gui.h"
-#include <GLFW\glfw3.h>
 
 namespace SGE
 {

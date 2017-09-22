@@ -51,6 +51,9 @@ namespace SGE
 			//Make sure the mainDisplay has stopped drawing.
 			SGE::VirtualDisplay::StopDrawing();
 
+			//Close the Game Window
+			CloseGameWindow();
+
 			//Make sure the mainSoundSystem has stopped running.
 			SGE::Sound::SoundSystem::Stop();
 
@@ -60,11 +63,6 @@ namespace SGE
 			//Strange Game Engine should be shutdown now
 			systemStarted = false;
 		}
-
-
-
-
-
 
 		//Function opens up the game window to the desired dimensions
 		void OpenGameWindow(int windowX, int windowY, const char* gameTitle)

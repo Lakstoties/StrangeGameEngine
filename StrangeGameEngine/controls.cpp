@@ -53,8 +53,9 @@ namespace SGE
 				keyboardScancodeStatus[i] = false;
 			}
 
-
+			//
 			//Register the callbacks
+			//
 
 			//Keyboard callback
 			glfwSetKeyCallback(targetWindow, KeyboardCallback);
@@ -92,7 +93,6 @@ namespace SGE
 			for (int i = 0; i < NUMBER_OF_KEYS; i++)
 			{
 				previousKeyboardState[i] = keyboardStatus[i];
-				previousKeyboardScancodeState[i] = keyboardScancodeStatus[i];
 			}
 		}
 
