@@ -382,7 +382,7 @@ namespace SGE
 		}
 
 
-		class SoundSystemWaveFile
+		class WaveFile
 		{
 		private:
 			FileFormatStructs::WaveFile::RIFFHeader waveFileHeader;
@@ -390,8 +390,8 @@ namespace SGE
 			FileFormatStructs::WaveFile::fmtSubChunk fmtSubChunkData;
 
 		public:
-			SoundSystemWaveFile();
-			~SoundSystemWaveFile();
+			WaveFile();
+			~WaveFile();
 
 			int LoadFile(char* targetFilename);
 

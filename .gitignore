@@ -54,3 +54,7 @@ Drug War X/Debug/Drug War X.Build.CppClean.log
 *.opendb
 .vs/Strange Games Engine/v15/.suo
 UpgradeLog.htm
+*.iobj
+Release/Drug War X.ipdb
+*.iobj
+Win32/Release/SGE-Test.ipdb

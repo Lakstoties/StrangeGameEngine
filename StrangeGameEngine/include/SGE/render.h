@@ -41,8 +41,6 @@ namespace SGE
 		//Struct to hold internal image data
 		class ImageData
 		{
-		private:
-
 		public:
 			unsigned int height = 0;
 			unsigned int width = 0;
@@ -54,36 +52,12 @@ namespace SGE
 		};
 
 		//Class that contains converted bitmap data from a file
-		class RenderBitmapFile
+		struct RenderBitmapFile
 		{
-		private:
 			FileFormatStructs::Bitmap::BMPFileHeader bitmapHeader;
 			FileFormatStructs::Bitmap::BMPInfoHeader bitmapInfo;
-
-		public:
 			ImageData image;
-
-			RenderBitmapFile();
-			~RenderBitmapFile();
-
 			int LoadFile(char* targetFilename);
-		};
-
-		//Class that contains image data pages and other functions to assist with animation
-		class AnimationBook
-		{
-		private:
-			//Number of pages in the book
-			unsigned int numberOfPages = 0;
-
-			//Data array for image data
-			ImageData* pages = nullptr;
-
-		public:
-			AnimationBook();
-			~AnimationBook();
-
-			bool SetNumberOfPages(unsigned int targetNumberOfPages);
 		};
 
 		//Structure to handle simple 2D vertex points
@@ -100,28 +74,6 @@ namespace SGE
 			unsigned char green;
 			unsigned char blue;
 			unsigned char xData;
-		};
-
-
-		//Class that maintains time data and relevant vector, points, or other associated data.
-		class TimedVectors
-		{
-		private:
-
-		public:
-			unsigned int numberOfVectors;
-
-			VertexPoint* vectorList;
-			ColorInfo* colorList;
-			int* timeList;
-			
-			TimedVectors();
-			~TimedVectors();
-
-			void StartTimer();
-			void StopTimer();
-			
-			int CheckpointTimer();
 		};
 
 

@@ -8,7 +8,7 @@ namespace SGE
 	const int DEFAULT_FRAME_WAIT_MILLISECONDS = 1000 / DEFAULT_FRAME_RATE_LIMIT;
 	
 	//The Virtual Display class to simulate the display component of the Strange Game Engine
-	namespace VirtualDisplay
+	namespace Display
 	{
 		//Minium wait time before the next frame is allowed
 		extern int frameWaitMilliseconds;

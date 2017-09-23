@@ -566,17 +566,12 @@ namespace SGE
 				//Go through each channel and add it's contents to the mixing buffer
 				for (int i = 0; i < MAX_CHANNELS; i++)
 				{
-					//Go through all active channels and get samples from them
-					//if (soundChannels[i].currentSampleBuffer != nullptr)
-					//{
 					Channels[i].RenderSamples(frameCount, renderedChannelBuffers[i]);
-
 					for (unsigned int j = 0; j < frameCount; j++)
 					{
 						mixingFrameBufferLeft[j] += renderedChannelBuffers[i][j] * Channels[i].leftVolume / FIXED_POINT_BIAS;
 						mixingFrameBufferRight[j] += renderedChannelBuffers[i][j] * Channels[i].rightVolume / FIXED_POINT_BIAS;
 					}
-					//}
 				}
 
 				//Dump it into the output buffer
@@ -762,14 +757,14 @@ namespace SGE
 		//
 
 		//Default constructor for a SoundSystemWaveFile
-		SoundSystemWaveFile::SoundSystemWaveFile()
+		WaveFile::WaveFile()
 		{
 			audioData = nullptr;
 			numberOfSamples = 0;
 		}
 
 		//Deconstructor for a SoundSystemWaveFile
-		SoundSystemWaveFile::~SoundSystemWaveFile()
+		WaveFile::~WaveFile()
 		{
 			//If audio data actually got loaded, delete it!
 			if (audioData != nullptr)
@@ -787,7 +782,7 @@ namespace SGE
 
 		//Load audio data from a file into a collection of audio buffers
 		//Returns a 0 if all is well, something else if there is an error.
-		int SoundSystemWaveFile::LoadFile(char* targetFilename)
+		int WaveFile::LoadFile(char* targetFilename)
 		{
 			FILE* soundFile;
 			unsigned int readCount = 0;

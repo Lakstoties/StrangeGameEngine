@@ -5,7 +5,6 @@ namespace SGE
 	{
 		//Values for the key and scan code arrays
 		const int NUMBER_OF_KEYS = 512;
-		const int NUMBER_OF_SCANCODES = 512;
 
 		//Current keyboard key state array
 		//It's an extern to keep the linker from going crazy over multiple definitions between the headers.
@@ -17,27 +16,8 @@ namespace SGE
 		//And in OSX this has to be done by the thread that invoked the main function of the program..  Fuckin' Macs...
 		void HandleEvents();
 
-		//This is a helper class to save the state of the keyboard and provide easy access to commonly used functions
-		class SavedKeyboardState
-		{
-		private:
-			//Previous state array
-			bool previousKeyboardState[NUMBER_OF_KEYS];
+		void SaveKeyboardStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS]);
 
-		public:
-			//Default Constructor
-			//Interface to pull state from is REQUIRED
-			SavedKeyboardState();
-
-			//Save the current state from the linked interface
-			void SaveState();
-
-			//Function to check to see if a key has changed between current state and previous state
-			bool KeyChanged(int key);
-
-			//Find out what the previous statew as for a key
-			bool GetPreviousState(int key);
-		};
 
 		///
 		///Keymap

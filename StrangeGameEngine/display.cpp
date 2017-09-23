@@ -7,7 +7,7 @@
 
 namespace SGE
 {
-	namespace VirtualDisplay
+	namespace Display
 	{
 
 		//Minium wait time before the next frame is allowed
@@ -109,7 +109,7 @@ namespace SGE
 					frameBufferPreviousWidth = frameBufferWidth;
 
 					//Calculate the virtualDisplay's aspect ratio
-					float virtualDisplayAspectRatio = float (SGE::VirtualDisplay::ResolutionX) / float (SGE::VirtualDisplay::ResolutionY);
+					float virtualDisplayAspectRatio = float (SGE::Display::ResolutionX) / float (SGE::Display::ResolutionY);
 					
 					//Test the aspect ratio against the new width to see if we can scale using the height
 					if (frameBufferHeight * virtualDisplayAspectRatio <= frameBufferWidth)
@@ -223,7 +223,7 @@ namespace SGE
 			continueDrawing = true;
 
 			//Launch that thread
-			drawingThread = new std::thread(&VirtualDisplay::UpdateThread);
+			drawingThread = new std::thread(&Display::UpdateThread);
 		}
 
 		void StopDrawing()

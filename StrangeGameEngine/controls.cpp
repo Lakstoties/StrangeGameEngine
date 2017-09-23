@@ -8,27 +8,13 @@ namespace SGE
 	namespace Controls
 	{
 		//Keyboard status array that keeps track of which keys are pressed
-		bool KeyboardStatus[NUMBER_OF_KEYS];
-
-		//Keyboard status array that keeps track of which scancodes have been triggered
-		bool keyboardScancodeStatus[NUMBER_OF_KEYS];
-
+		bool KeyboardStatus[NUMBER_OF_KEYS] = { false };
 
 		//Keyboard callback for GLFW
 		void KeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
 			//Update the key array for the state of the key
-			if (action == GLFW_PRESS)
-			{
-				KeyboardStatus[key] = true;
-				keyboardScancodeStatus[scancode] = true;
-			}
-
-			else if (action == GLFW_RELEASE)
-			{
-				KeyboardStatus[key] = false;
-				keyboardScancodeStatus[scancode] = false;
-			}
+			KeyboardStatus[key] = action == GLFW_PRESS;
 		}
 
 		//Mouse Cursor callback for GLFW
@@ -45,15 +31,6 @@ namespace SGE
 
 		void HandleEvents()
 		{
-			//Initializations
-
-			//Initialize the keyboard status array
-			for (int i = 0; i < 128; i++)
-			{
-				KeyboardStatus[i] = false;
-				keyboardScancodeStatus[i] = false;
-			}
-
 			//
 			//Register the callbacks
 			//
@@ -83,28 +60,10 @@ namespace SGE
 			}
 		}
 		
-		SavedKeyboardState::SavedKeyboardState()
+		//Copy current keyboard state to another array
+		void SaveKeyboardStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS])
 		{
-			//Populate Keyboard State from Interface
-			this->SaveState();
-		}
-
-		void SavedKeyboardState::SaveState()
-		{
-			for (int i = 0; i < NUMBER_OF_KEYS; i++)
-			{
-				previousKeyboardState[i] = KeyboardStatus[i];
-			}
-		}
-
-		bool SavedKeyboardState::KeyChanged(int key)
-		{
-			return previousKeyboardState[key] != KeyboardStatus[key];
-		}
-
-		bool SavedKeyboardState::GetPreviousState(int key)
-		{
-			return previousKeyboardState[key];
+			memcpy(targetKeyboardStatusArray, KeyboardStatus, sizeof(KeyboardStatus));
 		}
 	}
 }
