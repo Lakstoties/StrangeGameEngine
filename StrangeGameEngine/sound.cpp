@@ -23,7 +23,7 @@ namespace SGE
 			//Starting at the offset, copy over samples to the buffer.
 			for (unsigned int i = 0; i < numberOfSamples; i++)
 			{
-				//If we are currently not playing or there's no valid sample buffer
+				//If we are currently not playing
 				if (!Playing)
 				{
 					sampleBuffer[i] = 0;
@@ -33,42 +33,21 @@ namespace SGE
 					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
 					sampleBuffer[i] = int (currentSampleBuffer->buffer[unsigned int (offset)] * Volume);
 
+					//Increment to the next offset
 					offset += offsetIncrement;
 
-					//Check to see if offset has gotten to or past the end of the buffer
-					if (unsigned int (offset) >= currentSampleBuffer->bufferSize)
+					//Check to see if this same is suppose to repeat and is set to do so... correctly
+					if (Repeatable && repeatDuration > 0 && unsigned int(offset) >= (repeatOffset + repeatDuration))
 					{
-						//If the sound channel loops
-						if (Repeatable && repeatDuration > 0)
-						{
-							//Set offset to the repeat offset
-							offset = float(repeatOffset) + (offset - float (currentSampleBuffer->bufferSize));
-
-							//Set the flag to indicate this channel IS repeating
-							Repeating = true;
-						}
-						//It doesn't loop...
-						else
-						{
-							//Fuck this shit we're out!
-							Stop();
-						}
+						//Alter the offset appropriate, keeping in mind how much we have blown past end point to add the difference in to keep looping proper.
+						offset = float(repeatOffset) + (offset - float(repeatOffset + repeatDuration));
 					}
-					//If we are repeating and have gone past our repeat point
-					else if (Repeating && unsigned int(offset) >= (repeatOffset + repeatDuration))
+
+					//If not repeatable and the offset has gone past the end of the buffer
+					else if (unsigned int (offset) >= currentSampleBuffer->bufferSize)
 					{
-						//Check to see if we are allowed to continue repeating
-						if (Repeatable)
-						{
-							//Alter the offset appropriate, keeping in mind how much we have blown past end point to add the difference in to keep looping proper.
-							offset = float(repeatOffset) + (offset - float(repeatOffset + repeatDuration));
-						}
-						//Welp, not any more
-						else
-						{
-							//Stop it all
-							Stop();
-						}
+						//Fuck this shit we're out!
+						Stop();
 					}
 				}
 			}
@@ -97,7 +76,6 @@ namespace SGE
 			{
 				//Set the flags
 				Playing = false;
-				Repeating = false;
 
 				//Reset the playing offset
 				offset = 0;

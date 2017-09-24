@@ -25,9 +25,6 @@ namespace SGE
 
 		namespace Keymap
 		{
-			// Unknown Key
-			const int KEY_UNKNOWN =		-1;
-
 			//Printable keys
 			const int KEY_SPACE =		32;		//' ' 
 			const int KEY_APOSTROPHE =	39;		// ' 

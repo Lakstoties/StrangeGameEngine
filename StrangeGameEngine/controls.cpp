@@ -13,15 +13,22 @@ namespace SGE
 		//Keyboard callback for GLFW
 		void KeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
-			//Update the key array for the state of the key
-			if (action == GLFW_PRESS)
+			//Check to make sure we are dealing with the GLFW_UNKNOWN key bit.
+			//Fuck that unkwown key bullshit.
+			//Ain't having it.
+			//Nope...
+			if (key >= 0)
 			{
-				KeyboardStatus[key] = true;
-			}
+				//Update the key array for the state of the key
+				if (action == GLFW_PRESS)
+				{
+					KeyboardStatus[key] = true;
+				}
 
-			if (action == GLFW_RELEASE)
-			{
-				KeyboardStatus[key] = false;
+				if (action == GLFW_RELEASE)
+				{
+					KeyboardStatus[key] = false;
+				}
 			}
 		}
 

@@ -263,9 +263,6 @@ namespace SGE
 			//This channel can repeat
 			bool Repeatable = false;
 
-			//This channel is repeating
-			bool Repeating = false;
-
 			//The offeset the sample will repeat at.
 			unsigned int repeatOffset = 0;
 
