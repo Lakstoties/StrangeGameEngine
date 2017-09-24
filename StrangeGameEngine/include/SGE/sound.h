@@ -176,12 +176,6 @@ namespace SGE
 		//This is usually half the maximum number represented by the number of bits
 		const int SAMPLE_MAX_AMPLITUDE = (1 << (SAMPLE_BITS - 1)) - 1;
 
-		//Fixed point math bias
-		const int FIXED_POINT_BIAS = 1000;
-
-		//Max number of envelope entries
-		const int MAX_ENVELOPE_ENTRIES = 10;
-
 		//Number of channels for the system
 		const int MAX_CHANNELS = 32;
 
@@ -240,23 +234,14 @@ namespace SGE
 
 		struct SoundChannel
 		{
-		private:
-			//Pitch bits
-			float keyedPitch = 1.0;
-			int currentPitch = 1;
-			float targetPitch = 1.0;
-
-			//Offset bits
-			//Absolute sample offset
-			unsigned int offset = 0;
-
-			//Relative sample based timing offset for envelop calculations when the sample is being looped or pitched shifted
-			unsigned int timingOffset = 0;
+		public:
+			//Offset 
+			//Sample offset
+			float offset = 0;
 
 			//Amount to increment the offset by
-			int offsetIncrement = 0;
+			float offsetIncrement = 0;
 
-		public:
 			//Current Sound Sample Buffer in use
 			//Set to the maximum buffers, to indicate one hasn't been selected.
 			 SoundSampleBuffer* currentSampleBuffer = nullptr;
@@ -265,89 +250,51 @@ namespace SGE
 			void RenderSamples(unsigned int numerOfSamples, int* sampleBuffer);
 
 			//Basic functions
-			//Hard play
-			//Will reset an already playing channel.
-			//Will continue a paused channel.
+			//Play
 			void Play();
 
-			//Hard stop, will immediately stop a channel.
+			//Hard stop
 			void Stop();
 
-			//Stops the channel, and holds the playback offset
-			void Pause();
+			//Status flag
+			bool Playing = false;
 
-			//Trigger Functions
-			//Soft play, if a channel is already playing, it will go to the Attack state.
-			void Trigger();
+			//Repeat information
+			//This channel can repeat
+			bool Repeatable = false;
 
-			//Soft stop, will allow for a release decay from the sustain level to take place before hard stop.
-			void Release();
+			//This channel is repeating
+			bool Repeating = false;
 
-			//Function for managing key
-			void SetKey(float pitch);
-			float GetKey();
+			//The offeset the sample will repeat at.
+			unsigned int repeatOffset = 0;
 
-			//Function for managing pitch
-			void SetPitch(float pitch);
-			float GetPitch();
-
-			//Status State Flags
-			static const int STATUS_NOT_PLAYING_STATE = 0;
-			static const int STATUS_PLAYING_STATE = 2;
-			static const int STATIS_PAUSED_STATE = 3;
-
-			//Status State
-			int statusState = STATUS_NOT_PLAYING_STATE;
+			//The duration of the repeat
+			unsigned int repeatDuration = 0;
 
 			//Volumes/Panning
-			int volume = FIXED_POINT_BIAS;
-			int rightVolume = FIXED_POINT_BIAS;
-			int leftVolume = FIXED_POINT_BIAS;
-			
-			//Looping flag
-			bool loop = false;
-
-			//Envelope Table
-			unsigned int numberOfEnvelopeEntries = 0;		//Number of entries in the envelope table.  If it's zero envelopes aren't used.
-			unsigned int currentEnvelopeEntry = 0;			//Current point in the envelope table
-			int currentEnvelopVolume = 0;
-
-			bool useEnvelope = false;						//Determine whether or not to use an envelope at all.
-
-			//Sustain
-			unsigned int sustainEntry = 0;					//This determines which entry in the envelop table is the sustain point.
-			bool sustainEnabled = true;						//Determines if sustain is enabled.
-
-			//State Flags
-			bool triggered = false;
-			
-
-			bool sampleIndexExact = false;					//Determines if the sample point defined are relative or exact to handle looping samples and pitch shifting.
-
-			unsigned int enveloptableSampleIndex[MAX_ENVELOPE_ENTRIES];
-			int enveloptableVolumeLevel[MAX_ENVELOPE_ENTRIES];
+			float Volume = 1.0f;
+			float Pan = 0.0f;
 		};
 
 
 
 		//Class for the Sound System of the game engine.
 		//Typically only one instance is used.
-		namespace SoundSystem
-		{
-			//Master volume for the system
-			extern int MasterVolume;
 
-			//All the sound samples in the system
-			extern SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
+		//Master volume for the system
+		extern float MasterVolume;
 
-			//All the system's sound channels
-			extern SoundChannel Channels[MAX_CHANNELS];
+		//All the sound samples in the system
+		extern SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
 
-			//System Managagement
-			void Start();
-			void Stop();
-		};
+		//All the system's sound channels
+		extern SoundChannel Channels[MAX_CHANNELS];
 
+		//System Managagement
+		void Start();
+		void Stop();
+	
 		namespace FileFormatStructs
 		{
 			namespace WaveFile

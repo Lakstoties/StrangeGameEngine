@@ -35,7 +35,7 @@ namespace SGE
 			glfwSetErrorCallback(GLFWErrorCallback);
 
 			//Start up the sound system
-			SGE::Sound::SoundSystem::Start();
+			SGE::Sound::Start();
 
 			//Check to make sure another window isn't active, we only want one window going at a time.
 			if (mainWindow != nullptr)
@@ -72,7 +72,7 @@ namespace SGE
 			glfwDestroyWindow(mainWindow);
 
 			//Make sure the mainSoundSystem has stopped running.
-			SGE::Sound::SoundSystem::Stop();
+			SGE::Sound::Stop();
 
 			//Terminate GLFW, if the game engine is done, so are we.
 			glfwTerminate();

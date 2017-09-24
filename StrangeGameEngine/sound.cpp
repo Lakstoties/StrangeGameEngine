@@ -20,106 +20,53 @@ namespace SGE
 		//Given arguments, render a number of samples asked and return a pointer to the buffer.
 		void SoundChannel::RenderSamples(unsigned int numberOfSamples, int* sampleBuffer)
 		{
-			int deltaSampleIndex = 0;
-			int deltaVolumeIndex = 0;
-			int deltaTimingOffset = 0;
-
-			//Calculate some numbers that typically don't change that often
-			//These are the deltas from the envelope table
-			//They need to calculated initially then, only when the current envelop entry changes.
-
-			deltaSampleIndex = enveloptableSampleIndex[currentEnvelopeEntry + 1] - enveloptableSampleIndex[currentEnvelopeEntry];
-			deltaVolumeIndex = enveloptableVolumeLevel[currentEnvelopeEntry + 1] - enveloptableVolumeLevel[currentEnvelopeEntry];
-			deltaTimingOffset = timingOffset - enveloptableSampleIndex[currentEnvelopeEntry];
-
-
 			//Starting at the offset, copy over samples to the buffer.
 			for (unsigned int i = 0; i < numberOfSamples; i++)
 			{
 				//If we are currently not playing or there's no valid sample buffer
-				if (statusState != STATUS_PLAYING_STATE)
+				if (!Playing)
 				{
 					sampleBuffer[i] = 0;
-				}
-				//Check for invalid envelop table and states
-				else if (numberOfEnvelopeEntries < 2 || currentEnvelopeEntry >= numberOfEnvelopeEntries)
-				{
-					sampleBuffer[i] = 0;
-
-					//Invalid envelope, we are done until you fix this shit.
-					statusState = STATUS_NOT_PLAYING_STATE;
 				}
 				else
 				{
 					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
-					sampleBuffer[i] = currentSampleBuffer->buffer[offset] * volume / FIXED_POINT_BIAS;
+					sampleBuffer[i] = int (currentSampleBuffer->buffer[unsigned int (offset)] * Volume);
 
-					//If we are using the envelope table, calculate the envelope volume based on the table
-					if (useEnvelope)
-					{
-						//Sanity check for divide by zero garbage
-						if (deltaSampleIndex != 0)
-						{
-							//What's the envelop volume given the current and next envelop state and the relative timing offset
-							currentEnvelopVolume = enveloptableVolumeLevel[currentEnvelopeEntry] + (deltaTimingOffset * deltaVolumeIndex / deltaSampleIndex);
-						}
-
-						//Check to make sure we aren't still triggered and needing to sustain
-						if (!triggered || sustainEntry != currentEnvelopeEntry)
-						{
-							//Otherwise incrment the timing offsets
-
-							//Increment the relative offset
-							timingOffset++;
-
-							//Increment the delta timing offset
-							deltaTimingOffset++;
-						}
-
-						//Do we progress to the next state?
-						//If the timingOffset has moved to the next state
-						if (timingOffset >= enveloptableSampleIndex[currentEnvelopeEntry + 1])
-						{
-							//Move to the next Envelope entry
-							currentEnvelopeEntry++;
-
-							//Recalculate the deltas
-							deltaSampleIndex = enveloptableSampleIndex[currentEnvelopeEntry + 1] - enveloptableSampleIndex[currentEnvelopeEntry];
-							deltaVolumeIndex = enveloptableVolumeLevel[currentEnvelopeEntry + 1] - enveloptableVolumeLevel[currentEnvelopeEntry];
-
-							//Reculate the base delta
-							deltaTimingOffset = timingOffset - enveloptableSampleIndex[currentEnvelopeEntry];
-						}
-
-						//Are we at the end of the state table?
-						if (currentEnvelopeEntry == numberOfEnvelopeEntries)
-						{
-							Stop();
-						}
-
-						//Modify the volume of the sample in the buffer.
-						sampleBuffer[i] = sampleBuffer[i] * currentEnvelopVolume / FIXED_POINT_BIAS;
-					}
-
-					//Calculate offset increment
-					offsetIncrement += currentPitch;
-
-					//Increment the offset by the pitch shift
-					offset += (offsetIncrement / FIXED_POINT_BIAS);	//Integer Fixed Point Version
-
-					//Get rid of the whole numbers and keep the change
-					offsetIncrement %= FIXED_POINT_BIAS;			//Integer Fixed Point Version
+					offset += offsetIncrement;
 
 					//Check to see if offset has gotten to or past the end of the buffer
-					if (offset >= currentSampleBuffer->bufferSize)
+					if (unsigned int (offset) >= currentSampleBuffer->bufferSize)
 					{
 						//If the sound channel loops
-						if (loop)
+						if (Repeatable && repeatDuration > 0)
 						{
-							offset = offset % currentSampleBuffer->bufferSize;
+							//Set offset to the repeat offset
+							offset = float(repeatOffset) + (offset - float (currentSampleBuffer->bufferSize));
+
+							//Set the flag to indicate this channel IS repeating
+							Repeating = true;
 						}
+						//It doesn't loop...
 						else
 						{
+							//Fuck this shit we're out!
+							Stop();
+						}
+					}
+					//If we are repeating and have gone past our repeat point
+					else if (Repeating && unsigned int(offset) >= (repeatOffset + repeatDuration))
+					{
+						//Check to see if we are allowed to continue repeating
+						if (Repeatable)
+						{
+							//Alter the offset appropriate, keeping in mind how much we have blown past end point to add the difference in to keep looping proper.
+							offset = float(repeatOffset) + (offset - float(repeatOffset + repeatDuration));
+						}
+						//Welp, not any more
+						else
+						{
+							//Stop it all
 							Stop();
 						}
 					}
@@ -127,23 +74,6 @@ namespace SGE
 			}
 		}
 
-		void SoundChannel::Trigger()
-		{
-			triggered = true;
-			Play();
-		}
-
-		void SoundChannel::Release()
-		{
-			triggered = false;
-
-			//If we currently aren't using ADSR envelopes
-			//Just hard cut it.
-			if (!useEnvelope)
-			{
-				Stop();
-			}
-		}
 
 		//Function signals the channel is playing, so it will be rendered.
 		void SoundChannel::Play()
@@ -152,21 +82,10 @@ namespace SGE
 			if (currentSampleBuffer != nullptr)
 			{
 				//Set the flags properly
-				statusState = STATUS_PLAYING_STATE;
+				Playing = true;
 
 				//Reset the play offset
 				offset = 0;
-				offsetIncrement = 0;
-				timingOffset = 0;
-			}
-		}
-
-		//Set the key pitch for the channel audio
-		void SoundChannel::SetKey(float pitch)
-		{
-			if (pitch > 0)
-			{
-				keyedPitch = pitch;
 			}
 		}
 
@@ -177,37 +96,14 @@ namespace SGE
 			if (currentSampleBuffer != nullptr)
 			{
 				//Set the flags
-				statusState = STATUS_NOT_PLAYING_STATE;
+				Playing = false;
+				Repeating = false;
 
 				//Reset the playing offset
 				offset = 0;
-				offsetIncrement = 0;
-				timingOffset = 0;
-				currentEnvelopeEntry = 0;
 			}
 		}
 
-		//Get the keyed pitch
-		float SoundChannel::GetKey()
-		{
-			return keyedPitch;
-		}
-
-		//Set the new pitch for the audio
-		void SoundChannel::SetPitch(float newPitch)
-		{
-			if (newPitch > 0)
-			{
-				targetPitch = newPitch;
-				currentPitch = int((targetPitch / keyedPitch) * FIXED_POINT_BIAS);
-			}		
-		}
-
-		//Get the new audio pitch
-		float SoundChannel::GetPitch()
-		{
-			return targetPitch;
-		}
 
 		//
 		//
@@ -454,300 +350,297 @@ namespace SGE
 		}
 
 
-		namespace SoundSystem
+		//All the sound samples in the system
+		SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
+
+		//All the system's sound channels
+		SoundChannel Channels[MAX_CHANNELS];
+
+		//Initialize size for the Render Frame Buffers
+		const unsigned long INITIAL_RENDER_FRAME_BUFFER_SIZE = 1024;
+
+		//Master volume for system
+		float MasterVolume = 1.0f;
+
+		//All the sound channel target render buffers
+		int* renderedChannelBuffers[MAX_CHANNELS];
+
+		//32-bit mixing buffers
+		int* mixingFrameBufferRight;	//Mixing buffer for Right Channel
+		int* mixingFrameBufferLeft;		//Mixing buffer for Left Channel
+
+		//A thread reserved to run management functions for the sound system
+		std::thread SoundManagerThread;
+
+		//Current Frame Buffer Sizes
+		unsigned long frameBufferSize;
+
+		//Creates and sets up frame buffers for audio data
+		void GenerateFrameBuffers(unsigned long newFrameBufferSize)
 		{
-			//All the sound samples in the system
-			SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
+			//Set the new render frame buffer size
+			frameBufferSize = newFrameBufferSize;
 
-			//All the system's sound channels
-			SoundChannel Channels[MAX_CHANNELS];
-
-			//Initialize size for the Render Frame Buffers
-			const unsigned long INITIAL_RENDER_FRAME_BUFFER_SIZE = 1024;
-
-			//Master volume for system
-			int MasterVolume = FIXED_POINT_BIAS;
-
-			//All the sound channel target render buffers
-			int* renderedChannelBuffers[MAX_CHANNELS];
-
-			//32-bit mixing buffers
-			int* mixingFrameBufferRight;	//Mixing buffer for Right Channel
-			int* mixingFrameBufferLeft;		//Mixing buffer for Left Channel
-
-			//A thread reserved to run management functions for the sound system
-			std::thread SoundManagerThread;
-
-			//Current Frame Buffer Sizes
-			unsigned long frameBufferSize;
-
-			//Creates and sets up frame buffers for audio data
-			void GenerateFrameBuffers(unsigned long newFrameBufferSize)
+			//Generate new render frame buffers
+			for (int i = 0; i < MAX_CHANNELS; i++)
 			{
-				//Set the new render frame buffer size
-				frameBufferSize = newFrameBufferSize;
-
-				//Generate new render frame buffers
-				for (int i = 0; i < MAX_CHANNELS; i++)
-				{
-					renderedChannelBuffers[i] = (int*)malloc(frameBufferSize * sizeof(int));
-				}
-
-				//Generate new mixing frame buffers
-				mixingFrameBufferLeft = (int*)malloc(frameBufferSize * sizeof(int));
-				mixingFrameBufferRight = (int*)malloc(frameBufferSize * sizeof(int));
+				renderedChannelBuffers[i] = (int*)malloc(frameBufferSize * sizeof(int));
 			}
 
-			//Deletes and cleans up Frame buffers that were holding audio data
-			void DeleteFrameBuffers()
-			{
-				//Delete old render frame buffers
-				for (int i = 0; i < MAX_CHANNELS; i++)
-				{
-					free(renderedChannelBuffers[i]);
-				}
+			//Generate new mixing frame buffers
+			mixingFrameBufferLeft = (int*)malloc(frameBufferSize * sizeof(int));
+			mixingFrameBufferRight = (int*)malloc(frameBufferSize * sizeof(int));
+		}
 
-				//Delete old mixing frame buffers
-				free(mixingFrameBufferLeft);
-				free(mixingFrameBufferRight);
+		//Deletes and cleans up Frame buffers that were holding audio data
+		void DeleteFrameBuffers()
+		{
+			//Delete old render frame buffers
+			for (int i = 0; i < MAX_CHANNELS; i++)
+			{
+				free(renderedChannelBuffers[i]);
 			}
 
-			//Clears and zeros out data in the mixing buffers
-			void ClearMixingBuffers()
+			//Delete old mixing frame buffers
+			free(mixingFrameBufferLeft);
+			free(mixingFrameBufferRight);
+		}
+
+		//Clears and zeros out data in the mixing buffers
+		void ClearMixingBuffers()
+		{
+			//Initialize the mixing buffers
+			//Depending on the platform, possibly not needed, but some platforms don't promise zeroed memory upon allocation.
+			memset(mixingFrameBufferLeft, 0, frameBufferSize * sizeof(int));
+			memset(mixingFrameBufferRight, 0, frameBufferSize * sizeof(int));
+		}
+
+
+		//Flag to indicate if this object's attempt to initialize port audio threw an error
+		bool paInitializeReturnedError = false;
+
+		//PortAudio Error variable
+		PaError portAudioError;
+
+		//PortAudio Stream
+		PaStream *soundSystemStream;
+
+		//PortAudio Stream Parameters
+		PaStreamParameters outputParameters;
+
+		unsigned int minBufferSize = 0;
+		unsigned int maxBufferSize = 0;
+
+		//Static callback function wrapper to call the callback of the particular SoundSystem object passed.
+		int PortAudioCallback(
+			const void *input,
+			void *output,
+			unsigned long frameCount,
+			const PaStreamCallbackTimeInfo* timeInfo,
+			PaStreamCallbackFlags statusFlags,
+			void *userData)
+		{
+			//Clear out the mixing buffers
+			ClearMixingBuffers();
+
+			//Recast the output buffers
+			short* outputBufferLeft = ((short**)output)[0];
+			short* outputBufferRight = ((short**)output)[1];
+
+
+			//Check to see if the frame buffer size is bigger than the frame buffers already allocated
+			if (frameCount > frameBufferSize)
 			{
-				//Initialize the mixing buffers
-				//Depending on the platform, possibly not needed, but some platforms don't promise zeroed memory upon allocation.
-				memset(mixingFrameBufferLeft, 0, frameBufferSize * sizeof(int));
-				memset(mixingFrameBufferRight, 0, frameBufferSize * sizeof(int));
-			}
-
-
-			//Flag to indicate if this object's attempt to initialize port audio threw an error
-			bool paInitializeReturnedError = false;
-
-			//PortAudio Error variable
-			PaError portAudioError;
-
-			//PortAudio Stream
-			PaStream *soundSystemStream;
-
-			//PortAudio Stream Parameters
-			PaStreamParameters outputParameters;
-
-			unsigned int minBufferSize = 0;
-			unsigned int maxBufferSize = 0;
-
-			//Static callback function wrapper to call the callback of the particular SoundSystem object passed.
-			int PortAudioCallback(
-				const void *input,
-				void *output,
-				unsigned long frameCount,
-				const PaStreamCallbackTimeInfo* timeInfo,
-				PaStreamCallbackFlags statusFlags,
-				void *userData)
-			{
-				//Clear out the mixing buffers
-				ClearMixingBuffers();
-
-				//Recast the output buffers
-				short* outputBufferLeft = ((short**)output)[0];
-				short* outputBufferRight = ((short**)output)[1];
-
-
-				//Check to see if the frame buffer size is bigger than the frame buffers already allocated
-				if (frameCount > frameBufferSize)
-				{
-					DeleteFrameBuffers();
-					GenerateFrameBuffers(frameCount);
-					fprintf(stderr, "DEBUG:  Sound  System - Frame Buffer Size Increased to: %i\n", frameBufferSize);
-				}
-
-				//Mix the samples into buffer
-				//Go through each channel and add it's contents to the mixing buffer
-				for (int i = 0; i < MAX_CHANNELS; i++)
-				{
-					Channels[i].RenderSamples(frameCount, renderedChannelBuffers[i]);
-					for (unsigned int j = 0; j < frameCount; j++)
-					{
-						mixingFrameBufferLeft[j] += renderedChannelBuffers[i][j] * Channels[i].leftVolume / FIXED_POINT_BIAS;
-						mixingFrameBufferRight[j] += renderedChannelBuffers[i][j] * Channels[i].rightVolume / FIXED_POINT_BIAS;
-					}
-				}
-
-				//Dump it into the output buffer
-				//Adjust to master volume...
-				//If the sample size exceeds the sample limit, just hard limit it.
-				//Well... people...  Don't fry your damn audio.
-
-				for (unsigned int i = 0; i < frameCount; i++)
-				{
-					//Apply master volume to the mixing frame buffers
-					mixingFrameBufferLeft[i] = mixingFrameBufferLeft[i] * MasterVolume / FIXED_POINT_BIAS;
-					mixingFrameBufferRight[i] = mixingFrameBufferRight[i] * MasterVolume / FIXED_POINT_BIAS;
-
-					//Check for things hitting the upper and lower ends of the range
-					//For the left channel
-					if (mixingFrameBufferLeft[i] > SAMPLE_MAX_AMPLITUDE)
-					{
-						outputBufferLeft[i] = SAMPLE_MAX_AMPLITUDE;
-					}
-					else if (mixingFrameBufferLeft[i] < -SAMPLE_MAX_AMPLITUDE)
-					{
-						outputBufferLeft[i] = -SAMPLE_MAX_AMPLITUDE;
-					}
-					else
-					{
-						outputBufferLeft[i] = mixingFrameBufferLeft[i];
-					}
-
-
-					//For the right channel
-					if (mixingFrameBufferRight[i] > SAMPLE_MAX_AMPLITUDE)
-					{
-						outputBufferRight[i] = SAMPLE_MAX_AMPLITUDE;
-					}
-					else if (mixingFrameBufferRight[i] < -SAMPLE_MAX_AMPLITUDE)
-					{
-						outputBufferRight[i] = -SAMPLE_MAX_AMPLITUDE;
-					}
-					else
-					{
-						outputBufferRight[i] = mixingFrameBufferRight[i];
-					}
-				}
-
-				//Return
-				//If no major errors, continue the stream.
-				return paContinue;
-			}
-
-			//Start the audio system.
-			void Start()
-			{
-				//Initialize PortAudio
-				portAudioError = Pa_Initialize();
-
-				//Check for any errors
-				if (portAudioError != paNoError)
-				{
-					fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
-				}
-
-				//Setup Stream parameters
-				//Grab the default output device
-				outputParameters.device = Pa_GetDefaultOutputDevice();
-
-				//If there is not default output device, Error
-				if (outputParameters.device == paNoDevice)
-				{
-					fprintf(stderr, "PortAudio Error: No default output device.\n");
-				}
-
-				//Set channels
-				outputParameters.channelCount = 2;
-				//Set sample format
-				outputParameters.sampleFormat = paInt16 | paNonInterleaved;
-				//Set suggested latency
-				outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
-				//Set host API
-				outputParameters.hostApiSpecificStreamInfo = NULL;
-
-				//Open up PortAudio Stream
-				portAudioError = Pa_OpenStream(
-					&soundSystemStream,
-					NULL,
-					&outputParameters,
-					SAMPLE_RATE,
-					paFramesPerBufferUnspecified,
-					paClipOff,
-					&PortAudioCallback, 
-					NULL);
-
-
-				//Check for any errors
-				if (portAudioError != paNoError)
-				{
-					fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
-				}
-				else
-				{
-					printf("PortAudio Stream Opened.\n");
-				}
-
-				//Generate the initial render frame buffers
-				GenerateFrameBuffers(INITIAL_RENDER_FRAME_BUFFER_SIZE);
-
-				//Check to make sure the stream isn't already active
-				if (!Pa_IsStreamActive(soundSystemStream))
-				{
-					//Start the stream
-					portAudioError = Pa_StartStream(soundSystemStream);
-
-					//Check for errors
-					if (portAudioError != paNoError)
-					{
-						fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
-					}
-					else
-					{
-						printf("PortAudio Stream Started.\n");
-					}
-				}
-			}
-
-			//Stop the audio system
-			void Stop()
-			{
-				//Check to see if the stream isn't already stopped.
-				if (!Pa_IsStreamStopped(soundSystemStream))
-				{
-					//Stop the PortAudio Stream
-					portAudioError = Pa_StopStream(soundSystemStream);
-
-					//Check for errors
-					if (portAudioError != paNoError)
-					{
-						fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
-					}
-					else
-					{
-						printf("PortAudio Stream Stopped.\n");
-					}
-				}
-
-				//Close the PortAudio stream
-				portAudioError = Pa_CloseStream(soundSystemStream);
-
-				if (portAudioError != paNoError)
-				{
-					fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
-				}
-				else
-				{
-					printf("PortAudio Stream Closed.\n");
-				}
-
-				//Stream closed, it should be safe to nuke the render frame buffers
 				DeleteFrameBuffers();
+				GenerateFrameBuffers(frameCount);
+				fprintf(stderr, "DEBUG:  Sound  System - Frame Buffer Size Increased to: %i\n", frameBufferSize);
+			}
 
-				//Terminate PortAudio
-				//Check to see if the initialize succeeded, otherwise return
-				if (paInitializeReturnedError)
+			//Mix the samples into buffer
+			//Go through each channel and add it's contents to the mixing buffer
+			for (int i = 0; i < MAX_CHANNELS; i++)
+			{
+				Channels[i].RenderSamples(frameCount, renderedChannelBuffers[i]);
+				for (unsigned int j = 0; j < frameCount; j++)
 				{
-					return;
+					mixingFrameBufferLeft[j]  += int (renderedChannelBuffers[i][j] * (0.5f + Channels[i].Pan));
+					mixingFrameBufferRight[j] += int (renderedChannelBuffers[i][j] * (0.5f - Channels[i].Pan));
+				}
+			}
+
+			//Dump it into the output buffer
+			//Adjust to master volume...
+			//If the sample size exceeds the sample limit, just hard limit it.
+			//Well... people...  Don't fry your damn audio.
+
+			for (unsigned int i = 0; i < frameCount; i++)
+			{
+				//Apply master volume to the mixing frame buffers
+				mixingFrameBufferLeft[i]  = int (mixingFrameBufferLeft[i] * MasterVolume);
+				mixingFrameBufferRight[i] = int (mixingFrameBufferRight[i] * MasterVolume);
+
+				//Check for things hitting the upper and lower ends of the range
+				//For the left channel
+				if (mixingFrameBufferLeft[i] > SAMPLE_MAX_AMPLITUDE)
+				{
+					outputBufferLeft[i] = SAMPLE_MAX_AMPLITUDE;
+				}
+				else if (mixingFrameBufferLeft[i] < -SAMPLE_MAX_AMPLITUDE)
+				{
+					outputBufferLeft[i] = -SAMPLE_MAX_AMPLITUDE;
+				}
+				else
+				{
+					outputBufferLeft[i] = mixingFrameBufferLeft[i];
 				}
 
-				//Shut down Port Audio
-				portAudioError = Pa_Terminate();
+
+				//For the right channel
+				if (mixingFrameBufferRight[i] > SAMPLE_MAX_AMPLITUDE)
+				{
+					outputBufferRight[i] = SAMPLE_MAX_AMPLITUDE;
+				}
+				else if (mixingFrameBufferRight[i] < -SAMPLE_MAX_AMPLITUDE)
+				{
+					outputBufferRight[i] = -SAMPLE_MAX_AMPLITUDE;
+				}
+				else
+				{
+					outputBufferRight[i] = mixingFrameBufferRight[i];
+				}
+			}
+
+			//Return
+			//If no major errors, continue the stream.
+			return paContinue;
+		}
+
+		//Start the audio system.
+		void Start()
+		{
+			//Initialize PortAudio
+			portAudioError = Pa_Initialize();
+
+			//Check for any errors
+			if (portAudioError != paNoError)
+			{
+				fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+			}
+
+			//Setup Stream parameters
+			//Grab the default output device
+			outputParameters.device = Pa_GetDefaultOutputDevice();
+
+			//If there is not default output device, Error
+			if (outputParameters.device == paNoDevice)
+			{
+				fprintf(stderr, "PortAudio Error: No default output device.\n");
+			}
+
+			//Set channels
+			outputParameters.channelCount = 2;
+			//Set sample format
+			outputParameters.sampleFormat = paInt16 | paNonInterleaved;
+			//Set suggested latency
+			outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
+			//Set host API
+			outputParameters.hostApiSpecificStreamInfo = NULL;
+
+			//Open up PortAudio Stream
+			portAudioError = Pa_OpenStream(
+				&soundSystemStream,
+				NULL,
+				&outputParameters,
+				SAMPLE_RATE,
+				paFramesPerBufferUnspecified,
+				paClipOff,
+				&PortAudioCallback, 
+				NULL);
 
 
-				//Check for any errors
+			//Check for any errors
+			if (portAudioError != paNoError)
+			{
+				fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+			}
+			else
+			{
+				printf("PortAudio Stream Opened.\n");
+			}
+
+			//Generate the initial render frame buffers
+			GenerateFrameBuffers(INITIAL_RENDER_FRAME_BUFFER_SIZE);
+
+			//Check to make sure the stream isn't already active
+			if (!Pa_IsStreamActive(soundSystemStream))
+			{
+				//Start the stream
+				portAudioError = Pa_StartStream(soundSystemStream);
+
+				//Check for errors
 				if (portAudioError != paNoError)
 				{
 					fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+				}
+				else
+				{
+					printf("PortAudio Stream Started.\n");
 				}
 			}
 		}
+
+		//Stop the audio system
+		void Stop()
+		{
+			//Check to see if the stream isn't already stopped.
+			if (!Pa_IsStreamStopped(soundSystemStream))
+			{
+				//Stop the PortAudio Stream
+				portAudioError = Pa_StopStream(soundSystemStream);
+
+				//Check for errors
+				if (portAudioError != paNoError)
+				{
+					fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+				}
+				else
+				{
+					printf("PortAudio Stream Stopped.\n");
+				}
+			}
+
+			//Close the PortAudio stream
+			portAudioError = Pa_CloseStream(soundSystemStream);
+
+			if (portAudioError != paNoError)
+			{
+				fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+			}
+			else
+			{
+				printf("PortAudio Stream Closed.\n");
+			}
+
+			//Stream closed, it should be safe to nuke the render frame buffers
+			DeleteFrameBuffers();
+
+			//Terminate PortAudio
+			//Check to see if the initialize succeeded, otherwise return
+			if (paInitializeReturnedError)
+			{
+				return;
+			}
+
+			//Shut down Port Audio
+			portAudioError = Pa_Terminate();
+
+			//Check for any errors
+			if (portAudioError != paNoError)
+			{
+				fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+			}
+		}
+	
 
 
 		//

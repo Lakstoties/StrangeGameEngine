@@ -56,52 +56,25 @@ void InputTest(bool& testInputRunning)
 	testFile.LoadFile("TestSample.wav");
 
 	//Load samples into the Sound System
-	SGE::Sound::SoundSystem::SampleBuffers[0].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testSineWave);
-	SGE::Sound::SoundSystem::SampleBuffers[1].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testTriangleWave);
-	SGE::Sound::SoundSystem::SampleBuffers[2].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testPulseWave);
+	SGE::Sound::SampleBuffers[0].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testSineWave);
+	SGE::Sound::SampleBuffers[1].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testTriangleWave);
+	SGE::Sound::SampleBuffers[2].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testPulseWave);
 
 
 	//Ready the channels
 	for (int i = 0; i < 10; i++)
 	{
 		//Load SineWave in channel
-		SGE::Sound::SoundSystem::Channels[i].currentSampleBuffer = &SGE::Sound::SoundSystem::SampleBuffers[0];
-
-		//Set the key of the channel
-		SGE::Sound::SoundSystem::Channels[i].SetKey(1);
+		SGE::Sound::Channels[i].currentSampleBuffer = &SGE::Sound::SampleBuffers[0];
 
 		//Set the pitches of the channel
-		SGE::Sound::SoundSystem::Channels[i].SetPitch(SGE::Sound::MIDI_NOTE_FRENQUENCY[i + 60]);
+		SGE::Sound::Channels[i].offsetIncrement = (SGE::Sound::MIDI_NOTE_FRENQUENCY[i + 60]);
 
 		//Set the channel to loop
-		SGE::Sound::SoundSystem::Channels[i].loop = true;
+		SGE::Sound::Channels[i].Repeatable = true;
 
-		//Set the envelope
-		SGE::Sound::SoundSystem::Channels[i].useEnvelope = true;
-		SGE::Sound::SoundSystem::Channels[i].numberOfEnvelopeEntries = 5;
-
-		//Set the start
-		SGE::Sound::SoundSystem::Channels[i].enveloptableSampleIndex[0] = 0;
-		SGE::Sound::SoundSystem::Channels[i].enveloptableVolumeLevel[0] = 0;
-
-		//Set the attack
-		SGE::Sound::SoundSystem::Channels[i].enveloptableSampleIndex[1] = 500;
-		SGE::Sound::SoundSystem::Channels[i].enveloptableVolumeLevel[1] = SGE::Sound::FIXED_POINT_BIAS;
-
-		//Set the decay
-		SGE::Sound::SoundSystem::Channels[i].enveloptableSampleIndex[2] = 1000;
-		SGE::Sound::SoundSystem::Channels[i].enveloptableVolumeLevel[2] = 800;
-
-		//Set the sustain
-		SGE::Sound::SoundSystem::Channels[i].enveloptableSampleIndex[3] = 2000;
-		SGE::Sound::SoundSystem::Channels[i].enveloptableVolumeLevel[3] = 800;
-		SGE::Sound::SoundSystem::Channels[i].sustainEnabled = true;
-		SGE::Sound::SoundSystem::Channels[i].sustainEntry = 3;
-
-		//Set the release
-		SGE::Sound::SoundSystem::Channels[i].enveloptableSampleIndex[4] = 20000;
-		SGE::Sound::SoundSystem::Channels[i].enveloptableVolumeLevel[4] = 0;
-
+		//Set repeat duration
+		SGE::Sound::Channels[i].repeatDuration = SGE::Sound::Channels[i].currentSampleBuffer->bufferSize;
 	}
 
 	bool previousReturnState = false;
@@ -241,17 +214,17 @@ void InputTest(bool& testInputRunning)
 
 		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_O])
 		{
-			SGE::Sound::SoundSystem::Channels[0].rightVolume -= 1;
-			SGE::Sound::SoundSystem::Channels[0].leftVolume += 1;
-			printf("Debug - Channel 0 Left Volume: %i  Right Volume: %i\n", SGE::Sound::SoundSystem::Channels[0].leftVolume, SGE::Sound::SoundSystem::Channels[0].rightVolume);
+			SGE::Sound::Channels[0].Pan -= .01f;
+			SGE::Sound::Channels[0].Pan += .01f;
+			printf("Debug - Channel 0 Pan: %f\n", SGE::Sound::Channels[0].Pan);
 		}
 
 		//Pan to Right
 		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_P])
 		{
-			SGE::Sound::SoundSystem::Channels[0].rightVolume += 1;
-			SGE::Sound::SoundSystem::Channels[0].leftVolume -=1;
-			printf("Debug - Channel 0 Left Volume: %i  Right Volume: %i\n", SGE::Sound::SoundSystem::Channels[0].leftVolume, SGE::Sound::SoundSystem::Channels[0].rightVolume);
+			SGE::Sound::Channels[0].Pan += .01f;
+			SGE::Sound::Channels[0].Pan -= .01f;
+			printf("Debug - Channel 0 Pan: %f\n", SGE::Sound::Channels[0].Pan);
 		}
 
 
@@ -259,15 +232,15 @@ void InputTest(bool& testInputRunning)
 		//Decrease volume
 		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_Q])
 		{
-			SGE::Sound::SoundSystem::Channels[0].volume -= 1;
-			printf("Debug - Channel 0 Volume Left: %i\n", SGE::Sound::SoundSystem::Channels[0].volume);
+			SGE::Sound::Channels[0].Volume -= .01f;
+			printf("Debug - Channel 0 Volume Left: %f\n", SGE::Sound::Channels[0].Volume);
 		}
 
 		//Increase volume
 		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_W])
 		{
-			SGE::Sound::SoundSystem::Channels[0].volume += 1;
-			printf("Debug - Channel 0 Volume Left: %i\n", SGE::Sound::SoundSystem::Channels[0].volume);
+			SGE::Sound::Channels[0].Volume += .01f;
+			printf("Debug - Channel 0 Volume Left: %f\n", SGE::Sound::Channels[0].Volume);
 		}
 
 
@@ -275,18 +248,18 @@ void InputTest(bool& testInputRunning)
 		//Decrease pitch
 		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_A])
 		{
-			SGE::Sound::SoundSystem::Channels[0].SetPitch(SGE::Sound::SoundSystem::Channels[0].GetPitch() - 1);
+			SGE::Sound::Channels[0].offsetIncrement -= .1f;
 
 			//DEBUG Output
-			printf("Debug - Channel 0 - Pitch: %f\n", SGE::Sound::SoundSystem::Channels[0].GetPitch());
+			printf("Debug - Channel 0 - Pitch: %f\n", SGE::Sound::Channels[0].offsetIncrement);
 		}
 
 		//Increase pitch
 		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_S])
 		{
-			SGE::Sound::SoundSystem::Channels[0].SetPitch(SGE::Sound::SoundSystem::Channels[0].GetPitch() + 1);
+			SGE::Sound::Channels[0].offsetIncrement += .1f;
 			//DEBUG Output
-			printf("Debug - Channel 0 - Pitch: %f\n", SGE::Sound::SoundSystem::Channels[0].GetPitch());
+			printf("Debug - Channel 0 - Pitch: %f\n", SGE::Sound::Channels[0].offsetIncrement);
 
 		}
 
@@ -295,15 +268,15 @@ void InputTest(bool& testInputRunning)
 		//Decrease volume
 		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_Z])
 		{
-			SGE::Sound::SoundSystem::MasterVolume -= 1;
-			printf("Debug - Master Volume: %i\n", SGE::Sound::SoundSystem::MasterVolume);
+			SGE::Sound::MasterVolume -= .01f;
+			printf("Debug - Master Volume: %f\n", SGE::Sound::MasterVolume);
 		}
 
 		//Increase volume
 		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_X])
 		{
-			SGE::Sound::SoundSystem::MasterVolume += 1;
-			printf("Debug - Master Volume: %i\n", SGE::Sound::SoundSystem::MasterVolume);
+			SGE::Sound::MasterVolume += .01f;
+			printf("Debug - Master Volume: %f\n", SGE::Sound::MasterVolume);
 		}
 
 
@@ -329,157 +302,144 @@ void InputTest(bool& testInputRunning)
 		}
 
 
-		//ADSR Toggle
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_M] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_M])
-		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_M])
-			{
-				
-			}
-			else
-			{
-				for (int i = 0; i < SGE::Sound::MAX_CHANNELS; i++)
-				{
-					if (SGE::Sound::SoundSystem::Channels[i].useEnvelope)
-					{
-						SGE::Sound::SoundSystem::Channels[i].useEnvelope = false;
-					}
-					else
-					{
-						SGE::Sound::SoundSystem::Channels[i].useEnvelope = true;
-					}
-				}
-			}
-		}
-
 		//Sound keys stuff
 		//Number Key 0
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_0] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_0])
 		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_0])
+			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_0])
 			{
-				SGE::Sound::SoundSystem::Channels[0].Release();
+				SGE::Sound::Channels[0].Repeatable = false;
 			}
 			else
 			{
-				SGE::Sound::SoundSystem::Channels[0].Trigger();
+				SGE::Sound::Channels[0].Repeatable = true;
+				SGE::Sound::Channels[0].Play();
 			}
 		}
 
 		//Number Key 1
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_1] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_1])
 		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_1])
+			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_1])
 			{
-				SGE::Sound::SoundSystem::Channels[1].Release();
+				SGE::Sound::Channels[1].Repeatable = false;
 			}
 			else
 			{
-				SGE::Sound::SoundSystem::Channels[1].Trigger();
+				SGE::Sound::Channels[1].Repeatable = true;
+				SGE::Sound::Channels[1].Play();
 			}
 		}
 
 		//Number Key 2
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_2] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_2])
 		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_2])
+			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_2])
 			{
-				SGE::Sound::SoundSystem::Channels[2].Release();
+				SGE::Sound::Channels[2].Repeatable = false;
 			}
 			else
 			{
-				SGE::Sound::SoundSystem::Channels[2].Trigger();
+				SGE::Sound::Channels[2].Repeatable = true;
+				SGE::Sound::Channels[2].Play();
 			}
 		}
 
 		//Number Key 3
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_3] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_3])
 		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_3])
+			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_3])
 			{
-				SGE::Sound::SoundSystem::Channels[3].Release();
+				SGE::Sound::Channels[3].Repeatable = false;
 			}
 			else
 			{
-				SGE::Sound::SoundSystem::Channels[3].Trigger();
+				SGE::Sound::Channels[3].Repeatable = true;
+				SGE::Sound::Channels[3].Play();
 			}
 		}
 
 		//Number Key 4
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_4] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_4])
 		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_4])
+			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_4])
 			{
-				SGE::Sound::SoundSystem::Channels[4].Release();
+				SGE::Sound::Channels[4].Repeatable = false;
 			}
 			else
 			{
-				SGE::Sound::SoundSystem::Channels[4].Trigger();
+				SGE::Sound::Channels[4].Repeatable = true;
+				SGE::Sound::Channels[4].Play();
 			}
 		}
 
 		//Number Key 5
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_5] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_5])
 		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_5])
+			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_5])
 			{
-				SGE::Sound::SoundSystem::Channels[5].Release();
+				SGE::Sound::Channels[5].Repeatable = false;
 			}
 			else
 			{
-				SGE::Sound::SoundSystem::Channels[5].Trigger();
+				SGE::Sound::Channels[5].Repeatable = true;
+				SGE::Sound::Channels[5].Play();
 			}
 		}
 
 		//Number Key 6
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_6] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_6])
 		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_6])
+			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_6])
 			{
-				SGE::Sound::SoundSystem::Channels[6].Release();
+				SGE::Sound::Channels[6].Repeatable = false;
 			}
 			else
 			{
-				SGE::Sound::SoundSystem::Channels[6].Trigger();
+				SGE::Sound::Channels[6].Repeatable = true;
+				SGE::Sound::Channels[6].Play();
 			}
 		}
 
 		//Number Key 7
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_7] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_7])
 		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_7])
+			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_7])
 			{
-				SGE::Sound::SoundSystem::Channels[7].Release();
+				SGE::Sound::Channels[7].Repeatable = false;
 			}
 			else
 			{
-				SGE::Sound::SoundSystem::Channels[7].Trigger();
+				SGE::Sound::Channels[7].Repeatable = true;
+				SGE::Sound::Channels[7].Play();
 			}
 		}
 
 		//Number Key 8
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_8] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_8])
 		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_8])
+			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_8])
 			{
-				SGE::Sound::SoundSystem::Channels[8].Release();
+				SGE::Sound::Channels[8].Repeatable = false;
 			}
 			else
 			{
-				SGE::Sound::SoundSystem::Channels[8].Trigger();
+				SGE::Sound::Channels[8].Repeatable = true;
+				SGE::Sound::Channels[8].Play();
 			}
 		}
 
 		//Number Key 9
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_9] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_9])
 		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_9])
+			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_9])
 			{
-				SGE::Sound::SoundSystem::Channels[9].Release();
+				SGE::Sound::Channels[9].Repeatable = false;
 			}
 			else
 			{
-				SGE::Sound::SoundSystem::Channels[9].Trigger();
+				SGE::Sound::Channels[9].Repeatable = true;
+				SGE::Sound::Channels[9].Play();
 			}
 		}
 

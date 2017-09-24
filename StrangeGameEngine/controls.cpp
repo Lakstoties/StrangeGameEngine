@@ -14,7 +14,15 @@ namespace SGE
 		void KeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
 			//Update the key array for the state of the key
-			KeyboardStatus[key] = action == GLFW_PRESS;
+			if (action == GLFW_PRESS)
+			{
+				KeyboardStatus[key] = true;
+			}
+
+			if (action == GLFW_RELEASE)
+			{
+				KeyboardStatus[key] = false;
+			}
 		}
 
 		//Mouse Cursor callback for GLFW
