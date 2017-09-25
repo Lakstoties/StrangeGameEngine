@@ -341,56 +341,70 @@ namespace SGE
 		float MasterVolume = 1.0f;
 
 		//All the sound channel target render buffers
-		int* renderedChannelBuffers[MAX_CHANNELS];
+		int* renderedChannelBuffers[MAX_CHANNELS] = { nullptr };
 
 		//32-bit mixing buffers
-		int* mixingFrameBufferRight;	//Mixing buffer for Right Channel
-		int* mixingFrameBufferLeft;		//Mixing buffer for Left Channel
+		int* mixingFrameBufferRight = nullptr;		//Mixing buffer for Right Channel
+		int* mixingFrameBufferLeft  = nullptr;		//Mixing buffer for Left Channel
 
 		//A thread reserved to run management functions for the sound system
 		std::thread SoundManagerThread;
 
 		//Current Frame Buffer Sizes
-		unsigned long frameBufferSize;
+		unsigned long frameBufferSize = 0;
 
 		//Creates and sets up frame buffers for audio data
 		void GenerateFrameBuffers(unsigned long newFrameBufferSize)
 		{
-			//Set the new render frame buffer size
-			frameBufferSize = newFrameBufferSize;
-
-			//Generate new render frame buffers
-			for (int i = 0; i < MAX_CHANNELS; i++)
+			if (mixingFrameBufferLeft == nullptr && mixingFrameBufferRight == nullptr)
 			{
-				renderedChannelBuffers[i] = (int*)malloc(frameBufferSize * sizeof(int));
-			}
+				//Set the new render frame buffer size
+				frameBufferSize = newFrameBufferSize;
 
-			//Generate new mixing frame buffers
-			mixingFrameBufferLeft = (int*)malloc(frameBufferSize * sizeof(int));
-			mixingFrameBufferRight = (int*)malloc(frameBufferSize * sizeof(int));
+				//Generate new render frame buffers
+				for (int i = 0; i < MAX_CHANNELS; i++)
+				{
+					renderedChannelBuffers[i] = (int*)malloc(frameBufferSize * sizeof(int));
+				}
+
+				//Generate new mixing frame buffers
+				mixingFrameBufferLeft = (int*)malloc(frameBufferSize * sizeof(int));
+				mixingFrameBufferRight = (int*)malloc(frameBufferSize * sizeof(int));
+			}
 		}
 
 		//Deletes and cleans up Frame buffers that were holding audio data
 		void DeleteFrameBuffers()
 		{
-			//Delete old render frame buffers
-			for (int i = 0; i < MAX_CHANNELS; i++)
+			if (mixingFrameBufferLeft != nullptr && mixingFrameBufferRight != nullptr)
 			{
-				free(renderedChannelBuffers[i]);
-			}
+				//Delete old render frame buffers
+				for (int i = 0; i < MAX_CHANNELS; i++)
+				{
+					free(renderedChannelBuffers[i]);
+					renderedChannelBuffers[i] = nullptr;
+				}
 
-			//Delete old mixing frame buffers
-			free(mixingFrameBufferLeft);
-			free(mixingFrameBufferRight);
+				//Delete old mixing frame buffers
+				free(mixingFrameBufferLeft);
+				free(mixingFrameBufferRight);
+
+				//Reset the pointer values to nullptr
+				mixingFrameBufferLeft = nullptr;
+				mixingFrameBufferRight = nullptr;
+			}
 		}
 
 		//Clears and zeros out data in the mixing buffers
 		void ClearMixingBuffers()
 		{
-			//Initialize the mixing buffers
-			//Depending on the platform, possibly not needed, but some platforms don't promise zeroed memory upon allocation.
-			memset(mixingFrameBufferLeft, 0, frameBufferSize * sizeof(int));
-			memset(mixingFrameBufferRight, 0, frameBufferSize * sizeof(int));
+			if (mixingFrameBufferLeft != nullptr && mixingFrameBufferRight != nullptr)
+			{
+				//Initialize the mixing buffers
+				//Depending on the platform, possibly not needed, but some platforms don't promise zeroed memory upon allocation.
+				memset(mixingFrameBufferLeft, 0, frameBufferSize * sizeof(int));
+				memset(mixingFrameBufferRight, 0, frameBufferSize * sizeof(int));
+			}
 		}
 
 
@@ -405,9 +419,6 @@ namespace SGE
 
 		//PortAudio Stream Parameters
 		PaStreamParameters outputParameters;
-
-		unsigned int minBufferSize = 0;
-		unsigned int maxBufferSize = 0;
 
 		//Static callback function wrapper to call the callback of the particular SoundSystem object passed.
 		int PortAudioCallback(
