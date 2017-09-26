@@ -667,7 +667,7 @@ namespace SGE
 		int WaveFile::LoadFile(char* targetFilename)
 		{
 			FILE* soundFile;
-			unsigned int readCount = 0;
+			size_t readCount = 0;
 			bool keepLookingThroughSubchunks = true;
 
 			soundFile = fopen(targetFilename, "rb");
@@ -956,7 +956,7 @@ namespace SGE
 				}
 			}
 
-			printf("DEBUG: Sound System Wave File: %s - Data Bytes Read: %d\n", targetFilename, readCount * 2);
+			printf("DEBUG: Sound System Wave File: %s - Data Bytes Read: %zd\n", targetFilename, readCount * 2);
 
 			//If we get here... It's all good!... Maybe... Hoepfully?
 

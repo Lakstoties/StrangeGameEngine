@@ -1081,7 +1081,7 @@ namespace SGE
 		int RenderBitmapFile::LoadFile(char* targetFilename)
 		{
 			FILE* bitmapFile;
-			unsigned int readCount = 0;
+			size_t readCount = 0;
 			unsigned char pixelRed;
 			unsigned char pixelGreen;
 			unsigned char pixelBlue;

@@ -18,7 +18,7 @@ namespace SGE
 		//Grab the values from the char arrays
 		menuItemText = new char*[numberOfSelections];
 
-		int tempCount = 0;
+		size_t tempCount = 0;
 
 		for (int i = 0; i < numberOfSelections; i++)
 		{
@@ -104,17 +104,16 @@ namespace SGE
 	//If it's farther out than the text, it'll move it to the end of the text.
 	void Menu::CheckCursorPosition()
 	{
-		int temp = 0;
+		size_t temp = 0;
 
 		//Adjust cursor location
 		//Check the length of the next selection
 		temp = strlen(menuItemText[selection]);
-
-		
+	
 
 		if (rowTextCursorLocation >= temp)
 		{
-			rowTextCursorLocation = temp - 1;
+			rowTextCursorLocation = unsigned int (temp - 1);
 		}
 	}
 
@@ -122,7 +121,7 @@ namespace SGE
 
 	char* Menu::GetMenuSelection()
 	{
-		int tempCount = 0;
+		size_t tempCount = 0;
 		char* tempString;
 
 		if (menuItemText == nullptr)
@@ -150,7 +149,7 @@ namespace SGE
 
 	void Menu::SetMenuSelection(char* targetString)
 	{
-		int tempCount = 0;
+		size_t tempCount = 0;
 		
 		if (targetString == nullptr)
 		{

@@ -21,7 +21,7 @@ namespace SGE
 		int menuYMargin;
 
 		//Row Text Cursor
-		unsigned char rowTextCursorLocation;
+		unsigned int rowTextCursorLocation;
 		bool cursorActive;
 
 		void CheckCursorPosition();

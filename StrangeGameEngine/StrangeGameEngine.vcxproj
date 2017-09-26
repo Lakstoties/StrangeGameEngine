@@ -105,8 +105,8 @@
       <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\libs\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
     <Lib>
-      <AdditionalDependencies>
-      </AdditionalDependencies>
+      <AdditionalDependencies>portaudio_x64.lib;glfw3dll.lib;opengl32.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\libs\x64;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -148,6 +148,10 @@
       <AdditionalDependencies>portaudio_x64.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\libs\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
     </Link>
+    <Lib>
+      <AdditionalDependencies>portaudio_x64.lib;glfw3dll.lib;opengl32.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\libs\x64;</AdditionalLibraryDirectories>
+    </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="display.cpp" />

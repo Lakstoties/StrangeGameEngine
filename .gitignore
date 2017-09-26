@@ -58,3 +58,13 @@ UpgradeLog.htm
 Release/Drug War X.ipdb
 *.iobj
 Win32/Release/SGE-Test.ipdb
+*.exe
+*.ilk
+*.lib
+*.ipdb
+*.iobj
+*.ipdb
+*.ipdb
+*.iobj
+*.ipdb
+*.iobj
