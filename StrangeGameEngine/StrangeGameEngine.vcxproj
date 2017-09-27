@@ -159,7 +159,7 @@
     <ClCompile Include="controls.cpp" />
     <ClCompile Include="render.cpp" />
     <ClCompile Include="sound.cpp" />
-    <ClCompile Include="system.cpp" />
+    <ClCompile Include="sge.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sharedinternal.h" />
@@ -168,7 +168,7 @@
     <ClInclude Include="include\SGE\gui.h" />
     <ClInclude Include="include\SGE\render.h" />
     <ClInclude Include="include\SGE\sound.h" />
-    <ClInclude Include="include\SGE\system.h" />
+    <ClInclude Include="include\SGE\sge.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -203,7 +203,6 @@ namespace SGE
 			short* NoiseGenerator(unsigned int samplesToGenerate, short amplitude);
 		}
 
-
 		//Sample Buffer to contain audio data that sound channels will link to and play from.
 		//For the purposes of the Strange Game Engine.  The data put into these buffers are assumed to be PCM Signed 16-bit at 44.1Khz sample rate.
 		struct SoundSampleBuffer

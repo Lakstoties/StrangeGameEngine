@@ -51,13 +51,13 @@ namespace SGE
 			//
 
 			//Keyboard callback
-			glfwSetKeyCallback(SGE::System::mainWindow, KeyboardCallback);
+			glfwSetKeyCallback(SGE::mainWindow, KeyboardCallback);
 
 			//Mouse cursor callback
-			glfwSetCursorPosCallback(SGE::System::mainWindow, CursorCallback);
+			glfwSetCursorPosCallback(SGE::mainWindow, CursorCallback);
 
 			//Mouse button callback
-			glfwSetMouseButtonCallback(SGE::System::mainWindow, MouseButtonCallback);
+			glfwSetMouseButtonCallback(SGE::mainWindow, MouseButtonCallback);
 
 
 			//Start Handling Events through Main Interface
@@ -65,7 +65,7 @@ namespace SGE
 			//And in OSX this has to be done by the thread that invoked the main function of the program..  Fuckin' Macs...
 
 			//While the main window is going and isn't set to close...
-			while (!glfwWindowShouldClose(SGE::System::mainWindow))
+			while (!glfwWindowShouldClose(SGE::mainWindow))
 			{
 				//Poll for events
 				glfwPollEvents();

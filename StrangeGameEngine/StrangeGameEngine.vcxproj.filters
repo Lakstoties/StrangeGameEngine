@@ -18,9 +18,6 @@
     <ClCompile Include="display.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="system.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sound.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -31,6 +28,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="controls.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="sge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -50,10 +50,10 @@
     <ClInclude Include="include\SGE\sound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\SGE\system.h">
+    <ClInclude Include="sharedinternal.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sharedinternal.h">
+    <ClInclude Include="include\SGE\sge.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

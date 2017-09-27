@@ -10,9 +10,6 @@ namespace SGE
 	//The Virtual Display class to simulate the display component of the Strange Game Engine
 	namespace Display
 	{
-		//Minium wait time before the next frame is allowed
-		extern int frameWaitMilliseconds;
-
 		//The virtual video RAM.  Public accessible to allow other components to write to it directly.
 		extern unsigned int* VideoRAM;
 

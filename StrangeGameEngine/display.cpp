@@ -9,10 +9,6 @@ namespace SGE
 {
 	namespace Display
 	{
-
-		//Minium wait time before the next frame is allowed
-		int frameWaitMilliseconds = DEFAULT_FRAME_WAIT_MILLISECONDS;
-
 		//A mutex that can be used to temporarily pause the drawing thread at a key point to allow the video ram to be updated fully.
 		//Prevents flicking and tearing by the display thread from updating mid way through writes to VRAM
 		std::mutex refreshHold;
@@ -48,7 +44,7 @@ namespace SGE
 			GLuint textureHandle = 0;
 
 			//Check to see if we have a valid window to draw to or if the window is closing down
-			if (glfwWindowShouldClose(SGE::System::mainWindow))
+			if (glfwWindowShouldClose(SGE::mainWindow))
 			{
 				//If the window is closing, we ain't doing anymore drawing.
 				continueDrawing = false;
@@ -58,7 +54,7 @@ namespace SGE
 			}
 
 			//Snag the Open context for the main window
-			glfwMakeContextCurrent(SGE::System::mainWindow);
+			glfwMakeContextCurrent(SGE::mainWindow);
 
 			//
 			//Do some initialization bits
@@ -97,7 +93,7 @@ namespace SGE
 				//
 
 				//Grab the current frameBuffer size
-				glfwGetFramebufferSize(SGE::System::mainWindow, &frameBufferWidth, &frameBufferHeight);
+				glfwGetFramebufferSize(SGE::mainWindow, &frameBufferWidth, &frameBufferHeight);
 
 				//Check to see if this stuff has changed from previous
 				if (frameBufferHeight != frameBufferPreviousHeight || frameBufferWidth != frameBufferPreviousWidth)
@@ -175,10 +171,10 @@ namespace SGE
 
 				//Check to see if we have a valid place to update to
 				//Or if the window should be closed.
-				if (!glfwWindowShouldClose(SGE::System::mainWindow))
+				if (!glfwWindowShouldClose(SGE::mainWindow))
 				{
 					//Display the new shit after we are done drawing it
-					glfwSwapBuffers(SGE::System::mainWindow);
+					glfwSwapBuffers(SGE::mainWindow);
 				}
 
 				//We don't have a window to swap buffers to
@@ -194,7 +190,7 @@ namespace SGE
 
 				//Frame Rate Limiter Section
 				//This is simple millisecond sleep timer to wait until making another drawing attempt
-				std::this_thread::sleep_for(std::chrono::milliseconds(frameWaitMilliseconds));
+				std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_FRAME_WAIT_MILLISECONDS));
 			}
 		}
 

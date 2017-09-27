@@ -71,3 +71,5 @@ Win32/Release/SGE-Test.ipdb
 *.iobj
 *.ipdb
 *.dll
+*.tmp
+*.exp

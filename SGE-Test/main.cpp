@@ -518,7 +518,7 @@ int main(int argc, char *argv[])
 	}
 		
 	//Start the Strange Game Engine
-	SGE::System::Startup(640, 480, "Test Title");
+	SGE::Startup(640, 480, "Test Title");
 
 	//Initialize Virtual Display
 	SGE::Display::Open(320, 240);
@@ -547,7 +547,7 @@ int main(int argc, char *argv[])
 	testInputThread.join();
 
 	//Shutdown the Strange Game Engine
-	SGE::System::Shutdown();
+	SGE::Shutdown();
 
 	//If we got here... In theory everything went well...  In theory...
 	return 0;
