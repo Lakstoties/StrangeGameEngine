@@ -373,7 +373,7 @@ namespace SGE
 			ModuleFile();
 			~ModuleFile();
 
-			bool LoadFile(char* targetFilename);
+			int LoadFile(char* targetFilename);
 		};
 
 
@@ -390,9 +390,9 @@ namespace SGE
 
 			int LoadFile(char* targetFilename);
 
-			short** audioData;
-			unsigned int numberOfSamples;
-			unsigned int numberOfChannels;
+			short** audioData = nullptr;
+			unsigned int numberOfSamples = 0;
+			unsigned int numberOfChannels = 0;
 		};
 	}
 }

@@ -631,6 +631,54 @@ namespace SGE
 		}
 	
 
+		//
+		//
+		//  sound System Module File Definitions
+		//
+		//
+
+		ModuleFile::ModuleFile()
+		{
+
+		}
+
+
+		ModuleFile::~ModuleFile()
+		{
+
+		}
+
+		int ModuleFile::LoadFile(char* targetFilename)
+		{
+			FILE* moduleFile;
+			size_t readCount = 0;
+			char readBuffer[1024];
+
+			
+			//Attempt to open the file.
+			moduleFile = fopen(targetFilename, "rb");
+
+			//Check to see if the file is even there.
+			if (moduleFile == NULL)
+			{
+				fprintf(stderr, "Sound System Module File Error:  Cannot open file \"%s\"\n", targetFilename);
+				return -1;
+			}
+
+			//Start parsing through the file and grabbing all the data.
+
+			//Read the module file title info
+			readCount = fread(&header.title, 1, 22, moduleFile);
+
+			//Read the module file 
+
+
+
+			//If we get to this point, everything is okay
+			return 0;
+		}
+
+
 
 		//
 		//
@@ -641,8 +689,6 @@ namespace SGE
 		//Default constructor for a SoundSystemWaveFile
 		WaveFile::WaveFile()
 		{
-			audioData = nullptr;
-			numberOfSamples = 0;
 		}
 
 		//Deconstructor for a SoundSystemWaveFile
