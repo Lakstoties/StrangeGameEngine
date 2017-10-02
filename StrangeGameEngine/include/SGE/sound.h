@@ -327,27 +327,27 @@ namespace SGE
 			{
 				struct MODHeader
 				{
-					char title[20];						//Module Title
-					unsigned char songPositions;		//Number of song positions, AKA patterns. 1 - 128
-					unsigned char patternTable[128];		//Pattern table, legal valves 0 - 63  (High value in table is the highest pattern stored.)
+					char title[20] = { 0 };						//Module Title
+					unsigned char songPositions = 0;		//Number of song positions, AKA patterns. 1 - 128
+					unsigned char patternTable[128] = { 0 };		//Pattern table, legal valves 0 - 63  (High value in table is the highest pattern stored.)
 				};
 
 				struct MODSample
 				{
-					char title[22];						//Sample Title
-					unsigned short lengthInWords;		//Sample Length in Words (16-bit chunks)
-					unsigned char finetune;				//Sample Fine Tune, in lowest four bits.  Technically a signed nibble.
-					unsigned char volume;				//Sample volume.  0 - 64 are legal values
-					unsigned short repeatOffset;		//Sample repeat offset
-					unsigned short repeatLength;		//Sample repeat length
-					unsigned short* data;
+					char title[22] = { 0 };					//Sample Title
+					unsigned short lengthInWords = 0;		//Sample Length in Words (16-bit chunks)
+					unsigned char finetune = 0;				//Sample Fine Tune, in lowest four bits.  Technically a signed nibble.
+					unsigned char volume = 0;				//Sample volume.  0 - 64 are legal values
+					unsigned short repeatOffset = 0;		//Sample repeat offset
+					unsigned short repeatLength = 0;		//Sample repeat length
+					char* data = nullptr;			//Pointer to Sample data
 				};
 
 				struct MODChannelData
 				{
-					unsigned char sample;				//Sample to use for this channel this division
-					unsigned short period;				//Period to play the sample at on this channel
-					unsigned short effect;				//Effects to use on this channel this division
+					unsigned char sample = 0;				//Sample to use for this channel this division
+					unsigned short period = 0;				//Period to play the sample at on this channel
+					unsigned short effect = 0;				//Effects to use on this channel this division
 				};
 
 				struct MODDivisionData
@@ -368,6 +368,7 @@ namespace SGE
 			FileFormatStructs::MODFile::MODHeader header;
 			FileFormatStructs::MODFile::MODSample samples[15];
 			FileFormatStructs::MODFile::MODPatternData patterns[64];
+			unsigned char numberOfPatterns = 0;
 
 		public:
 			ModuleFile();

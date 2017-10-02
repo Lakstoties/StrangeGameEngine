@@ -93,6 +93,11 @@ void InputTest(bool& testInputRunning)
 
 	testBitmap.LoadFile("TestImage.bmp");
 
+	//Load a module file
+	SGE::Sound::ModuleFile testModule;
+
+	testModule.LoadFile("hyper.mod");
+
 
 	//Vector Point List
 	SGE::Render::VertexPoint testVertexPoint[4]=
