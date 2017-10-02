@@ -207,17 +207,18 @@ namespace SGE
 		//For the purposes of the Strange Game Engine.  The data put into these buffers are assumed to be PCM Signed 16-bit at 44.1Khz sample rate.
 		struct SoundSampleBuffer
 		{
+		public:
 			//Buffer to contain the samples
 			short *buffer = nullptr;
 
 			//Size of the buffer
 			unsigned int bufferSize = 0;
-						
+
 			//Create a blank buffer of a certain sample size
 			int CreateBlankBuffer(unsigned int numOfSamples);
 
 			//Create a blank buffer, and then load data into it.
-			int LoadSoundBuffer(unsigned int numOfSamples, short *samples);
+			int Load(unsigned int numOfSamples, short *samples);
 
 			//Zero out a buffer completely
 			int ZeroBuffer();
@@ -233,7 +234,6 @@ namespace SGE
 
 		struct SoundChannel
 		{
-		public:
 			//Offset 
 			//Sample offset
 			float offset = 0;
@@ -243,10 +243,10 @@ namespace SGE
 
 			//Current Sound Sample Buffer in use
 			//Set to the maximum buffers, to indicate one hasn't been selected.
-			 SoundSampleBuffer* currentSampleBuffer = nullptr;
+			SoundSampleBuffer* currentSampleBuffer = nullptr;
 			
 			//Render functions
-			void RenderSamples(unsigned int numerOfSamples, int* sampleBuffer);
+			void Render(unsigned int numerOfSamples, int* sampleBuffer);
 
 			//Basic functions
 			//Play
@@ -322,7 +322,59 @@ namespace SGE
 					unsigned short bitsPerSample;		//Bit Depth, 8 = 8 bits, 16 = 16 bits, etc..
 				};
 			}
+
+			namespace MODFile
+			{
+				struct MODHeader
+				{
+					char title[20];						//Module Title
+					unsigned char songPositions;		//Number of song positions, AKA patterns. 1 - 128
+					unsigned char patternTable[128];		//Pattern table, legal valves 0 - 63  (High value in table is the highest pattern stored.)
+				};
+
+				struct MODSample
+				{
+					char title[22];						//Sample Title
+					unsigned short lengthInWords;		//Sample Length in Words (16-bit chunks)
+					unsigned char finetune;				//Sample Fine Tune, in lowest four bits.  Technically a signed nibble.
+					unsigned char volume;				//Sample volume.  0 - 64 are legal values
+					unsigned short repeatOffset;		//Sample repeat offset
+					unsigned short repeatLength;		//Sample repeat length
+					unsigned short* data;
+				};
+
+				struct MODChannelData
+				{
+					unsigned char sample;				//Sample to use for this channel this division
+					unsigned short period;				//Period to play the sample at on this channel
+					unsigned short effect;				//Effects to use on this channel this division
+				};
+
+				struct MODDivisionData
+				{
+					MODChannelData channels[4];			//Channels in a division
+				};
+
+				struct MODPatternData
+				{
+					MODDivisionData division[64];		//Division in a pattern
+				};
+			}
 		}
+
+		class ModuleFile
+		{
+		private:
+			FileFormatStructs::MODFile::MODHeader header;
+			FileFormatStructs::MODFile::MODSample samples[15];
+			FileFormatStructs::MODFile::MODPatternData patterns[64];
+
+		public:
+			ModuleFile();
+			~ModuleFile();
+
+			bool LoadFile(char* targetFilename);
+		};
 
 
 		class WaveFile

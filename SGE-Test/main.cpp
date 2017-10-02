@@ -56,9 +56,9 @@ void InputTest(bool& testInputRunning)
 	testFile.LoadFile("TestSample.wav");
 
 	//Load samples into the Sound System
-	SGE::Sound::SampleBuffers[0].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testSineWave);
-	SGE::Sound::SampleBuffers[1].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testTriangleWave);
-	SGE::Sound::SampleBuffers[2].LoadSoundBuffer(SGE::Sound::SAMPLE_RATE, testPulseWave);
+	SGE::Sound::SampleBuffers[0].Load(SGE::Sound::SAMPLE_RATE, testSineWave);
+	SGE::Sound::SampleBuffers[1].Load(SGE::Sound::SAMPLE_RATE, testTriangleWave);
+	SGE::Sound::SampleBuffers[2].Load(SGE::Sound::SAMPLE_RATE, testPulseWave);
 
 
 	//Ready the channels

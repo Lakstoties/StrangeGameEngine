@@ -18,7 +18,7 @@ namespace SGE
 		//
 
 		//Given arguments, render a number of samples asked and return a pointer to the buffer.
-		void SoundChannel::RenderSamples(unsigned int numberOfSamples, int* sampleBuffer)
+		void SoundChannel::Render(unsigned int numberOfSamples, int* sampleBuffer)
 		{
 			//Starting at the offset, copy over samples to the buffer.
 			for (unsigned int i = 0; i < numberOfSamples; i++)
@@ -110,7 +110,7 @@ namespace SGE
 		}
 
 		//Create a blank buffer, and then load data into it.
-		int SoundSampleBuffer::LoadSoundBuffer(unsigned int numOfSamples, short *samples)
+		int SoundSampleBuffer::Load(unsigned int numOfSamples, short *samples)
 		{
 			//Get a clean buffer
 			CreateBlankBuffer(numOfSamples);
@@ -449,7 +449,7 @@ namespace SGE
 			//Go through each channel and add it's contents to the mixing buffer
 			for (int i = 0; i < MAX_CHANNELS; i++)
 			{
-				Channels[i].RenderSamples(frameCount, renderedChannelBuffers[i]);
+				Channels[i].Render(frameCount, renderedChannelBuffers[i]);
 				for (unsigned int j = 0; j < frameCount; j++)
 				{
 					mixingFrameBufferLeft[j]  += int (renderedChannelBuffers[i][j] * (0.5f + Channels[i].Pan));
