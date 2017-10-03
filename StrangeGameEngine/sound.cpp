@@ -652,6 +652,7 @@ namespace SGE
 		{
 			FILE* moduleFile;
 			size_t readCount = 0;
+			size_t totalReadCount = 0;
 			char readBuffer[8];
 
 			
@@ -669,12 +670,17 @@ namespace SGE
 
 			//Read the module file title info
 			readCount = fread(&header.title, 1, 20, moduleFile);
+			totalReadCount += readCount;
+
+			//DEBUG:  Current number of bytes read
+			fprintf(stderr, "DEBUG:  Post Title: Read Count: %d \n", totalReadCount);
 
 			//Read the module file's sample data
-			for(int i = 0; i < 15; i++)
+			for(int i = 0; i < 31; i++)
 			{
 				//Read sample title
 				readCount = fread(&samples[i].title, 1, 22, moduleFile);
+				totalReadCount += readCount;
 
 				//Check to see if we actually read enough bytes
 				if (readCount != 22)
@@ -686,6 +692,10 @@ namespace SGE
 
 				//Read sample length
 				readCount = fread(&samples[i].lengthInWords, 1, 2, moduleFile);
+				totalReadCount += readCount;
+
+				//Flip the bits around since Amigas were Big Endian machines.
+				samples[i].lengthInWords = (((samples[i].lengthInWords & 0x00FF) << 8) | ((samples[i].lengthInWords & 0xFF00) >> 8));
 
 				//Check to see if we actually read enough bytes
 				if (readCount != 2)
@@ -697,6 +707,7 @@ namespace SGE
 
 				//Read sample finetune
 				readCount = fread(&samples[i].finetune, 1, 1, moduleFile);
+				totalReadCount += readCount;
 
 				//Check to see if we actually read enough bytes
 				if (readCount != 1)
@@ -708,6 +719,7 @@ namespace SGE
 
 				//Read sample volume
 				readCount = fread(&samples[i].volume, 1, 1, moduleFile);
+				totalReadCount += readCount;
 
 				//Check to see if we actually read enough bytes
 				if (readCount != 1)
@@ -719,6 +731,9 @@ namespace SGE
 
 				//Read repeat start offset
 				readCount = fread(&samples[i].repeatOffset, 1, 2, moduleFile);
+				totalReadCount += readCount;
+
+				samples[i].repeatOffset = (((samples[i].repeatOffset & 0x00FF) << 8) | ((samples[i].repeatOffset & 0xFF00) >> 8));
 
 				//Check to see if we actually read enough bytes
 				if (readCount != 2)
@@ -730,6 +745,9 @@ namespace SGE
 
 				//Read repeat length
 				readCount = fread(&samples[i].repeatLength, 1, 2, moduleFile);
+				totalReadCount += readCount;
+
+				samples[i].repeatLength = (((samples[i].repeatLength & 0x00FF) << 8) | ((samples[i].repeatLength & 0xFF00) >> 8));
 
 				//Check to see if we actually read enough bytes
 				if (readCount != 2)
@@ -740,8 +758,13 @@ namespace SGE
 				}
 			}
 
+			//DEBUG: Check current read count
+			fprintf(stderr, "DEBUG:  Post Sample Headers: Current Read Count: %d \n", totalReadCount);
+
+
 			//Read number of song positions
 			readCount = fread(&header.songPositions, 1, 1, moduleFile);
+			totalReadCount += readCount;
 
 			//Check to see if we actually read enough bytes
 			if (readCount != 1)
@@ -753,6 +776,7 @@ namespace SGE
 
 			//Burn through a read
 			readCount = fread(&readBuffer, 1, 1, moduleFile);
+			totalReadCount += readCount;
 
 			//Check to see if we actually read enough bytes
 			if (readCount != 1)
@@ -764,6 +788,10 @@ namespace SGE
 
 			//Read the pattern table
 			readCount = fread(&header.patternTable, 1, 128, moduleFile);
+			totalReadCount += readCount;
+
+			//DEBUG: Check current read count
+			fprintf(stderr, "DEBUG:  Current Read Count: %d \n", totalReadCount);
 
 			//Check to see if we actually read enough bytes
 			if (readCount != 128)
@@ -775,6 +803,7 @@ namespace SGE
 
 			//Read some tag info
 			readCount = fread(&readBuffer, 1, 4, moduleFile);
+			totalReadCount += readCount;
 
 			//Check to see if we actually read enough bytes
 			if (readCount != 4)
@@ -832,6 +861,7 @@ namespace SGE
 			{
 				//Move the seek back since this is part of the pattern data
 				fseek(moduleFile, -4, SEEK_CUR);
+				totalReadCount -= 4;
 				fprintf(stderr, "DEBUG: No Module File signature detected.\n");
 			}
 
@@ -860,6 +890,7 @@ namespace SGE
 					{
 						//Read the 4 bytes of data
 						fread(&readBuffer, 1, 4, moduleFile);
+						totalReadCount += readCount;
 
 						//Check to see if we actually read enough bytes
 						if (readCount != 4)
@@ -888,23 +919,33 @@ namespace SGE
 				}
 			}
 
+			//DEBUG: Check current read count
+			fprintf(stderr, "DEBUG:  Current Read Count: %d \n", totalReadCount);
+
 			//Load up the samples with their data
-			for (int i = 0; i < 15; i++)
+			for (int i = 0; i < 31; i++)
 			{
-				//Create some memory to store the sample in.
-				samples[i].data = (char*)malloc(samples[i].lengthInWords * 2);
-
-				//Read the data in there
-				fread(samples[i].data, 1, samples[i].lengthInWords * 2, moduleFile);
-
-				//Check to see if we actually read enough bytes
-				if (readCount != samples[i].lengthInWords * 2)
+				if (samples[i].lengthInWords > 1)
 				{
-					//This file is way to small to be a proper wav file
-					fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.  Sample Data Reported: %d  Sample Data Read: %d \n", targetFilename, samples[i].lengthInWords * 2, readCount);
-					return -13;
+					//Create some memory to store the sample in.
+					samples[i].data = (char*)malloc(samples[i].lengthInWords * 2);
+
+					//Read the data in there
+					readCount = fread(samples[i].data, 1, samples[i].lengthInWords * 2, moduleFile);
+					totalReadCount += readCount;
+
+					//Check to see if we actually read enough bytes
+					if (readCount != samples[i].lengthInWords * 2)
+					{
+						//This file is way to small to be a proper wav file
+						fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.  Sample Data Reported: %d  Sample Data Read: %d \n", targetFilename, samples[i].lengthInWords * 2, readCount);
+						//return -13;
+					}
 				}
 			}
+
+			//DEBUG: Check current read count
+			fprintf(stderr, "DEBUG:  Current Read Count: %d \n", totalReadCount);
 
 			//If we get to this point, everything is okay
 			return 0;

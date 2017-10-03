@@ -366,7 +366,7 @@ namespace SGE
 		{
 		private:
 			FileFormatStructs::MODFile::MODHeader header;
-			FileFormatStructs::MODFile::MODSample samples[15];
+			FileFormatStructs::MODFile::MODSample samples[31];
 			FileFormatStructs::MODFile::MODPatternData patterns[64];
 			unsigned char numberOfPatterns = 0;
 
