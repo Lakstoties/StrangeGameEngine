@@ -157,6 +157,14 @@ namespace SGE
 			12543.853516f	//G		127
 		};
 
+		//A list of Tracker Music MODule file conversation notes.
+		//Tuning frequency for NTSC screens for Mod files
+		const float MOD_NTSC_TUNING = 7159090.5;
+
+		//Tuning frequency for PAL screens for Mod Files
+		const float MOD_PAL_TUNING = 7093789.2;
+
+
 		//Precalculated PI/2 to float precision
 		const float HALF_PI_FLOAT = 1.57079632679489661923f;
 
@@ -364,17 +372,18 @@ namespace SGE
 
 		class ModuleFile
 		{
-		private:
+		public:
 			FileFormatStructs::MODFile::MODHeader header;
 			FileFormatStructs::MODFile::MODSample samples[31];
 			FileFormatStructs::MODFile::MODPatternData patterns[64];
 			unsigned char numberOfPatterns = 0;
 
-		public:
 			ModuleFile();
 			~ModuleFile();
 
 			int LoadFile(char* targetFilename);
+			short* ModuleFile::ConvertSample(unsigned char sample);
+			
 		};
 
 

@@ -51,27 +51,63 @@ void InputTest(bool& testInputRunning)
 	short* testPulseWave = SGE::Sound::Generators::PulseGenerator(1, 0.50, SGE::Sound::SAMPLE_RATE, 5000);
 
 
+	//Load a module file
+	SGE::Sound::ModuleFile testModule;
+
+	testModule.LoadFile("hyper.mod");
+
+
+	//Create buffers for converted module data
+	short* moduleSample0 = testModule.ConvertSample(0);
+	short* moduleSample1 = testModule.ConvertSample(1);
+	short* moduleSample2 = testModule.ConvertSample(2);
+	short* moduleSample3 = testModule.ConvertSample(3);
+	short* moduleSample4 = testModule.ConvertSample(4);
+	short* moduleSample5 = testModule.ConvertSample(5);
+	short* moduleSample6 = testModule.ConvertSample(6);
+	short* moduleSample7 = testModule.ConvertSample(7);
+	short* moduleSample8 = testModule.ConvertSample(8);
+	short* moduleSample9 = testModule.ConvertSample(9);
+
+
+
 	SGE::Sound::WaveFile testFile;
 
 	testFile.LoadFile("TestSample.wav");
 
 	//Load samples into the Sound System
-	SGE::Sound::SampleBuffers[0].Load(SGE::Sound::SAMPLE_RATE, testSineWave);
-	SGE::Sound::SampleBuffers[1].Load(SGE::Sound::SAMPLE_RATE, testTriangleWave);
-	SGE::Sound::SampleBuffers[2].Load(SGE::Sound::SAMPLE_RATE, testPulseWave);
+	//SGE::Sound::SampleBuffers[0].Load(SGE::Sound::SAMPLE_RATE, testSineWave);
+	//SGE::Sound::SampleBuffers[1].Load(SGE::Sound::SAMPLE_RATE, testTriangleWave);
+	//SGE::Sound::SampleBuffers[2].Load(SGE::Sound::SAMPLE_RATE, testPulseWave);
+	SGE::Sound::SampleBuffers[0].Load(testModule.samples[0].lengthInWords * 2, moduleSample0);
+	SGE::Sound::SampleBuffers[1].Load(testModule.samples[1].lengthInWords * 2, moduleSample1);
+	SGE::Sound::SampleBuffers[2].Load(testModule.samples[2].lengthInWords * 2, moduleSample2);
+	SGE::Sound::SampleBuffers[3].Load(testModule.samples[3].lengthInWords * 2, moduleSample3);
+	SGE::Sound::SampleBuffers[4].Load(testModule.samples[4].lengthInWords * 2, moduleSample4);
+	SGE::Sound::SampleBuffers[5].Load(testModule.samples[5].lengthInWords * 2, moduleSample5);
+	SGE::Sound::SampleBuffers[6].Load(testModule.samples[6].lengthInWords * 2, moduleSample6);
+	SGE::Sound::SampleBuffers[7].Load(testModule.samples[7].lengthInWords * 2, moduleSample7);
+	SGE::Sound::SampleBuffers[8].Load(testModule.samples[8].lengthInWords * 2, moduleSample8);
+	SGE::Sound::SampleBuffers[9].Load(testModule.samples[9].lengthInWords * 2, moduleSample9);
+	
+
+
+
+
 
 
 	//Ready the channels
 	for (int i = 0; i < 10; i++)
 	{
 		//Load SineWave in channel
-		SGE::Sound::Channels[i].currentSampleBuffer = &SGE::Sound::SampleBuffers[0];
+		SGE::Sound::Channels[i].currentSampleBuffer = &SGE::Sound::SampleBuffers[i];
 
 		//Set the pitches of the channel
-		SGE::Sound::Channels[i].offsetIncrement = (SGE::Sound::MIDI_NOTE_FRENQUENCY[i + 60]);
+		//SGE::Sound::Channels[i].offsetIncrement = (SGE::Sound::MIDI_NOTE_FRENQUENCY[i + 60]);
+		SGE::Sound::Channels[i].offsetIncrement = 0.1879138321995465;
 
 		//Set the channel to loop
-		SGE::Sound::Channels[i].Repeatable = true;
+		SGE::Sound::Channels[i].Repeatable = false;
 
 		//Set repeat duration
 		SGE::Sound::Channels[i].repeatDuration = SGE::Sound::Channels[i].currentSampleBuffer->bufferSize;
@@ -93,10 +129,7 @@ void InputTest(bool& testInputRunning)
 
 	testBitmap.LoadFile("TestImage.bmp");
 
-	//Load a module file
-	SGE::Sound::ModuleFile testModule;
 
-	testModule.LoadFile("hyper.mod");
 
 
 	//Vector Point List
@@ -313,11 +346,10 @@ void InputTest(bool& testInputRunning)
 		{
 			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_0])
 			{
-				SGE::Sound::Channels[0].Repeatable = false;
+
 			}
 			else
 			{
-				SGE::Sound::Channels[0].Repeatable = true;
 				SGE::Sound::Channels[0].Play();
 			}
 		}
@@ -327,11 +359,11 @@ void InputTest(bool& testInputRunning)
 		{
 			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_1])
 			{
-				SGE::Sound::Channels[1].Repeatable = false;
+
 			}
 			else
 			{
-				SGE::Sound::Channels[1].Repeatable = true;
+
 				SGE::Sound::Channels[1].Play();
 			}
 		}
@@ -341,11 +373,11 @@ void InputTest(bool& testInputRunning)
 		{
 			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_2])
 			{
-				SGE::Sound::Channels[2].Repeatable = false;
+
 			}
 			else
 			{
-				SGE::Sound::Channels[2].Repeatable = true;
+
 				SGE::Sound::Channels[2].Play();
 			}
 		}
@@ -355,11 +387,11 @@ void InputTest(bool& testInputRunning)
 		{
 			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_3])
 			{
-				SGE::Sound::Channels[3].Repeatable = false;
+
 			}
 			else
 			{
-				SGE::Sound::Channels[3].Repeatable = true;
+
 				SGE::Sound::Channels[3].Play();
 			}
 		}
@@ -369,11 +401,11 @@ void InputTest(bool& testInputRunning)
 		{
 			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_4])
 			{
-				SGE::Sound::Channels[4].Repeatable = false;
+
 			}
 			else
 			{
-				SGE::Sound::Channels[4].Repeatable = true;
+
 				SGE::Sound::Channels[4].Play();
 			}
 		}
@@ -383,11 +415,11 @@ void InputTest(bool& testInputRunning)
 		{
 			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_5])
 			{
-				SGE::Sound::Channels[5].Repeatable = false;
+	
 			}
 			else
 			{
-				SGE::Sound::Channels[5].Repeatable = true;
+
 				SGE::Sound::Channels[5].Play();
 			}
 		}
@@ -397,11 +429,11 @@ void InputTest(bool& testInputRunning)
 		{
 			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_6])
 			{
-				SGE::Sound::Channels[6].Repeatable = false;
+
 			}
 			else
 			{
-				SGE::Sound::Channels[6].Repeatable = true;
+
 				SGE::Sound::Channels[6].Play();
 			}
 		}
@@ -411,11 +443,11 @@ void InputTest(bool& testInputRunning)
 		{
 			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_7])
 			{
-				SGE::Sound::Channels[7].Repeatable = false;
+
 			}
 			else
 			{
-				SGE::Sound::Channels[7].Repeatable = true;
+
 				SGE::Sound::Channels[7].Play();
 			}
 		}
@@ -425,11 +457,11 @@ void InputTest(bool& testInputRunning)
 		{
 			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_8])
 			{
-				SGE::Sound::Channels[8].Repeatable = false;
+
 			}
 			else
 			{
-				SGE::Sound::Channels[8].Repeatable = true;
+
 				SGE::Sound::Channels[8].Play();
 			}
 		}
@@ -439,11 +471,11 @@ void InputTest(bool& testInputRunning)
 		{
 			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_9])
 			{
-				SGE::Sound::Channels[9].Repeatable = false;
+
 			}
 			else
 			{
-				SGE::Sound::Channels[9].Repeatable = true;
+
 				SGE::Sound::Channels[9].Play();
 			}
 		}

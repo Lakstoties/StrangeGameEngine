@@ -37,7 +37,7 @@ namespace SGE
 					offset += offsetIncrement;
 
 					//Check to see if this same is suppose to repeat and is set to do so... correctly
-					if (Repeatable && repeatDuration > 0 && unsigned int(offset) >= (repeatOffset + repeatDuration))
+					if (Repeatable && (repeatDuration > 0) && (unsigned int(offset) >= (repeatOffset + repeatDuration)))
 					{
 						//Alter the offset appropriate, keeping in mind how much we have blown past end point to add the difference in to keep looping proper.
 						offset = float(repeatOffset) + (offset - float(repeatOffset + repeatDuration));
@@ -631,6 +631,8 @@ namespace SGE
 		}
 	
 
+
+
 		//
 		//
 		//  sound System Module File Definitions
@@ -653,7 +655,7 @@ namespace SGE
 			FILE* moduleFile;
 			size_t readCount = 0;
 			size_t totalReadCount = 0;
-			char readBuffer[8];
+			unsigned char readBuffer[8];
 
 			
 			//Attempt to open the file.
@@ -880,7 +882,7 @@ namespace SGE
 
 			//Start churning through all the pattern data
 			//Go through each pattern
-			for (int i = 0; i < numberOfPatterns; i++)
+			for (int i = 0; i < numberOfPatterns + 1; i++)
 			{
 				//Go through each division
 				for (int j = 0; j < 64; j++)
@@ -902,19 +904,13 @@ namespace SGE
 						
 						//Parse out the data.
 						//Copy the first two bytes over into period
-						memcpy(&patterns[i].division[j].channels[k].period, &readBuffer, 2);
-
-						//Bit mask out the excess outside the target 12-bits
-						patterns[i].division[j].channels[k].period &= 0x0FFF;
+						patterns[i].division[j].channels[k].period = ((readBuffer[0] & 0x0F) << 8) | (readBuffer[1]);
 
 						//Copy the second two bytes over into effect
-						memcpy(&patterns[i].division[j].channels[k].effect, &readBuffer[2], 2);
-
-						//Bit mask out the excess outside the target 12-bits
-						patterns[i].division[j].channels[k].effect &= 0x0FFF;
+						patterns[i].division[j].channels[k].effect = ((readBuffer[2] & 0x0F) << 8) | (readBuffer[3]);
 
 						//Bit mask unneeded bits, shift, and add them together 
-						patterns[i].division[j].channels[k].sample = (readBuffer[0] & 0xF0) & ((readBuffer[2] & 0xF0) >> 4);
+						patterns[i].division[j].channels[k].sample = (readBuffer[0] & 0xF0) | ((readBuffer[2] & 0xF0) >> 4);
 					}
 				}
 			}
@@ -951,6 +947,29 @@ namespace SGE
 			return 0;
 		}
 
+
+		short* ModuleFile::ConvertSample(unsigned char sample)
+		{
+			//Check for a valid sample
+			if (sample > 32)
+			{
+				return nullptr;
+			}
+
+			short* temp = (short*)malloc(sizeof(short) * samples[sample].lengthInWords * 2);
+
+			if (samples[sample].lengthInWords > 1)
+			{
+				//Go through the module sample and convert the 8-bit to 16-bit range
+				//Store it in the destinationBuffer
+				for (int i = 0; i < (samples[sample].lengthInWords * 2); i++)
+				{
+					temp[i] = short(samples[sample].data[i] << 8);
+				}
+			}
+
+			return temp;
+		}
 
 
 		//
