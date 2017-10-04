@@ -943,6 +943,9 @@ namespace SGE
 			//DEBUG: Check current read count
 			fprintf(stderr, "DEBUG:  Current Read Count: %d \n", totalReadCount);
 
+			//Close the file out
+			fclose(moduleFile);
+
 			//If we get to this point, everything is okay
 			return 0;
 		}
@@ -970,6 +973,237 @@ namespace SGE
 
 			return temp;
 		}
+
+		unsigned int ModuleFile::ConvertSampleSize(unsigned char sample)
+		{
+			//Check for a valid sample
+			if (sample > 32)
+			{
+				return 0;
+			}
+
+			return samples[sample].lengthInWords * 2;
+		}
+
+		//
+		//
+		//  Module File Player
+		//
+		//
+
+		bool ModulePlayer::Load(char * filename)
+		{
+			modFile.LoadFile(filename);
+
+			//If we get here, stuff is okay.
+			return true;
+		}
+
+		bool ModulePlayer::Connect(unsigned int startChannel, unsigned int startSample)
+		{
+			//Check to see if we have a valid start position when it comes to channel mapping
+			if (startChannel > (MAX_CHANNELS - 4))
+			{
+				return false;
+			}
+
+			//Check to see if we have a valid start position when it comes to sample mapping
+			if (startSample > (MAX_SAMPLE_BUFFERS - 31))
+			{
+				return false;
+			}
+
+
+			//Map up samples
+			for (int i = 0; i < 31; i++)
+			{
+				sampleMap[i] = &SGE::Sound::SampleBuffers[i + startChannel];
+			}
+
+			//Map up channels
+			for (int i = 0; i < 4; i++)
+			{
+				channelMap[i] = &SGE::Sound::Channels[i + startChannel];
+			}
+
+			//Temporary pointer for converted sample data
+			short * temp = nullptr;
+
+
+			//Convert samples over, load them up
+			for (int i = 0; i < 31; i++)
+			{
+				if (modFile.ConvertSampleSize(i) > 2)
+				{
+					//Allocate memory to the size we need.
+					temp = (short *)malloc(sizeof(short) * modFile.ConvertSampleSize(i));
+
+					//Convert the sample data
+					temp = modFile.ConvertSample(i);
+
+					//Load the convert sample data into the sample buffer
+					sampleMap[i]->Load(modFile.ConvertSampleSize(i), temp);
+
+					//Get rid of the old buffer.
+					free(temp);
+				}
+			}
+
+			//Since this a mod, configure the volume balances for the channels
+			channelMap[0]->Pan = -1.00f;
+			channelMap[2]->Pan = -1.00f;
+			channelMap[1]->Pan = 1.00f;
+			channelMap[3]->Pan = 1.00f;
+
+			//If we get here, stuff is okay.
+			return true;
+		}
+
+		bool ModulePlayer::Play()
+		{
+			//If the player thread is already active... don't pester it
+			if (PlayerThreadActive)
+			{
+				return false;
+			}
+
+			//Set the player thread to be active
+			PlayerThreadActive = true;
+
+			//Launch the player thread
+			playerThread = std::thread(&ModulePlayer::PlayThread, this);
+
+			//If we get here, stuff is okay.
+			return true;
+		}
+
+		bool ModulePlayer::Stop()
+		{
+			//Set the player thread to be inactive
+			PlayerThreadActive = false;
+
+			//Wait for the player thread to join
+			if (playerThread.joinable())
+			{
+				playerThread.join();
+			}
+
+			//If we get here, stuff is okay.
+			return true;
+		}
+
+		void ModulePlayer::PlayThread()
+		{
+			//Start processing
+			while (PlayerThreadActive)
+			{
+				for (int j = 0; j < modFile.header.songPositions && PlayerThreadActive; j++)
+				{
+					//Pull the current pattern from the current position
+					currentPattern = modFile.header.patternTable[j];
+					fprintf(stderr, "DEBUG: Mod Player: Playing - Song Position: %d - Pattern: %d \n", j, currentPattern);
+
+					//Process through the divisions
+					for (int i = 0; i < 64 && PlayerThreadActive; i++)
+					{
+						//Set up the channels
+						fprintf(stderr, "DEBUG: Mod Player: Playing - Division: %d \n", i);
+
+						//Check each channel for a sample change
+						for (int c = 0; c < 4; c++)
+						{
+							//Check to see if sample is not zero
+							//If it is zero don't change the sample used in the channel
+							if (modFile.patterns[currentPattern].division[i].channels[c].sample > 0)
+							{
+								fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing to Sample: %d \n", c, modFile.patterns[currentPattern].division[i].channels[c].sample - 1);
+
+								//Stop this channel
+								channelMap[c]->Stop();
+
+								//Switch to the sample
+								channelMap[c]->currentSampleBuffer = sampleMap[modFile.patterns[currentPattern].division[i].channels[c].sample - 1];
+
+								//Set sample volume
+								channelMap[c]->Volume = float(modFile.samples[modFile.patterns[currentPattern].division[i].channels[c].sample - 1].volume) / 64.0f;
+							}
+						}
+
+						//Check the effects for anything
+						unsigned char effectNumber = 0;
+						unsigned char effectX = 0;
+						unsigned char effectY = 0;
+
+						//Go through the channels
+						for (int c = 0; c < 4; c++)
+						{
+							//Parse out the effect
+							effectNumber = (modFile.patterns[currentPattern].division[i].channels[c].effect & 0x0F00) >> 8;
+							effectX = (modFile.patterns[currentPattern].division[i].channels[c].effect & 0x00F0) >> 4;
+							effectY = (modFile.patterns[currentPattern].division[i].channels[c].effect & 0x000F);
+
+							//If we have an effect
+							if (effectNumber > 0)
+							{
+								//If effect C or 12, then set the volume.
+								if (effectNumber == 0xC)
+								{
+									fprintf(stderr, "DEBUG: Mod Player: Channel %d Chaning Volume: %d \n", c, effectX * 16 + effectY);
+									channelMap[c]->Volume = (effectX * 16 + effectY) / 64.0f;
+								}
+							}
+						}
+
+						//Set the periods
+						for (int c = 0; c < 4; c++)
+						{
+							if (modFile.patterns[currentPattern].division[i].channels[c].period > 0)
+							{
+								//Changing periods, so stop the current stuff
+								channelMap[c]->Stop();
+
+								//Convert the period to offset timing interval in relation to system sampling rate
+								//Using NTSC sampling
+								channelMap[c]->offsetIncrement = (MOD_NTSC_TUNING / float(modFile.patterns[currentPattern].division[i].channels[c].period)) / float(SAMPLE_RATE) / 2.0f;
+
+								//Play at new period
+								channelMap[c]->Play();
+							}
+						}
+
+
+
+						//Wait for the next division
+						std::this_thread::sleep_for(std::chrono::milliseconds(60));
+					}
+				}
+			}
+
+			//Stop all channels
+			for (int c = 0; c < 4; c++)
+			{
+				channelMap[c]->Stop();
+			}
+		}
+
+
+		//Constructor Stuff
+		ModulePlayer::ModulePlayer()
+		{
+
+		}
+
+		ModulePlayer::~ModulePlayer()
+		{
+
+		}
+
+
+
+
+
+
+
 
 
 		//

@@ -1,4 +1,6 @@
 #pragma once
+
+#include <thread>
 namespace SGE
 {
 	namespace Sound
@@ -159,10 +161,10 @@ namespace SGE
 
 		//A list of Tracker Music MODule file conversation notes.
 		//Tuning frequency for NTSC screens for Mod files
-		const float MOD_NTSC_TUNING = 7159090.5;
+		const float MOD_NTSC_TUNING = 7159090.5f;
 
 		//Tuning frequency for PAL screens for Mod Files
-		const float MOD_PAL_TUNING = 7093789.2;
+		const float MOD_PAL_TUNING = 7093789.2f;
 
 
 		//Precalculated PI/2 to float precision
@@ -383,7 +385,41 @@ namespace SGE
 
 			int LoadFile(char* targetFilename);
 			short* ModuleFile::ConvertSample(unsigned char sample);
+			unsigned int ModuleFile::ConvertSampleSize(unsigned char sample);
 			
+		};
+
+		//Player for module files
+		class ModulePlayer
+		{
+		public:
+			unsigned char currentPosition = 0;
+			unsigned char currentPattern = 0;
+			unsigned char currentDivision = 0;
+			unsigned int beatsPerMinute = 2048;
+
+			SoundSampleBuffer* sampleMap[31] = { nullptr };
+			SoundChannel* channelMap[4] = { nullptr };
+
+			//
+			ModuleFile modFile = ModuleFile();
+			bool PlayerThreadActive = false;
+			std::thread playerThread;
+
+
+			//Main functions
+			bool Load(char * filename);
+			bool Connect(unsigned int startChannel, unsigned int startSample);
+			bool Play();
+			bool Stop();
+
+			//Other fuction
+			void PlayThread();
+
+			//Constructor Stuff
+			ModulePlayer();
+			~ModulePlayer();
+
 		};
 
 

@@ -104,7 +104,7 @@ void InputTest(bool& testInputRunning)
 
 		//Set the pitches of the channel
 		//SGE::Sound::Channels[i].offsetIncrement = (SGE::Sound::MIDI_NOTE_FRENQUENCY[i + 60]);
-		SGE::Sound::Channels[i].offsetIncrement = 0.1879138321995465;
+		SGE::Sound::Channels[i].offsetIncrement = 0.1879138321995465f;
 
 		//Set the channel to loop
 		SGE::Sound::Channels[i].Repeatable = false;
@@ -112,6 +112,16 @@ void InputTest(bool& testInputRunning)
 		//Set repeat duration
 		SGE::Sound::Channels[i].repeatDuration = SGE::Sound::Channels[i].currentSampleBuffer->bufferSize;
 	}
+
+	SGE::Sound::ModulePlayer modulePlayerTest;
+
+
+	modulePlayerTest.Load("hyper.mod");
+	modulePlayerTest.Connect(12, 64);
+	//modulePlayerTest.Play();
+
+
+
 
 	bool previousReturnState = false;
 
@@ -246,6 +256,32 @@ void InputTest(bool& testInputRunning)
 		
 		//Unlock the display refresh
 		SGE::Display::AllowRefresh();
+
+		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_KP_1])
+		{
+			if (lastKeyboardState[SGE::Controls::Keymap::KEY_KP_1])
+			{
+
+			}
+			else
+			{
+				modulePlayerTest.Play();
+			}
+		}
+
+		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_KP_0])
+		{
+			if (lastKeyboardState[SGE::Controls::Keymap::KEY_KP_0])
+			{
+
+			}
+			else
+			{
+				modulePlayerTest.Stop();
+			}
+		}
+
+
 
 		//Channel 0 Pan
 		//Pan to Left
