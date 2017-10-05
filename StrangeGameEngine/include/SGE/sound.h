@@ -166,6 +166,8 @@ namespace SGE
 		//Tuning frequency for PAL screens for Mod Files
 		const float MOD_PAL_TUNING = 7093789.2f;
 
+		//Semitone multipler
+		const float SEMITONE_MULTIPLIER = 1.0595f;
 
 		//Precalculated PI/2 to float precision
 		const float HALF_PI_FLOAT = 1.57079632679489661923f;
@@ -281,6 +283,15 @@ namespace SGE
 			//Volumes/Panning
 			float Volume = 1.0f;
 			float Pan = 0.0f;
+
+			//Effects for Module system
+			bool EnableArpeggio = false;
+			unsigned int ArpeggioSampleInterval = 0;
+			unsigned int currentArpeggioSamples = 0;
+			unsigned int arpeggioState = 0;
+			unsigned int arpeggioSemitoneX = 0;
+			unsigned int arpeggioSemitoneY = 0;
+			float arpeggioOffsetIncrement = 0;
 		};
 
 
@@ -396,7 +407,8 @@ namespace SGE
 			unsigned char currentPosition = 0;
 			unsigned char currentPattern = 0;
 			unsigned char currentDivision = 0;
-			unsigned int beatsPerMinute = 2048;
+			unsigned int beatsPerMinute = 125;
+			unsigned char ticksADivision = 6;
 
 			SoundSampleBuffer* sampleMap[31] = { nullptr };
 			SoundChannel* channelMap[4] = { nullptr };

@@ -30,11 +30,55 @@ namespace SGE
 				}
 				else
 				{
+					//Check to see if the Arpeggio Effect is in effect
+					if (EnableArpeggio)
+					{
+						//Check the state of the Arpeggio effect
+						if (currentArpeggioSamples > ArpeggioSampleInterval)
+						{
+							//Reset the counter
+							currentArpeggioSamples = currentArpeggioSamples % ArpeggioSampleInterval;
+
+							//Transition the state
+							arpeggioState = (arpeggioState + 1) % 3;
+
+							//Based on that state alter the argpeggio offset increment
+							
+							//If at the base state
+							if (arpeggioState == 0)
+							{
+								arpeggioOffsetIncrement = offsetIncrement;
+							}
+
+							//If at X semitone state
+							if (arpeggioState == 1)
+							{
+								arpeggioOffsetIncrement = offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioSemitoneX);
+							}
+
+							//If at Y semitone state
+							if (arpeggioState == 2)
+							{
+								arpeggioOffsetIncrement = offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioSemitoneY);
+							}
+						}
+						currentArpeggioSamples++;
+					}
+
+
+
 					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
 					sampleBuffer[i] = int (currentSampleBuffer->buffer[unsigned int (offset)] * Volume);
 
 					//Increment to the next offset
-					offset += offsetIncrement;
+					if (EnableArpeggio)
+					{
+						offset += arpeggioOffsetIncrement;
+					}
+					else
+					{
+						offset += offsetIncrement;
+					}
 
 					//Check to see if this same is suppose to repeat and is set to do so... correctly
 					if (Repeatable && (repeatDuration > 0) && (unsigned int(offset) >= (repeatOffset + repeatDuration)))
@@ -49,6 +93,8 @@ namespace SGE
 						//Fuck this shit we're out!
 						Stop();
 					}
+
+
 				}
 			}
 		}
@@ -1051,9 +1097,9 @@ namespace SGE
 
 			//Since this a mod, configure the volume balances for the channels
 			channelMap[0]->Pan = -1.00f;
+			channelMap[1]->Pan =  1.00f;
 			channelMap[2]->Pan = -1.00f;
-			channelMap[1]->Pan = 1.00f;
-			channelMap[3]->Pan = 1.00f;
+			channelMap[3]->Pan =  1.00f;
 
 			//If we get here, stuff is okay.
 			return true;
@@ -1094,6 +1140,10 @@ namespace SGE
 
 		void ModulePlayer::PlayThread()
 		{
+			unsigned char effectTypeOnChannel[4] = { 0 };
+			unsigned char effectXOnChannel[4] = { 0 };
+			unsigned char effectYOnChannel[4] = { 0 };
+
 			//Start processing
 			while (PlayerThreadActive)
 			{
@@ -1129,28 +1179,38 @@ namespace SGE
 							}
 						}
 
-						//Check the effects for anything
-						unsigned char effectNumber = 0;
-						unsigned char effectX = 0;
-						unsigned char effectY = 0;
-
 						//Go through the channels
 						for (int c = 0; c < 4; c++)
 						{
 							//Parse out the effect
-							effectNumber = (modFile.patterns[currentPattern].division[i].channels[c].effect & 0x0F00) >> 8;
-							effectX = (modFile.patterns[currentPattern].division[i].channels[c].effect & 0x00F0) >> 4;
-							effectY = (modFile.patterns[currentPattern].division[i].channels[c].effect & 0x000F);
+							effectTypeOnChannel[c] = (modFile.patterns[currentPattern].division[i].channels[c].effect & 0x0F00) >> 8;
+							effectXOnChannel[c] = (modFile.patterns[currentPattern].division[i].channels[c].effect & 0x00F0) >> 4;
+							effectYOnChannel[c] = (modFile.patterns[currentPattern].division[i].channels[c].effect & 0x000F);
 
-							//If we have an effect
-							if (effectNumber > 0)
+							//Check for arpeggio effect 0
+							if (effectTypeOnChannel[c] == 0 && (effectXOnChannel[c] != 0 | effectYOnChannel[c] != 0 ))
 							{
-								//If effect C or 12, then set the volume.
-								if (effectNumber == 0xC)
-								{
-									fprintf(stderr, "DEBUG: Mod Player: Channel %d Chaning Volume: %d \n", c, effectX * 16 + effectY);
-									channelMap[c]->Volume = (effectX * 16 + effectY) / 64.0f;
-								}
+								channelMap[c]->ArpeggioSampleInterval = SAMPLE_RATE * 0.020f;
+								channelMap[c]->arpeggioSemitoneX = effectXOnChannel[c];
+								channelMap[c]->arpeggioSemitoneY = effectYOnChannel[c];
+								channelMap[c]->EnableArpeggio = true;
+
+							}
+
+							//Turn off arpeggio
+							else
+							{
+								channelMap[c]->EnableArpeggio = false;
+								channelMap[c]->ArpeggioSampleInterval = 0;
+								channelMap[c]->arpeggioSemitoneX = 0;
+								channelMap[c]->arpeggioSemitoneY = 0;
+							}
+
+							//If effect C or 12, then set the volume.
+							if (effectTypeOnChannel[c] == 0xC)
+							{
+								fprintf(stderr, "DEBUG: Mod Player: Channel %d Chaning Volume: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+								channelMap[c]->Volume = (effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 64.0f;
 							}
 						}
 
@@ -1164,17 +1224,21 @@ namespace SGE
 
 								//Convert the period to offset timing interval in relation to system sampling rate
 								//Using NTSC sampling
-								channelMap[c]->offsetIncrement = (MOD_NTSC_TUNING / float(modFile.patterns[currentPattern].division[i].channels[c].period)) / float(SAMPLE_RATE) / 2.0f;
+								channelMap[c]->offsetIncrement = MOD_NTSC_TUNING / float(modFile.patterns[currentPattern].division[i].channels[c].period) 
+									/ float(SAMPLE_RATE) / 2.0f;
 
 								//Play at new period
 								channelMap[c]->Play();
 							}
 						}
 
+						//Main effects business inbetween divisions at a certain tick rate.
+						for (int t = 0; t < ticksADivision && PlayerThreadActive; t++)
+						{
 
-
-						//Wait for the next division
-						std::this_thread::sleep_for(std::chrono::milliseconds(60));
+							//Wait for the next division
+							std::this_thread::sleep_for(std::chrono::milliseconds(9));
+						}
 					}
 				}
 			}
@@ -1195,7 +1259,8 @@ namespace SGE
 
 		ModulePlayer::~ModulePlayer()
 		{
-
+			//Stop the player
+			this->Stop();
 		}
 
 
