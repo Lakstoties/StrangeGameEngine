@@ -169,6 +169,9 @@ namespace SGE
 		//Semitone multipler
 		const float SEMITONE_MULTIPLIER = 1.0595f;
 
+		//Default Ticks a Division
+		const unsigned int DEFAULT_TICKS_A_DIVISION = 6;
+
 		//Precalculated PI/2 to float precision
 		const float HALF_PI_FLOAT = 1.57079632679489661923f;
 
@@ -242,8 +245,6 @@ namespace SGE
 			~SoundSampleBuffer();			
 		};
 
-
-
 		struct SoundChannel
 		{
 			//Offset 
@@ -293,8 +294,6 @@ namespace SGE
 			unsigned int arpeggioSemitoneY = 0;
 			float arpeggioOffsetIncrement = 0;
 		};
-
-
 
 		//Class for the Sound System of the game engine.
 		//Typically only one instance is used.
@@ -355,7 +354,7 @@ namespace SGE
 
 				struct MODSample
 				{
-					char title[22] = { 0 };					//Sample Title
+					char title[23] = { 0 };					//Sample Title
 					unsigned short lengthInWords = 0;		//Sample Length in Words (16-bit chunks)
 					unsigned char finetune = 0;				//Sample Fine Tune, in lowest four bits.  Technically a signed nibble.
 					unsigned char volume = 0;				//Sample volume.  0 - 64 are legal values
@@ -397,16 +396,16 @@ namespace SGE
 			int LoadFile(char* targetFilename);
 			short* ModuleFile::ConvertSample(unsigned char sample);
 			unsigned int ModuleFile::ConvertSampleSize(unsigned char sample);
-			
+
 		};
 
 		//Player for module files
 		class ModulePlayer
 		{
 		public:
-			unsigned char currentPosition = 0;
-			unsigned char currentPattern = 0;
-			unsigned char currentDivision = 0;
+			unsigned char CurrentPosition = 0;
+			unsigned char CurrentPattern = 0;
+			unsigned char CurrentDivision = 0;
 			unsigned int beatsPerMinute = 125;
 			unsigned char ticksADivision = 6;
 

@@ -83,9 +83,6 @@ namespace SGE
 		//Draw a string of characters to the screen, from a null terminated string
 		void DrawString(char* characters, const unsigned long long characterROM[], int characterSpacing, int targetX, int targetY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
-		//Draw a single pixel on the screen
-		void DrawPixel(int targetX, int targetY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
-
 		//Draw a block of data from a source to target video ram
 		void DrawDataBlock(int targetX, int targetY, int sourceWidth, int sourceHeight, unsigned int* sourceDataBlock);
 

@@ -24,7 +24,8 @@ namespace SGE
 			for (unsigned int i = 0; i < numberOfSamples; i++)
 			{
 				//If we are currently not playing
-				if (!Playing)
+				//And there's actually something to play.
+				if (!Playing || currentSampleBuffer->bufferSize == 0 || currentSampleBuffer->buffer == nullptr)
 				{
 					sampleBuffer[i] = 0;
 				}
@@ -53,13 +54,13 @@ namespace SGE
 							//If at X semitone state
 							if (arpeggioState == 1)
 							{
-								arpeggioOffsetIncrement = offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioSemitoneX);
+								arpeggioOffsetIncrement = float (offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioSemitoneX));
 							}
 
 							//If at Y semitone state
 							if (arpeggioState == 2)
 							{
-								arpeggioOffsetIncrement = offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioSemitoneY);
+								arpeggioOffsetIncrement = float (offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioSemitoneY));
 							}
 						}
 						currentArpeggioSamples++;
@@ -1063,7 +1064,7 @@ namespace SGE
 			//Map up samples
 			for (int i = 0; i < 31; i++)
 			{
-				sampleMap[i] = &SGE::Sound::SampleBuffers[i + startChannel];
+				sampleMap[i] = &SGE::Sound::SampleBuffers[i + startSample];
 			}
 
 			//Map up channels
@@ -1145,40 +1146,47 @@ namespace SGE
 			unsigned char effectYOnChannel[4] = { 0 };
 
 			//Default for most mods, can be changed.
-			ticksADivision = 6;
+			ticksADivision = DEFAULT_TICKS_A_DIVISION;
 
 			//Start processing
 			while (PlayerThreadActive)
 			{
+				fprintf(stderr, "DEBUG: Mod Player: Starting to play: %s\n", modFile.header.title);
+				fprintf(stderr, "DEBUG: Mod Player: Song Positions: %d\n", modFile.header.songPositions);
+
 				for (int j = 0; j < modFile.header.songPositions && PlayerThreadActive; j++)
 				{
+					CurrentPosition = j;
+
 					//Pull the current pattern from the current position
-					currentPattern = modFile.header.patternTable[j];
-					fprintf(stderr, "DEBUG: Mod Player: Playing - Song Position: %d - Pattern: %d \n", j, currentPattern);
+					CurrentPattern = modFile.header.patternTable[j];
 
 					//Process through the divisions
 					for (int i = 0; i < 64 && PlayerThreadActive; i++)
 					{
+						//Set the current division
+						CurrentDivision = i;
+
 						//Set up the channels
-						fprintf(stderr, "DEBUG: Mod Player: Playing - Division: %d \n", i);
+						fprintf(stderr, "DEBUG: Mod Player: %s - Pattern: %d - Division: %d\n", modFile.header.title, j, i);
 
 						//Check each channel for a sample change
 						for (int c = 0; c < 4; c++)
 						{
 							//Check to see if sample is not zero
 							//If it is zero don't change the sample used in the channel
-							if (modFile.patterns[currentPattern].division[i].channels[c].sample > 0)
+							if (modFile.patterns[CurrentPattern].division[i].channels[c].sample > 0)
 							{
-								fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing to Sample: %d \n", c, modFile.patterns[currentPattern].division[i].channels[c].sample - 1);
+								fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing to Sample: %d\n", c, modFile.patterns[CurrentPattern].division[i].channels[c].sample - 1);
 
 								//Stop this channel
 								channelMap[c]->Stop();
 
 								//Switch to the sample
-								channelMap[c]->currentSampleBuffer = sampleMap[modFile.patterns[currentPattern].division[i].channels[c].sample - 1];
+								channelMap[c]->currentSampleBuffer = sampleMap[modFile.patterns[CurrentPattern].division[i].channels[c].sample - 1];
 
 								//Set sample volume
-								channelMap[c]->Volume = float(modFile.samples[modFile.patterns[currentPattern].division[i].channels[c].sample - 1].volume) / 64.0f;
+								channelMap[c]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern].division[i].channels[c].sample - 1].volume) / 64.0f;
 							}
 						}
 
@@ -1186,18 +1194,17 @@ namespace SGE
 						for (int c = 0; c < 4; c++)
 						{
 							//Parse out the effect
-							effectTypeOnChannel[c] = (modFile.patterns[currentPattern].division[i].channels[c].effect & 0x0F00) >> 8;
-							effectXOnChannel[c] = (modFile.patterns[currentPattern].division[i].channels[c].effect & 0x00F0) >> 4;
-							effectYOnChannel[c] = (modFile.patterns[currentPattern].division[i].channels[c].effect & 0x000F);
+							effectTypeOnChannel[c] = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x0F00) >> 8;
+							effectXOnChannel[c] = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x00F0) >> 4;
+							effectYOnChannel[c] = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x000F);
 
 							//Check for arpeggio effect 0
-							if (effectTypeOnChannel[c] == 0 && (effectXOnChannel[c] != 0 | effectYOnChannel[c] != 0 ))
+							if (effectTypeOnChannel[c] == 0 && (effectXOnChannel[c] != 0 || effectYOnChannel[c] != 0 ))
 							{
-								channelMap[c]->ArpeggioSampleInterval = SAMPLE_RATE * 0.020f;
+								channelMap[c]->ArpeggioSampleInterval = int (SAMPLE_RATE * 0.020f);
 								channelMap[c]->arpeggioSemitoneX = effectXOnChannel[c];
 								channelMap[c]->arpeggioSemitoneY = effectYOnChannel[c];
 								channelMap[c]->EnableArpeggio = true;
-
 							}
 
 							//Turn off arpeggio
@@ -1227,14 +1234,14 @@ namespace SGE
 						//Set the periods
 						for (int c = 0; c < 4; c++)
 						{
-							if (modFile.patterns[currentPattern].division[i].channels[c].period > 0)
+							if (modFile.patterns[CurrentPattern].division[i].channels[c].period > 0)
 							{
 								//Changing periods, so stop the current stuff
 								channelMap[c]->Stop();
 
 								//Convert the period to offset timing interval in relation to system sampling rate
 								//Using NTSC sampling
-								channelMap[c]->offsetIncrement = MOD_NTSC_TUNING / float(modFile.patterns[currentPattern].division[i].channels[c].period) 
+								channelMap[c]->offsetIncrement = MOD_NTSC_TUNING / float(modFile.patterns[CurrentPattern].division[i].channels[c].period) 
 									/ float(SAMPLE_RATE) / 2.0f;
 
 								//Play at new period
@@ -1245,9 +1252,8 @@ namespace SGE
 						//Main effects business inbetween divisions at a certain tick rate.
 						for (int t = 0; t < ticksADivision && PlayerThreadActive; t++)
 						{
-
 							//Wait for the next division
-							std::this_thread::sleep_for(std::chrono::milliseconds(19));
+							std::this_thread::sleep_for(std::chrono::microseconds(19500));
 						}
 					}
 				}

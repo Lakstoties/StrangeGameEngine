@@ -14,19 +14,22 @@ namespace SGE
 		std::mutex refreshHold;
 
 		//The virtual video horizontal resolution
-		int ResolutionX;
+		int ResolutionX = 0;
 
 		//The virtual video vertical resolution
-		int ResolutionY;
+		int ResolutionY = 0;
 
 		//The virtual video RAM.  Public accessible to allow other components to write to it directly.
-		unsigned int* VideoRAM;
+		unsigned int* VideoRAM = nullptr;
+
+		//The virtual video RAM Size.
+		unsigned int VideoRAMSize = 0;
 
 		//C++ thread pointer to keep track of the spawned drawing thread.
-		std::thread* drawingThread;
+		std::thread* drawingThread = nullptr;
 
 		//Boolean used to control whether the draw thread keeps on running or not.
-		bool continueDrawing;
+		bool continueDrawing = true;
 
 		//Main update thread to take what's in video RAM and dump it on the screen.
 		void UpdateThread()
@@ -199,9 +202,10 @@ namespace SGE
 		{
 			ResolutionX = newVideoX;
 			ResolutionY = newVideoY;
+			VideoRAMSize = ResolutionX * ResolutionY;
 
 			//Initialize the Virtual Video RAM
-			VideoRAM = new unsigned int[ResolutionX * ResolutionY];
+			VideoRAM = new unsigned int[VideoRAMSize];
 		}
 
 		void Close()

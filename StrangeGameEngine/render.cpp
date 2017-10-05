@@ -84,27 +84,6 @@ namespace SGE
 
 		}
 
-		//Draw a pixel
-		//Provided as a utility function, not the most efficent for mass writing, but good for spot stuff.
-		void DrawPixel(
-			int targetX,								//Target X location to draw
-			int targetY,								//Target Y location to draw
-			unsigned char rColor,						//8-bit (0-255) Red component of the pixel color
-			unsigned char gColor,						//8-bit (0-255) Green component of the pixel color
-			unsigned char bColor)						//8-bit (0-255) Blue component of the pixel color
-		{
-			//Set the location in video RAM
-			int targetRAM = targetX + targetY * SGE::Display::ResolutionX;
-
-			//As long as we haven't left valid video RAM ranges...
-			if (targetRAM >= 0 && targetRAM < SGE::Display::ResolutionX * SGE::Display::ResolutionY)
-			{
-				//Write the pixel
-				SGE::Display::VideoRAM[targetRAM] = PackColors(rColor, gColor, bColor);
-			}
-		}
-
-
 		//Draw Block Data - copy a block of image data over
 		void DrawDataBlock(
 			int targetX,								//Target X location to start drawing from (Upper Left Corner)
@@ -137,307 +116,167 @@ namespace SGE
 		}
 
 		void DrawLine(
-			int startX,									//Target X location to start drawing from
-			int startY,									//Target Y location to start drawing from
-			int endX,									//Target X location to end drawing at
-			int endY,									//Target Y location to end drawing at
-			unsigned char rColor,						//8-bit (0-255) Red component of the pixel color
-			unsigned char gColor,						//8-bit (0-255) Green component of the pixel color
-			unsigned char bColor)						//8-bit (0-255) Blue component of the pixel color
+			int startX,
+			int startY,
+			int endX,
+			int endY,
+			unsigned char red,
+			unsigned char green,
+			unsigned char blue)
 		{
-			//Check for a completely invalid line
-			//If all points exist in the -x,-y quardrant... Fuck this shit... We're out!
-			if (startX < 0 && startY < 0 && endX < 0 && endY < 0)
+			int deltaX = endX - startX;									//X Delta
+			int deltaY = endY - startY;									//Y Delta
+			unsigned int pixelColor = PackColors(red, green, blue);		//Pixel Color data, packed together.
+			int ramPosition = 0;										//Position in Video RAM
+			float deltaXY = 0.0f;
+
+
+			//Check for lines that cannot possibly exist on the +X, +Y quadrant
+			if ((startX < 0 && endX < 0) ||		//Both X's are negative
+				(startY < 0 && endY < 0))		//Both Y's are negative
 			{
-				//This line cannot exist on the display in any shape or form.
-				//No need to continue processing.
+				//This line doesn't exist anywhere we could possibly draw it.
 				return;
 			}
-			
-			//Calculate the X and Y deltas
-			int deltaX = endX - startX;
-			int deltaY = endY - startY;
 
-			//Determine the type of traversal
-			//Variables to keep track important things
-			int iterationDelta = 0;
-			int otherDelta = 0;
-			int deltaRAMStep = 0;
-			int errorRAMStep = 0;
-			int iterationTruncation = 0;
+			//Check for straight lines outside what we can do anything about
+			if ((startX < 0 && deltaX == 0) ||	//X is negative and it's going to stay that way
+				(startY < 0 && deltaY == 0))	//Y is negative and it's going to stay that way
+			{
+				//Can't draw this line
+				return;
+			}
 
-			//Check for any points outside the valid display bounds
-			//If found, use deltas to calculate new valid point
-
-			//Check startX and startY
-			//Checking startX
+			//Check to see if we need to prune the start point back to the right quardrant
+			//Bring in the X
 			if (startX < 0)
 			{
-				//If deltaX is 0, there's NO WAY this line is getting to a valid point on the screen
-				if (deltaX == 0)
-				{
-					return;
-				}
-
-				//Calculate the new startY based on how far from 0 startX is.
-				startY += (-startX * deltaY) / deltaX;
-
-				//Set startX to 0
+				//Calculate new Y along X axis
 				startX = 0;
-
-				//Recalculate the deltas
-				deltaX = endX - startX;
-				deltaY = endY - startY;
+				startY += (-startX * deltaY) / deltaX;
 			}
 			else if (startX >= SGE::Display::ResolutionX)
 			{
-				//If deltaX is 0, there's NO WAY this line is getting to a valid point on the screen
-				if (deltaX == 0)
-				{
-					return;
-				}
-
-				//Calculate the new startY based on how far from the last horizontal pixel startX is.
-				startY -= ((startX - (SGE::Display::ResolutionX - 1)) * deltaY) / deltaX;
-
-				//Start startX to the last horizontal pixel.
 				startX = SGE::Display::ResolutionX - 1;
-
-				//Recalculate the deltas
-				deltaX = endX - startX;
-				deltaY = endY - startY;
+				startY -= (-startX * deltaY) / deltaX;
 			}
 
-			//Checking startY
+			//Bring in the Y 
 			if (startY < 0)
 			{
-				//If deltaY is 0, there's NO WAY this line is getting to a valid point on the screen
-				if (deltaY == 0)
-				{
-					return;
-				}
-				
-				//Calculate the new startX based on how far from 0 startY is.
+				//Calculate new X along Y axis
 				startX += (-startY * deltaX) / deltaY;
-
-				//Set startY to 0
 				startY = 0;
-
-				//Recalculate the deltas
-				deltaX = endX - startX;
-				deltaY = endY - startY;
 			}
 			else if (startY >= SGE::Display::ResolutionY)
 			{
-				//If deltaY is 0, there's NO WAY this line is getting to a valid point on the screen
-				if (deltaY == 0)
-				{
-					return;
-				}
-
-				//Calculate the new startX basedo n how far fromthe last vertical pixel startY is.
-				startX -= ((startY - (SGE::Display::ResolutionY - 1)) * deltaX) / deltaY;
-
-				//Set startY to the last vertical pixel.
+				startX -= (-startY * deltaX) / deltaY;
 				startY = SGE::Display::ResolutionY - 1;
-
-				//Recalculate the deltas
-				deltaX = endX - startX;
-				deltaY = endY - startY;
 			}
 
-			//If startX or startX are negative after attempts to calculate a point within the bounds of the display
-			//Then this line ain't happening.
-			if (startX < 0 || startY < 0)
-			{
-				//Point and slope done describe a valid lines to chart on the display
-				return;
-			}
-
-
-			//Check endX and endY
-			//Checking endX
+			//Check to see if we need to prune the end point back to the right quardrant
+			//Bring in the X
 			if (endX < 0)
 			{
-				//If deltaX is 0, there's NO WAY this line is getting to a valid point on the screen
-				if (deltaX == 0)
-				{
-					return;
-				}
-
-				//Calculate the new startY based on how far from 0 startX is.
-				endY += (-endX * deltaY) / deltaX;
-
-				//Set startX to 0
+				//Calculate new Y along X axis
 				endX = 0;
-
-				//Recalculate the deltas
-				deltaX = endX - startX;
-				deltaY = endY - startY;
+				endY += (-endX * deltaY) / deltaX;
 			}
 			else if (endX >= SGE::Display::ResolutionX)
 			{
-				//If deltaX is 0, there's NO WAY this line is getting to a valid point on the screen
-				if (deltaX == 0)
-				{
-					return;
-				}
-
-				//Calculate the new startY based on how far from the last horizontal pixel startX is.
-				endY -= ((endX - (SGE::Display::ResolutionX - 1)) * deltaY) / deltaX;
-
-				//Start startX to the last horizontal pixel.
 				endX = SGE::Display::ResolutionX - 1;
-
-				//Recalculate the deltas
-				deltaX = endX - startX;
-				deltaY = endY - startY;
+				endY -= (-endX * deltaY) / deltaX;
 			}
 
-			//Checking startY
+			//Bring in the Y 
 			if (endY < 0)
 			{
-				//If deltaY is 0, there's NO WAY this line is getting to a valid point on the screen
-				if (deltaY == 0)
-				{
-					return;
-				}
-
-				//Calculate the new startX based on how far from 0 startY is.
+				//Calculate new X along Y axis
 				endX += (-endY * deltaX) / deltaY;
-
-				//Set startY to 0
 				endY = 0;
-
-				//Recalculate the deltas
-				deltaX = endX - startX;
-				deltaY = endY - startY;
 			}
 			else if (endY >= SGE::Display::ResolutionY)
 			{
-				//If deltaY is 0, there's NO WAY this line is getting to a valid point on the screen
-				if (deltaY == 0)
-				{
-					return;
-				}
-
-				//Calculate the new startX basedo n how far fromthe last vertical pixel startY is.
-				endX -= ((endY - (SGE::Display::ResolutionY - 1)) * deltaX) / deltaY;
-
-				//Set startY to the last vertical pixel.
-				endY = SGE::Display::ResolutionY - 1;
-
-				//Recalculate the deltas
-				deltaX = endX - startX;
-				deltaY = endY - startY;
+				endX -= (-endY * deltaX) / deltaY;
+				endY = SGE::Display::ResolutionY;
 			}
 
-			//If endX or endY are negative after attempts to calculate a point within the bounds of the display
-			//Then this line ain't happening.
-			if (endX < 0 || endY < 0)
-			{
-				//Point and slope done describe a valid lines to chart on the display
-				return;
-			}
+			//Double check the deltas
+			//New deltas
+			deltaX = endX - startX;
+			deltaY = endY - startY;
+
 			
-			//Either X or Y traversal, depending on which delta is larger.
-			//Multipy both by themselves, to get rid of negative signs
-			//If X is the bigger delta
+			//Which is the bigger delta
+			//Delta X is bigger and we will draw based on the X-axis
 			if (deltaX * deltaX > deltaY * deltaY)
 			{
-				//Set the big and small delta
-				iterationDelta = deltaX;
-				otherDelta = deltaY;
+				if (deltaX < 0)
+				{
+					//Swap the points if there's a negative X delta
+					int temp = 0;
 
-				//Set the RAM stepping based on if the deltaX is negative or positive
-				if (deltaX > 0)
-				{
-					deltaRAMStep = 1;
-				}
-				else
-				{
-					deltaRAMStep = -1;			
+					//Swap the X
+					temp = startX;
+					startX = endX;
+					endX = temp;
+
+					//Swap the Y
+					temp = startY;
+					startY = endY;
+					endY = temp;
+
+					//Flip the deltas
+					deltaY = -deltaY;
+					deltaX = -deltaX;
 				}
 
-				if (deltaY > 0)
+				//Calculate the delta for Y change for X
+				deltaXY = float(deltaY) / float(deltaX);
+
+				//Start the starting RAM position
+				ramPosition = startX + (SGE::Display::ResolutionX * startY);
+
+				//Draw the line
+				for (int i = 0;	(i < deltaX); i++)
 				{
-					errorRAMStep = SGE::Display::ResolutionX;
-				}
-				else
-				{
-					errorRAMStep = -SGE::Display::ResolutionX;
+					SGE::Display::VideoRAM[ramPosition + i + int (i * deltaXY) * SGE::Display::ResolutionX] = pixelColor;
 				}
 			}
-			//Else Y is the delta we need to iterate across.
+
+			//Delta Y is bigger and we will draw based on the Y-axis
 			else
 			{
-				//Set the big and small delta
-				iterationDelta = deltaY;
-				otherDelta = deltaX;
-
-				//Set the RAM stepping based on if the deltaY is negative or positive
-				if (deltaY > 0)
+				if (deltaY < 0)
 				{
-					deltaRAMStep = SGE::Display::ResolutionX;
+					//Swap the points if there's a negative X delta
+					int temp = 0;
+
+					//Swap the X
+					temp = startX;
+					startX = endX;
+					endX = temp;
+
+					//Swap the Y
+					temp = startY;
+					startY = endY;
+					endY = temp;
+
+					//Flip the deltas
+					deltaY = -deltaY;
+					deltaX = -deltaX;
 				}
-				else
+
+				//Calculate the delta for Y change for X
+				deltaXY = float(deltaX) / float(deltaY);
+
+				//Start the starting RAM position
+				ramPosition = startX + (SGE::Display::ResolutionX * startY);
+
+				//Draw the line
+				for (int i = 0; (i < deltaY); i++)
 				{
-					deltaRAMStep = -SGE::Display::ResolutionX;
-				}
-
-				if (deltaX > 0)
-				{
-					errorRAMStep = 1;
-				}
-				else
-				{
-					errorRAMStep = -1;
-				}
-			}
-
-			//Calculate the integer slope amount and error decimal
-			int errorDelta = (otherDelta * DRAWING_DECIMAL_RESOLUTION) / iterationDelta;
-
-			//Get the absolute value of the erroDelta, so make sure it is positive.
-			if (errorDelta < 0)
-			{
-				errorDelta = -errorDelta;
-			}
-			
-			//Initialize the current error
-			int currentError = -DRAWING_DECIMAL_RESOLUTION;
-
-			//Determine starting RAM location
-			int currentRAMLocation = startX + startY * SGE::Display::ResolutionX;
-
-			//Pack the colors up into useful data
-			//Since if we have gotten this far, we are actually going to try to plot this thing
-			unsigned int pixelData = PackColors(rColor, gColor, bColor);
-
-			//Make sure the bigDelta sign if positive (get the cheap absolute value)
-			if (iterationDelta < 0)
-			{
-				iterationDelta = -iterationDelta;
-			}
-
-			//Step through each point, going the direction of the bigger delta
-			for (int i = 0; i <= iterationDelta; i++)
-			{
-				//Plot a point for the current location
-				memcpy(&SGE::Display::VideoRAM[currentRAMLocation], &pixelData, 4);
-
-				//Move to the next place in memory
-				currentRAMLocation += deltaRAMStep;
-
-				//Process the error
-				currentError += errorDelta;
-
-				//Check to see if enough error has accumulated to warrant correction.
-				//In the negative direction
-				if (currentError >= 0)
-				{
-					currentRAMLocation += errorRAMStep;
-					currentError += -DRAWING_DECIMAL_RESOLUTION;
+					SGE::Display::VideoRAM[ramPosition + (i * SGE::Display::ResolutionX) + int(i * deltaXY)] = pixelColor;
 				}
 			}
 		}
@@ -456,7 +295,7 @@ namespace SGE
 			DrawLine(startX, startY, startX + width - 1, startY, rColor, gColor, bColor);
 
 			//Bottom Row Line
-			DrawLine(startX, startY + height - 1, startX + width - 1, startY + height, rColor, gColor, bColor);
+			DrawLine(startX, startY + height - 1, startX + width, startY + height - 1, rColor, gColor, bColor);
 			
 			//Left Column Line
 			DrawLine(startX, startY, startX, startY + height - 1, rColor, gColor, bColor);

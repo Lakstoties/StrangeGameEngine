@@ -7,6 +7,10 @@ namespace SGE
 {
 	namespace Controls
 	{
+		//Flag to indicate to the handle events threads to continue or not
+		bool ContinueToHandleEvents = true;
+
+
 		//Keyboard status array that keeps track of which keys are pressed
 		bool KeyboardStatus[NUMBER_OF_KEYS] = { false };
 
@@ -65,7 +69,7 @@ namespace SGE
 			//And in OSX this has to be done by the thread that invoked the main function of the program..  Fuckin' Macs...
 
 			//While the main window is going and isn't set to close...
-			while (!glfwWindowShouldClose(SGE::mainWindow))
+			while (!glfwWindowShouldClose(SGE::mainWindow) && ContinueToHandleEvents)
 			{
 				//Poll for events
 				glfwPollEvents();

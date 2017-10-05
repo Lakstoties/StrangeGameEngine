@@ -13,6 +13,9 @@ namespace SGE
 		//The virtual video RAM.  Public accessible to allow other components to write to it directly.
 		extern unsigned int* VideoRAM;
 
+		//The virtual Video RAM size.
+		extern unsigned int VideoRAMSize;
+
 		//The virtual video horizontal resolution
 		extern int ResolutionX;
 

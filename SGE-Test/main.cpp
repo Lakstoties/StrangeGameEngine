@@ -6,15 +6,14 @@ void InputTest(bool& testInputRunning)
 {
 	char* menuItemText[5] =
 	{
-		"abcdefghijklmnopqrstuvwxyz",
-		"ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-		"01234567890!@#$%^&*()-_=+~`",
-		"<>,.?/:;'\"{}[]|\\",
-		"\xB0\xB1\xB2\x7F",
-		
+		"Play: Hyper.mod",
+		"Play: Yehat.mod",
+		"Stop: Hyper.mod",
+		"Stop: Yehat.mod",
+		"Exit Demo",		
 	};
 
-	SGE::Menu testMenu(40, 50, 250, 100, 10, 12, 2, 5, menuItemText);
+	SGE::Menu testMenu(0, 175, 126, 64, 2, 12, 2, 5, menuItemText);
 
 	//Current Selection
 	testMenu.selection = 0;
@@ -44,19 +43,10 @@ void InputTest(bool& testInputRunning)
 	testMenu.highlightTextGColor = 0;
 	testMenu. highlightTextBColor = 0;
 
-	//Generate Sine Wave some channel
-
-	short* testSineWave = SGE::Sound::Generators::SineGenerator(1, SGE::Sound::SAMPLE_RATE, 5000);
-	short* testTriangleWave = SGE::Sound::Generators::TriangleGenerator(1, SGE::Sound::SAMPLE_RATE, 5000);
-	short* testPulseWave = SGE::Sound::Generators::PulseGenerator(1, 0.50, SGE::Sound::SAMPLE_RATE, 5000);
-
-
 	//Load a module file
 	SGE::Sound::ModuleFile testModule;
-
 	testModule.LoadFile("hyper.mod");
-
-
+	
 	//Create buffers for converted module data
 	short* moduleSample0 = testModule.ConvertSample(0);
 	short* moduleSample1 = testModule.ConvertSample(1);
@@ -69,16 +59,7 @@ void InputTest(bool& testInputRunning)
 	short* moduleSample8 = testModule.ConvertSample(8);
 	short* moduleSample9 = testModule.ConvertSample(9);
 
-
-
-	SGE::Sound::WaveFile testFile;
-
-	testFile.LoadFile("TestSample.wav");
-
 	//Load samples into the Sound System
-	//SGE::Sound::SampleBuffers[0].Load(SGE::Sound::SAMPLE_RATE, testSineWave);
-	//SGE::Sound::SampleBuffers[1].Load(SGE::Sound::SAMPLE_RATE, testTriangleWave);
-	//SGE::Sound::SampleBuffers[2].Load(SGE::Sound::SAMPLE_RATE, testPulseWave);
 	SGE::Sound::SampleBuffers[0].Load(testModule.samples[0].lengthInWords * 2, moduleSample0);
 	SGE::Sound::SampleBuffers[1].Load(testModule.samples[1].lengthInWords * 2, moduleSample1);
 	SGE::Sound::SampleBuffers[2].Load(testModule.samples[2].lengthInWords * 2, moduleSample2);
@@ -90,12 +71,6 @@ void InputTest(bool& testInputRunning)
 	SGE::Sound::SampleBuffers[8].Load(testModule.samples[8].lengthInWords * 2, moduleSample8);
 	SGE::Sound::SampleBuffers[9].Load(testModule.samples[9].lengthInWords * 2, moduleSample9);
 	
-
-
-
-
-
-
 	//Ready the channels
 	for (int i = 0; i < 10; i++)
 	{
@@ -113,17 +88,17 @@ void InputTest(bool& testInputRunning)
 		SGE::Sound::Channels[i].repeatDuration = SGE::Sound::Channels[i].currentSampleBuffer->bufferSize;
 	}
 
+	//Create some players
 	SGE::Sound::ModulePlayer modulePlayerTest;
-
-
+	SGE::Sound::ModulePlayer modulePlayerTest2;
+	
+	//Load up the module files
 	modulePlayerTest.Load("hyper.mod");
+	modulePlayerTest2.Load("yehat.mod");
+
+	//Connect up to the sound system
 	modulePlayerTest.Connect(12, 64);
-	//modulePlayerTest.Play();
-
-
-
-
-	bool previousReturnState = false;
+	modulePlayerTest2.Connect(24, 128);
 
 	testMenu.CursorOn();
 
@@ -257,85 +232,51 @@ void InputTest(bool& testInputRunning)
 		//Unlock the display refresh
 		SGE::Display::AllowRefresh();
 
-		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_KP_1])
+		//Check to see if Enter is pressed and where the menu cursor is
+		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_ENTER])
 		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_KP_1])
+			//If the Enter key wasn't pressed before
+			if (!lastKeyboardState[SGE::Controls::Keymap::KEY_ENTER])
 			{
+				//Check to see where the cursor is and perform the action
+				
+				//If Play: hyper.mod - Selection 0
+				if (testMenu.selection == 0)
+				{
+					modulePlayerTest.Play();
+				}
 
+				//If Play: yehat.mod - Selection 1
+				if (testMenu.selection == 1)
+				{
+					modulePlayerTest2.Play();
+				}
+
+				//If Stop: hyper.omd - Selection 2
+				if (testMenu.selection == 2)
+				{
+					modulePlayerTest.Stop();
+				}
+
+				//If Stop: yehat.mod - Selection 3
+				if (testMenu.selection == 3)
+				{
+					modulePlayerTest2.Stop();
+				}
+
+				//IF Exit Demo - Selection 4
+				if (testMenu.selection == 4)
+				{
+					//This thread is done
+					testInputRunning = false;
+
+					//Tell the event handler we are done, too.
+					SGE::Controls::ContinueToHandleEvents = false;
+				}
 			}
-			else
-			{
-				modulePlayerTest.Play();
-			}
-		}
-
-		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_KP_0])
-		{
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_KP_0])
-			{
-
-			}
-			else
-			{
-				modulePlayerTest.Stop();
-			}
 		}
 
 
-
-		//Channel 0 Pan
-		//Pan to Left
-
-		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_O])
-		{
-			SGE::Sound::Channels[0].Pan -= .01f;
-			SGE::Sound::Channels[0].Pan += .01f;
-			printf("Debug - Channel 0 Pan: %f\n", SGE::Sound::Channels[0].Pan);
-		}
-
-		//Pan to Right
-		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_P])
-		{
-			SGE::Sound::Channels[0].Pan += .01f;
-			SGE::Sound::Channels[0].Pan -= .01f;
-			printf("Debug - Channel 0 Pan: %f\n", SGE::Sound::Channels[0].Pan);
-		}
-
-
-		//Sound Volume
-		//Decrease volume
-		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_Q])
-		{
-			SGE::Sound::Channels[0].Volume -= .01f;
-			printf("Debug - Channel 0 Volume Left: %f\n", SGE::Sound::Channels[0].Volume);
-		}
-
-		//Increase volume
-		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_W])
-		{
-			SGE::Sound::Channels[0].Volume += .01f;
-			printf("Debug - Channel 0 Volume Left: %f\n", SGE::Sound::Channels[0].Volume);
-		}
-
-
-		//Pitch bend
-		//Decrease pitch
-		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_A])
-		{
-			SGE::Sound::Channels[0].offsetIncrement -= .1f;
-
-			//DEBUG Output
-			printf("Debug - Channel 0 - Pitch: %f\n", SGE::Sound::Channels[0].offsetIncrement);
-		}
-
-		//Increase pitch
-		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_S])
-		{
-			SGE::Sound::Channels[0].offsetIncrement += .1f;
-			//DEBUG Output
-			printf("Debug - Channel 0 - Pitch: %f\n", SGE::Sound::Channels[0].offsetIncrement);
-
-		}
 
 
 		//System Master Volume
@@ -354,37 +295,11 @@ void InputTest(bool& testInputRunning)
 		}
 
 
-
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_T] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_T])
-		{
-
-			if (lastKeyboardState[SGE::Controls::Keymap::KEY_T])
-			{
-
-			}
-			else
-			{
-				if (triangleFlip)
-				{
-					triangleFlip = false;
-				}
-				else
-				{
-					triangleFlip = true;
-				}
-			}
-		}
-
-
 		//Sound keys stuff
 		//Number Key 0
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_0] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_0])
 		{
-			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_0])
-			{
-
-			}
-			else
+			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_0])
 			{
 				SGE::Sound::Channels[0].Play();
 			}
@@ -393,13 +308,8 @@ void InputTest(bool& testInputRunning)
 		//Number Key 1
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_1] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_1])
 		{
-			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_1])
+			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_1])
 			{
-
-			}
-			else
-			{
-
 				SGE::Sound::Channels[1].Play();
 			}
 		}
@@ -407,13 +317,8 @@ void InputTest(bool& testInputRunning)
 		//Number Key 2
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_2] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_2])
 		{
-			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_2])
+			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_2])
 			{
-
-			}
-			else
-			{
-
 				SGE::Sound::Channels[2].Play();
 			}
 		}
@@ -421,13 +326,8 @@ void InputTest(bool& testInputRunning)
 		//Number Key 3
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_3] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_3])
 		{
-			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_3])
+			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_3])
 			{
-
-			}
-			else
-			{
-
 				SGE::Sound::Channels[3].Play();
 			}
 		}
@@ -435,11 +335,7 @@ void InputTest(bool& testInputRunning)
 		//Number Key 4
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_4] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_4])
 		{
-			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_4])
-			{
-
-			}
-			else
+			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_4])
 			{
 
 				SGE::Sound::Channels[4].Play();
@@ -449,13 +345,8 @@ void InputTest(bool& testInputRunning)
 		//Number Key 5
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_5] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_5])
 		{
-			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_5])
+			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_5])
 			{
-	
-			}
-			else
-			{
-
 				SGE::Sound::Channels[5].Play();
 			}
 		}
@@ -463,13 +354,8 @@ void InputTest(bool& testInputRunning)
 		//Number Key 6
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_6] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_6])
 		{
-			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_6])
+			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_6])
 			{
-
-			}
-			else
-			{
-
 				SGE::Sound::Channels[6].Play();
 			}
 		}
@@ -477,13 +363,8 @@ void InputTest(bool& testInputRunning)
 		//Number Key 7
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_7] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_7])
 		{
-			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_7])
+			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_7])
 			{
-
-			}
-			else
-			{
-
 				SGE::Sound::Channels[7].Play();
 			}
 		}
@@ -491,13 +372,8 @@ void InputTest(bool& testInputRunning)
 		//Number Key 8
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_8] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_8])
 		{
-			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_8])
+			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_8])
 			{
-
-			}
-			else
-			{
-
 				SGE::Sound::Channels[8].Play();
 			}
 		}
@@ -505,13 +381,8 @@ void InputTest(bool& testInputRunning)
 		//Number Key 9
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_9] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_9])
 		{
-			if (!SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_9])
+			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_9])
 			{
-
-			}
-			else
-			{
-
 				SGE::Sound::Channels[9].Play();
 			}
 		}
@@ -543,28 +414,6 @@ void InputTest(bool& testInputRunning)
 			!lastKeyboardState[SGE::Controls::Keymap::KEY_RIGHT])
 		{
 			testMenu.MoveCursor(testMenu.GetCursorLocation() + 1);
-		}
-
-		//If the Add key state has changed and it wasn't pressed previously
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_KP_ADD] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_KP_ADD] &&
-			!lastKeyboardState[SGE::Controls::Keymap::KEY_KP_ADD])
-		{
-			//Grab the current string and increment the number
-			char * tempString = testMenu.GetMenuSelection();
-			tempString[testMenu.GetCursorLocation()] = (tempString[testMenu.GetCursorLocation()] + 1) % 256;
-			testMenu.SetMenuSelection(tempString);
-			delete tempString;
-		}
-
-		//If the Subtract key state has changed and it wasn't pressed previously
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_KP_SUBTRACT] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_KP_SUBTRACT] &&
-			!lastKeyboardState[SGE::Controls::Keymap::KEY_KP_SUBTRACT])
-		{
-			//Grab the current string and decrement the number
-			char * tempString = testMenu.GetMenuSelection();
-			tempString[testMenu.GetCursorLocation()] = (tempString[testMenu.GetCursorLocation()] - 1) % 256;
-			testMenu.SetMenuSelection(tempString);
-			delete tempString;
 		}
 
 		//Capture keyboard state
