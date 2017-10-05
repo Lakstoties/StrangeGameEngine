@@ -1144,6 +1144,9 @@ namespace SGE
 			unsigned char effectXOnChannel[4] = { 0 };
 			unsigned char effectYOnChannel[4] = { 0 };
 
+			//Default for most mods, can be changed.
+			ticksADivision = 6;
+
 			//Start processing
 			while (PlayerThreadActive)
 			{
@@ -1209,8 +1212,15 @@ namespace SGE
 							//If effect C or 12, then set the volume.
 							if (effectTypeOnChannel[c] == 0xC)
 							{
-								fprintf(stderr, "DEBUG: Mod Player: Channel %d Chaning Volume: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+								fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing Volume: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
 								channelMap[c]->Volume = (effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 64.0f;
+							}
+
+							//If effect F or 15, then set the ticks per division
+							if (effectTypeOnChannel[c] == 0xF)
+							{
+								fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing Speed: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+								ticksADivision = effectXOnChannel[c] * 16 + effectYOnChannel[c];
 							}
 						}
 
@@ -1237,7 +1247,7 @@ namespace SGE
 						{
 
 							//Wait for the next division
-							std::this_thread::sleep_for(std::chrono::milliseconds(9));
+							std::this_thread::sleep_for(std::chrono::milliseconds(19));
 						}
 					}
 				}
