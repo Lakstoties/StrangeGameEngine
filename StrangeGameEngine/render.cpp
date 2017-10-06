@@ -132,16 +132,20 @@ namespace SGE
 
 
 			//Check for lines that cannot possibly exist on the +X, +Y quadrant
-			if ((startX < 0 && endX < 0) ||		//Both X's are negative
-				(startY < 0 && endY < 0))		//Both Y's are negative
+			if ((startX < 0 && endX < 0) ||														//Both X's are negative
+				(startY < 0 && endY < 0) ||														//Both Y's are negative
+				(startX >= SGE::Display::ResolutionX && endX >= SGE::Display::ResolutionX) ||	//Both X's are outside the resolution
+				(startY >= SGE::Display::ResolutionY && endY >= SGE::Display::ResolutionY))		//Both Y's are outside the resolution
 			{
 				//This line doesn't exist anywhere we could possibly draw it.
 				return;
 			}
 
 			//Check for straight lines outside what we can do anything about
-			if ((startX < 0 && deltaX == 0) ||	//X is negative and it's going to stay that way
-				(startY < 0 && deltaY == 0))	//Y is negative and it's going to stay that way
+			if ((startX < 0 && deltaX == 0) ||								//X is negative and it's going to stay that way
+				(startY < 0 && deltaY == 0) ||								//Y is negative and it's going to stay that way
+				(startX >= SGE::Display::ResolutionX && deltaX == 0) ||		//X is outside the resolution and it's going to stay that way
+				(startY >= SGE::Display::ResolutionY && deltaY == 0))		//Y is outside the resoltuion and it's going to stay that way
 			{
 				//Can't draw this line
 				return;
@@ -238,7 +242,7 @@ namespace SGE
 				ramPosition = startX + (SGE::Display::ResolutionX * startY);
 
 				//Draw the line
-				for (int i = 0;	(i < deltaX); i++)
+				for (int i = 0;	(i <= deltaX); i++)
 				{
 					SGE::Display::VideoRAM[ramPosition + i + int (i * deltaXY) * SGE::Display::ResolutionX] = pixelColor;
 				}
@@ -274,7 +278,7 @@ namespace SGE
 				ramPosition = startX + (SGE::Display::ResolutionX * startY);
 
 				//Draw the line
-				for (int i = 0; (i < deltaY); i++)
+				for (int i = 0; (i <= deltaY); i++)
 				{
 					SGE::Display::VideoRAM[ramPosition + (i * SGE::Display::ResolutionX) + int(i * deltaXY)] = pixelColor;
 				}
@@ -295,7 +299,7 @@ namespace SGE
 			DrawLine(startX, startY, startX + width - 1, startY, rColor, gColor, bColor);
 
 			//Bottom Row Line
-			DrawLine(startX, startY + height - 1, startX + width, startY + height - 1, rColor, gColor, bColor);
+			DrawLine(startX, startY + height - 1, startX + width - 1, startY + height - 1, rColor, gColor, bColor);
 			
 			//Left Column Line
 			DrawLine(startX, startY, startX, startY + height - 1, rColor, gColor, bColor);
@@ -315,6 +319,40 @@ namespace SGE
 			unsigned char gColor,					//8-bit (0-255) Green color component
 			unsigned char bColor)					//8-bit (0-255) Blue color component
 		{
+			//Check for boxes we cannot draw...
+			if ((startX + width < 0) ||						//If the X never graces the +x, +y quadrant
+				(startY + height < 0) ||					//If the Y never graces the +x, +y quadrant
+				(startX >= SGE::Display::ResolutionX) ||	//If the X start is outside the display resolution
+				(startY >= SGE::Display::ResolutionY))		//If the Y start is outside the display resolution
+			{
+				return;
+			}
+
+
+			//Prune the start point and/or the  dimensions to keep it on the screen
+			//Prune the X
+			if (startX < 0)
+			{
+				width += startX;
+				startX = 0;
+			}
+
+			if (startY < 0)
+			{
+				height += startY;
+				startY = 0;
+			}
+
+			if (startX + width >= SGE::Display::ResolutionX)
+			{
+				width = SGE::Display::ResolutionX - startX;
+			}
+
+			if (startY + height >= SGE::Display::ResolutionY)
+			{
+				height = SGE::Display::ResolutionY - startY;
+			}
+			
 			//Get the starting point in video RAM based on desired location and size of the display
 			int targetRAM = (startX + (startY * SGE::Display::ResolutionX));
 
@@ -328,7 +366,7 @@ namespace SGE
 			for (int i = 0; i < width; i++)
 			{
 				//Copy the color into video ram
-				memcpy(&SGE::Display::VideoRAM[targetRAM+i], &targetColor, 4);
+				SGE::Display::VideoRAM[targetRAM + i] = targetColor;
 			}
 			
 			//Then memcpy the rest of the rows from this one

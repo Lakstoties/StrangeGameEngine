@@ -20,13 +20,19 @@ namespace SGE
 		//Given arguments, render a number of samples asked and return a pointer to the buffer.
 		void SoundChannel::Render(unsigned int numberOfSamples, int* sampleBuffer)
 		{
+			unsigned int currentSampleAverage = 0;
+
 			//Starting at the offset, copy over samples to the buffer.
 			for (unsigned int i = 0; i < numberOfSamples; i++)
 			{
+				//Lock the render mutex to make sure nothing can modify anything midflight during this sample
+				RenderProtection.lock();
+
 				//If we are currently not playing
 				//And there's actually something to play.
 				if (!Playing || currentSampleBuffer->bufferSize == 0 || currentSampleBuffer->buffer == nullptr)
 				{
+					//Nothing playing, 0 out the samples
 					sampleBuffer[i] = 0;
 				}
 				else
@@ -71,6 +77,9 @@ namespace SGE
 					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
 					sampleBuffer[i] = int (currentSampleBuffer->buffer[unsigned int (offset)] * Volume);
 
+					//Add to the acculumator for the average
+					currentSampleAverage += abs(sampleBuffer[i]);
+					
 					//Increment to the next offset
 					if (EnableArpeggio)
 					{
@@ -94,10 +103,14 @@ namespace SGE
 						//Fuck this shit we're out!
 						Stop();
 					}
-
-
 				}
+
+				//Release the mutex
+				RenderProtection.unlock();
 			}
+
+			//Update the sample level average
+			LastRenderedAverageLevel = unsigned int (currentSampleAverage / numberOfSamples);
 		}
 
 
@@ -374,6 +387,10 @@ namespace SGE
 			return tempBuffer;
 		}
 
+		//Varibles to hold average volume levels from the last callback from PortAudio
+		unsigned int MasterVolumeAverageLeftLevel = 0;
+		unsigned int MasterVolumeAverageRightLevel = 0;
+
 
 		//All the sound samples in the system
 		SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
@@ -476,6 +493,11 @@ namespace SGE
 			PaStreamCallbackFlags statusFlags,
 			void *userData)
 		{
+			//Statistics stuff
+			unsigned int currentLeftAverageLevel = 0;
+			unsigned int currentRightAverageLevel = 0;
+
+
 			//Clear out the mixing buffers
 			ClearMixingBuffers();
 
@@ -544,7 +566,16 @@ namespace SGE
 				{
 					outputBufferRight[i] = mixingFrameBufferRight[i];
 				}
+
+				//Sum up the levels
+				currentLeftAverageLevel += abs(outputBufferLeft[i]);
+				currentRightAverageLevel += abs(outputBufferRight[i]);
 			}
+
+			//Report stats
+			MasterVolumeAverageLeftLevel = currentLeftAverageLevel / frameCount;
+			MasterVolumeAverageRightLevel = currentRightAverageLevel / frameCount;
+
 
 			//Return
 			//If no major errors, continue the stream.
@@ -1148,6 +1179,9 @@ namespace SGE
 			//Default for most mods, can be changed.
 			ticksADivision = DEFAULT_TICKS_A_DIVISION;
 
+			std::chrono::time_point<std::chrono::steady_clock> startTime;
+			std::chrono::nanoseconds deltaTime = std::chrono::nanoseconds(0);
+
 			//Start processing
 			while (PlayerThreadActive)
 			{
@@ -1164,11 +1198,14 @@ namespace SGE
 					//Process through the divisions
 					for (int i = 0; i < 64 && PlayerThreadActive; i++)
 					{
+						//Save the timer to help time the processing time for this division
+						startTime = std::chrono::steady_clock::now();
+
 						//Set the current division
 						CurrentDivision = i;
 
 						//Set up the channels
-						fprintf(stderr, "DEBUG: Mod Player: %s - Pattern: %d - Division: %d\n", modFile.header.title, j, i);
+						fprintf(stderr, "DEBUG: Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld\n", modFile.header.title, j, i, deltaTime.count());
 
 						//Check each channel for a sample change
 						for (int c = 0; c < 4; c++)
@@ -1183,10 +1220,21 @@ namespace SGE
 								channelMap[c]->Stop();
 
 								//Switch to the sample
+
+								//Lock the RenderProtection mutex on the channel to make sure we can safely swap the sampleBuffer out and not catch the sample rendered midflight on a sample
+								channelMap[c]->RenderProtection.lock();
+
+								//Quickly Swap
 								channelMap[c]->currentSampleBuffer = sampleMap[modFile.patterns[CurrentPattern].division[i].channels[c].sample - 1];
+
+								//Release the RenderProtection
+								channelMap[c]->RenderProtection.unlock();
 
 								//Set sample volume
 								channelMap[c]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern].division[i].channels[c].sample - 1].volume) / 64.0f;
+
+								//Indicate Current Channel's Sample
+								CurrentChannelSamples[c] = modFile.patterns[CurrentPattern].division[i].channels[c].sample;
 							}
 						}
 
@@ -1249,12 +1297,11 @@ namespace SGE
 							}
 						}
 
-						//Main effects business inbetween divisions at a certain tick rate.
-						for (int t = 0; t < ticksADivision && PlayerThreadActive; t++)
-						{
-							//Wait for the next division
-							std::this_thread::sleep_for(std::chrono::microseconds(19250));
-						}
+						//Wait for the next division
+						std::this_thread::sleep_for(std::chrono::nanoseconds(ticksADivision * MOD_DEFAULT_TICK_TIMING_NANO));
+
+						//Calculate the delta time
+						deltaTime = std::chrono::steady_clock::now() - startTime;
 					}
 				}
 			}

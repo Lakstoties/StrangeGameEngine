@@ -2,6 +2,290 @@
 #include <thread>
 
 
+void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, unsigned int sampleLevel)
+{
+	//Channel Label
+	SGE::Render::DrawString(label, SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition, yCornerPosition, 128, 255, 128);
+
+	//Level Lights for the channels
+	//First Level Light
+	if (sampleLevel > 0)
+	{
+		SGE::Render::DrawBox(xCornerPosition + 25, yCornerPosition, 5, 8, 16, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 25, yCornerPosition, 5, 8, 16, 64, 16);
+	}
+
+	//Second Level Light
+	if (sampleLevel > (SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 31, yCornerPosition, 5, 8, 16, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 31, yCornerPosition, 5, 8, 16, 64, 16);
+	}
+
+	//Third Level Light
+	if (sampleLevel > (2 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 37, yCornerPosition, 5, 8, 16, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 37, yCornerPosition, 5, 8, 16, 64, 16);
+	}
+
+	//Fourth Level Light
+	if (sampleLevel > (3 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 43, yCornerPosition, 5, 8, 16, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 43, yCornerPosition, 5, 8, 16, 64, 16);
+	}
+
+	//Fifth Level Light
+	if (sampleLevel > (4 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 49, yCornerPosition, 5, 8, 16, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 49, yCornerPosition, 5, 8, 16, 64, 16);
+	}
+
+	//Sixth Level Light
+	if (sampleLevel > (5 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 55, yCornerPosition, 5, 8, 16, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 55, yCornerPosition, 5, 8, 16, 64, 16);
+	}
+
+	//Seventh Level Light
+	if (sampleLevel > (6 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 61, yCornerPosition, 5, 8, 16, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 61, yCornerPosition, 5, 8, 16, 64, 16);
+	}
+
+	//Either Level Light
+	if (sampleLevel > (7 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 67, yCornerPosition, 5, 8, 16, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 67, yCornerPosition, 5, 8, 16, 64, 16);
+	}
+
+	//Ninth Level Light
+	if (sampleLevel > (8 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 73, yCornerPosition, 5, 8, 16, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 73, yCornerPosition, 5, 8, 16, 64, 16);
+	}
+
+	//Tenth Level Light
+	if (sampleLevel > (9 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 79, yCornerPosition, 5, 8, 16, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 79, yCornerPosition, 5, 8, 16, 64, 16);
+	}
+
+	//Eleventh Level Light
+	if (sampleLevel > (10 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 85, yCornerPosition, 5, 8, 16, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 85, yCornerPosition, 5, 8, 16, 64, 16);
+	}
+
+	//Twelth Level Light
+	if (sampleLevel > (11 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 91, yCornerPosition, 5, 8, 192, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 91, yCornerPosition, 5, 8, 64, 64, 16);
+	}
+
+	//Thirtheen Level Light
+	if (sampleLevel > (12 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 97, yCornerPosition, 5, 8, 192, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 97, yCornerPosition, 5, 8, 64, 64, 16);
+	}
+
+	//Fourteenth Level Light
+	if (sampleLevel > (13 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 103, yCornerPosition, 5, 8, 192, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 103, yCornerPosition, 5, 8, 64, 64, 16);
+	}
+
+	//Fifthteenth Levle Light
+	if (sampleLevel > (14 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 109, yCornerPosition, 5, 8, 192, 192, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 109, yCornerPosition, 5, 8, 64, 64, 16);
+	}
+
+	//Sixthteenth Level Light
+	if (sampleLevel > (14 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 115, yCornerPosition, 5, 8, 192, 16, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 115, yCornerPosition, 5, 8, 64, 16, 16);
+	}
+}
+
+void DrawPlayerStatusBox(SGE::Sound::ModulePlayer* modulePlayerToUse, int xCornerPosition, int yCornerPosition)
+{
+	//Draw Player Status Boxes
+	SGE::Render::DrawBox(xCornerPosition, yCornerPosition, 150, 75, 0, 128, 0);
+	SGE::Render::DrawRectangle(xCornerPosition, yCornerPosition, 150, 75, 0, 064, 0);
+
+	//Draw Song Status Row
+	//Song Position
+	//"Pos"
+	SGE::Render::Draw8x8Character('P', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 05, yCornerPosition + 5, 128, 255, 128);
+	SGE::Render::Draw8x8Character('o', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 11, yCornerPosition + 5, 128, 255, 128);
+	SGE::Render::Draw8x8Character('s', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 17, yCornerPosition + 5, 128, 255, 128);
+
+	//Position Box
+	SGE::Render::DrawBox(xCornerPosition + 25, yCornerPosition + 4, 16, 10, 32, 32, 32);
+
+	//Position Number
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentPosition / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 26, yCornerPosition + 5, 0, 192, 0);
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentPosition % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 32, yCornerPosition + 5, 0, 192, 0);
+
+	//Pattern In Use
+	//"Pat"
+	SGE::Render::Draw8x8Character('P', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 44, yCornerPosition + 5, 128, 255, 128);
+	SGE::Render::Draw8x8Character('a', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 50, yCornerPosition + 5, 128, 255, 128);
+	SGE::Render::Draw8x8Character('t', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 56, yCornerPosition + 5, 128, 255, 128);
+
+	//Pattern Box
+	SGE::Render::DrawBox(xCornerPosition + 64, yCornerPosition + 4, 16, 10, 32, 32, 32);
+
+	//Pattern Number
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentPattern / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 65, yCornerPosition + 5, 0, 192, 0);
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentPattern % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 71, yCornerPosition + 5, 0, 192, 0);
+
+	//Division we are in Pattern
+	//"Div"
+	SGE::Render::Draw8x8Character('D', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 83, yCornerPosition + 5, 128, 255, 128);
+	SGE::Render::Draw8x8Character('i', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 89, yCornerPosition + 5, 128, 255, 128);
+	SGE::Render::Draw8x8Character('v', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 95, yCornerPosition + 5, 128, 255, 128);
+
+	//Division Box
+	SGE::Render::DrawBox(xCornerPosition + 103, yCornerPosition + 4, 16, 10, 32, 32, 32);
+
+	//Division Number
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentDivision / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 104, yCornerPosition + 5, 0, 192, 0);
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentDivision % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 110, yCornerPosition + 5, 0, 192, 0);
+
+	//Sample Block
+	//"Smp"
+	SGE::Render::Draw8x8Character('S', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 125, yCornerPosition + 5, 128, 255, 128);
+	SGE::Render::Draw8x8Character('m', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 132, yCornerPosition + 5, 128, 255, 128);
+	SGE::Render::Draw8x8Character('p', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 137, yCornerPosition + 5, 128, 255, 128);
+
+	//Sample Boxes
+	//Channel 1 Sample Box
+	SGE::Render::DrawBox(xCornerPosition + 127, yCornerPosition + 15, 16, 10, 32, 32, 32);
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[0] / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 128, yCornerPosition + 16, 0, 192, 0);
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[0] % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 135, yCornerPosition + 16, 0, 192, 0);
+
+	//Channel 2 Sample Box
+	SGE::Render::DrawBox(xCornerPosition + 127, yCornerPosition + 26, 16, 10, 32, 32, 32);
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[1] / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 128, yCornerPosition + 27, 0, 192, 0);
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[1] % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 135, yCornerPosition + 27, 0, 192, 0);
+
+	//Channel 3 Sample Box
+	SGE::Render::DrawBox(xCornerPosition + 127, yCornerPosition + 37, 16, 10, 32, 32, 32);
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[2] / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 128, yCornerPosition + 38, 0, 192, 0);
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[2] % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 135, yCornerPosition + 38, 0, 192, 0);
+
+	//Channel 4 Sample Box
+	SGE::Render::DrawBox(xCornerPosition + 127, yCornerPosition + 48, 16, 10, 32, 32, 32);
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[3] / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 128, yCornerPosition + 49, 0, 192, 0);
+	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[3] % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 135, yCornerPosition + 49, 0, 192, 0);
+
+	//Draw Channel Meter
+	DrawLevelMeter("CH1", xCornerPosition + 5, yCornerPosition + 16, modulePlayerToUse->channelMap[0]->LastRenderedAverageLevel);
+	DrawLevelMeter("CH2", xCornerPosition + 5, yCornerPosition + 27, modulePlayerToUse->channelMap[1]->LastRenderedAverageLevel);
+	DrawLevelMeter("CH3", xCornerPosition + 5, yCornerPosition + 38, modulePlayerToUse->channelMap[2]->LastRenderedAverageLevel);
+	DrawLevelMeter("CH4", xCornerPosition + 5, yCornerPosition + 49, modulePlayerToUse->channelMap[3]->LastRenderedAverageLevel);
+
+	//Draw Title of Track at the Bottom
+	SGE::Render::DrawString(modulePlayerToUse->modFile.header.title, SGE::Render::CHARACTER_8x8_ROM, 5, xCornerPosition + 5, yCornerPosition + 60, 128, 255, 128);
+}
+
+void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPosition)
+{
+	int copyStart = 0;
+	int copyLength = bufferSize;
+
+	//Check to see if we can draw this thing anyway.
+	if ((xPosition + bufferSize < 0) ||					//If the xPosition is so far off screen that nothing shows up
+		(xPosition >= SGE::Display::ResolutionX))
+	{
+		return;
+	}
+
+	//Prune to a valid starting point in the buffer
+	if (xPosition < 0)
+	{
+		copyStart = -xPosition;
+		copyLength = bufferSize + xPosition;
+		xPosition = 0;
+	}
+
+	//Prune the amount of the buffer we are going to copy
+	if (xPosition + bufferSize >= SGE::Display::ResolutionX)
+	{
+		copyLength = SGE::Display::ResolutionX - xPosition - 1;
+	}
+
+	for (int i = 0; i < SGE::Display::ResolutionY; i++)
+	{
+		memcpy(&SGE::Display::VideoRAM[xPosition + i * SGE::Display::ResolutionX], &buffer[copyStart], copyLength);
+	}
+}
+
+
+
 void InputTest(bool& testInputRunning)
 {
 	char* menuItemText[5] =
@@ -13,6 +297,7 @@ void InputTest(bool& testInputRunning)
 		"Exit Demo",		
 	};
 
+	//Create the test menu
 	SGE::Menu testMenu(0, 175, 126, 64, 2, 12, 2, 5, menuItemText);
 
 	//Current Selection
@@ -185,12 +470,14 @@ void InputTest(bool& testInputRunning)
 		{2,11}, {0,10}, {2,10}	//Triangle 26
 	};
 
-	
-	bool triangleFlip = false;
-
-
 	int testingOffsetX = 10;
 	int testingOffsetY = 10;
+
+	//Color Buffer for wave
+	unsigned int colorWaveBuffer[8] = { 0x000000FF,	0x000000FF,	0x00000E0,	0x000000D0, 0x00000080, 0x00000040, 0x00000020, 0x00000010 };
+
+	int currentWaveX = -8;
+
 
 
 	while (testInputRunning)
@@ -205,26 +492,46 @@ void InputTest(bool& testInputRunning)
 		//Copy over background image
 		//SGE::Render::DrawDataBlock(targetDisplay, 0, 0, testBitmap.image.width, testBitmap.image.height, testBitmap.image.imageData);
 
+		//Background Wave
+		DrawBufferedRow(colorWaveBuffer, 8, currentWaveX);
+		
+		currentWaveX++;
 
-		if (triangleFlip)
+		if (currentWaveX > SGE::Display::ResolutionX + 8)
 		{
-			//Draw Filled triangles
-			SGE::Render::DrawFilledTriangles(10, 10, 15.0, letterSTriangleFill, 3 * 26, 128, 64, 0);
-
-			//Draw VertexPoints
-			SGE::Render::DrawVectorShape(testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 255, 128, 0);
-		}
-		else
-		{
-			//Draw Filled triangles
-			SGE::Render::DrawFilledTriangles(10, 10, 15.0, letterSTriangleFill, 3 * 26, 128, 64, 0);
-
-			SGE::Render::DrawVectorShape(testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 0, 255, 128);
+			currentWaveX = -8;
 		}
 
+
+		//Draw Filled triangles
+		SGE::Render::DrawFilledTriangles(10, 10, 15.0, letterSTriangleFill, 3 * 26, 0, 128, 64);
+
+		//Draw VertexPoints
+		SGE::Render::DrawVectorShape(testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 0, 128, 255);
+
+		//Info up in the corner
+		SGE::Render::DrawString("Strange Game Engine Demo", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 10, 128, 255, 128);
+		SGE::Render::DrawString("Version: 0.01", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 20, 128, 255, 128);
+		SGE::Render::DrawString("\"It actually works!\" Ed.", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 30, 128, 255, 128);
 	
 		//Draw Menu
 		testMenu.Draw();
+
+		//DRaw Player status boxes
+		//One for the hyper.mod
+		DrawPlayerStatusBox(&modulePlayerTest, 160, 40);
+
+		//One for the yehat.mod
+		DrawPlayerStatusBox(&modulePlayerTest2, 160, 120);
+
+		//Draw Master Volume Meters
+		//Draw Box
+		SGE::Render::DrawBox(160, 200, 150, 30, 0, 128, 0);
+		SGE::Render::DrawRectangle(160, 200, 150, 30, 0, 64, 0);
+
+		//Draw meters
+		DrawLevelMeter("M-L", 165, 205, SGE::Sound::MasterVolumeAverageLeftLevel);
+		DrawLevelMeter("M-R", 165, 217, SGE::Sound::MasterVolumeAverageRightLevel);
 		
 		//Unlock the display refresh
 		SGE::Display::AllowRefresh();

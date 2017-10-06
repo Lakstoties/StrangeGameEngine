@@ -1,6 +1,7 @@
 #pragma once
 
 #include <thread>
+#include <mutex>
 namespace SGE
 {
 	namespace Sound
@@ -169,6 +170,9 @@ namespace SGE
 		//Semitone multipler
 		const float SEMITONE_MULTIPLIER = 1.0595f;
 
+		//Typical old school tick timing was around 20 milliseconds.
+		const unsigned int MOD_DEFAULT_TICK_TIMING_NANO = 20000000;
+
 		//Default Ticks a Division
 		const unsigned int DEFAULT_TICKS_A_DIVISION = 6;
 
@@ -293,6 +297,12 @@ namespace SGE
 			unsigned int arpeggioSemitoneX = 0;
 			unsigned int arpeggioSemitoneY = 0;
 			float arpeggioOffsetIncrement = 0;
+
+			//Statistics Stuff
+			unsigned int LastRenderedAverageLevel = 0;
+
+			//Thread protection Stuff
+			std::mutex RenderProtection;
 		};
 
 		//Class for the Sound System of the game engine.
@@ -300,6 +310,10 @@ namespace SGE
 
 		//Master volume for the system
 		extern float MasterVolume;
+
+		//Statistics
+		extern unsigned int MasterVolumeAverageLeftLevel;
+		extern unsigned int MasterVolumeAverageRightLevel;
 
 		//All the sound samples in the system
 		extern SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
@@ -406,6 +420,8 @@ namespace SGE
 			unsigned char CurrentPosition = 0;
 			unsigned char CurrentPattern = 0;
 			unsigned char CurrentDivision = 0;
+			unsigned char CurrentChannelSamples[4] = { 0 };
+
 			unsigned int beatsPerMinute = 125;
 			unsigned char ticksADivision = 6;
 
