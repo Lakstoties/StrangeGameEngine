@@ -1177,7 +1177,7 @@ namespace SGE
 							//If it is zero don't change the sample used in the channel
 							if (modFile.patterns[CurrentPattern].division[i].channels[c].sample > 0)
 							{
-								fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing to Sample: %d\n", c, modFile.patterns[CurrentPattern].division[i].channels[c].sample - 1);
+								//fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing to Sample: %d\n", c, modFile.patterns[CurrentPattern].division[i].channels[c].sample - 1);
 
 								//Stop this channel
 								channelMap[c]->Stop();
@@ -1219,14 +1219,14 @@ namespace SGE
 							//If effect C or 12, then set the volume.
 							if (effectTypeOnChannel[c] == 0xC)
 							{
-								fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing Volume: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+								//fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing Volume: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
 								channelMap[c]->Volume = (effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 64.0f;
 							}
 
 							//If effect F or 15, then set the ticks per division
 							if (effectTypeOnChannel[c] == 0xF)
 							{
-								fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing Speed: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+								//fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing Speed: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
 								ticksADivision = effectXOnChannel[c] * 16 + effectYOnChannel[c];
 							}
 						}
@@ -1253,7 +1253,7 @@ namespace SGE
 						for (int t = 0; t < ticksADivision && PlayerThreadActive; t++)
 						{
 							//Wait for the next division
-							std::this_thread::sleep_for(std::chrono::microseconds(19500));
+							std::this_thread::sleep_for(std::chrono::microseconds(19250));
 						}
 					}
 				}

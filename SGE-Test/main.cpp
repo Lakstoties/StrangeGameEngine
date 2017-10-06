@@ -114,9 +114,6 @@ void InputTest(bool& testInputRunning)
 
 	testBitmap.LoadFile("TestImage.bmp");
 
-
-
-
 	//Vector Point List
 	SGE::Render::VertexPoint testVertexPoint[4]=
 	{
@@ -275,9 +272,6 @@ void InputTest(bool& testInputRunning)
 				}
 			}
 		}
-
-
-
 
 		//System Master Volume
 		//Decrease volume
