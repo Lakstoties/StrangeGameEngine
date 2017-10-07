@@ -55,33 +55,58 @@ namespace SGE
 				//For each 8-bit row in the 8x8 array of the 64-bit character map
 				for (int i = 0; i < 8; i++)
 				{
-					//Check for blank row, if there's something other an 0
-					if (characterToDraw[i])
+					//Row Bit 0
+					if (characterToDraw[i] & 0x01)
 					{
-						//For each bit in thr row
-						for (int j = 0; j < 8; j++)
-						{
-							//Check for blank spot
-							//AND mask the character row in question to see if there's a 1 in that particular bit spot.
-							if (characterToDraw[i] & (0x01 << j))
-							{
-								memcpy(&SGE::Display::VideoRAM[currentRAM], &targetColor, 4);
-							}
-							//Hop to the next spot in RAM regardless
-							currentRAM++;
-						}
+						SGE::Display::VideoRAM[currentRAM] = targetColor;
+					}
 
-						//Hop to the next row in RAM from the end of the current row
-						currentRAM += (SGE::Display::ResolutionX - 8);
-					}
-					else
+					//Row Bit 1
+					if (characterToDraw[i] & 0x02)
 					{
-						//Hop to the next row in RAM from the start of the current row
-						currentRAM += (SGE::Display::ResolutionX);
+						SGE::Display::VideoRAM[currentRAM + 1] = targetColor;
 					}
+
+					//Row Bit 2
+					if (characterToDraw[i] & 0x04)
+					{
+						SGE::Display::VideoRAM[currentRAM + 2] = targetColor;
+					}
+
+					//Row Bit 3
+					if (characterToDraw[i] & 0x08)
+					{
+						SGE::Display::VideoRAM[currentRAM + 3] = targetColor;
+					}
+
+					//Row Bit 4
+					if (characterToDraw[i] & 0x10)
+					{
+						SGE::Display::VideoRAM[currentRAM + 4] = targetColor;
+					}
+
+					//Row Bit 5
+					if (characterToDraw[i] & 0x20)
+					{
+						SGE::Display::VideoRAM[currentRAM + 5] = targetColor;
+					}
+
+					//Row Bit 6
+					if (characterToDraw[i] & 0x40)
+					{
+						SGE::Display::VideoRAM[currentRAM + 6] = targetColor;
+					}
+
+					//Row Bit 7
+					if (characterToDraw[i] & 0x80)
+					{
+						SGE::Display::VideoRAM[currentRAM + 7] = targetColor;
+					}
+
+					//Hop to the next row in RAM from the start of the current row
+					currentRAM += (SGE::Display::ResolutionX);
 				}
 			}
-
 		}
 
 		//Draw Block Data - copy a block of image data over
@@ -427,7 +452,7 @@ namespace SGE
 		{
 			//Bit shift this shit and return it.
 			//Will work so long as Alpha blending is disabled in OpenGL
-			return ((uint32_t)redValue) | ((uint32_t)greenValue << 8) | ((uint32_t)blueValue << 16);
+			return blueValue << 16 | greenValue << 8 | redValue;
 		}
 
 

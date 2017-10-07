@@ -7,159 +7,38 @@ void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, uns
 	//Channel Label
 	SGE::Render::DrawString(label, SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition, yCornerPosition, 128, 255, 128);
 
-	//Level Lights for the channels
-	//First Level Light
-	if (sampleLevel > 0)
+	//
+	//Green Lights: 11
+	//
+	for (int i = 0; i < 11; i++)
 	{
-		SGE::Render::DrawBox(xCornerPosition + 25, yCornerPosition, 5, 8, 16, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 25, yCornerPosition, 5, 8, 16, 64, 16);
-	}
-
-	//Second Level Light
-	if (sampleLevel > (SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 31, yCornerPosition, 5, 8, 16, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 31, yCornerPosition, 5, 8, 16, 64, 16);
+		if (sampleLevel > (i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16)
+		{
+			SGE::Render::DrawBox(xCornerPosition + 25 + i * 6, yCornerPosition, 5, 8, 16, 192, 16);
+		}
+		else
+		{
+			SGE::Render::DrawBox(xCornerPosition + 25 + i * 6, yCornerPosition, 5, 8, 16, 64, 16);
+		}
 	}
 
-	//Third Level Light
-	if (sampleLevel > (2 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	//
+	//Yellow Lights: 4
+	//
+	for (int i = 11; i < 15; i++)
 	{
-		SGE::Render::DrawBox(xCornerPosition + 37, yCornerPosition, 5, 8, 16, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 37, yCornerPosition, 5, 8, 16, 64, 16);
-	}
-
-	//Fourth Level Light
-	if (sampleLevel > (3 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 43, yCornerPosition, 5, 8, 16, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 43, yCornerPosition, 5, 8, 16, 64, 16);
-	}
-
-	//Fifth Level Light
-	if (sampleLevel > (4 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 49, yCornerPosition, 5, 8, 16, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 49, yCornerPosition, 5, 8, 16, 64, 16);
-	}
-
-	//Sixth Level Light
-	if (sampleLevel > (5 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 55, yCornerPosition, 5, 8, 16, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 55, yCornerPosition, 5, 8, 16, 64, 16);
-	}
-
-	//Seventh Level Light
-	if (sampleLevel > (6 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 61, yCornerPosition, 5, 8, 16, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 61, yCornerPosition, 5, 8, 16, 64, 16);
-	}
-
-	//Either Level Light
-	if (sampleLevel > (7 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 67, yCornerPosition, 5, 8, 16, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 67, yCornerPosition, 5, 8, 16, 64, 16);
-	}
-
-	//Ninth Level Light
-	if (sampleLevel > (8 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 73, yCornerPosition, 5, 8, 16, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 73, yCornerPosition, 5, 8, 16, 64, 16);
-	}
-
-	//Tenth Level Light
-	if (sampleLevel > (9 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 79, yCornerPosition, 5, 8, 16, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 79, yCornerPosition, 5, 8, 16, 64, 16);
-	}
-
-	//Eleventh Level Light
-	if (sampleLevel > (10 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 85, yCornerPosition, 5, 8, 16, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 85, yCornerPosition, 5, 8, 16, 64, 16);
-	}
-
-	//Twelth Level Light
-	if (sampleLevel > (11 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 91, yCornerPosition, 5, 8, 192, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 91, yCornerPosition, 5, 8, 64, 64, 16);
-	}
-
-	//Thirtheen Level Light
-	if (sampleLevel > (12 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 97, yCornerPosition, 5, 8, 192, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 97, yCornerPosition, 5, 8, 64, 64, 16);
-	}
-
-	//Fourteenth Level Light
-	if (sampleLevel > (13 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 103, yCornerPosition, 5, 8, 192, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 103, yCornerPosition, 5, 8, 64, 64, 16);
-	}
-
-	//Fifthteenth Levle Light
-	if (sampleLevel > (14 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
-	{
-		SGE::Render::DrawBox(xCornerPosition + 109, yCornerPosition, 5, 8, 192, 192, 16);
-	}
-	else
-	{
-		SGE::Render::DrawBox(xCornerPosition + 109, yCornerPosition, 5, 8, 64, 64, 16);
+		if (sampleLevel > (i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16)
+		{
+			SGE::Render::DrawBox(xCornerPosition + 25 + i * 6, yCornerPosition, 5, 8, 192, 192, 16);
+		}
+		else
+		{
+			SGE::Render::DrawBox(xCornerPosition + 25 + i * 6, yCornerPosition, 5, 8, 64, 64, 16);
+		}
 	}
 
 	//Sixthteenth Level Light
-	if (sampleLevel > (14 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	if (sampleLevel > (15 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
 	{
 		SGE::Render::DrawBox(xCornerPosition + 115, yCornerPosition, 5, 8, 192, 16, 16);
 	}
