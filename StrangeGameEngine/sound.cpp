@@ -25,9 +25,6 @@ namespace SGE
 			//Starting at the offset, copy over samples to the buffer.
 			for (unsigned int i = 0; i < numberOfSamples; i++)
 			{
-				//Lock the render mutex to make sure nothing can modify anything midflight during this sample
-				RenderProtection.lock();
-
 				//If we are currently not playing
 				//And there's actually something to play.
 				if (!Playing || currentSampleBuffer->bufferSize == 0 || currentSampleBuffer->buffer == nullptr)
@@ -72,8 +69,6 @@ namespace SGE
 						currentArpeggioSamples++;
 					}
 
-
-
 					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
 					sampleBuffer[i] = int (currentSampleBuffer->buffer[unsigned int (offset)] * Volume);
 
@@ -104,9 +99,6 @@ namespace SGE
 						Stop();
 					}
 				}
-
-				//Release the mutex
-				RenderProtection.unlock();
 			}
 
 			//Update the sample level average
@@ -1220,15 +1212,7 @@ namespace SGE
 								channelMap[c]->Stop();
 
 								//Switch to the sample
-
-								//Lock the RenderProtection mutex on the channel to make sure we can safely swap the sampleBuffer out and not catch the sample rendered midflight on a sample
-								channelMap[c]->RenderProtection.lock();
-
-								//Quickly Swap
 								channelMap[c]->currentSampleBuffer = sampleMap[modFile.patterns[CurrentPattern].division[i].channels[c].sample - 1];
-
-								//Release the RenderProtection
-								channelMap[c]->RenderProtection.unlock();
 
 								//Set sample volume
 								channelMap[c]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern].division[i].channels[c].sample - 1].volume) / 64.0f;

@@ -300,9 +300,6 @@ namespace SGE
 
 			//Statistics Stuff
 			unsigned int LastRenderedAverageLevel = 0;
-
-			//Thread protection Stuff
-			std::mutex RenderProtection;
 		};
 
 		//Class for the Sound System of the game engine.

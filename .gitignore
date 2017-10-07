@@ -74,3 +74,4 @@ Win32/Release/SGE-Test.ipdb
 *.tmp
 *.exp
 *.enc
+*.diagsession
