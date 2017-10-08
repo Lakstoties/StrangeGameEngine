@@ -13,6 +13,12 @@ namespace SGE
 		//The virtual video RAM.  Public accessible to allow other components to write to it directly.
 		extern unsigned int* VideoRAM;
 
+		//The virtual video Back Buffer.  Another chunk of video ram to use as needed that's the same size as the VideoRAM.
+		extern unsigned int* VideoBackBuffer;
+
+		//A pixel buffers set to the width of the screen to allow a memory block to use for mass copying pixels to the screen.
+		extern unsigned int* VideoRowBuffer;
+
 		//The virtual Video RAM size.
 		extern unsigned int VideoRAMSize;
 

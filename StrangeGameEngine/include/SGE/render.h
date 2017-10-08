@@ -95,9 +95,6 @@ namespace SGE
 		//Draw a filled box
 		void DrawBox(int startX, int startY, int width, int height, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
-		//Blank the video ram a particular color
-		void Blank(unsigned char rColor, unsigned char gColor, unsigned char bColor);
-
 		//Blank the video ram with zero alpha black.  Or the blackest of blacks... it's like you can't get any blacker.
 		void ZBlank();
 

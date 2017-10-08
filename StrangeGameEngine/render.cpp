@@ -50,61 +50,27 @@ namespace SGE
 
 			//Check the whole character to see if there's anything to draw at all...
 			//Or if the thing is blank
-			if (characterROM[(unsigned char)character])
+			if (characterROM[unsigned char (character)])
 			{
-				//For each 8-bit row in the 8x8 array of the 64-bit character map
+				//Check the character to draw and update the memory appropriately.
 				for (int i = 0; i < 8; i++)
 				{
-					//Row Bit 0
-					if (characterToDraw[i] & 0x01)
+					if (characterToDraw[i])
 					{
-						SGE::Display::VideoRAM[currentRAM] = targetColor;
-					}
-
-					//Row Bit 1
-					if (characterToDraw[i] & 0x02)
-					{
-						SGE::Display::VideoRAM[currentRAM + 1] = targetColor;
-					}
-
-					//Row Bit 2
-					if (characterToDraw[i] & 0x04)
-					{
-						SGE::Display::VideoRAM[currentRAM + 2] = targetColor;
-					}
-
-					//Row Bit 3
-					if (characterToDraw[i] & 0x08)
-					{
-						SGE::Display::VideoRAM[currentRAM + 3] = targetColor;
-					}
-
-					//Row Bit 4
-					if (characterToDraw[i] & 0x10)
-					{
-						SGE::Display::VideoRAM[currentRAM + 4] = targetColor;
-					}
-
-					//Row Bit 5
-					if (characterToDraw[i] & 0x20)
-					{
-						SGE::Display::VideoRAM[currentRAM + 5] = targetColor;
-					}
-
-					//Row Bit 6
-					if (characterToDraw[i] & 0x40)
-					{
-						SGE::Display::VideoRAM[currentRAM + 6] = targetColor;
-					}
-
-					//Row Bit 7
-					if (characterToDraw[i] & 0x80)
-					{
-						SGE::Display::VideoRAM[currentRAM + 7] = targetColor;
+						//Row of pixels
+						//This uses short circuit logic
+						characterToDraw[i] & 0x01 && (SGE::Display::VideoRAM[currentRAM + 0] = targetColor);
+						characterToDraw[i] & 0x02 && (SGE::Display::VideoRAM[currentRAM + 1] = targetColor);
+						characterToDraw[i] & 0x04 && (SGE::Display::VideoRAM[currentRAM + 2] = targetColor);
+						characterToDraw[i] & 0x08 && (SGE::Display::VideoRAM[currentRAM + 3] = targetColor);
+						characterToDraw[i] & 0x10 && (SGE::Display::VideoRAM[currentRAM + 4] = targetColor);
+						characterToDraw[i] & 0x20 && (SGE::Display::VideoRAM[currentRAM + 5] = targetColor);
+						characterToDraw[i] & 0x40 && (SGE::Display::VideoRAM[currentRAM + 6] = targetColor);
+						characterToDraw[i] & 0x80 && (SGE::Display::VideoRAM[currentRAM + 7] = targetColor);
 					}
 
 					//Hop to the next row in RAM from the start of the current row
-					currentRAM += (SGE::Display::ResolutionX);
+					currentRAM += SGE::Display::ResolutionX;
 				}
 			}
 		}
@@ -419,31 +385,6 @@ namespace SGE
 			memset(SGE::Display::VideoRAM, 0, displayRAMSize);
 		}
 
-		//Blanks the video RAM completely with a choosen color
-		void Blank(
-			unsigned char rColor,					//8-bit (0-255) Red component of the color
-			unsigned char gColor,					//8-bit (0-255) Green component of the color
-			unsigned char bColor)					//8-bit (0-255) Blue component of the color
-		{
-			//Get the display RAM size in 32-bit chunks
-			int displayRAMSize = SGE::Display::ResolutionX * SGE::Display::ResolutionY;
-
-			//Pack up the color components into a 32-bit chunk
-			unsigned int pixelValues = PackColors(rColor, gColor, bColor);
-
-			//Fill the first "row"
-			for (int i = 0; i < SGE::Display::ResolutionX; i++)
-			{
-				memcpy(SGE::Display::VideoRAM + i, &pixelValues, 4);
-			}
-
-			//File subsequent rows with the first
-			for (int i = SGE::Display::ResolutionX; i < displayRAMSize; i = i + SGE::Display::ResolutionX)
-			{
-				memcpy(&SGE::Display::VideoRAM[i], SGE::Display::VideoRAM, SGE::Display::ResolutionX * 4);
-			}
-		}
-
 		//Packs the Red, Green, and Blue 8-bit components with a dummy Alpha value into a 32-bit unsigned int
 		unsigned int PackColors(
 			unsigned char redValue,			//8-bit (0-255) Red component of the color
@@ -495,7 +436,7 @@ namespace SGE
 			unsigned int targetColor = PackColors(rColor, gColor, bColor);
 
 			//Pixel Buffer to mass copy memory from
-			unsigned int* targetPixelBuffer = nullptr;
+			//unsigned int* targetPixelBuffer = nullptr;
 			int targetPixelBufferSize = 0;
 
 			//Scale the vertexes
@@ -527,16 +468,8 @@ namespace SGE
 
 					//Compare the remain two figure out the Bottom and middle
 					//If Vertex 2 is above Vertex 3
-					if (vertex2.y < vertex3.y)
-					{
-						middlePointVertex = vertex2;
-						bottomMostVertex = vertex3;
-					}
-					else
-					{
-						middlePointVertex = vertex3;
-						bottomMostVertex = vertex2;
-					}
+					middlePointVertex = vertex2.y < vertex3.y ? vertex2 : vertex3;
+					bottomMostVertex  = vertex2.y < vertex3.y ? vertex3 : vertex2;
 				}
 				
 				//Vertex 3 is above Vertex 1
@@ -547,16 +480,8 @@ namespace SGE
 
 					//Compare the remain two figure out the Bottom and middle
 					//If Vertex 1 is above Vertex 2
-					if (vertex1.y < vertex2.y)
-					{
-						middlePointVertex = vertex1;
-						bottomMostVertex = vertex2;
-					}
-					else
-					{
-						middlePointVertex = vertex2;
-						bottomMostVertex = vertex1;
-					}
+					middlePointVertex = vertex1.y < vertex2.y ? vertex1 : vertex2;
+					bottomMostVertex  = vertex1.y < vertex2.y ? vertex2 : vertex1;
 				}
 			}
 			
@@ -571,16 +496,8 @@ namespace SGE
 
 					//Compare the remain two figure out the Bottom and middle
 					//If Vertex 1 is above Vertex 3
-					if (vertex1.y < vertex3.y)
-					{
-						middlePointVertex = vertex1;
-						bottomMostVertex = vertex3;
-					}
-					else
-					{
-						middlePointVertex = vertex3;
-						bottomMostVertex = vertex1;
-					}
+					middlePointVertex = vertex1.y < vertex3.y ? vertex1 : vertex3;
+					bottomMostVertex  = vertex1.y < vertex3.y ? vertex3 : vertex1;
 				}
 
 				//Vertex 3 is above Vertex 2
@@ -591,16 +508,8 @@ namespace SGE
 
 					//Compare the remain two figure out the Bottom and middle
 					//If Vertex 1 is above Vertex 2
-					if (vertex1.y < vertex2.y)
-					{
-						middlePointVertex = vertex1;
-						bottomMostVertex = vertex2;
-					}
-					else
-					{
-						middlePointVertex = vertex2;
-						bottomMostVertex = vertex1;
-					}
+					middlePointVertex = vertex1.y < vertex2.y ? vertex1 : vertex2;
+					bottomMostVertex  = vertex1.y < vertex2.y ? vertex2 : vertex1;
 				}
 			}
 
@@ -667,34 +576,18 @@ namespace SGE
 			int bottomMostPointVSMiddlePointX = bottomMostVertex.x - middlePointVertex.x;
 
 			//If negative, flip to get the absolute value
-			if (topMostPointVSMiddlePointX < 0)
-			{
-				topMostPointVSMiddlePointX = -topMostPointVSMiddlePointX;
-			}
+			(topMostPointVSMiddlePointX < 0) && (topMostPointVSMiddlePointX = -topMostPointVSMiddlePointX);
 
 			//If negative, flip to get the absolute value
-			if (bottomMostPointVSMiddlePointX < 0)
-			{
-				bottomMostPointVSMiddlePointX = -bottomMostPointVSMiddlePointX;
-			}
+			(bottomMostPointVSMiddlePointX < 0) && (bottomMostPointVSMiddlePointX = -bottomMostPointVSMiddlePointX);
 			
 			//Figure out which one is bigger
-			if (topMostPointVSMiddlePointX > bottomMostPointVSMiddlePointX)
-			{
-				targetPixelBufferSize = topMostPointVSMiddlePointX + 1;
-			}
-			else
-			{
-				targetPixelBufferSize = bottomMostPointVSMiddlePointX + 1;
-			}
+			targetPixelBufferSize = (topMostPointVSMiddlePointX > bottomMostPointVSMiddlePointX) ? (topMostPointVSMiddlePointX + 1) : (bottomMostPointVSMiddlePointX + 1);
 
-			//Create and load up the pixel buffer
-			//targetPixelBuffer = new unsigned int[targetPixelBufferSize];
-			targetPixelBuffer = (unsigned int*) malloc(sizeof(unsigned int) * targetPixelBufferSize);
-
-			for (int i = 0; i < targetPixelBufferSize; i++)
+			//Load up the Row Buffer
+			for (int i = 0; i < targetPixelBufferSize && i < SGE::Display::ResolutionX; i++)
 			{
-				memcpy(&targetPixelBuffer[i], &targetColor, 4);
+				SGE::Display::VideoRowBuffer[i] = targetColor;
 			}
 
 			//Start from the top most and go a long the lines between top and bottom, and top and middle.
@@ -717,23 +610,14 @@ namespace SGE
 
 				//Flip the sign if needed
 				//If fillWidth is below 0
-				if (fillWidth < 0)
-				{
-					fillWidth = -fillWidth;
-				}
+				(fillWidth < 0) && (fillWidth = -fillWidth);
 
 				//Add 4 to the fillWidth to make sure one 4-byte pixel is at least written per line.  (And to offset any 0 indexing logic.)
 				fillWidth = (fillWidth + 1) * 4;
 
-				//Check to see which is furthest left
-				if (currentTopMostToBottomMostX < currentOtherLineX)
-				{
-					memcpy(&SGE::Display::VideoRAM[currentTopMostToBottomMostX + SGE::Display::ResolutionX * (currentY)], targetPixelBuffer, fillWidth);
-				}
-				else
-				{
-					memcpy(&SGE::Display::VideoRAM[currentOtherLineX + SGE::Display::ResolutionX * (currentY)], targetPixelBuffer, fillWidth);
-				}
+				//copy the row out
+				memcpy(&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ? currentTopMostToBottomMostX : currentOtherLineX) + //Check to see which is furthest left
+												SGE::Display::ResolutionX * (currentY)], SGE::Display::VideoRowBuffer, fillWidth);
 
 				//Calculate the X points from Y using a modified Bresenham algorithm.
 				currentTopMostToBottomMostX += topMostToBottomMostVectorInt;
@@ -782,23 +666,14 @@ namespace SGE
 
 				//Flip the sign if needed
 				//If fillWidth is below 0
-				if (fillWidth < 0)
-				{
-					fillWidth = -fillWidth;
-				}
+				(fillWidth < 0) && (fillWidth = -fillWidth);
 
 				//Add 4 to the fillWidth to make sure one 4-byte pixel is at least written per line.  (And to offset any 0 indexing logic.)
 				fillWidth = (fillWidth + 1) * 4;
 
-				//Check to see which is furthest left
-				if (currentTopMostToBottomMostX < currentOtherLineX)
-				{
-					memcpy(&SGE::Display::VideoRAM[currentTopMostToBottomMostX + SGE::Display::ResolutionX * (currentY)], targetPixelBuffer, fillWidth);
-				}
-				else
-				{
-					memcpy(&SGE::Display::VideoRAM[currentOtherLineX + SGE::Display::ResolutionX * (currentY)], targetPixelBuffer, fillWidth);
-				}
+				//Copy the row out
+				memcpy(&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ? currentTopMostToBottomMostX : currentOtherLineX) + //Check to see which is furthest left
+												SGE::Display::ResolutionX * (currentY)], SGE::Display::VideoRowBuffer, fillWidth);
 
 				//Calculate the X points from Y using a modified Bresenham algorithm.
 				currentTopMostToBottomMostX += topMostToBottomMostVectorInt;
@@ -832,9 +707,6 @@ namespace SGE
 					currentOtherLineError += DRAWING_DECIMAL_RESOLUTION;
 				}
 			}
-
-			//Clean up the pixel buffer
-			free(targetPixelBuffer);
 		}
 
 
@@ -946,7 +818,7 @@ namespace SGE
 						partialProductY31 - partialProductX31 >= 0)
 					{
 						//Copy the color over.
-						memcpy(&SGE::Display::VideoRAM[x + (y*SGE::Display::ResolutionX)], &targetColor, 4);
+						SGE::Display::VideoRAM[x + (y*SGE::Display::ResolutionX)] = targetColor;
 					}
 					//Increment the partial product
 					partialProductX12 += spanningVector12.y;

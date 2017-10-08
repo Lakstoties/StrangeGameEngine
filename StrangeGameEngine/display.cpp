@@ -22,6 +22,12 @@ namespace SGE
 		//The virtual video RAM.  Public accessible to allow other components to write to it directly.
 		unsigned int* VideoRAM = nullptr;
 
+		//The virtual video back buffer.
+		unsigned int* VideoBackBuffer = nullptr;
+
+		//The virtual row buffer
+		unsigned int* VideoRowBuffer = nullptr;
+
 		//The virtual video RAM Size.
 		unsigned int VideoRAMSize = 0;
 
@@ -206,6 +212,12 @@ namespace SGE
 
 			//Initialize the Virtual Video RAM
 			VideoRAM = new unsigned int[VideoRAMSize];
+
+			//Initialize the Virtual Video Back Buffer
+			VideoBackBuffer = new unsigned int[VideoRAMSize];
+
+			//Initialize the Virtual Row Buffer
+			VideoRowBuffer = new unsigned int[ResolutionX];
 		}
 
 		void Close()
@@ -215,6 +227,8 @@ namespace SGE
 			//Make sure created bits are deleted appropriately.
 			delete drawingThread;
 			delete VideoRAM;
+			delete VideoBackBuffer;
+			delete VideoRowBuffer;
 		}
 
 		void StartDrawing()

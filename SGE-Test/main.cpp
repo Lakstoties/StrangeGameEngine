@@ -12,7 +12,7 @@ void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, uns
 	//
 	for (int i = 0; i < 11; i++)
 	{
-		if (sampleLevel > (i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16)
+		if (sampleLevel > unsigned int(i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16)
 		{
 			SGE::Render::DrawBox(xCornerPosition + 25 + i * 6, yCornerPosition, 5, 8, 16, 192, 16);
 		}
@@ -27,7 +27,7 @@ void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, uns
 	//
 	for (int i = 11; i < 15; i++)
 	{
-		if (sampleLevel > (i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16)
+		if (sampleLevel > unsigned int(i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16)
 		{
 			SGE::Render::DrawBox(xCornerPosition + 25 + i * 6, yCornerPosition, 5, 8, 192, 192, 16);
 		}
@@ -152,7 +152,7 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 	}
 
 	//Prune the amount of the buffer we are going to copy
-	if (xPosition + bufferSize >= SGE::Display::ResolutionX)
+	if (xPosition + bufferSize >= unsigned int (SGE::Display::ResolutionX))
 	{
 		copyLength = SGE::Display::ResolutionX - xPosition - 1;
 	}

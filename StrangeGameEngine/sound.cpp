@@ -76,14 +76,9 @@ namespace SGE
 					currentSampleAverage += abs(sampleBuffer[i]);
 					
 					//Increment to the next offset
-					if (EnableArpeggio)
-					{
-						offset += arpeggioOffsetIncrement;
-					}
-					else
-					{
-						offset += offsetIncrement;
-					}
+					//If Arpeggio effect is enabled, be sure to use the right increment
+					offset += EnableArpeggio ? arpeggioOffsetIncrement : offsetIncrement;
+
 
 					//Check to see if this same is suppose to repeat and is set to do so... correctly
 					if (Repeatable && (repeatDuration > 0) && (unsigned int(offset) >= (repeatOffset + repeatDuration)))
@@ -221,9 +216,6 @@ namespace SGE
 			//Reset the buffer which will free the memory.
 			ResetBuffer();
 		}
-
-
-
 
 
 		//
@@ -489,7 +481,6 @@ namespace SGE
 			unsigned int currentLeftAverageLevel = 0;
 			unsigned int currentRightAverageLevel = 0;
 
-
 			//Clear out the mixing buffers
 			ClearMixingBuffers();
 
@@ -531,33 +522,10 @@ namespace SGE
 
 				//Check for things hitting the upper and lower ends of the range
 				//For the left channel
-				if (mixingFrameBufferLeft[i] > SAMPLE_MAX_AMPLITUDE)
-				{
-					outputBufferLeft[i] = SAMPLE_MAX_AMPLITUDE;
-				}
-				else if (mixingFrameBufferLeft[i] < -SAMPLE_MAX_AMPLITUDE)
-				{
-					outputBufferLeft[i] = -SAMPLE_MAX_AMPLITUDE;
-				}
-				else
-				{
-					outputBufferLeft[i] = mixingFrameBufferLeft[i];
-				}
-
+				outputBufferLeft[i]  = mixingFrameBufferLeft[i]  > SAMPLE_MAX_AMPLITUDE ? SAMPLE_MAX_AMPLITUDE : (mixingFrameBufferLeft[i]  < -SAMPLE_MAX_AMPLITUDE ? -SAMPLE_MAX_AMPLITUDE : mixingFrameBufferLeft[i]);
 
 				//For the right channel
-				if (mixingFrameBufferRight[i] > SAMPLE_MAX_AMPLITUDE)
-				{
-					outputBufferRight[i] = SAMPLE_MAX_AMPLITUDE;
-				}
-				else if (mixingFrameBufferRight[i] < -SAMPLE_MAX_AMPLITUDE)
-				{
-					outputBufferRight[i] = -SAMPLE_MAX_AMPLITUDE;
-				}
-				else
-				{
-					outputBufferRight[i] = mixingFrameBufferRight[i];
-				}
+				outputBufferRight[i] = mixingFrameBufferRight[i] > SAMPLE_MAX_AMPLITUDE ? SAMPLE_MAX_AMPLITUDE : (mixingFrameBufferRight[i] < -SAMPLE_MAX_AMPLITUDE ? -SAMPLE_MAX_AMPLITUDE : mixingFrameBufferRight[i]);
 
 				//Sum up the levels
 				currentLeftAverageLevel += abs(outputBufferLeft[i]);
@@ -567,7 +535,6 @@ namespace SGE
 			//Report stats
 			MasterVolumeAverageLeftLevel = currentLeftAverageLevel / frameCount;
 			MasterVolumeAverageRightLevel = currentRightAverageLevel / frameCount;
-
 
 			//Return
 			//If no major errors, continue the stream.
@@ -1120,10 +1087,10 @@ namespace SGE
 			}
 
 			//Since this a mod, configure the volume balances for the channels
-			channelMap[0]->Pan = -1.00f;
-			channelMap[1]->Pan =  1.00f;
-			channelMap[2]->Pan = -1.00f;
-			channelMap[3]->Pan =  1.00f;
+			channelMap[0]->Pan =  0.50f;
+			channelMap[1]->Pan = -0.50f;
+			channelMap[2]->Pan = -0.50f;
+			channelMap[3]->Pan =  0.50f;
 
 			//If we get here, stuff is okay.
 			return true;
