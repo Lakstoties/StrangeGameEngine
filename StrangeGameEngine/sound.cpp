@@ -73,7 +73,8 @@ namespace SGE
 					sampleBuffer[i] = int (currentSampleBuffer->buffer[unsigned int (offset)] * Volume);
 
 					//Add to the acculumator for the average
-					currentSampleAverage += abs(sampleBuffer[i]);
+					//Make sure to get the aboslute value
+					currentSampleAverage += (sampleBuffer[i] ^ (sampleBuffer[i] >> 31)) - (sampleBuffer[i] >> 31);
 					
 					//Increment to the next offset
 					//If Arpeggio effect is enabled, be sure to use the right increment
@@ -145,8 +146,8 @@ namespace SGE
 			//Set the buffer size
 			bufferSize = numOfSamples;
 
-			//malloc some ram for the buffer
-			buffer = (short*)malloc(sizeof(short) * bufferSize);
+			//Get some new some ram for the buffer
+			buffer = new short[bufferSize];
 
 			//Zero out the buffer to make sure it is clean
 			//Some OSes don't make the ram is clean when given
@@ -163,7 +164,7 @@ namespace SGE
 			CreateBlankBuffer(numOfSamples);
 
 			//memcpy over the data into the buffer
-			memcpy(buffer, samples, sizeof(short) * bufferSize);
+			std::memcpy(buffer, samples, sizeof(short) * bufferSize);
 
 			//Everything should have gone okay...
 			return 0;
@@ -180,7 +181,7 @@ namespace SGE
 			}
 
 			//Otherwise memset the bitch.
-			memset(buffer, 0, sizeof(short) * bufferSize);
+			std::memset(buffer, 0, sizeof(short) * bufferSize);
 
 			//Everything happened okay in theory
 			return 0;
@@ -189,19 +190,8 @@ namespace SGE
 		//Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
 		int SoundSampleBuffer::ResetBuffer()
 		{
-			//Check to make sure there's actually a buffer to free
-			if (buffer == nullptr)
-			{
-				//Hey, there's no buffer to free!
-				return -1;
-			}
-
-			//If there's a buffer there...
-			//Free it
-			free(buffer);
-
-			//Null the point out
-			buffer = nullptr;
+			//Delete the buffer
+			delete[] buffer;
 
 			//Reset the buffer size
 			bufferSize = 0;
@@ -404,42 +394,41 @@ namespace SGE
 		//Creates and sets up frame buffers for audio data
 		void GenerateFrameBuffers(unsigned long newFrameBufferSize)
 		{
-			if (mixingFrameBufferLeft == nullptr && mixingFrameBufferRight == nullptr)
+			//Delete any old buffers
+			delete[] mixingFrameBufferLeft;
+			delete[] mixingFrameBufferRight;
+
+			//Set the new render frame buffer size
+			frameBufferSize = newFrameBufferSize;
+
+			//Generate new mixing frame buffers
+			mixingFrameBufferLeft  = new int[frameBufferSize];
+			mixingFrameBufferRight = new int[frameBufferSize];
+
+			//Generate new render frame buffers
+			for (int i = 0; i < MAX_CHANNELS; i++)
 			{
-				//Set the new render frame buffer size
-				frameBufferSize = newFrameBufferSize;
-
-				//Generate new render frame buffers
-				for (int i = 0; i < MAX_CHANNELS; i++)
-				{
-					renderedChannelBuffers[i] = (int*)malloc(frameBufferSize * sizeof(int));
-				}
-
-				//Generate new mixing frame buffers
-				mixingFrameBufferLeft = (int*)malloc(frameBufferSize * sizeof(int));
-				mixingFrameBufferRight = (int*)malloc(frameBufferSize * sizeof(int));
+				//Delete any old buffer
+				delete[] renderedChannelBuffers[i];
+				renderedChannelBuffers[i] = new int[frameBufferSize];
 			}
 		}
 
 		//Deletes and cleans up Frame buffers that were holding audio data
 		void DeleteFrameBuffers()
 		{
-			if (mixingFrameBufferLeft != nullptr && mixingFrameBufferRight != nullptr)
+			delete[] mixingFrameBufferLeft;
+			delete[] mixingFrameBufferRight;
+
+			//Reset the pointer values to nullptr
+			mixingFrameBufferLeft = nullptr;
+			mixingFrameBufferRight = nullptr;
+
+			//Delete old render frame buffers
+			for (int i = 0; i < MAX_CHANNELS; i++)
 			{
-				//Delete old render frame buffers
-				for (int i = 0; i < MAX_CHANNELS; i++)
-				{
-					free(renderedChannelBuffers[i]);
-					renderedChannelBuffers[i] = nullptr;
-				}
-
-				//Delete old mixing frame buffers
-				free(mixingFrameBufferLeft);
-				free(mixingFrameBufferRight);
-
-				//Reset the pointer values to nullptr
-				mixingFrameBufferLeft = nullptr;
-				mixingFrameBufferRight = nullptr;
+				delete[] renderedChannelBuffers[i];
+				renderedChannelBuffers[i] = nullptr;
 			}
 		}
 
@@ -528,8 +517,11 @@ namespace SGE
 				outputBufferRight[i] = mixingFrameBufferRight[i] > SAMPLE_MAX_AMPLITUDE ? SAMPLE_MAX_AMPLITUDE : (mixingFrameBufferRight[i] < -SAMPLE_MAX_AMPLITUDE ? -SAMPLE_MAX_AMPLITUDE : mixingFrameBufferRight[i]);
 
 				//Sum up the levels
-				currentLeftAverageLevel += abs(outputBufferLeft[i]);
-				currentRightAverageLevel += abs(outputBufferRight[i]);
+				currentLeftAverageLevel  += (outputBufferLeft[i]  ^ (outputBufferLeft[i] >> 31))  - (outputBufferLeft[i]  >> 31);
+				//currentLeftAverageLevel += abs(outputBufferLeft[i]);
+
+				currentRightAverageLevel += (outputBufferRight[i] ^ (outputBufferRight[i] >> 31)) - (outputBufferRight[i] >> 31);
+				//currentRightAverageLevel += abs(outputBufferRight[i]);
 			}
 
 			//Report stats
@@ -961,7 +953,7 @@ namespace SGE
 				if (samples[i].lengthInWords > 1)
 				{
 					//Create some memory to store the sample in.
-					samples[i].data = (char*)malloc(samples[i].lengthInWords * 2);
+					samples[i].data = new char[samples[i].lengthInWords * 2];
 
 					//Read the data in there
 					readCount = fread(samples[i].data, 1, samples[i].lengthInWords * 2, moduleFile);
@@ -996,7 +988,8 @@ namespace SGE
 				return nullptr;
 			}
 
-			short* temp = (short*)malloc(sizeof(short) * samples[sample].lengthInWords * 2);
+			//Create a buffer to store the converted samples into.
+			short* temp = new short[samples[sample].lengthInWords * 2];
 
 			if (samples[sample].lengthInWords > 1)
 			{
@@ -1073,7 +1066,7 @@ namespace SGE
 				if (modFile.ConvertSampleSize(i) > 2)
 				{
 					//Allocate memory to the size we need.
-					temp = (short *)malloc(sizeof(short) * modFile.ConvertSampleSize(i));
+					temp = new short[modFile.ConvertSampleSize(i)];
 
 					//Convert the sample data
 					temp = modFile.ConvertSample(i);
@@ -1082,7 +1075,7 @@ namespace SGE
 					sampleMap[i]->Load(modFile.ConvertSampleSize(i), temp);
 
 					//Get rid of the old buffer.
-					free(temp);
+					delete temp;
 				}
 			}
 
@@ -1194,8 +1187,8 @@ namespace SGE
 						{
 							//Parse out the effect
 							effectTypeOnChannel[c] = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x0F00) >> 8;
-							effectXOnChannel[c] = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x00F0) >> 4;
-							effectYOnChannel[c] = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x000F);
+							effectXOnChannel[c]    = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x00F0) >> 4;
+							effectYOnChannel[c]    = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x000F);
 
 							//Check for arpeggio effect 0
 							if (effectTypeOnChannel[c] == 0 && (effectXOnChannel[c] != 0 || effectYOnChannel[c] != 0 ))
@@ -1223,7 +1216,7 @@ namespace SGE
 							}
 
 							//If effect F or 15, then set the ticks per division
-							if (effectTypeOnChannel[c] == 0xF)
+							else if (effectTypeOnChannel[c] == 0xF)
 							{
 								//fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing Speed: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
 								ticksADivision = effectXOnChannel[c] * 16 + effectYOnChannel[c];

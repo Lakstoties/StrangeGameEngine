@@ -378,11 +378,8 @@ namespace SGE
 		//Blank the video RAM with straight zeros.  Hence Zero Alpba Black.
 		void ZBlank()
 		{
-			//Get the display RAM size in byte chunks
-			int displayRAMSize = SGE::Display::ResolutionX * SGE::Display::ResolutionY * sizeof(unsigned int);
-
 			//Memset for the win!!
-			memset(SGE::Display::VideoRAM, 0, displayRAMSize);
+			memset(SGE::Display::VideoRAM, 0, SGE::Display::VideoRAMSize * sizeof(unsigned int));
 		}
 
 		//Packs the Red, Green, and Blue 8-bit components with a dummy Alpha value into a 32-bit unsigned int

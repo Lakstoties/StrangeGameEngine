@@ -365,9 +365,8 @@ void InputTest(bool& testInputRunning)
 		SGE::Display::BlockRefresh();
 
 		//Blank the virtual display RAM
-		//SGE::Render::Blank(targetDisplay, 0, 0, 0);
 		SGE::Render::ZBlank();
-
+		
 		//Copy over background image
 		//SGE::Render::DrawDataBlock(targetDisplay, 0, 0, testBitmap.image.width, testBitmap.image.height, testBitmap.image.imageData);
 
