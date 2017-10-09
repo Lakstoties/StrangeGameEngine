@@ -53,15 +53,15 @@ namespace SGE
 							{
 								arpeggioOffsetIncrement = offsetIncrement;
 							}
-
+							
 							//If at X semitone state
-							if (arpeggioState == 1)
+							else if (arpeggioState == 1)
 							{
 								arpeggioOffsetIncrement = float (offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioSemitoneX));
 							}
 
 							//If at Y semitone state
-							if (arpeggioState == 2)
+							else
 							{
 								arpeggioOffsetIncrement = float (offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioSemitoneY));
 							}
