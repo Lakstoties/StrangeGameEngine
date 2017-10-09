@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "display.h"
 #include <fstream>
+#include <chrono>
 
 namespace SGE
 {
@@ -74,6 +75,50 @@ namespace SGE
 			unsigned char green;
 			unsigned char blue;
 			unsigned char xData;
+		};
+
+		class AnimationBlock
+		{
+		public:
+			//buffer array to store the images and data
+			unsigned int** ImageBuffers = nullptr;
+
+			//Number of images
+			unsigned int NumberOfImages = 0;
+
+			//Resolution of images
+			//X
+			unsigned int ResolutionX = 0;
+
+			//Y
+			unsigned int ResolutionY = 0;
+
+			//Individual Image Buffer Size
+			unsigned int ImageBufferSize = 0;
+
+			//Status Flag for Animation
+			bool Animating = false;
+
+			//Animation rate
+			unsigned int MillisecondsPerFrame = 0;
+
+			//Reverse Animation
+			bool ReverseAnimation = false;
+
+			//Current image from buffer
+			unsigned int CurrentImageBuffer = 0;
+
+			//Timer
+			std::chrono::time_point<std::chrono::steady_clock> previousTime;
+			std::chrono::milliseconds deltaTime = std::chrono::milliseconds(0);
+
+
+			void CreateBuffers(unsigned int number, unsigned int XSize, unsigned int YSize);
+			void DeleteBuffers();
+			bool LoadBuffer(unsigned int number, unsigned int* sourceBuffer, unsigned int XOffset, unsigned int YOffset);
+			void StartAnimation();
+			void ResetAnimation();
+			void DrawAnimation(int XPosition, int YPosition);
 		};
 
 

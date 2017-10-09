@@ -50,7 +50,7 @@ namespace SGE
 
 			//Check the whole character to see if there's anything to draw at all...
 			//Or if the thing is blank
-			if (characterROM[unsigned char (character)])
+			if (characterROM[unsigned char(character)])
 			{
 				//
 				//  Yes, we could use a for loop, but it has been unrolled for performance sake.
@@ -327,7 +327,7 @@ namespace SGE
 			deltaX = endX - startX;
 			deltaY = endY - startY;
 
-			
+
 			//Which is the bigger delta
 			//Delta X is bigger and we will draw based on the X-axis
 			if (deltaX * deltaX > deltaY * deltaY)
@@ -359,9 +359,9 @@ namespace SGE
 				ramPosition = startX + (SGE::Display::ResolutionX * startY);
 
 				//Draw the line
-				for (int i = 0;	(i <= deltaX); i++)
+				for (int i = 0; (i <= deltaX); i++)
 				{
-					SGE::Display::VideoRAM[ramPosition + i + int (i * deltaXY) * SGE::Display::ResolutionX] = pixelColor;
+					SGE::Display::VideoRAM[ramPosition + i + int(i * deltaXY) * SGE::Display::ResolutionX] = pixelColor;
 				}
 			}
 
@@ -417,7 +417,7 @@ namespace SGE
 
 			//Bottom Row Line
 			DrawLine(startX, startY + height - 1, startX + width - 1, startY + height - 1, rColor, gColor, bColor);
-			
+
 			//Left Column Line
 			DrawLine(startX, startY, startX, startY + height - 1, rColor, gColor, bColor);
 
@@ -469,7 +469,7 @@ namespace SGE
 			{
 				height = SGE::Display::ResolutionY - startY;
 			}
-			
+
 			//Get the starting point in video RAM based on desired location and size of the display
 			int targetRAM = (startX + (startY * SGE::Display::ResolutionX));
 
@@ -485,7 +485,7 @@ namespace SGE
 				//Copy the color into video ram
 				SGE::Display::VideoRAM[targetRAM + i] = targetColor;
 			}
-			
+
 			//Then memcpy the rest of the rows from this one
 			//First move to the next row
 			targetRAM += SGE::Display::ResolutionX;
@@ -527,13 +527,13 @@ namespace SGE
 			for (int i = 0; i < numberOfVertexes; i++)
 			{
 				//Draw a line between two points on the vertex, wrapping the last and first at the very end.
-				DrawLine( 
-					startX + int((vertexes[i].x) * scalingFactor), 
-					startY + int((vertexes[i].y) * scalingFactor), 
-					startX + int((vertexes[(i + 1) % numberOfVertexes].x) * scalingFactor), 
-					startY + int((vertexes[(i + 1) % numberOfVertexes].y) * scalingFactor), 
-					rColor, 
-					gColor, 
+				DrawLine(
+					startX + int((vertexes[i].x) * scalingFactor),
+					startY + int((vertexes[i].y) * scalingFactor),
+					startX + int((vertexes[(i + 1) % numberOfVertexes].x) * scalingFactor),
+					startY + int((vertexes[(i + 1) % numberOfVertexes].y) * scalingFactor),
+					rColor,
+					gColor,
 					bColor);
 			}
 		}
@@ -563,13 +563,13 @@ namespace SGE
 			int targetPixelBufferSize = 0;
 
 			//Scale the vertexes
-			vertex1.x = int (vertex1.x * scalingFactor);
-			vertex1.y = int (vertex1.y * scalingFactor);
-			vertex2.x = int (vertex2.x * scalingFactor);
-			vertex2.y = int (vertex2.y * scalingFactor);
-			vertex3.x = int (vertex3.x * scalingFactor);
-			vertex3.y = int (vertex3.y * scalingFactor);
-			
+			vertex1.x = int(vertex1.x * scalingFactor);
+			vertex1.y = int(vertex1.y * scalingFactor);
+			vertex2.x = int(vertex2.x * scalingFactor);
+			vertex2.y = int(vertex2.y * scalingFactor);
+			vertex3.x = int(vertex3.x * scalingFactor);
+			vertex3.y = int(vertex3.y * scalingFactor);
+
 			//Variables to hold the top most, bottom most, and middle point vertexes
 			VertexPoint topMostVertex;
 			VertexPoint bottomMostVertex;
@@ -592,9 +592,9 @@ namespace SGE
 					//Compare the remain two figure out the Bottom and middle
 					//If Vertex 2 is above Vertex 3
 					middlePointVertex = vertex2.y < vertex3.y ? vertex2 : vertex3;
-					bottomMostVertex  = vertex2.y < vertex3.y ? vertex3 : vertex2;
+					bottomMostVertex = vertex2.y < vertex3.y ? vertex3 : vertex2;
 				}
-				
+
 				//Vertex 3 is above Vertex 1
 				else
 				{
@@ -604,10 +604,10 @@ namespace SGE
 					//Compare the remain two figure out the Bottom and middle
 					//If Vertex 1 is above Vertex 2
 					middlePointVertex = vertex1.y < vertex2.y ? vertex1 : vertex2;
-					bottomMostVertex  = vertex1.y < vertex2.y ? vertex2 : vertex1;
+					bottomMostVertex = vertex1.y < vertex2.y ? vertex2 : vertex1;
 				}
 			}
-			
+
 			//Vertex 2 is higher than Vertex 1 (or equal)
 			else
 			{
@@ -620,7 +620,7 @@ namespace SGE
 					//Compare the remain two figure out the Bottom and middle
 					//If Vertex 1 is above Vertex 3
 					middlePointVertex = vertex1.y < vertex3.y ? vertex1 : vertex3;
-					bottomMostVertex  = vertex1.y < vertex3.y ? vertex3 : vertex1;
+					bottomMostVertex = vertex1.y < vertex3.y ? vertex3 : vertex1;
 				}
 
 				//Vertex 3 is above Vertex 2
@@ -632,7 +632,7 @@ namespace SGE
 					//Compare the remain two figure out the Bottom and middle
 					//If Vertex 1 is above Vertex 2
 					middlePointVertex = vertex1.y < vertex2.y ? vertex1 : vertex2;
-					bottomMostVertex  = vertex1.y < vertex2.y ? vertex2 : vertex1;
+					bottomMostVertex = vertex1.y < vertex2.y ? vertex2 : vertex1;
 				}
 			}
 
@@ -703,7 +703,7 @@ namespace SGE
 
 			//If negative, flip to get the absolute value
 			(bottomMostPointVSMiddlePointX < 0) && (bottomMostPointVSMiddlePointX = -bottomMostPointVSMiddlePointX);
-			
+
 			//Figure out which one is bigger
 			targetPixelBufferSize = (topMostPointVSMiddlePointX > bottomMostPointVSMiddlePointX) ? (topMostPointVSMiddlePointX + 1) : (bottomMostPointVSMiddlePointX + 1);
 
@@ -740,7 +740,7 @@ namespace SGE
 
 				//copy the row out
 				memcpy(&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ? currentTopMostToBottomMostX : currentOtherLineX) + //Check to see which is furthest left
-												SGE::Display::ResolutionX * (currentY)], SGE::Display::VideoRowBuffer, fillWidth);
+					SGE::Display::ResolutionX * (currentY)], SGE::Display::VideoRowBuffer, fillWidth);
 
 				//Calculate the X points from Y using a modified Bresenham algorithm.
 				currentTopMostToBottomMostX += topMostToBottomMostVectorInt;
@@ -761,7 +761,7 @@ namespace SGE
 					currentTopMostToBottomMostX--;
 					currentTopMostToMostError += DRAWING_DECIMAL_RESOLUTION;
 				}
-				
+
 				//Check to see if error is high enough to warrant a correction
 				if (currentOtherLineError > DRAWING_DECIMAL_RESOLUTION)
 				{
@@ -782,7 +782,7 @@ namespace SGE
 			currentOtherLineError = 0;
 
 			//Calculate points along the lines between TopMost and BottomMost, and MiddlePoint and BottomMost
-			for (; currentY <= bottomMostVertex.y +startY; currentY++)
+			for (; currentY <= bottomMostVertex.y + startY; currentY++)
 			{
 				//Given currentY, compare to the two points along the X axis
 				int fillWidth = currentTopMostToBottomMostX - currentOtherLineX;
@@ -796,7 +796,7 @@ namespace SGE
 
 				//Copy the row out
 				memcpy(&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ? currentTopMostToBottomMostX : currentOtherLineX) + //Check to see which is furthest left
-												SGE::Display::ResolutionX * (currentY)], SGE::Display::VideoRowBuffer, fillWidth);
+					SGE::Display::ResolutionX * (currentY)], SGE::Display::VideoRowBuffer, fillWidth);
 
 				//Calculate the X points from Y using a modified Bresenham algorithm.
 				currentTopMostToBottomMostX += topMostToBottomMostVectorInt;
@@ -911,9 +911,9 @@ namespace SGE
 			//Use half-space functions to determine if the pixel is in the space of the triangle or not
 
 			//Same pre-calculations of unchanging values
-			VertexPoint spanningVector12 = {vertex1.x - vertex2.x, vertex1.y - vertex2.y};
-			VertexPoint spanningVector23 = {vertex2.x - vertex3.x, vertex2.y - vertex3.y};
-			VertexPoint spanningVector31 = {vertex3.x - vertex1.x, vertex3.y - vertex1.y};
+			VertexPoint spanningVector12 = { vertex1.x - vertex2.x, vertex1.y - vertex2.y };
+			VertexPoint spanningVector23 = { vertex2.x - vertex3.x, vertex2.y - vertex3.y };
+			VertexPoint spanningVector31 = { vertex3.x - vertex1.x, vertex3.y - vertex1.y };
 
 			//Partial crossproducts geared towards the Y element of the looping
 			int partialProductY12 = spanningVector12.x * (yMin - vertex1.y);
@@ -929,7 +929,7 @@ namespace SGE
 			int resetPartialProductX23 = partialProductX23;
 			int resetPartialProductX31 = partialProductX31;
 
-			
+
 
 			//Go through the bounded, looking for which pixels are within the triangle
 			for (int y = yMin; y <= yMax; y++)
@@ -996,7 +996,7 @@ namespace SGE
 
 			//If we got a valid file pointer, lets attempt to read the basic bitmap header
 			//Due to alignment issues, manually read the individual bits
-			
+
 			readCount = fread(&bitmapHeader.idField, 1, 2, bitmapFile);
 			readCount = fread(&bitmapHeader.bmpSize, 4, 1, bitmapFile);
 			readCount = fread(&bitmapHeader.reserved1, 2, 1, bitmapFile);
@@ -1018,7 +1018,7 @@ namespace SGE
 				fprintf(stderr, "Render Bitmap File Error:  File \"%s\" is not correct format - Bitmap File Header ID Field incorrect.\n", targetFilename);
 				return -3;
 			}
-			
+
 			//Read the Bitmap info header
 			readCount = fread(&bitmapInfo, 1, sizeof(bitmapInfo), bitmapFile);
 
@@ -1063,10 +1063,10 @@ namespace SGE
 					fread(&pixelRed, 1, 1, bitmapFile);
 
 					//Rearrange the pixel color data to something we can use
-					image.imageData[j+i] = ((uint32_t)pixelRed) | ((uint32_t)pixelGreen << 8) | ((uint32_t)pixelBlue << 16);
+					image.imageData[j + i] = ((uint32_t)pixelRed) | ((uint32_t)pixelGreen << 8) | ((uint32_t)pixelBlue << 16);
 				}
 			}
-							
+
 			//If the whole process goes well, and has reached this point
 			//Close file
 			fclose(bitmapFile);
@@ -1074,6 +1074,100 @@ namespace SGE
 			//Signal all good
 			return 0;
 		}
-		
+
+
+		//
+		//
+		//  Animation Stuff!
+		//
+		//
+
+
+		void AnimationBlock::CreateBuffers(unsigned int number, unsigned int XSize, unsigned int YSize)
+		{
+			//Store the resolutions
+			ResolutionX = XSize;
+			ResolutionY = YSize;
+
+			//Compute the individual buffer sizes
+			ImageBufferSize = ResolutionX * ResolutionY;
+
+			//Store the number of buffers
+			NumberOfImages = number;
+
+			//Create the buffers
+			//Create the array
+			ImageBuffers = new unsigned int*[NumberOfImages];
+
+			//Go through and create buffers in each spot
+			for (unsigned int i = 0; i < NumberOfImages; i++)
+			{
+				ImageBuffers[i] = new unsigned int[ImageBufferSize];
+			}
+		}
+
+		void AnimationBlock::DeleteBuffers()
+		{
+			//Nuke the individual buffers
+			for (unsigned int i = 0; i < NumberOfImages; i++)
+			{
+				delete[] ImageBuffers[i];
+			}
+
+			//Nuke the array
+			delete[] ImageBuffers;
+
+			//Set the nullptr for the base pointer
+			ImageBuffers = nullptr;
+		}
+
+		bool AnimationBlock::LoadBuffer(unsigned int number, unsigned int* sourceBuffer, unsigned int sourceXOffset, unsigned int sourceYOffset)
+		{
+
+
+
+
+			return true;
+		}
+
+		void AnimationBlock::StartAnimation()
+		{
+			//Capture the current time
+			previousTime = std::chrono::steady_clock::now();
+
+			//Reset the current image
+			CurrentImageBuffer = 0;
+
+			//Flag for animation
+			Animating = true;
+		}
+
+		void AnimationBlock::ResetAnimation()
+		{
+			Animating = false;
+
+			CurrentImageBuffer = 0;
+		}
+
+		void AnimationBlock::DrawAnimation(int XPosition, int YPosition)
+		{
+			//Check for animation
+			if (Animating)
+			{
+				//Check to see if we need to progress to the next frame based on timing factors
+				if (std::chrono::steady_clock::now() - previousTime > std::chrono::milliseconds(MillisecondsPerFrame))
+				{
+					//Grab new previous time
+					previousTime = std::chrono::steady_clock::now();
+
+					//Go to the next frame buffer
+					CurrentImageBuffer = (CurrentImageBuffer + 1) % NumberOfImages;
+				}
+			}
+
+			//Draw current frame of animation
+			SGE::Render::DrawDataBlock(XPosition, YPosition, ResolutionX, ResolutionY, ImageBuffers[CurrentImageBuffer]);
+		}
+
 	}
 }

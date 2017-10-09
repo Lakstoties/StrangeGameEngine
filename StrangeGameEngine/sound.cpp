@@ -73,8 +73,8 @@ namespace SGE
 					sampleBuffer[i] = int (currentSampleBuffer->buffer[unsigned int (offset)] * Volume);
 
 					//Add to the acculumator for the average
-					//Make sure to get the aboslute value
-					currentSampleAverage += (sampleBuffer[i] ^ (sampleBuffer[i] >> 31)) - (sampleBuffer[i] >> 31);
+					//Negate negatives since we are only interested in overall amplitude
+					currentSampleAverage += sampleBuffer[i] < 0 ? -sampleBuffer[i] : sampleBuffer[i];
 					
 					//Increment to the next offset
 					//If Arpeggio effect is enabled, be sure to use the right increment
@@ -108,11 +108,11 @@ namespace SGE
 			//If the channel is at least loaded
 			if (currentSampleBuffer != nullptr)
 			{
-				//Set the flags properly
-				Playing = true;
-
 				//Reset the play offset
 				offset = 0;
+
+				//Set the flags properly
+				Playing = true;
 			}
 		}
 
@@ -486,27 +486,27 @@ namespace SGE
 				fprintf(stderr, "DEBUG:  Sound  System - Frame Buffer Size Increased to: %i\n", frameBufferSize);
 			}
 
-			//Mix the samples into buffer
-			//Go through each channel and add it's contents to the mixing buffer
+			//Go through each channel and render samples
 			for (int i = 0; i < MAX_CHANNELS; i++)
 			{
 				Channels[i].Render(frameCount, renderedChannelBuffers[i]);
-				for (unsigned int j = 0; j < frameCount; j++)
-				{
-					mixingFrameBufferLeft[j]  += int (renderedChannelBuffers[i][j] * (0.5f + Channels[i].Pan));
-					mixingFrameBufferRight[j] += int (renderedChannelBuffers[i][j] * (0.5f - Channels[i].Pan));
-				}
 			}
 
 			//Dump it into the output buffer
 			//Adjust to master volume...
 			//If the sample size exceeds the sample limit, just hard limit it.
 			//Well... people...  Don't fry your damn audio.
-
 			for (unsigned int i = 0; i < frameCount; i++)
 			{
+				//Down mix all the samples from all the channels
+				for (unsigned int j = 0; j < MAX_CHANNELS; j++)
+				{
+					mixingFrameBufferLeft[i]  += int(renderedChannelBuffers[j][i] * (0.5f + Channels[j].Pan));
+					mixingFrameBufferRight[i] += int(renderedChannelBuffers[j][i] * (0.5f - Channels[j].Pan));
+				}
+
 				//Apply master volume to the mixing frame buffers
-				mixingFrameBufferLeft[i]  = int (mixingFrameBufferLeft[i] * MasterVolume);
+				mixingFrameBufferLeft[i]  = int (mixingFrameBufferLeft[i]  * MasterVolume);
 				mixingFrameBufferRight[i] = int (mixingFrameBufferRight[i] * MasterVolume);
 
 				//Check for things hitting the upper and lower ends of the range
@@ -517,11 +517,12 @@ namespace SGE
 				outputBufferRight[i] = mixingFrameBufferRight[i] > SAMPLE_MAX_AMPLITUDE ? SAMPLE_MAX_AMPLITUDE : (mixingFrameBufferRight[i] < -SAMPLE_MAX_AMPLITUDE ? -SAMPLE_MAX_AMPLITUDE : mixingFrameBufferRight[i]);
 
 				//Sum up the levels
-				currentLeftAverageLevel  += (outputBufferLeft[i]  ^ (outputBufferLeft[i] >> 31))  - (outputBufferLeft[i]  >> 31);
-				//currentLeftAverageLevel += abs(outputBufferLeft[i]);
+				//Negate negative values since we are interested in overall amplitude and not phasing
+				//For the left channel
+				currentLeftAverageLevel += outputBufferLeft[i] < 0 ? -outputBufferLeft[i] : outputBufferLeft[i];
 
-				currentRightAverageLevel += (outputBufferRight[i] ^ (outputBufferRight[i] >> 31)) - (outputBufferRight[i] >> 31);
-				//currentRightAverageLevel += abs(outputBufferRight[i]);
+				//For the right channel
+				currentRightAverageLevel += outputBufferRight[i] < 0 ? -outputBufferRight[i] : outputBufferRight[i];
 			}
 
 			//Report stats
@@ -1215,11 +1216,29 @@ namespace SGE
 								channelMap[c]->Volume = (effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 64.0f;
 							}
 
+							//If effect D or 14, then check further since they crammed a lot of things in there.
+							else if (effectTypeOnChannel[c] == 0xE)
+							{
+								//Set sound fitler on/off
+								if (effectXOnChannel[c] == 0x0)
+								{
+									//Not implemented, yet...
+								}
+								else
+								{
+									fprintf(stderr, "DEBUG: Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
+								}
+							}
+
 							//If effect F or 15, then set the ticks per division
 							else if (effectTypeOnChannel[c] == 0xF)
 							{
 								//fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing Speed: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
 								ticksADivision = effectXOnChannel[c] * 16 + effectYOnChannel[c];
+							}
+							else if (effectTypeOnChannel[c] != 0x0)
+							{
+								fprintf(stderr, "DEBUG: Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
 							}
 						}
 
