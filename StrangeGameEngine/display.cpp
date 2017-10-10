@@ -163,8 +163,7 @@ namespace SGE
 				//
 
 				//Clear the color buffers
-				//Possibly no need since we are going to overwrite everything anyway with the single all encompassing quad.
-				//glClear(GL_COLOR_BUFFER_BIT);
+				glClear(GL_COLOR_BUFFER_BIT);
 
 				//Draw a quad
 				glBegin(GL_QUADS);
