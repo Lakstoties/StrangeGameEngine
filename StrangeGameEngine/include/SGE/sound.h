@@ -405,8 +405,8 @@ namespace SGE
 			~ModuleFile();
 
 			int LoadFile(char* targetFilename);
-			short* ModuleFile::ConvertSample(unsigned char sample);
-			unsigned int ModuleFile::ConvertSampleSize(unsigned char sample);
+			short* ConvertSample(unsigned char sample);
+			unsigned int ConvertSampleSize(unsigned char sample);
 
 		};
 

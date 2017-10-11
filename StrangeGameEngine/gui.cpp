@@ -1,4 +1,5 @@
 #include "include\SGE\gui.h"
+#include <cstring>
 
 namespace SGE
 {
@@ -109,11 +110,11 @@ namespace SGE
 		//Adjust cursor location
 		//Check the length of the next selection
 		temp = strlen(menuItemText[selection]);
-	
+
 
 		if (rowTextCursorLocation >= temp)
 		{
-			rowTextCursorLocation = unsigned int (temp - 1);
+			rowTextCursorLocation = (unsigned int) temp - 1;
 		}
 	}
 
@@ -150,7 +151,7 @@ namespace SGE
 	void Menu::SetMenuSelection(char* targetString)
 	{
 		size_t tempCount = 0;
-		
+
 		if (targetString == nullptr)
 		{
 			return;

@@ -74,7 +74,7 @@ namespace SGE
 			const int KEY_Y =			89;		// y/Y
 			const int KEY_Z =			90;		// z/Z
 			const int KEY_LEFT_BRACKET = 91;	// [ 
-			const int KEY_BACKSLASH =	92;		// \ 
+			const int KEY_BACKSLASH =	92;		// "\" 
 			const int KEY_RIGHT_BRACKET = 93;	// ] 
 			const int KEY_GRAVE_ACCENT = 96;	// `
 			const int KEY_WORLD_1 =		161;	// non-US #1

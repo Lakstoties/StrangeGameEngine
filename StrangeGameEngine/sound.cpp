@@ -6,6 +6,8 @@
 #include <cmath>
 #include <random>
 #include <fstream>
+#include <algorithm>
+#include <cstring>
 
 namespace SGE
 {
@@ -47,13 +49,13 @@ namespace SGE
 							arpeggioState = (arpeggioState + 1) % 3;
 
 							//Based on that state alter the argpeggio offset increment
-							
+
 							//If at the base state
 							if (arpeggioState == 0)
 							{
 								arpeggioOffsetIncrement = offsetIncrement;
 							}
-							
+
 							//If at X semitone state
 							else if (arpeggioState == 1)
 							{
@@ -70,26 +72,26 @@ namespace SGE
 					}
 
 					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
-					sampleBuffer[i] = int (currentSampleBuffer->buffer[unsigned int (offset)] * Volume);
+					sampleBuffer[i] = int (currentSampleBuffer->buffer[(unsigned int) offset] * Volume);
 
 					//Add to the acculumator for the average
 					//Negate negatives since we are only interested in overall amplitude
 					currentSampleAverage += sampleBuffer[i] < 0 ? -sampleBuffer[i] : sampleBuffer[i];
-					
+
 					//Increment to the next offset
 					//If Arpeggio effect is enabled, be sure to use the right increment
 					offset += EnableArpeggio ? arpeggioOffsetIncrement : offsetIncrement;
 
 
 					//Check to see if this same is suppose to repeat and is set to do so... correctly
-					if (Repeatable && (repeatDuration > 0) && (unsigned int(offset) >= (repeatOffset + repeatDuration)))
+					if (Repeatable && (repeatDuration > 0) && ((unsigned int)offset >= (repeatOffset + repeatDuration)))
 					{
 						//Alter the offset appropriate, keeping in mind how much we have blown past end point to add the difference in to keep looping proper.
 						offset = float(repeatOffset) + (offset - float(repeatOffset + repeatDuration));
 					}
 
 					//If not repeatable and the offset has gone past the end of the buffer
-					else if (unsigned int (offset) >= currentSampleBuffer->bufferSize)
+					else if ((unsigned int) offset >= currentSampleBuffer->bufferSize)
 					{
 						//Fuck this shit we're out!
 						Stop();
@@ -98,7 +100,7 @@ namespace SGE
 			}
 
 			//Update the sample level average
-			LastRenderedAverageLevel = unsigned int (currentSampleAverage / numberOfSamples);
+			LastRenderedAverageLevel = currentSampleAverage / numberOfSamples;
 		}
 
 
@@ -164,7 +166,8 @@ namespace SGE
 			CreateBlankBuffer(numOfSamples);
 
 			//memcpy over the data into the buffer
-			std::memcpy(buffer, samples, sizeof(short) * bufferSize);
+			//std::memcpy(buffer, samples, sizeof(short) * bufferSize);
+			std::copy(samples, samples + numOfSamples, buffer);
 
 			//Everything should have gone okay...
 			return 0;
@@ -439,8 +442,8 @@ namespace SGE
 			{
 				//Initialize the mixing buffers
 				//Depending on the platform, possibly not needed, but some platforms don't promise zeroed memory upon allocation.
-				memset(mixingFrameBufferLeft, 0, frameBufferSize * sizeof(int));
-				memset(mixingFrameBufferRight, 0, frameBufferSize * sizeof(int));
+				std::fill(mixingFrameBufferLeft, mixingFrameBufferLeft + frameBufferSize, 0);
+				std::fill(mixingFrameBufferRight, mixingFrameBufferRight + frameBufferSize, 0);
 			}
 		}
 
@@ -483,7 +486,7 @@ namespace SGE
 			{
 				DeleteFrameBuffers();
 				GenerateFrameBuffers(frameCount);
-				fprintf(stderr, "DEBUG:  Sound  System - Frame Buffer Size Increased to: %i\n", frameBufferSize);
+				fprintf(stderr, "DEBUG:  Sound  System - Frame Buffer Size Increased to: %lu\n", frameBufferSize);
 			}
 
 			//Go through each channel and render samples
@@ -573,7 +576,7 @@ namespace SGE
 				SAMPLE_RATE,
 				paFramesPerBufferUnspecified,
 				paClipOff,
-				&PortAudioCallback, 
+				&PortAudioCallback,
 				NULL);
 
 
@@ -659,7 +662,7 @@ namespace SGE
 				fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
 			}
 		}
-	
+
 
 
 
@@ -687,7 +690,7 @@ namespace SGE
 			size_t totalReadCount = 0;
 			unsigned char readBuffer[8];
 
-			
+
 			//Attempt to open the file.
 			moduleFile = fopen(targetFilename, "rb");
 
@@ -844,7 +847,7 @@ namespace SGE
 				fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 				return -11;
 			}
-			
+
 			//Check to see if there's anything special
 			//Check for "M.K."
 			if (memcmp(&readBuffer, "M.K.", 4) == 0)
@@ -931,7 +934,7 @@ namespace SGE
 							fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 							return -12;
 						}
-						
+
 						//Parse out the data.
 						//Copy the first two bytes over into period
 						patterns[i].division[j].channels[k].period = ((readBuffer[0] & 0x0F) << 8) | (readBuffer[1]);
@@ -939,7 +942,7 @@ namespace SGE
 						//Copy the second two bytes over into effect
 						patterns[i].division[j].channels[k].effect = ((readBuffer[2] & 0x0F) << 8) | (readBuffer[3]);
 
-						//Bit mask unneeded bits, shift, and add them together 
+						//Bit mask unneeded bits, shift, and add them together
 						patterns[i].division[j].channels[k].sample = (readBuffer[0] & 0xF0) | ((readBuffer[2] & 0xF0) >> 4);
 					}
 				}
@@ -1252,7 +1255,7 @@ namespace SGE
 
 								//Convert the period to offset timing interval in relation to system sampling rate
 								//Using NTSC sampling
-								channelMap[c]->offsetIncrement = MOD_NTSC_TUNING / float(modFile.patterns[CurrentPattern].division[i].channels[c].period) 
+								channelMap[c]->offsetIncrement = MOD_NTSC_TUNING / float(modFile.patterns[CurrentPattern].division[i].channels[c].period)
 									/ float(SAMPLE_RATE) / 2.0f;
 
 								//Play at new period
@@ -1471,7 +1474,7 @@ namespace SGE
 			//Offset: 24	Size: 4		Sample Rate
 			//Sample Rate of the data.  Currently looking for 44100.
 			//May implement resampling in future, but not right now.
-	
+
 			if (fmtSubChunkData.sampleRate != 44100)
 			{
 				//Not 44100Hz sample rate...  Not exactly an error, but no support for other sample rates at the moment.
@@ -1567,10 +1570,10 @@ namespace SGE
 			//Second chunk of data: "data"
 			//Offset: 36	Size: 4		Subchunk 2 ID
 			//ID to indicate the next subchunk of data, if it isn't "data" something is wrong
-	
+
 			if (memcmp("data", &subChunkHeader.subChunkID, 4) != 0)
 			{
-				//Where's the data ID... 
+				//Where's the data ID...
 				fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - Incorrect Data Chunk ID.\n", targetFilename);
 
 				//Close out the file
@@ -1583,13 +1586,13 @@ namespace SGE
 			//Data that indicates the size of the data chunk
 			//Equal to:  Number of Samples * Number of Channels * Bits Per Sample / 8
 			//Indicates the amount to read after this chunk
-	
+
 			printf("DEBUG: Sound System Wave File: %s - Data Size: %d\n", targetFilename, subChunkHeader.subChunkSize);
 
 
 			//Offset: 44	Size: *?	Data
 			//Actual sound data
-		
+
 			//Calculate the number of Samples
 			numberOfSamples = subChunkHeader.subChunkSize / fmtSubChunkData.blockAlignment;
 

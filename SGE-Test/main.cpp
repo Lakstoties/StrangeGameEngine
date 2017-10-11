@@ -12,7 +12,7 @@ void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, uns
 	//
 	for (int i = 0; i < 11; i++)
 	{
-		if (sampleLevel > unsigned int(i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16)
+		if (sampleLevel > (unsigned int)(i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16)
 		{
 			SGE::Render::DrawBox(xCornerPosition + 25 + i * 6, yCornerPosition, 5, 8, 16, 192, 16);
 		}
@@ -27,7 +27,7 @@ void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, uns
 	//
 	for (int i = 11; i < 15; i++)
 	{
-		if (sampleLevel > unsigned int(i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16)
+		if (sampleLevel > (unsigned int)(i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16)
 		{
 			SGE::Render::DrawBox(xCornerPosition + 25 + i * 6, yCornerPosition, 5, 8, 192, 192, 16);
 		}
@@ -122,10 +122,10 @@ void DrawPlayerStatusBox(SGE::Sound::ModulePlayer* modulePlayerToUse, int xCorne
 	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[3] % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 135, yCornerPosition + 49, 0, 192, 0);
 
 	//Draw Channel Meter
-	DrawLevelMeter("CH1", xCornerPosition + 5, yCornerPosition + 16, modulePlayerToUse->channelMap[0]->LastRenderedAverageLevel);
-	DrawLevelMeter("CH2", xCornerPosition + 5, yCornerPosition + 27, modulePlayerToUse->channelMap[1]->LastRenderedAverageLevel);
-	DrawLevelMeter("CH3", xCornerPosition + 5, yCornerPosition + 38, modulePlayerToUse->channelMap[2]->LastRenderedAverageLevel);
-	DrawLevelMeter("CH4", xCornerPosition + 5, yCornerPosition + 49, modulePlayerToUse->channelMap[3]->LastRenderedAverageLevel);
+	DrawLevelMeter((char*)"CH1", xCornerPosition + 5, yCornerPosition + 16, modulePlayerToUse->channelMap[0]->LastRenderedAverageLevel);
+	DrawLevelMeter((char*)"CH2", xCornerPosition + 5, yCornerPosition + 27, modulePlayerToUse->channelMap[1]->LastRenderedAverageLevel);
+	DrawLevelMeter((char*)"CH3", xCornerPosition + 5, yCornerPosition + 38, modulePlayerToUse->channelMap[2]->LastRenderedAverageLevel);
+	DrawLevelMeter((char*)"CH4", xCornerPosition + 5, yCornerPosition + 49, modulePlayerToUse->channelMap[3]->LastRenderedAverageLevel);
 
 	//Draw Title of Track at the Bottom
 	SGE::Render::DrawString(modulePlayerToUse->modFile.header.title, SGE::Render::CHARACTER_8x8_ROM, 5, xCornerPosition + 5, yCornerPosition + 60, 128, 255, 128);
@@ -137,7 +137,7 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 	int copyLength = bufferSize;
 
 	//Check to see if we can draw this thing anyway.
-	if ((xPosition + bufferSize < 0) ||					//If the xPosition is so far off screen that nothing shows up
+	if ((xPosition + (int)bufferSize < 0) ||					//If the xPosition is so far off screen that nothing shows up
 		(xPosition >= SGE::Display::ResolutionX))
 	{
 		return;
@@ -152,14 +152,15 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 	}
 
 	//Prune the amount of the buffer we are going to copy
-	if (xPosition + bufferSize >= unsigned int (SGE::Display::ResolutionX))
+	if (xPosition + bufferSize >= (unsigned int)SGE::Display::ResolutionX)
 	{
 		copyLength = SGE::Display::ResolutionX - xPosition - 1;
 	}
 
 	for (int i = 0; i < SGE::Display::ResolutionY; i++)
 	{
-		memcpy(&SGE::Display::VideoRAM[xPosition + i * SGE::Display::ResolutionX], &buffer[copyStart], copyLength);
+		//memcpy(&SGE::Display::VideoRAM[xPosition + i * SGE::Display::ResolutionX], &buffer[copyStart], copyLength);
+		std::copy(&SGE::Display::VideoRAM[xPosition + i * SGE::Display::ResolutionX], &SGE::Display::VideoRAM[xPosition + i * SGE::Display::ResolutionX] + copyLength, &buffer[copyStart]);
 	}
 }
 
@@ -169,11 +170,11 @@ void InputTest(bool& testInputRunning)
 {
 	char* menuItemText[5] =
 	{
-		"Play: Hyper.mod",
-		"Play: Yehat.mod",
-		"Stop: Hyper.mod",
-		"Stop: Yehat.mod",
-		"Exit Demo",		
+		(char*)"Play: Hyper.mod",
+		(char*)"Play: Yehat.mod",
+		(char*)"Stop: Hyper.mod",
+		(char*)"Stop: Yehat.mod",
+		(char*)"Exit Demo",		
 	};
 
 	//Create the test menu
@@ -209,7 +210,7 @@ void InputTest(bool& testInputRunning)
 
 	//Load a module file
 	SGE::Sound::ModuleFile testModule;
-	testModule.LoadFile("hyper.mod");
+	testModule.LoadFile((char*)"hyper.mod");
 	
 	//Create buffers for converted module data
 	short* moduleSample0 = testModule.ConvertSample(0);
@@ -257,8 +258,8 @@ void InputTest(bool& testInputRunning)
 	SGE::Sound::ModulePlayer modulePlayerTest2;
 	
 	//Load up the module files
-	modulePlayerTest.Load("hyper.mod");
-	modulePlayerTest2.Load("yehat.mod");
+	modulePlayerTest.Load((char*)"hyper.mod");
+	modulePlayerTest2.Load((char*)"yehat.mod");
 
 	//Connect up to the sound system
 	modulePlayerTest.Connect(12, 64);
@@ -276,7 +277,7 @@ void InputTest(bool& testInputRunning)
 	//Load a bitmap
 	SGE::Render::RenderBitmapFile testBitmap;
 
-	testBitmap.LoadFile("TestImage.bmp");
+	testBitmap.LoadFile((char*)"TestImage.bmp");
 
 	//Vector Point List
 	SGE::Render::VertexPoint testVertexPoint[4]=
@@ -388,9 +389,9 @@ void InputTest(bool& testInputRunning)
 		SGE::Render::DrawVectorShape(testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 0, 128, 255);
 
 		//Info up in the corner
-		SGE::Render::DrawString("Strange Game Engine Demo", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 10, 128, 255, 128);
-		SGE::Render::DrawString("Version: 0.01", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 20, 128, 255, 128);
-		SGE::Render::DrawString("\"It actually works!\" Ed.", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 30, 128, 255, 128);
+		SGE::Render::DrawString((char*)"Strange Game Engine Demo", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 10, 128, 255, 128);
+		SGE::Render::DrawString((char*)"Version: 0.01", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 20, 128, 255, 128);
+		SGE::Render::DrawString((char*)"\"It actually works!\" Ed.", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 30, 128, 255, 128);
 	
 		//Draw Menu
 		testMenu.Draw();
@@ -408,8 +409,8 @@ void InputTest(bool& testInputRunning)
 		SGE::Render::DrawRectangle(160, 200, 150, 30, 0, 64, 0);
 
 		//Draw meters
-		DrawLevelMeter("M-L", 165, 205, SGE::Sound::MasterVolumeAverageLeftLevel);
-		DrawLevelMeter("M-R", 165, 217, SGE::Sound::MasterVolumeAverageRightLevel);
+		DrawLevelMeter((char*)"M-L", 165, 205, SGE::Sound::MasterVolumeAverageLeftLevel);
+		DrawLevelMeter((char*)"M-R", 165, 217, SGE::Sound::MasterVolumeAverageRightLevel);
 		
 		//Unlock the display refresh
 		SGE::Display::AllowRefresh();

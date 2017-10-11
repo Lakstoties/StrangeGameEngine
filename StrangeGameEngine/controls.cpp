@@ -2,6 +2,7 @@
 #include "sharedinternal.h"
 #include <GLFW\glfw3.h>
 #include <thread>
+#include <algorithm>
 
 namespace SGE
 {
@@ -78,11 +79,12 @@ namespace SGE
 				glfwWaitEvents();
 			}
 		}
-		
+
 		//Copy current keyboard state to another array
 		void SaveKeyboardStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS])
 		{
-			memcpy(targetKeyboardStatusArray, KeyboardStatus, sizeof(KeyboardStatus));
+			//memcpy(targetKeyboardStatusArray, KeyboardStatus, sizeof(KeyboardStatus));
+			std::copy(KeyboardStatus, KeyboardStatus + NUMBER_OF_KEYS, targetKeyboardStatusArray);
 		}
 	}
 }

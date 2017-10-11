@@ -1,4 +1,5 @@
 ﻿#include "include\SGE\render.h"
+#include <cstring>
 namespace SGE
 {
 	namespace Render
@@ -50,7 +51,7 @@ namespace SGE
 
 			//Check the whole character to see if there's anything to draw at all...
 			//Or if the thing is blank
-			if (characterROM[unsigned char(character)])
+			if (characterROM[(unsigned char)character])
 			{
 				//
 				//  Yes, we could use a for loop, but it has been unrolled for performance sake.
@@ -215,14 +216,12 @@ namespace SGE
 			//Set the starting pint in the source data block RAM
 			int sourceRAM = 0;
 
-			//Set the maximum range for the current video RAM
-			int maxRAM = SGE::Display::ResolutionX * SGE::Display::ResolutionY;
-
 			//For each row of the source block
 			for (int i = 0; i < sourceHeight; i++)
 			{
 				//Copy of row from the source over to the target
-				memcpy(&SGE::Display::VideoRAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * 4);
+				//memcpy(&SGE::Display::VideoRAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * 4);
+				std::copy(&sourceDataBlock[sourceRAM], &sourceDataBlock[sourceRAM] + sourceWidth, &SGE::Display::VideoRAM[targetRAM]);
 
 				//Increment to the next row in the display
 				targetRAM += SGE::Display::ResolutionX;
@@ -282,7 +281,7 @@ namespace SGE
 				startY -= (-startX * deltaY) / deltaX;
 			}
 
-			//Bring in the Y 
+			//Bring in the Y
 			if (startY < 0)
 			{
 				//Calculate new X along Y axis
@@ -309,7 +308,7 @@ namespace SGE
 				endY -= (-endX * deltaY) / deltaX;
 			}
 
-			//Bring in the Y 
+			//Bring in the Y
 			if (endY < 0)
 			{
 				//Calculate new X along Y axis
@@ -494,7 +493,8 @@ namespace SGE
 			for (int i = 1; i < height; i++)
 			{
 				//Copy the first row to the rest of the rows
-				memcpy(&SGE::Display::VideoRAM[targetRAM], &SGE::Display::VideoRAM[startingRAM], width * 4);
+				//memcpy(&SGE::Display::VideoRAM[targetRAM], &SGE::Display::VideoRAM[startingRAM], width * 4);
+				std::copy(&SGE::Display::VideoRAM[startingRAM], &SGE::Display::VideoRAM[startingRAM] + width, &SGE::Display::VideoRAM[targetRAM]);
 
 				//Next Row
 				targetRAM += SGE::Display::ResolutionX;
@@ -792,11 +792,19 @@ namespace SGE
 				(fillWidth < 0) && (fillWidth = -fillWidth);
 
 				//Add 4 to the fillWidth to make sure one 4-byte pixel is at least written per line.  (And to offset any 0 indexing logic.)
-				fillWidth = (fillWidth + 1) * 4;
+				//fillWidth = (fillWidth + 1) * 4;
+				fillWidth++;
 
 				//Copy the row out
-				memcpy(&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ? currentTopMostToBottomMostX : currentOtherLineX) + //Check to see which is furthest left
-					SGE::Display::ResolutionX * (currentY)], SGE::Display::VideoRowBuffer, fillWidth);
+				//memcpy(&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ? currentTopMostToBottomMostX : currentOtherLineX) + //Check to see which is furthest left
+				//	SGE::Display::ResolutionX * (currentY)],
+				//	SGE::Display::VideoRowBuffer,
+				//	fillWidth);
+
+				std::copy(SGE::Display::VideoRowBuffer,				//Start source point
+					SGE::Display::VideoRowBuffer + fillWidth,		//End source Point
+					&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ? currentTopMostToBottomMostX : currentOtherLineX) + SGE::Display::ResolutionX * (currentY)]);		//Destination
+
 
 				//Calculate the X points from Y using a modified Bresenham algorithm.
 				currentTopMostToBottomMostX += topMostToBottomMostVectorInt;
