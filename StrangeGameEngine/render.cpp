@@ -220,8 +220,7 @@ namespace SGE
 			for (int i = 0; i < sourceHeight; i++)
 			{
 				//Copy of row from the source over to the target
-				//memcpy(&SGE::Display::VideoRAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * 4);
-				std::copy(&sourceDataBlock[sourceRAM], &sourceDataBlock[sourceRAM] + sourceWidth, &SGE::Display::VideoRAM[targetRAM]);
+				std::memmove(&SGE::Display::VideoRAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * sizeof(unsigned int));
 
 				//Increment to the next row in the display
 				targetRAM += SGE::Display::ResolutionX;
@@ -494,7 +493,8 @@ namespace SGE
 			{
 				//Copy the first row to the rest of the rows
 				//memcpy(&SGE::Display::VideoRAM[targetRAM], &SGE::Display::VideoRAM[startingRAM], width * 4);
-				std::copy(&SGE::Display::VideoRAM[startingRAM], &SGE::Display::VideoRAM[startingRAM] + width, &SGE::Display::VideoRAM[targetRAM]);
+				//std::copy(&SGE::Display::VideoRAM[startingRAM], &SGE::Display::VideoRAM[startingRAM] + width, &SGE::Display::VideoRAM[targetRAM]);
+				std::memmove(&SGE::Display::VideoRAM[targetRAM], &SGE::Display::VideoRAM[startingRAM], width * sizeof(unsigned int));
 
 				//Next Row
 				targetRAM += SGE::Display::ResolutionX;
@@ -728,19 +728,16 @@ namespace SGE
 			//Calculate points along the lines between TopMost and BottomMost, and TopMost and MiddlePoint
 			for (; currentY < middlePointVertex.y + startY; currentY++)
 			{
-				//Given currentY, compare to the two points along the X axis
-				int fillWidth = currentTopMostToBottomMostX - currentOtherLineX;
-
-				//Flip the sign if needed
-				//If fillWidth is below 0
-				(fillWidth < 0) && (fillWidth = -fillWidth);
-
-				//Add 4 to the fillWidth to make sure one 4-byte pixel is at least written per line.  (And to offset any 0 indexing logic.)
-				fillWidth = (fillWidth + 1) * 4;
-
 				//copy the row out
-				memcpy(&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ? currentTopMostToBottomMostX : currentOtherLineX) + //Check to see which is furthest left
-					SGE::Display::ResolutionX * (currentY)], SGE::Display::VideoRowBuffer, fillWidth);
+				std::memmove(&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ?			//Go to the leftmost point and set that as the destination point in VideoRAM
+					currentTopMostToBottomMostX :
+					currentOtherLineX) +
+					SGE::Display::ResolutionX * (currentY)],
+					SGE::Display::VideoRowBuffer,														//Pull from the VideoRowBuffer
+					((currentTopMostToBottomMostX > currentOtherLineX ?								//Subtract based on which is the greater for a positive difference
+						currentTopMostToBottomMostX - currentOtherLineX :
+						currentOtherLineX - currentTopMostToBottomMostX)
+						+ 1) * sizeof(unsigned int));													//Fill at least one pixel plus the fillWidth
 
 				//Calculate the X points from Y using a modified Bresenham algorithm.
 				currentTopMostToBottomMostX += topMostToBottomMostVectorInt;
@@ -784,27 +781,16 @@ namespace SGE
 			//Calculate points along the lines between TopMost and BottomMost, and MiddlePoint and BottomMost
 			for (; currentY <= bottomMostVertex.y + startY; currentY++)
 			{
-				//Given currentY, compare to the two points along the X axis
-				int fillWidth = currentTopMostToBottomMostX - currentOtherLineX;
-
-				//Flip the sign if needed
-				//If fillWidth is below 0
-				(fillWidth < 0) && (fillWidth = -fillWidth);
-
-				//Add 4 to the fillWidth to make sure one 4-byte pixel is at least written per line.  (And to offset any 0 indexing logic.)
-				//fillWidth = (fillWidth + 1) * 4;
-				fillWidth++;
-
 				//Copy the row out
-				//memcpy(&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ? currentTopMostToBottomMostX : currentOtherLineX) + //Check to see which is furthest left
-				//	SGE::Display::ResolutionX * (currentY)],
-				//	SGE::Display::VideoRowBuffer,
-				//	fillWidth);
-
-				std::copy(SGE::Display::VideoRowBuffer,				//Start source point
-					SGE::Display::VideoRowBuffer + fillWidth,		//End source Point
-					&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ? currentTopMostToBottomMostX : currentOtherLineX) + SGE::Display::ResolutionX * (currentY)]);		//Destination
-
+				std::memmove(&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ?			//Go to the leftmost point and set that as the destination point in VideoRAM
+					currentTopMostToBottomMostX : 
+					currentOtherLineX) + 
+					SGE::Display::ResolutionX * (currentY)],
+					SGE::Display::VideoRowBuffer,														//Pull from the VideoRowBuffer
+					((currentTopMostToBottomMostX > currentOtherLineX ?								//Subtract based on which is the greater for a positive difference
+							currentTopMostToBottomMostX - currentOtherLineX :
+							currentOtherLineX - currentTopMostToBottomMostX)
+						+ 1) * sizeof(unsigned int));													//Fill at least one pixel plus the fillWidth
 
 				//Calculate the X points from Y using a modified Bresenham algorithm.
 				currentTopMostToBottomMostX += topMostToBottomMostVectorInt;

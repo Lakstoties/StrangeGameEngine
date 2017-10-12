@@ -84,7 +84,8 @@ namespace SGE
 		void SaveKeyboardStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS])
 		{
 			//memcpy(targetKeyboardStatusArray, KeyboardStatus, sizeof(KeyboardStatus));
-			std::copy(KeyboardStatus, KeyboardStatus + NUMBER_OF_KEYS, targetKeyboardStatusArray);
+			//std::copy(KeyboardStatus, KeyboardStatus + NUMBER_OF_KEYS, targetKeyboardStatusArray);
+			std::memmove(targetKeyboardStatusArray, KeyboardStatus, sizeof(KeyboardStatus));
 		}
 	}
 }

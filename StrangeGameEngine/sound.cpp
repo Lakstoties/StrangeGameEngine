@@ -167,7 +167,8 @@ namespace SGE
 
 			//memcpy over the data into the buffer
 			//std::memcpy(buffer, samples, sizeof(short) * bufferSize);
-			std::copy(samples, samples + numOfSamples, buffer);
+			//std::copy(samples, samples + numOfSamples, buffer);
+			std::memmove(buffer, samples, sizeof(short) * bufferSize);
 
 			//Everything should have gone okay...
 			return 0;
@@ -442,8 +443,11 @@ namespace SGE
 			{
 				//Initialize the mixing buffers
 				//Depending on the platform, possibly not needed, but some platforms don't promise zeroed memory upon allocation.
-				std::fill(mixingFrameBufferLeft, mixingFrameBufferLeft + frameBufferSize, 0);
-				std::fill(mixingFrameBufferRight, mixingFrameBufferRight + frameBufferSize, 0);
+				//The C++ way  //std::fill(mixingFrameBufferLeft, mixingFrameBufferLeft + frameBufferSize, 0);
+				//std::fill(mixingFrameBufferRight, mixingFrameBufferRight + frameBufferSize, 0);
+
+				std::memset(mixingFrameBufferLeft, 0, sizeof(int) * frameBufferSize);
+				std::memset(mixingFrameBufferRight, 0, sizeof(int) * frameBufferSize);
 			}
 		}
 
