@@ -160,7 +160,6 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 	for (int i = 0; i < SGE::Display::ResolutionY; i++)
 	{
 		//memcpy(&SGE::Display::VideoRAM[xPosition + i * SGE::Display::ResolutionX], &buffer[copyStart], copyLength);
-		//std::copy(&SGE::Display::VideoRAM[xPosition + i * SGE::Display::ResolutionX], &SGE::Display::VideoRAM[xPosition + i * SGE::Display::ResolutionX] + copyLength, &buffer[copyStart]);
 		std::memmove(&SGE::Display::VideoRAM[xPosition + i * SGE::Display::ResolutionX], &buffer[copyStart], copyLength);
 
 	}
