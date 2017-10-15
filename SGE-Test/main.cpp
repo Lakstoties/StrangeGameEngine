@@ -208,59 +208,14 @@ void InputTest(bool& testInputRunning)
 	testMenu.highlightTextRColor = 0;
 	testMenu.highlightTextGColor = 0;
 	testMenu. highlightTextBColor = 0;
-
-	//Load a module file
-	SGE::Sound::ModuleFile testModule;
-	testModule.LoadFile((char*)"hyper.mod");
 	
-	//Create buffers for converted module data
-	short* moduleSample0 = testModule.ConvertSample(0);
-	short* moduleSample1 = testModule.ConvertSample(1);
-	short* moduleSample2 = testModule.ConvertSample(2);
-	short* moduleSample3 = testModule.ConvertSample(3);
-	short* moduleSample4 = testModule.ConvertSample(4);
-	short* moduleSample5 = testModule.ConvertSample(5);
-	short* moduleSample6 = testModule.ConvertSample(6);
-	short* moduleSample7 = testModule.ConvertSample(7);
-	short* moduleSample8 = testModule.ConvertSample(8);
-	short* moduleSample9 = testModule.ConvertSample(9);
-
-	//Load samples into the Sound System
-	SGE::Sound::SampleBuffers[0].Load(testModule.samples[0].lengthInWords * 2, moduleSample0);
-	SGE::Sound::SampleBuffers[1].Load(testModule.samples[1].lengthInWords * 2, moduleSample1);
-	SGE::Sound::SampleBuffers[2].Load(testModule.samples[2].lengthInWords * 2, moduleSample2);
-	SGE::Sound::SampleBuffers[3].Load(testModule.samples[3].lengthInWords * 2, moduleSample3);
-	SGE::Sound::SampleBuffers[4].Load(testModule.samples[4].lengthInWords * 2, moduleSample4);
-	SGE::Sound::SampleBuffers[5].Load(testModule.samples[5].lengthInWords * 2, moduleSample5);
-	SGE::Sound::SampleBuffers[6].Load(testModule.samples[6].lengthInWords * 2, moduleSample6);
-	SGE::Sound::SampleBuffers[7].Load(testModule.samples[7].lengthInWords * 2, moduleSample7);
-	SGE::Sound::SampleBuffers[8].Load(testModule.samples[8].lengthInWords * 2, moduleSample8);
-	SGE::Sound::SampleBuffers[9].Load(testModule.samples[9].lengthInWords * 2, moduleSample9);
-	
-	//Ready the channels
-	for (int i = 0; i < 10; i++)
-	{
-		//Load SineWave in channel
-		SGE::Sound::Channels[i].currentSampleBuffer = &SGE::Sound::SampleBuffers[i];
-
-		//Set the pitches of the channel
-		//SGE::Sound::Channels[i].offsetIncrement = (SGE::Sound::MIDI_NOTE_FRENQUENCY[i + 60]);
-		SGE::Sound::Channels[i].offsetIncrement = 0.1879138321995465f;
-
-		//Set the channel to loop
-		SGE::Sound::Channels[i].Repeatable = false;
-
-		//Set repeat duration
-		SGE::Sound::Channels[i].repeatDuration = SGE::Sound::Channels[i].currentSampleBuffer->bufferSize;
-	}
-
 	//Create some players
 	SGE::Sound::ModulePlayer modulePlayerTest;
 	SGE::Sound::ModulePlayer modulePlayerTest2;
 	
 	//Load up the module files
-	modulePlayerTest.Load((char*)"hyper.mod");
-	modulePlayerTest2.Load((char*)"yehat.mod");
+	modulePlayerTest.Load((char*)"comandr.mod");
+	modulePlayerTest2.Load((char*)"melnorm.mod");
 
 	//Connect up to the sound system
 	modulePlayerTest.Connect(12, 64);
@@ -475,99 +430,7 @@ void InputTest(bool& testInputRunning)
 			printf("Debug - Master Volume: %f\n", SGE::Sound::MasterVolume);
 		}
 
-
-		//Sound keys stuff
-		//Number Key 0
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_0] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_0])
-		{
-			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_0])
-			{
-				SGE::Sound::Channels[0].Play();
-			}
-		}
-
-		//Number Key 1
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_1] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_1])
-		{
-			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_1])
-			{
-				SGE::Sound::Channels[1].Play();
-			}
-		}
-
-		//Number Key 2
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_2] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_2])
-		{
-			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_2])
-			{
-				SGE::Sound::Channels[2].Play();
-			}
-		}
-
-		//Number Key 3
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_3] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_3])
-		{
-			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_3])
-			{
-				SGE::Sound::Channels[3].Play();
-			}
-		}
-
-		//Number Key 4
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_4] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_4])
-		{
-			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_4])
-			{
-
-				SGE::Sound::Channels[4].Play();
-			}
-		}
-
-		//Number Key 5
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_5] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_5])
-		{
-			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_5])
-			{
-				SGE::Sound::Channels[5].Play();
-			}
-		}
-
-		//Number Key 6
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_6] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_6])
-		{
-			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_6])
-			{
-				SGE::Sound::Channels[6].Play();
-			}
-		}
-
-		//Number Key 7
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_7] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_7])
-		{
-			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_7])
-			{
-				SGE::Sound::Channels[7].Play();
-			}
-		}
-
-		//Number Key 8
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_8] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_8])
-		{
-			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_8])
-			{
-				SGE::Sound::Channels[8].Play();
-			}
-		}
-
-		//Number Key 9
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_9] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_9])
-		{
-			if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_9])
-			{
-				SGE::Sound::Channels[9].Play();
-			}
-		}
-
+	
 		//Select box stuff
 		//If the Down key state has changed and it wasn't pressed previously
 		if (lastKeyboardState[SGE::Controls::Keymap::KEY_DOWN] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_DOWN] &&

@@ -36,17 +36,33 @@ namespace SGE
 				}
 				else
 				{
+					//
+					//  Grab the sample for the offset
+					//
+
+					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
+					sampleBuffer[i] = int(currentSampleBuffer->buffer[(unsigned int)offset] * Volume);
+
+					//Add to the acculumator for the average
+					//Negate negatives since we are only interested in overall amplitude
+					currentSampleAverage += abs(sampleBuffer[i]);
+
+					//
+					//  Calculate the next offset based on the appropriate increment
+					//
+
 					//Check to see if the Arpeggio Effect is in effect
 					if (EnableArpeggio)
 					{
 						//Check the state of the Arpeggio effect
 						if (currentArpeggioSamples > ArpeggioSampleInterval)
 						{
-							//Reset the counter
-							currentArpeggioSamples = currentArpeggioSamples % ArpeggioSampleInterval;
+							//Reset and roll the counter
+							currentArpeggioSamples %= ArpeggioSampleInterval;
 
 							//Transition the state
-							arpeggioState = (arpeggioState + 1) % 3;
+							//Increment and then modulus to the states around.
+							++arpeggioState %= 3;
 
 							//Based on that state alter the argpeggio offset increment
 
@@ -56,42 +72,44 @@ namespace SGE
 								arpeggioOffsetIncrement = offsetIncrement;
 							}
 
-							//If at X semitone state
-							else if (arpeggioState == 1)
-							{
-								arpeggioOffsetIncrement = float (offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioSemitoneX));
-							}
-
-							//If at Y semitone state
+							//Otherwise we are doing semitones
 							else
 							{
-								arpeggioOffsetIncrement = float (offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioSemitoneY));
+								//Caclulate the semitone using the current offset
+								//Check to see if state 1 or 2 and use X and Y values accordingly
+								arpeggioOffsetIncrement = float(offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioState == 1 ? arpeggioSemitoneX : arpeggioSemitoneY));
 							}
 						}
+
+						//Advance the number of samples
 						currentArpeggioSamples++;
 					}
 
-					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
-					sampleBuffer[i] = int (currentSampleBuffer->buffer[(unsigned int) offset] * Volume);
 
-					//Add to the acculumator for the average
-					//Negate negatives since we are only interested in overall amplitude
-					currentSampleAverage += sampleBuffer[i] < 0 ? -sampleBuffer[i] : sampleBuffer[i];
-
-					//Increment to the next offset
-					//If Arpeggio effect is enabled, be sure to use the right increment
+					//
+					//  Increment Offset  Appropriately
+					//
 					offset += EnableArpeggio ? arpeggioOffsetIncrement : offsetIncrement;
 
 
+					//
+					//  Check for repeating loops
+					//
+
 					//Check to see if this same is suppose to repeat and is set to do so... correctly
-					if (Repeatable && (repeatDuration > 0) && ((unsigned int)offset >= (repeatOffset + repeatDuration)))
+					if ((currentSampleBuffer->repeatDuration > 0) && ((unsigned int)offset >= (currentSampleBuffer->repeatOffset + currentSampleBuffer->repeatDuration)))
 					{
-						//Alter the offset appropriate, keeping in mind how much we have blown past end point to add the difference in to keep looping proper.
-						offset = float(repeatOffset) + (offset - float(repeatOffset + repeatDuration));
+						//Rewind back by the repeatDuration.
+						offset -= currentSampleBuffer->repeatDuration;
 					}
 
+
+					//
+					//  Check to see if it's gone pass the valid bufferSize
+					//
+
 					//If not repeatable and the offset has gone past the end of the buffer
-					else if ((unsigned int) offset >= currentSampleBuffer->bufferSize)
+					if ((unsigned int)offset >= currentSampleBuffer->bufferSize)
 					{
 						//Fuck this shit we're out!
 						Stop();
@@ -437,17 +455,14 @@ namespace SGE
 		}
 
 		//Clears and zeros out data in the mixing buffers
-		void ClearMixingBuffers()
+		void ClearMixingBuffers(unsigned int numberOfFrames)
 		{
-			if (mixingFrameBufferLeft != nullptr && mixingFrameBufferRight != nullptr)
+			if (mixingFrameBufferLeft != nullptr && mixingFrameBufferRight != nullptr && numberOfFrames <= frameBufferSize)
 			{
 				//Initialize the mixing buffers
 				//Depending on the platform, possibly not needed, but some platforms don't promise zeroed memory upon allocation.
-				//The C++ way  //std::fill(mixingFrameBufferLeft, mixingFrameBufferLeft + frameBufferSize, 0);
-				//std::fill(mixingFrameBufferRight, mixingFrameBufferRight + frameBufferSize, 0);
-
-				std::memset(mixingFrameBufferLeft, 0, sizeof(int) * frameBufferSize);
-				std::memset(mixingFrameBufferRight, 0, sizeof(int) * frameBufferSize);
+				std::memset(mixingFrameBufferLeft,  0, sizeof(int) * numberOfFrames);
+				std::memset(mixingFrameBufferRight, 0, sizeof(int) * numberOfFrames);
 			}
 		}
 
@@ -478,7 +493,7 @@ namespace SGE
 			unsigned int currentRightAverageLevel = 0;
 
 			//Clear out the mixing buffers
-			ClearMixingBuffers();
+			ClearMixingBuffers(frameCount);
 
 			//Recast the output buffers
 			short* outputBufferLeft = ((short**)output)[0];
@@ -490,6 +505,7 @@ namespace SGE
 			{
 				DeleteFrameBuffers();
 				GenerateFrameBuffers(frameCount);
+				ClearMixingBuffers(frameCount);
 				fprintf(stderr, "DEBUG:  Sound  System - Frame Buffer Size Increased to: %lu\n", frameBufferSize);
 			}
 
@@ -518,18 +534,26 @@ namespace SGE
 
 				//Check for things hitting the upper and lower ends of the range
 				//For the left channel
-				outputBufferLeft[i]  = mixingFrameBufferLeft[i]  > SAMPLE_MAX_AMPLITUDE ? SAMPLE_MAX_AMPLITUDE : (mixingFrameBufferLeft[i]  < -SAMPLE_MAX_AMPLITUDE ? -SAMPLE_MAX_AMPLITUDE : mixingFrameBufferLeft[i]);
+				outputBufferLeft[i] = (-SAMPLE_MAX_AMPLITUDE <= mixingFrameBufferLeft[i] && mixingFrameBufferLeft[i] <= SAMPLE_MAX_AMPLITUDE) ?		//Check to see if the sample value is within valid range
+					mixingFrameBufferLeft[i] :																										//If so, use that value
+					(mixingFrameBufferLeft[i] > 0) ?																								//Otherwise use a max range value, check to see if positive
+					SAMPLE_MAX_AMPLITUDE :																											//Use positive value
+					-SAMPLE_MAX_AMPLITUDE;																											//Use negative value
 
 				//For the right channel
-				outputBufferRight[i] = mixingFrameBufferRight[i] > SAMPLE_MAX_AMPLITUDE ? SAMPLE_MAX_AMPLITUDE : (mixingFrameBufferRight[i] < -SAMPLE_MAX_AMPLITUDE ? -SAMPLE_MAX_AMPLITUDE : mixingFrameBufferRight[i]);
+				outputBufferRight[i] = (-SAMPLE_MAX_AMPLITUDE <= mixingFrameBufferRight[i] && mixingFrameBufferRight[i] <= SAMPLE_MAX_AMPLITUDE) ?	//Check to see if the sample value is within valid range
+					mixingFrameBufferRight[i] :																										//If so, use that value
+					(mixingFrameBufferRight[i] > 0) ?																								//Otherwise use a max range value, check to see if positive
+					SAMPLE_MAX_AMPLITUDE :																											//Use positive value
+					-SAMPLE_MAX_AMPLITUDE;																											//Use negative value
 
 				//Sum up the levels
 				//Negate negative values since we are interested in overall amplitude and not phasing
 				//For the left channel
-				currentLeftAverageLevel += outputBufferLeft[i] < 0 ? -outputBufferLeft[i] : outputBufferLeft[i];
+				currentLeftAverageLevel += abs(outputBufferLeft[i]);
 
 				//For the right channel
-				currentRightAverageLevel += outputBufferRight[i] < 0 ? -outputBufferRight[i] : outputBufferRight[i];
+				currentRightAverageLevel += abs(outputBufferRight[i]);
 			}
 
 			//Report stats
@@ -684,7 +708,10 @@ namespace SGE
 
 		ModuleFile::~ModuleFile()
 		{
-
+			for (int i = 0; i < 31; i++)
+			{
+				delete[] samples[i].data;
+			}
 		}
 
 		int ModuleFile::LoadFile(char* targetFilename)
@@ -1031,6 +1058,10 @@ namespace SGE
 
 		bool ModulePlayer::Load(char * filename)
 		{
+			//Make sure we have a new module file
+			modFile = ModuleFile();
+
+			//Load it up.
 			modFile.LoadFile(filename);
 
 			//If we get here, stuff is okay.
@@ -1085,7 +1116,15 @@ namespace SGE
 					//Get rid of the old buffer.
 					delete temp;
 				}
+
+				//Apply repeat data
+				sampleMap[i]->repeatOffset = modFile.samples[i].repeatOffset;
+
+				//Because of mod file weirdness check to make sure the duration is more than 1.
+				sampleMap[i]->repeatDuration = modFile.samples[i].repeatLength > 1 ? modFile.samples[i].repeatLength : 0;
 			}
+
+
 
 			//Since this a mod, configure the volume balances for the channels
 			channelMap[0]->Pan =  0.50f;

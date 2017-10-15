@@ -233,6 +233,12 @@ namespace SGE
 			//Size of the buffer
 			unsigned int bufferSize = 0;
 
+			//The offeset the sample will repeat at.
+			unsigned int repeatOffset = 0;
+
+			//The duration of the repeat
+			unsigned int repeatDuration = 0;
+
 			//Create a blank buffer of a certain sample size
 			int CreateBlankBuffer(unsigned int numOfSamples);
 
@@ -274,16 +280,6 @@ namespace SGE
 
 			//Status flag
 			bool Playing = false;
-
-			//Repeat information
-			//This channel can repeat
-			bool Repeatable = false;
-
-			//The offeset the sample will repeat at.
-			unsigned int repeatOffset = 0;
-
-			//The duration of the repeat
-			unsigned int repeatDuration = 0;
 
 			//Volumes/Panning
 			float Volume = 1.0f;
@@ -371,7 +367,7 @@ namespace SGE
 					unsigned char volume = 0;				//Sample volume.  0 - 64 are legal values
 					unsigned short repeatOffset = 0;		//Sample repeat offset
 					unsigned short repeatLength = 0;		//Sample repeat length
-					char* data = nullptr;			//Pointer to Sample data
+					char* data = nullptr;					//Pointer to Sample data
 				};
 
 				struct MODChannelData
