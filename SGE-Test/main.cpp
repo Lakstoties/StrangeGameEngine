@@ -214,8 +214,8 @@ void InputTest(bool& testInputRunning)
 	SGE::Sound::ModulePlayer modulePlayerTest2;
 	
 	//Load up the module files
-	modulePlayerTest.Load((char*)"comandr.mod");
-	modulePlayerTest2.Load((char*)"melnorm.mod");
+	modulePlayerTest.Load((char*)"hyper.mod");
+	modulePlayerTest2.Load((char*)"yehat.mod");
 
 	//Connect up to the sound system
 	modulePlayerTest.Connect(12, 64);
