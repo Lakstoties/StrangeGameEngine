@@ -1175,6 +1175,8 @@ namespace SGE
 			unsigned char effectXOnChannel[4] = { 0 };
 			unsigned char effectYOnChannel[4] = { 0 };
 
+			int positionToJumpAfterDivision = -1;
+
 			//Default for most mods, can be changed.
 			ticksADivision = DEFAULT_TICKS_A_DIVISION;
 
@@ -1213,8 +1215,6 @@ namespace SGE
 							//If it is zero don't change the sample used in the channel
 							if (modFile.patterns[CurrentPattern].division[i].channels[c].sample > 0)
 							{
-								//fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing to Sample: %d\n", c, modFile.patterns[CurrentPattern].division[i].channels[c].sample - 1);
-
 								//Stop this channel
 								channelMap[c]->Stop();
 
@@ -1255,8 +1255,14 @@ namespace SGE
 								channelMap[c]->arpeggioSemitoneY = 0;
 							}
 
+							//if effect B or 11, then jump positions after this division
+							if (effectTypeOnChannel[c] == 0xB)
+							{
+								positionToJumpAfterDivision = (effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+							}
+							
 							//If effect C or 12, then set the volume.
-							if (effectTypeOnChannel[c] == 0xC)
+							else if (effectTypeOnChannel[c] == 0xC)
 							{
 								//fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing Volume: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
 								channelMap[c]->Volume = (effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 64.0f;
@@ -1309,8 +1315,25 @@ namespace SGE
 						//Wait for the next division
 						std::this_thread::sleep_for(std::chrono::nanoseconds(ticksADivision * MOD_DEFAULT_TICK_TIMING_NANO));
 
+						//Post division checks
+
+						//Check for a jump
+						if (positionToJumpAfterDivision != -1)
+						{
+							//Set Position
+							j = positionToJumpAfterDivision;
+
+							//Reset Division
+							i = 0;
+
+							//Reset Jump flag
+							positionToJumpAfterDivision = -1;
+						}
+
 						//Calculate the delta time
 						deltaTime = std::chrono::steady_clock::now() - startTime;
+
+
 					}
 				}
 			}
