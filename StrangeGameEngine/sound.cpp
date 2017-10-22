@@ -454,19 +454,6 @@ namespace SGE
 			}
 		}
 
-		//Clears and zeros out data in the mixing buffers
-		void ClearMixingBuffers(unsigned int numberOfFrames)
-		{
-			if (mixingFrameBufferLeft != nullptr && mixingFrameBufferRight != nullptr && numberOfFrames <= frameBufferSize)
-			{
-				//Initialize the mixing buffers
-				//Depending on the platform, possibly not needed, but some platforms don't promise zeroed memory upon allocation.
-				std::memset(mixingFrameBufferLeft,  0, sizeof(int) * numberOfFrames);
-				std::memset(mixingFrameBufferRight, 0, sizeof(int) * numberOfFrames);
-			}
-		}
-
-
 		//Flag to indicate if this object's attempt to initialize port audio threw an error
 		bool paInitializeReturnedError = false;
 
@@ -492,9 +479,6 @@ namespace SGE
 			unsigned int currentLeftAverageLevel = 0;
 			unsigned int currentRightAverageLevel = 0;
 
-			//Clear out the mixing buffers
-			ClearMixingBuffers(frameCount);
-
 			//Recast the output buffers
 			short* outputBufferLeft = ((short**)output)[0];
 			short* outputBufferRight = ((short**)output)[1];
@@ -505,9 +489,13 @@ namespace SGE
 			{
 				DeleteFrameBuffers();
 				GenerateFrameBuffers(frameCount);
-				ClearMixingBuffers(frameCount);
 				fprintf(stderr, "DEBUG:  Sound  System - Frame Buffer Size Increased to: %lu\n", frameBufferSize);
 			}
+
+			//Initialize the mixing buffers
+			//Depending on the platform, possibly not needed, but some platforms don't promise zeroed memory upon allocation.
+			std::memset(mixingFrameBufferLeft,  0, sizeof(int) * frameBufferSize);
+			std::memset(mixingFrameBufferRight, 0, sizeof(int) * frameBufferSize);
 
 			//Go through each channel and render samples
 			for (int i = 0; i < MAX_CHANNELS; i++)
