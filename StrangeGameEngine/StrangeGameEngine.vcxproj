@@ -21,7 +21,7 @@
     <ConfigurationType>StaticLibrary</ConfigurationType>
     <UseDebugLibraries>true</UseDebugLibraries>
     <CharacterSet>MultiByte</CharacterSet>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v141_clang_c2</PlatformToolset>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'" Label="Configuration">
     <ConfigurationType>StaticLibrary</ConfigurationType>
@@ -54,14 +54,16 @@
       <AdditionalIncludeDirectories>..\GLFW\include;..\PortAudio\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; _SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions); D_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <CLanguageStandard>gnu11</CLanguageStandard>
+      <CppLanguageStandard>gnu++1y</CppLanguageStandard>
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\libs\x86;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>portaudio_x86.lib;glfw3dll.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>portaudio_x86.lib;glfw3dll.lib;opengl32.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\libs\x86;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>portaudio.lib;glfw3.lib;opengl32.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\lib;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -85,8 +87,8 @@
       <AdditionalDependencies>portaudio_x86.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\libs\x86;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>portaudio_x86.lib;glfw3dll.lib;opengl32.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>portaudio.lib;glfw3.lib;opengl32.lib;</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
