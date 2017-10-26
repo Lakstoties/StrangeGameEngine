@@ -16,6 +16,15 @@ namespace SGE
 		void HandleEvents(GLFWwindow* targetWindow);
 	}
 
+	namespace Display
+	{
+		//The virtual video horizontal resolution
+		extern int ResolutionX;
+
+		//The virtual video vertical resolution
+		extern int ResolutionY;
+	}
+
 	//GLFW Window pointer for the Strange Game Engine
 	extern GLFWwindow* mainWindow;
 }

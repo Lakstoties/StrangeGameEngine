@@ -6,6 +6,8 @@ namespace SGE
 		//Values for the key and scan code arrays
 		const int NUMBER_OF_KEYS = 512;
 
+		const int NUMBER_OF_BUTTONS = 10;
+
 		//Current keyboard key state array
 		//It's an extern to keep the linker from going crazy over multiple definitions between the headers.
 		//It's officially defined in the control.cpp
@@ -13,6 +15,14 @@ namespace SGE
 
 		//Flag to indicate if the input handling system should keep on going.
 		extern bool ContinueToHandleEvents;
+
+		extern int MousePositionRawX;
+		extern int MousePositionX;
+
+		extern int MousePositionRawY;
+		extern int MousePositionY;
+
+		extern bool MouseButtons[NUMBER_OF_BUTTONS];
 
 		//Start Handling Events through Main Interface
 		//This has to handled by the same thread that spawned the GUI window

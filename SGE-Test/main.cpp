@@ -1,6 +1,6 @@
 ﻿#include "main.h"
 #include <thread>
-
+#include <string>
 
 void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, unsigned int sampleLevel)
 {
@@ -348,6 +348,14 @@ void InputTest(bool& testInputRunning)
 		SGE::Render::DrawString((char*)"Strange Game Engine Demo", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 10, 128, 255, 128);
 		SGE::Render::DrawString((char*)"Version: 0.01", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 20, 128, 255, 128);
 		SGE::Render::DrawString((char*)"\"It actually works!\" Ed.", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 30, 128, 255, 128);
+
+		char temp[100] = { 0 };
+
+		sprintf(temp, "Mouse Position X: %i", SGE::Controls::MousePositionX);
+		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 20, 75, 128, 255, 128);
+
+		sprintf(temp, "Mouse Position Y: %i", SGE::Controls::MousePositionY);
+		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 20, 85, 128, 255, 128);
 	
 		//Draw Menu
 		testMenu.Draw();

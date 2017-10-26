@@ -31,6 +31,9 @@ namespace SGE
 		//The virtual video RAM Size.
 		unsigned int VideoRAMSize = 0;
 
+		//Virtual Display Scaling between intended resolution and actual.
+		float VirtualDisplayScaling = 1.0f;
+
 		//C++ thread pointer to keep track of the spawned drawing thread.
 		std::thread* drawingThread = nullptr;
 
@@ -113,38 +116,25 @@ namespace SGE
 					frameBufferPreviousHeight = frameBufferHeight;
 					frameBufferPreviousWidth = frameBufferWidth;
 
-					//Calculate the virtualDisplay's aspect ratio
-					float virtualDisplayAspectRatio = float (SGE::Display::ResolutionX) / float (SGE::Display::ResolutionY);
-					
-					//Test the aspect ratio against the new width to see if we can scale using the height
-					if (frameBufferHeight * virtualDisplayAspectRatio <= frameBufferWidth)
-					{
-						//Set new the Viewport
-						glViewport(
-							//Center it in the middle of the X axis
-							int((frameBufferWidth - frameBufferHeight * virtualDisplayAspectRatio) / 2),
-							//Set the Y to the origin
-							0, 
-							//Scale the width based on the height and aspect ratio
-							int(frameBufferHeight * virtualDisplayAspectRatio), 
-							//Set the height to the frameBufferHeight
-							frameBufferHeight);
-					}
+					//Calculate offsets
+					int newFrameBufferXOffset = (frameBufferWidth - (frameBufferHeight * SGE::Display::ResolutionX) / SGE::Display::ResolutionY) >> 1;
+					int newFrameBufferYOffset = (frameBufferHeight - (frameBufferWidth * SGE::Display::ResolutionY) / SGE::Display::ResolutionX) >> 1;
 
-					//Otherwise, just scale using the new width
-					else
-					{
-						//Set new the viewport
-						glViewport(
-							//Set the X to the origin
-							0,
-							//Center it in the middle of the Y axis
-							int((frameBufferHeight - frameBufferWidth / virtualDisplayAspectRatio) / 2),
-							//Set the width to the frame buffer
-							frameBufferWidth, 
-							//Scale the height based on the width and aspect ratio
-							int(frameBufferWidth / virtualDisplayAspectRatio));
-					}
+					//Short circuit logic
+					//If the Offset goes negative it needs to be hard capped or it throws off calculations.
+					(newFrameBufferXOffset < 0) && (newFrameBufferXOffset = 0);
+					(newFrameBufferYOffset < 0) && (newFrameBufferYOffset = 0);
+					
+					//Set new the Viewport
+					glViewport(
+							//Center it in the middle of the X axis
+							newFrameBufferXOffset,
+							//Set the Y to the origin
+							newFrameBufferYOffset, 
+							//Scale the width based on the height and aspect ratio
+							frameBufferWidth  - (newFrameBufferXOffset << 1), 
+							//Set the height to the frameBufferHeight
+							frameBufferHeight - (newFrameBufferYOffset << 1));
 				}
 
 				//Lock the refresh mutex
