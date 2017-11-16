@@ -27,6 +27,9 @@ namespace SGE
 		float MouseYScaling = 1.0f;
 		int MouseYOffset = 0;
 
+		int MouseScrollX = 0;
+		int MouseScrollY = 0;
+
 
 		bool MouseButtons[NUMBER_OF_BUTTONS] = { false };
 
@@ -99,6 +102,15 @@ namespace SGE
 
 		}
 
+		//Mouse Scrool Wheel callback for GLFW
+		void ScrollWheelCallback(GLFWwindow* window, double xOffset, double yOffset)
+		{
+			MouseScrollX += xOffset;
+			MouseScrollY += yOffset;
+
+			//fprintf(stderr, "Scroll event catpured: %f, %f \n", xOffset, yOffset);
+		}
+
 		void HandleEvents()
 		{
 			//
@@ -113,6 +125,9 @@ namespace SGE
 
 			//Mouse button callback
 			glfwSetMouseButtonCallback(SGE::mainWindow, MouseButtonCallback);
+
+			//Mouse scrool wheel callback
+			glfwSetScrollCallback(SGE::mainWindow, ScrollWheelCallback);
 
 
 			//Start Handling Events through Main Interface

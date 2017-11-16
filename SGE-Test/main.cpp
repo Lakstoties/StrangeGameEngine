@@ -351,11 +351,90 @@ void InputTest(bool& testInputRunning)
 
 		char temp[100] = { 0 };
 
-		sprintf(temp, "Mouse Position X: %i", SGE::Controls::MousePositionX);
-		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 20, 75, 128, 255, 128);
 
+		//
+		//Draw Mouse Status Box
+		//
+
+		//Draw Background Box
+		SGE::Render::DrawBox(0, 70, 135, 58, 0, 128, 0);
+		SGE::Render::DrawRectangle(0, 70, 135, 58, 0, 64, 0);
+
+
+		//Print string for Mouse's X
+		sprintf(temp, "Mouse Position X: %i", SGE::Controls::MousePositionX);
+		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 4, 75, 128, 255, 128);
+
+		//Print string for Mouse's Y
 		sprintf(temp, "Mouse Position Y: %i", SGE::Controls::MousePositionY);
-		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 20, 85, 128, 255, 128);
+		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 4, 85, 128, 255, 128);
+
+		//Print String for Mouse's X Scroll
+		sprintf(temp, "Scroll Position X: %i", SGE::Controls::MouseScrollX);
+		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 4, 95, 128, 255, 128);
+
+		//Print string for Mouse's Y Scroll
+		sprintf(temp, "Scroll Position Y: %i", SGE::Controls::MouseScrollY);
+		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 4, 105, 128, 255, 128);
+
+		//Print Mouse button array
+
+		//Left Mouse Button
+		SGE::Render::Draw8x8Character('L', SGE::Render::CHARACTER_8x8_ROM, 5, 115, 128, 255, 128);
+		if (SGE::Controls::MouseButtons[0])
+		{ 
+			SGE::Render::DrawBox(15, 115, 5, 8, 192, 16, 16);
+		}
+		else
+		{
+			SGE::Render::DrawBox(15, 115, 5, 8, 64, 16, 16);
+		}
+
+		//Right Mouse Button
+		SGE::Render::Draw8x8Character('R', SGE::Render::CHARACTER_8x8_ROM, 25, 115, 128, 255, 128);
+		if (SGE::Controls::MouseButtons[1])
+		{
+			SGE::Render::DrawBox(35, 115, 5, 8, 192, 16, 16);
+		}
+		else
+		{
+			SGE::Render::DrawBox(35, 115, 5, 8, 64, 16, 16);
+		}
+
+		
+		//Center Mouse Button
+		SGE::Render::Draw8x8Character('M', SGE::Render::CHARACTER_8x8_ROM, 45, 115, 128, 255, 128);
+		if (SGE::Controls::MouseButtons[2])
+		{
+			SGE::Render::DrawBox(55, 115, 5, 8, 192, 16, 16);
+		}
+		else
+		{
+			SGE::Render::DrawBox(55, 115, 5, 8, 64, 16, 16);
+		}
+
+		//Extra Button
+		SGE::Render::Draw8x8Character('A', SGE::Render::CHARACTER_8x8_ROM, 65, 115, 128, 255, 128);
+		if (SGE::Controls::MouseButtons[3])
+		{
+			SGE::Render::DrawBox(75, 115, 5, 8, 192, 16, 16);
+		}
+		else
+		{
+			SGE::Render::DrawBox(75, 115, 5, 8, 64, 16, 16);
+		}
+		
+		//Extra Button
+		SGE::Render::Draw8x8Character('B', SGE::Render::CHARACTER_8x8_ROM, 85, 115, 128, 255, 128);
+		if (SGE::Controls::MouseButtons[4])
+		{
+			SGE::Render::DrawBox(95, 115, 5, 8, 192, 16, 16);
+		}
+		else
+		{
+			SGE::Render::DrawBox(95, 115, 5, 8, 64, 16, 16);
+		}
+
 	
 		//Draw Menu
 		testMenu.Draw();

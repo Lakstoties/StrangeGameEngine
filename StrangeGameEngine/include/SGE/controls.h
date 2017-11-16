@@ -24,6 +24,9 @@ namespace SGE
 
 		extern bool MouseButtons[NUMBER_OF_BUTTONS];
 
+		extern int MouseScrollX;
+		extern int MouseScrollY;
+
 		//Start Handling Events through Main Interface
 		//This has to handled by the same thread that spawned the GUI window
 		//And in OSX this has to be done by the thread that invoked the main function of the program..  Fuckin' Macs...
