@@ -19,6 +19,28 @@ namespace SGE
 		//The virtual video vertical resolution
 		int ResolutionY = 0;
 
+		//The framebuffer horizontal resolution within the OS Window
+		int FrameBufferX = 0;
+
+		//The framebuffer vertical resoltuion within the OS Window
+		int FrameBufferY = 0;
+
+		//Flag to indicate the framebuffer window size has changed
+		bool FrameBufferChanged = false;
+
+		//The viewpoint window (within the framebuffer window) vertical resolution
+		int ViewPortWindowX = 0;
+
+		//The viewpoint window (within the framebuffer window) horizontal resolution
+		int ViewPortWindowY = 0;
+
+		//The viewpoint window (within the framebuffer window) X offset
+		int ViewPortWindowOffsetX = 0;
+
+		//The viewpoint window (within the framebuffer window) Y offset
+		int ViewPortWindowOffsetY = 0;
+
+
 		//The virtual video RAM.  Public accessible to allow other components to write to it directly.
 		unsigned int* VideoRAM = nullptr;
 
@@ -43,15 +65,6 @@ namespace SGE
 		//Main update thread to take what's in video RAM and dump it on the screen.
 		void UpdateThread()
 		{
-			//Variable to maintain the opengl framebuffer width and height
-			int frameBufferWidth = 0;
-			int frameBufferHeight = 0;
-
-			//Track the previous width and height in case the framebuffer changes and we need to rescale stuff.
-			int frameBufferPreviousWidth = 0;
-			int frameBufferPreviousHeight = 0;
-
-
 			//Handle to call the OpenGL texture we are using
 			GLuint textureHandle = 0;
 
@@ -104,37 +117,22 @@ namespace SGE
 				//  OpenGL Window sizing, scaling, and centering!
 				//
 
-				//Grab the current frameBuffer size
-				glfwGetFramebufferSize(SGE::mainWindow, &frameBufferWidth, &frameBufferHeight);
-
 				//Check to see if this stuff has changed from previous
-				if (frameBufferHeight != frameBufferPreviousHeight || frameBufferWidth != frameBufferPreviousWidth)
+				if (SGE::Display::FrameBufferChanged)
 				{
-					//Welp, shit has changed! Recalculate the viewport!
+					//Got it, reset the flag
+					SGE::Display::FrameBufferChanged = false;
 
-					//Save the new values into the old ones
-					frameBufferPreviousHeight = frameBufferHeight;
-					frameBufferPreviousWidth = frameBufferWidth;
-
-					//Calculate offsets
-					int newFrameBufferXOffset = (frameBufferWidth - (frameBufferHeight * SGE::Display::ResolutionX) / SGE::Display::ResolutionY) >> 1;
-					int newFrameBufferYOffset = (frameBufferHeight - (frameBufferWidth * SGE::Display::ResolutionY) / SGE::Display::ResolutionX) >> 1;
-
-					//Short circuit logic
-					//If the Offset goes negative it needs to be hard capped or it throws off calculations.
-					(newFrameBufferXOffset < 0) && (newFrameBufferXOffset = 0);
-					(newFrameBufferYOffset < 0) && (newFrameBufferYOffset = 0);
-					
-					//Set new the Viewport
+					//Welp, shit has changed!  Set new the Viewport
 					glViewport(
-							//Center it in the middle of the X axis
-							newFrameBufferXOffset,
-							//Set the Y to the origin
-							newFrameBufferYOffset, 
-							//Scale the width based on the height and aspect ratio
-							frameBufferWidth  - (newFrameBufferXOffset << 1), 
-							//Set the height to the frameBufferHeight
-							frameBufferHeight - (newFrameBufferYOffset << 1));
+						//Center it in the middle of the X axis
+						SGE::Display::ViewPortWindowOffsetX,
+						//Set the Y to the origin
+						SGE::Display::ViewPortWindowOffsetY,
+						//Scale the width based on the height and aspect ratio
+						SGE::Display::ViewPortWindowX,
+						//Set the height to the frameBufferHeight
+						SGE::Display::ViewPortWindowY);
 				}
 
 				//Lock the refresh mutex

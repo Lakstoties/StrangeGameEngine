@@ -28,6 +28,27 @@ namespace SGE
 		//The virtual video vertical resolution
 		extern int ResolutionY;
 
+		//The framebuffer window horizontal resolution within OS window
+		extern int FrameBufferX;
+
+		//The framebuffer window vertical resolution within OS Window
+		extern int FrameBufferY;
+
+		//Flag to indicate the framebuffer window size has changed
+		extern bool FrameBufferChanged;
+
+		//The viewpoint window (within the framebuffer window) vertical resolution
+		extern int ViewPortWindowX;
+
+		//The viewpoint window (within the framebuffer window) horizontal resolution
+		extern int ViewPortWindowY;
+
+		//The viewpoint window (within the framebuffer window) X offset
+		extern int ViewPortWindowOffsetX;
+
+		//The viewpoint window (within the framebuffer window) Y offset
+		extern int ViewPortWindowOffsetY;
+
 		//Block display refresh.  Useful for preventing screen tearing from draw operations happening in the middle of a display refresh
 		void BlockRefresh();
 
