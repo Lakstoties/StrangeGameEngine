@@ -576,6 +576,12 @@ int main(int argc, char *argv[])
 	//Initialize Virtual Display
 	SGE::Display::Open(320, 240);
 
+	//Change the the Window size
+	SGE::Display::SetWindowSize(800, 600);
+
+	//Change game resolution
+	SGE::Display::ChangeGameResolution(800, 600);
+
 
 	//Launch the actual logic threads, before handling events.
 	//Input Test thread

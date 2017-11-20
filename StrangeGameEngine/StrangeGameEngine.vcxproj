@@ -51,7 +51,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\GLFW\include;..\PortAudio\include</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GLFW\include;..\PortAudio\include;..\GLEW\include</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS; _SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions); D_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CLanguageStandard>gnu11</CLanguageStandard>
@@ -62,8 +62,8 @@
       <AdditionalDependencies>portaudio_x86.lib;glfw3dll.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalDependencies>portaudio.lib;glfw3.lib;opengl32.lib;</AdditionalDependencies>
-      <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\lib;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>portaudio.lib;glfw3.lib;opengl32.lib;glew32s.lib</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\lib;..\GLEW\lib\Release\Win32;</AdditionalLibraryDirectories>
     </Lib>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">

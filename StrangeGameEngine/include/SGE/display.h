@@ -37,17 +37,20 @@ namespace SGE
 		//Flag to indicate the framebuffer window size has changed
 		extern bool FrameBufferChanged;
 
-		//The viewpoint window (within the framebuffer window) vertical resolution
+		//The viewport window (within the framebuffer window) vertical resolution
 		extern int ViewPortWindowX;
 
-		//The viewpoint window (within the framebuffer window) horizontal resolution
+		//The viewport window (within the framebuffer window) horizontal resolution
 		extern int ViewPortWindowY;
 
-		//The viewpoint window (within the framebuffer window) X offset
+		//The viewport window (within the framebuffer window) X offset
 		extern int ViewPortWindowOffsetX;
 
-		//The viewpoint window (within the framebuffer window) Y offset
+		//The viewport window (within the framebuffer window) Y offset
 		extern int ViewPortWindowOffsetY;
+
+		//Flag to indicate the game resolution has changed
+		extern bool GameResolutionChanged;
 
 		//Block display refresh.  Useful for preventing screen tearing from draw operations happening in the middle of a display refresh
 		void BlockRefresh();
@@ -66,5 +69,13 @@ namespace SGE
 
 		//Stops that thread, and waits for it to join back up.
 		void StopDrawing();
+
+		//Set framebuffer window size
+		void SetWindowSize(int width, int height);
+
+		//Change game resolution
+		void ChangeGameResolution(int width, int height);
+
+
 	};
 }

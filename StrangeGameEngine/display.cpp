@@ -1,8 +1,12 @@
+//GLEW goes before GLFW3 because GLFW inlcudes GL.h
+#include "GL\glew.h"
+
 #include <GLFW\glfw3.h>
 #include <thread>
 #include <mutex>
 #include "include\SGE\display.h"
 #include "sharedinternal.h"
+
 
 
 namespace SGE
@@ -40,6 +44,13 @@ namespace SGE
 		//The viewpoint window (within the framebuffer window) Y offset
 		int ViewPortWindowOffsetY = 0;
 
+		//Internal flag to signal if a game display is presently open
+		bool GameDisplayOpen = false;
+
+		//Flag to indicate the game resolution has changed
+		//Start as true to set up the initial texture
+		bool GameResolutionChanged = true;
+
 
 		//The virtual video RAM.  Public accessible to allow other components to write to it directly.
 		unsigned int* VideoRAM = nullptr;
@@ -68,6 +79,10 @@ namespace SGE
 			//Handle to call the OpenGL texture we are using
 			GLuint textureHandle = 0;
 
+			//Handle for main texture framebuffer
+			GLuint frameBufferHandle = 0;
+
+
 			//Check to see if we have a valid window to draw to or if the window is closing down
 			if (glfwWindowShouldClose(SGE::mainWindow))
 			{
@@ -84,6 +99,9 @@ namespace SGE
 			//
 			//Do some initialization bits
 			//
+
+			//
+
 
 			//Enable 2D Texturing
 			glEnable(GL_TEXTURE_2D);
@@ -108,7 +126,6 @@ namespace SGE
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 			//Since there is only one texture, we never need to worry about rebinding textures.
-
 
 			//Do some drawing.
 			while (continueDrawing)
@@ -135,13 +152,28 @@ namespace SGE
 						SGE::Display::ViewPortWindowY);
 				}
 
+
+
+
 				//Lock the refresh mutex
 				//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
 				refreshHold.lock();
 
 				//Upload the data for the texture to the actual video card.
-				//Yes, this method is technically slower, but there is ONLY one texture in the entire program and no additial code is required to handle resolution changes
-				glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ResolutionX, ResolutionY, 0, GL_RGBA, GL_UNSIGNED_BYTE, VideoRAM);
+				//If the game resolution has changed, then a new texture is needed, since the texture dimensions could have changed.
+				if (GameResolutionChanged)
+				{
+					//Yes, this method is technically slower, but there is ONLY one texture in the entire program and no additial code is required to handle resolution changes
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ResolutionX, ResolutionY, 0, GL_RGBA, GL_UNSIGNED_BYTE, VideoRAM);
+
+					//Set the flag back to normal
+					GameResolutionChanged = false;
+				}
+				//Otherwise just update it
+				else
+				{
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, ResolutionX, ResolutionY, GL_RGBA, GL_UNSIGNED_BYTE, VideoRAM);
+				}
 
 				//Unlock the refresh mutex
 				refreshHold.unlock();
@@ -193,29 +225,87 @@ namespace SGE
 		//Open the Virtual Display Window
 		void Open(int newVideoX, int newVideoY)
 		{
-			ResolutionX = newVideoX;
-			ResolutionY = newVideoY;
-			VideoRAMSize = ResolutionX * ResolutionY;
+			if (!GameDisplayOpen)
+			{
+				ResolutionX = newVideoX;
+				ResolutionY = newVideoY;
+				VideoRAMSize = ResolutionX * ResolutionY;
 
-			//Initialize the Virtual Video RAM
-			VideoRAM = new unsigned int[VideoRAMSize];
+				//Initialize the Virtual Video RAM
+				VideoRAM = new unsigned int[VideoRAMSize];
 
-			//Initialize the Virtual Video Back Buffer
-			VideoBackBuffer = new unsigned int[VideoRAMSize];
+				//Initialize the Virtual Video Back Buffer
+				VideoBackBuffer = new unsigned int[VideoRAMSize];
 
-			//Initialize the Virtual Row Buffer
-			VideoRowBuffer = new unsigned int[ResolutionX];
+				//Initialize the Virtual Row Buffer
+				VideoRowBuffer = new unsigned int[ResolutionX];
+
+				//Flag that the game display is open
+				GameDisplayOpen = true;
+			}
+		}
+
+		//Change the game resolution and all appropriate bits.
+		void ChangeGameResolution(int width, int height)
+		{
+			//Check for some kind of valid, non-zero resolution.
+			//Otherwise, return.  Fuck this zero and less bullshit.
+			if (width < 1 || height < 1)
+				return;
+
+			if (GameDisplayOpen)
+			{
+				//Hold the refresh
+				//This way we don't confuse the display loop with weird memory glitches
+				//Also this should halt any render operations from other game threads, until we are done.
+				refreshHold.lock();
+
+				//Delete the old RAM bits
+				delete VideoRAM;
+				delete VideoBackBuffer;
+				delete VideoRowBuffer;
+
+				//Set the new resolution values
+				ResolutionX = width;
+				ResolutionY = height;
+				VideoRAMSize = ResolutionX * ResolutionY;
+
+				//
+				//Make some new RAM bits!
+				//
+
+				//Initialize the Virtual Video RAM
+				VideoRAM = new unsigned int[VideoRAMSize];
+
+				//Initialize the Virtual Video Back Buffer
+				VideoBackBuffer = new unsigned int[VideoRAMSize];
+
+				//Initialize the Virtual Row Buffer
+				VideoRowBuffer = new unsigned int[ResolutionX];
+
+				//Flag the game resolution has changed
+				GameResolutionChanged = true;
+
+				//Release the refresh
+				refreshHold.unlock();
+			}
 		}
 
 		void Close()
 		{
-			StopDrawing();
+			if (GameDisplayOpen)
+			{
+				StopDrawing();
 
-			//Make sure created bits are deleted appropriately.
-			delete drawingThread;
-			delete VideoRAM;
-			delete VideoBackBuffer;
-			delete VideoRowBuffer;
+				//Make sure created bits are deleted appropriately.
+				delete drawingThread;
+				delete VideoRAM;
+				delete VideoBackBuffer;
+				delete VideoRowBuffer;
+
+				//Set that the game display is not open
+				GameDisplayOpen = false;
+			}
 		}
 
 		void StartDrawing()
@@ -245,6 +335,16 @@ namespace SGE
 		void AllowRefresh()
 		{
 			refreshHold.unlock();
+		}
+
+		void SetWindowSize(int width, int height)
+		{
+			//Check to make sure the window size is not negative or 0
+			if (width < 1 || height < 1)
+				return;
+			
+			//Adjust the window size
+			glfwSetWindowSize(mainWindow, width, height);
 		}
 	}
 }
