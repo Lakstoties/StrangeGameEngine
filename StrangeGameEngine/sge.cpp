@@ -21,21 +21,6 @@ namespace SGE
 		SGE::Display::FrameBufferX = width;
 		SGE::Display::FrameBufferY = height;
 
-		//Update the viewport sizes and offsets
-		//Calculate offsets
-		SGE::Display::ViewPortWindowOffsetX = (SGE::Display::FrameBufferX - (SGE::Display::FrameBufferY * SGE::Display::ResolutionX) / SGE::Display::ResolutionY) >> 1;
-		SGE::Display::ViewPortWindowOffsetY = (SGE::Display::FrameBufferY - (SGE::Display::FrameBufferX * SGE::Display::ResolutionY) / SGE::Display::ResolutionX) >> 1;
-
-		//Short circuit logic
-		//If the Offset goes negative it needs to be hard capped or it throws off calculations.
-		(SGE::Display::ViewPortWindowOffsetX < 0) && (SGE::Display::ViewPortWindowOffsetX = 0);
-		(SGE::Display::ViewPortWindowOffsetY < 0) && (SGE::Display::ViewPortWindowOffsetY = 0);
-
-		//Calculate viewport
-		//Take the framebuffer and subtract double the viewport offsets to scale appropriately for the window
-		SGE::Display::ViewPortWindowX = SGE::Display::FrameBufferX - (SGE::Display::ViewPortWindowOffsetX << 1);
-		SGE::Display::ViewPortWindowY = SGE::Display::FrameBufferY - (SGE::Display::ViewPortWindowOffsetY << 1);
-
 		//Flag that the framebuffer window size has changed for the rest of the system
 		SGE::Display::FrameBufferChanged = true;
 	}
