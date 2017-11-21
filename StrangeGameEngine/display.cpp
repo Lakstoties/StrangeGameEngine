@@ -79,10 +79,6 @@ namespace SGE
 			//Handle to call the OpenGL texture we are using
 			GLuint textureHandle = 0;
 
-			//Handle for main texture framebuffer
-			GLuint frameBufferHandle = 0;
-
-
 			//Check to see if we have a valid window to draw to or if the window is closing down
 			if (glfwWindowShouldClose(SGE::mainWindow))
 			{
@@ -96,12 +92,13 @@ namespace SGE
 			//Snag the Open context for the main window
 			glfwMakeContextCurrent(SGE::mainWindow);
 
+			//Initialize GLEW so it can find all the bits and pieces it needs.
+			glewInit();
+
+
 			//
 			//Do some initialization bits
 			//
-
-			//
-
 
 			//Enable 2D Texturing
 			glEnable(GL_TEXTURE_2D);
@@ -126,6 +123,16 @@ namespace SGE
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
 			//Since there is only one texture, we never need to worry about rebinding textures.
+
+			//Experimental
+			GLuint pixelBufferObject;
+
+			glGenBuffers(1, &pixelBufferObject);
+
+			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pixelBufferObject);
+
+			char* pixelBufferMapping = nullptr;
+
 
 			//Do some drawing.
 			while (continueDrawing)
@@ -152,9 +159,6 @@ namespace SGE
 						SGE::Display::ViewPortWindowY);
 				}
 
-
-
-
 				//Lock the refresh mutex
 				//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
 				refreshHold.lock();
@@ -163,16 +167,35 @@ namespace SGE
 				//If the game resolution has changed, then a new texture is needed, since the texture dimensions could have changed.
 				if (GameResolutionChanged)
 				{
-					//Yes, this method is technically slower, but there is ONLY one texture in the entire program and no additial code is required to handle resolution changes
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ResolutionX, ResolutionY, 0, GL_RGBA, GL_UNSIGNED_BYTE, VideoRAM);
+					//glBufferData(GL_PIXEL_UNPACK_BUFFER, VideoRAMSize * sizeof(unsigned int), 0, GL_STREAM_DRAW);
+					glBufferStorage(GL_PIXEL_UNPACK_BUFFER, VideoRAMSize * sizeof(unsigned int), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 
+					//char* tempPTR = (char*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+					pixelBufferMapping = (char*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, VideoRAMSize * sizeof(unsigned int), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+
+					//memcpy(tempPTR, VideoRAM, VideoRAMSize * sizeof(unsigned int));
+					memcpy(pixelBufferMapping, VideoRAM, VideoRAMSize * sizeof(unsigned int));
+
+					//glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+
+					//Yes, this method is technically slower, but there is ONLY one texture in the entire program and no additial code is required to handle resolution changes
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, ResolutionX, ResolutionY, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+				
 					//Set the flag back to normal
 					GameResolutionChanged = false;
 				}
 				//Otherwise just update it
 				else
 				{
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, ResolutionX, ResolutionY, GL_RGBA, GL_UNSIGNED_BYTE, VideoRAM);
+					//char* tempPTR = (char*)glMapBuffer(GL_PIXEL_UNPACK_BUFFER, GL_WRITE_ONLY);
+
+					//memcpy(tempPTR, VideoRAM, VideoRAMSize * sizeof(unsigned int));
+					memcpy(pixelBufferMapping, VideoRAM, VideoRAMSize * sizeof(unsigned int));
+
+					//glUnmapBuffer(GL_PIXEL_UNPACK_BUFFER);
+
+
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, ResolutionX, ResolutionY, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 				}
 
 				//Unlock the refresh mutex

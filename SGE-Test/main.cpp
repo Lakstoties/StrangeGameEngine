@@ -577,10 +577,10 @@ int main(int argc, char *argv[])
 	SGE::Display::Open(320, 240);
 
 	//Change the the Window size
-	SGE::Display::SetWindowSize(800, 600);
+	SGE::Display::SetWindowSize(1280, 720);
 
 	//Change game resolution
-	SGE::Display::ChangeGameResolution(800, 600);
+	SGE::Display::ChangeGameResolution(1280, 720);
 
 
 	//Launch the actual logic threads, before handling events.
