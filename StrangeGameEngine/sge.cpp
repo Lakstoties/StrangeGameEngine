@@ -41,10 +41,12 @@ namespace SGE
 		{
 		case GLFW_PRESS:
 			SGE::Controls::MouseButtons[button] = true;
+			//fprintf(stderr, "Mouse Button %i Pressed.\n", button);
 			break;
 
 		case GLFW_RELEASE:
 			SGE::Controls::MouseButtons[button] = false;
+			//fprintf(stderr, "Mouse Button %i Released.\n", button);
 			break;
 		}
 	}

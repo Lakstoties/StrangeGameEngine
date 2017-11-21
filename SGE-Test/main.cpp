@@ -236,14 +236,6 @@ void InputTest(bool& testInputRunning)
 	testBitmap.LoadFile((char*)"TestImage.bmp");
 
 	//Vector Point List
-	SGE::Render::VertexPoint testVertexPoint[4]=
-	{
-		{10, 25},
-		{125, 10},
-		{125, 175},
-		{30,125}
-	};
-
 	SGE::Render::VertexPoint letterSVectorPoints[28]=
 	{
 		{2,0},
@@ -357,8 +349,8 @@ void InputTest(bool& testInputRunning)
 		//
 
 		//Draw Background Box
-		SGE::Render::DrawBox(0, 70, 135, 58, 0, 128, 0);
-		SGE::Render::DrawRectangle(0, 70, 135, 58, 0, 64, 0);
+		SGE::Render::DrawBox(0, 70, 145, 58, 0, 128, 0);
+		SGE::Render::DrawRectangle(0, 70, 145, 58, 0, 64, 0);
 
 
 		//Print string for Mouse's X
@@ -434,7 +426,6 @@ void InputTest(bool& testInputRunning)
 		{
 			SGE::Render::DrawBox(95, 115, 5, 8, 64, 16, 16);
 		}
-
 	
 		//Draw Menu
 		testMenu.Draw();
