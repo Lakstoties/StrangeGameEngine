@@ -1191,7 +1191,9 @@ namespace SGE
 			std::chrono::time_point<std::chrono::steady_clock> startTime;
 			std::chrono::nanoseconds deltaTime = std::chrono::nanoseconds(0);
 
-			//Start processing
+			//
+			//  Start playback processing
+			//
 			while (PlayerThreadActive)
 			{
 				fprintf(stderr, "DEBUG: Mod Player: Starting to play: %s\n", modFile.header.title);
@@ -1216,13 +1218,20 @@ namespace SGE
 						//Set up the channels
 						fprintf(stderr, "DEBUG: Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld\n", modFile.header.title, j, i, deltaTime.count());
 
-						//Check each channel for a sample change
+						//
+						//  Check all the channels for any changes
+						//
 						for (int c = 0; c < 4; c++)
 						{
+							//
+							//  Check for sample changes on each channel
+							//
+
 							//Check to see if sample is not zero
 							//If it is zero don't change the sample used in the channel
 							if (modFile.patterns[CurrentPattern].division[i].channels[c].sample > 0)
 							{
+								//Otherwise, channel up the sample used, effectively reseting the channel to the sample settings.
 								//Stop this channel
 								channelMap[c]->Stop();
 
@@ -1235,109 +1244,17 @@ namespace SGE
 								//Indicate Current Channel's Sample
 								CurrentChannelSamples[c] = modFile.patterns[CurrentPattern].division[i].channels[c].sample;
 							}
-						}
 
-						//Go through the channels
-						for (int c = 0; c < 4; c++)
-						{
-							//Parse out the effect
-							effectTypeOnChannel[c] = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x0F00) >> 8;
-							effectXOnChannel[c]    = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x00F0) >> 4;
-							effectYOnChannel[c]    = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x000F);
 
-							//Check for arpeggio effect 0
-							if (effectTypeOnChannel[c] == 0 && (effectXOnChannel[c] != 0 || effectYOnChannel[c] != 0 ))
-							{
-								channelMap[c]->ArpeggioSampleInterval = MOD_DEFAULT_SAMPLES_TICK;
-								channelMap[c]->arpeggioSemitoneX = effectXOnChannel[c];
-								channelMap[c]->arpeggioSemitoneY = effectYOnChannel[c];
-								channelMap[c]->EnableArpeggio = true;
-							}
+							//
+							//  Check for period changes on each channel
+							//
 
-							//Turn off arpeggio
-							else
-							{
-								channelMap[c]->EnableArpeggio = false;
-								channelMap[c]->ArpeggioSampleInterval = 0;
-								channelMap[c]->arpeggioSemitoneX = 0;
-								channelMap[c]->arpeggioSemitoneY = 0;
-							}
-
-							//If effect A or 10, then do a volume slide with division
-							if (effectTypeOnChannel[c] == 0xA)
-							{
-								//Set the number of samples that progress for each tick in the effect.
-								channelMap[c]->VolumeSlideSampleInterval = MOD_DEFAULT_SAMPLES_TICK;
-
-								//Check to see the rate we have to slide the volume up
-								if (effectXOnChannel[c] != 0)
-								{
-									channelMap[c]->VolumeSlideRate = effectXOnChannel[c] / 64.0f;
-								}
-
-								//Check to see the rate we have to slide the volume down
-								//Y is only paid attention if X is zero and is therefor assumed to be zero
-								else if (effectYOnChannel[c] != 0)
-								{
-									channelMap[c]->VolumeSlideRate = -effectYOnChannel[c] / 64.0f;
-								}
-
-								//Enable Volume Slide
-								channelMap[c]->EnableVolumeSlide = true;
-							}
-							else
-							{
-								channelMap[c]->EnableVolumeSlide = false;
-								channelMap[c]->VolumeSlideSampleInterval = 0;
-								channelMap[c]->VolumeSlideRate = 0.0f;
-							}
-						
-							
-							//if effect B or 11, then jump positions after this division
-							if (effectTypeOnChannel[c] == 0xB)
-							{
-								positionToJumpAfterDivision = (effectXOnChannel[c] * 16 + effectYOnChannel[c]);
-							}
-							
-							//If effect C or 12, then set the volume.
-							else if (effectTypeOnChannel[c] == 0xC)
-							{
-								//fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing Volume: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
-								channelMap[c]->Volume = (effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 64.0f;
-							}
-
-							//If effect D or 14, then check further since they crammed a lot of things in there.
-							else if (effectTypeOnChannel[c] == 0xE)
-							{
-								//Set sound fitler on/off
-								if (effectXOnChannel[c] == 0x0)
-								{
-									//Not implemented, yet...
-								}
-								else
-								{
-									fprintf(stderr, "DEBUG: Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
-								}
-							}
-
-							//If effect F or 15, then set the ticks per division
-							else if (effectTypeOnChannel[c] == 0xF)
-							{
-								//fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing Speed: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
-								ticksADivision = effectXOnChannel[c] * 16 + effectYOnChannel[c];
-							}
-							else if (effectTypeOnChannel[c] != 0x0 && effectTypeOnChannel[c] != 0xA)
-							{
-								fprintf(stderr, "DEBUG: Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
-							}
-						}
-
-						//Play the bits that need to be played.
-						for (int c = 0; c < 4; c++)
-						{
-							//Set any new periods
+							//Check to see if period not zero
+							//If it is zero don't change the period used in this channel
 							if (modFile.patterns[CurrentPattern].division[i].channels[c].period > 0)
 							{
+								//If non-zero, change the period used
 								//Changing periods, so stop the current stuff
 								channelMap[c]->Stop();
 
@@ -1347,9 +1264,141 @@ namespace SGE
 									/ float(SAMPLE_RATE) / 2.0f;
 							}
 
-							//If there was a sample mentioned, play it
-							//If the sample is not equal to 0, play the new sample
-							if (modFile.patterns[CurrentPattern].division[i].channels[c].sample != 0)
+
+							//
+							//  Check for any effect chanages on the channel.
+							//
+
+							//Parse out the effect
+							effectTypeOnChannel[c] = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x0F00) >> 8;
+							effectXOnChannel[c]    = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x00F0) >> 4;
+							effectYOnChannel[c]    = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x000F);
+
+							//
+							//Turn off any channel based rendering effects for now
+							//If there's suppose to be an effect, it should be configured in the next heap of logic.
+							//
+
+							//Turn off Arpeggio
+							channelMap[c]->EnableArpeggio = false;
+
+							//Turn of Volume Slide
+							channelMap[c]->EnableVolumeSlide = false;
+
+							//Is there an effect at all?
+							//If the whole effect value is 0, then there is no effect
+							if (modFile.patterns[CurrentPattern].division[i].channels[c].effect != 0)
+							{
+								//Since the effect value is non-zero, there's some kind of effect data to be processed!
+								//Let's find it!
+
+								switch (effectTypeOnChannel[c])
+								{
+								//Configure Arpeggio or Effect 0 / 0x0
+								case 0x0:
+									//Set rate the arpeggio effect will change states
+									channelMap[c]->ArpeggioSampleInterval = MOD_DEFAULT_SAMPLES_TICK;
+
+									//Set the semitones arpeggio will alternate between
+									channelMap[c]->arpeggioSemitoneX = effectXOnChannel[c];
+									channelMap[c]->arpeggioSemitoneY = effectYOnChannel[c];
+
+									//Reset the state variables for the effect
+									channelMap[c]->currentArpeggioSamples = 0;
+									channelMap[c]->arpeggioState = 0;
+
+									//Enable it and signal the sound system to start rendering it
+									channelMap[c]->EnableArpeggio = true;
+
+									//Found our effect.  Moving on!
+									break;
+
+								//Configure Volume Slide or Effect 10 / 0xA
+								case 0xA:
+									//Set the number of samples that progress for each tick in the effect.
+									channelMap[c]->VolumeSlideSampleInterval = MOD_DEFAULT_SAMPLES_TICK;
+
+									//Check to see the rate we have to slide the volume up
+									if (effectXOnChannel[c] != 0)
+									{
+										channelMap[c]->VolumeSlideRate = effectXOnChannel[c] / 64.0f;
+									}
+
+									//Check to see the rate we have to slide the volume down
+									//Y is only paid attention if X is zero and is therefor assumed to be zero
+									else if (effectYOnChannel[c] != 0)
+									{
+										channelMap[c]->VolumeSlideRate = -effectYOnChannel[c] / 64.0f;
+									}
+
+									//Enable Volume Slide
+									channelMap[c]->EnableVolumeSlide = true;
+									
+									//Found our effect.  Moving on!
+									break;
+
+								//Configure for Jump position after this division or Effect 11 / 0xB
+								case 0xB:
+									//Set the Jump after this division
+									positionToJumpAfterDivision = (effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+
+									//Found our effect.  Moving on!
+									break;
+
+								//Configure the Volume or Effect 12 / 0xC
+								case 0xC:
+									//Set the volume for the channel
+									channelMap[c]->Volume = (effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 64.0f;
+
+									//Found our effect.  Moving on!
+									break;
+
+								//Configure an effect under this category.  There's a few of them shove under Effect 14 or 0xE
+								case 0xE:
+									//Check the Effect's X setting to see what exact effect they want
+									switch (effectXOnChannel[c])
+									{
+									//Set the sound filter on/off
+									case 0x0:
+										//Not implemented.
+										break;
+
+									//Not implemented effect
+									default:
+										fprintf(stderr, "DEBUG: Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
+										break;
+									}
+
+									//Found our effect.  Moving on!
+									break;
+						
+								//Configure Ticks Per Division or Effect 15 / 0xF
+								case 0xF:
+									//Set change the ticks per division
+									ticksADivision = effectXOnChannel[c] * 16 + effectYOnChannel[c];
+
+									//Found our effect.  Moving on!
+									break;
+
+								//If we are here, then we have found either an Unimplented or Unknown effect, Error Log it!
+								default:
+									fprintf(stderr, "DEBUG: Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
+									break;
+								}
+							}
+						}
+
+						//
+						//  Playback trigger point
+						//Positioned here to make sure all the settings are good across all the channels before triggering all of them.
+						//Otherwise, there's a slight chance for some very minor desychronization to occur.
+						//
+											
+						//Go through all the channels
+						for (int c = 0; c < 4; c++)
+						{
+							//If there was a sample or period mentioned, play it if it is not equal to 0
+							if (modFile.patterns[CurrentPattern].division[i].channels[c].sample != 0 || modFile.patterns[CurrentPattern].division[i].channels[c].period != 0)
 							{
 								//Play it
 								channelMap[c]->Play();
@@ -1379,6 +1428,10 @@ namespace SGE
 					}
 				}
 			}
+
+			//
+			//  Post Playback processing
+			//
 
 			//Stop all channels
 			for (int c = 0; c < 4; c++)
