@@ -402,35 +402,65 @@ namespace SGE
 			return tempBuffer;
 		}
 
+		//
+		//
+		//  Sound System Core Components
+		//
+		//
+
+		//
 		//Varibles to hold average volume levels from the last callback from PortAudio
+		//
+
 		unsigned int MasterVolumeAverageLeftLevel = 0;
 		unsigned int MasterVolumeAverageRightLevel = 0;
 
+		//
+		//  All the sound samples in the system
+		//
 
-		//All the sound samples in the system
 		SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
 
-		//All the system's sound channels
+		//
+		//  All the system's sound channels
+		//
+
 		SoundChannel Channels[MAX_CHANNELS];
 
-		//Initialize size for the Render Frame Buffers
+		//
+		//  Initialize size for the Render Frame Buffers
+		//
+
 		const unsigned long INITIAL_RENDER_FRAME_BUFFER_SIZE = 1024;
 
-		//Master volume for system
+		//
+		//  Master volume for system
+		//
+
 		float MasterVolume = 1.0f;
 
+		//
 		//All the sound channel target render buffers
+		//
+
 		int* renderedChannelBuffers[MAX_CHANNELS] = { nullptr };
 
+		//
 		//32-bit mixing buffers
+		//
+
 		int* mixingFrameBufferRight = nullptr;		//Mixing buffer for Right Channel
 		int* mixingFrameBufferLeft  = nullptr;		//Mixing buffer for Left Channel
 
-		//A thread reserved to run management functions for the sound system
-		std::thread SoundManagerThread;
-
+		//
 		//Current Frame Buffer Sizes
+		//
+
 		unsigned long frameBufferSize = 0;
+
+		//
+		//  Sound Buffer Functions
+		//
 
 		//Creates and sets up frame buffers for audio data
 		void GenerateFrameBuffers(unsigned long newFrameBufferSize)
@@ -472,6 +502,12 @@ namespace SGE
 				renderedChannelBuffers[i] = nullptr;
 			}
 		}
+
+		//
+		//
+		//  Port Audio Components
+		//
+		//
 
 		//Flag to indicate if this object's attempt to initialize port audio threw an error
 		bool paInitializeReturnedError = false;
@@ -571,6 +607,13 @@ namespace SGE
 			//If no major errors, continue the stream.
 			return paContinue;
 		}
+
+
+		//
+		//
+		//  Sound System Core Functions
+		//
+		//
 
 		//Start the audio system.
 		void Start()
@@ -699,11 +742,9 @@ namespace SGE
 		}
 
 
-
-
 		//
 		//
-		//  sound System Module File Definitions
+		//  Sound System Module File Definitions
 		//
 		//
 
@@ -721,6 +762,10 @@ namespace SGE
 			}
 		}
 
+
+		//
+		//  Function to load data from mod fule
+		//
 		int ModuleFile::LoadFile(char* targetFilename)
 		{
 			FILE* moduleFile;
@@ -728,8 +773,12 @@ namespace SGE
 			size_t totalReadCount = 0;
 			unsigned char readBuffer[8];
 
-
+			//
+			//
 			//Attempt to open the file.
+			//
+			//
+
 			moduleFile = fopen(targetFilename, "rb");
 
 			//Check to see if the file is even there.
@@ -739,16 +788,26 @@ namespace SGE
 				return -1;
 			}
 
+			//
+			//
 			//Start parsing through the file and grabbing all the data.
+			//
+			//
 
+			//
 			//Read the module file title info
+			//
+
 			readCount = fread(&header.title, 1, 20, moduleFile);
 			totalReadCount += readCount;
 
 			//DEBUG:  Current number of bytes read
 			fprintf(stderr, "DEBUG:  Post Title: Read Count: %d \n", totalReadCount);
 
+			//
 			//Read the module file's sample data
+			//
+
 			for(int i = 0; i < 31; i++)
 			{
 				//Read sample title
@@ -773,7 +832,7 @@ namespace SGE
 				//Check to see if we actually read enough bytes
 				if (readCount != 2)
 				{
-					//This file is way to small to be a proper wav file
+					//This file is way too small to be a proper mod file
 					fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 					return -3;
 				}
@@ -834,8 +893,10 @@ namespace SGE
 			//DEBUG: Check current read count
 			fprintf(stderr, "DEBUG:  Post Sample Headers: Current Read Count: %d \n", totalReadCount);
 
-
+			//
 			//Read number of song positions
+			//
+
 			readCount = fread(&header.songPositions, 1, 1, moduleFile);
 			totalReadCount += readCount;
 
@@ -859,7 +920,10 @@ namespace SGE
 				return -9;
 			}
 
+			//
 			//Read the pattern table
+			//
+
 			readCount = fread(&header.patternTable, 1, 128, moduleFile);
 			totalReadCount += readCount;
 
@@ -874,7 +938,10 @@ namespace SGE
 				return -10;
 			}
 
+			//
 			//Read some tag info
+			//
+
 			readCount = fread(&readBuffer, 1, 4, moduleFile);
 			totalReadCount += readCount;
 
@@ -938,7 +1005,10 @@ namespace SGE
 				fprintf(stderr, "DEBUG: No Module File signature detected.\n");
 			}
 
+			//
 			//Figure out how many patterns there are to read.
+			//
+
 			//Go through the pattern table and find the largest number.
 			for (int i = 0; i < 128; i++)
 			{
@@ -951,7 +1021,10 @@ namespace SGE
 
 			fprintf(stderr, "DEBUG: Module Load: %d patterns found.\n", numberOfPatterns);
 
+			//
 			//Start churning through all the pattern data
+			//
+
 			//Go through each pattern
 			for (int i = 0; i < numberOfPatterns + 1; i++)
 			{
@@ -973,7 +1046,10 @@ namespace SGE
 							return -12;
 						}
 
+						//
 						//Parse out the data.
+						//
+
 						//Copy the first two bytes over into period
 						patterns[i].division[j].channels[k].period = ((readBuffer[0] & 0x0F) << 8) | (readBuffer[1]);
 
@@ -989,7 +1065,10 @@ namespace SGE
 			//DEBUG: Check current read count
 			fprintf(stderr, "DEBUG:  Current Read Count: %d \n", totalReadCount);
 
+			//
 			//Load up the samples with their data
+			//
+
 			for (int i = 0; i < 31; i++)
 			{
 				if (samples[i].lengthInWords > 1)
@@ -1014,14 +1093,19 @@ namespace SGE
 			//DEBUG: Check current read count
 			fprintf(stderr, "DEBUG:  Current Read Count: %d \n", totalReadCount);
 
+			//
 			//Close the file out
+			//
+
 			fclose(moduleFile);
 
 			//If we get to this point, everything is okay
 			return 0;
 		}
 
-
+		//
+		//  Converts sample data from 8 bits to 16
+		//
 		short* ModuleFile::ConvertSample(unsigned char sample)
 		{
 			//Check for a valid sample
@@ -1046,6 +1130,9 @@ namespace SGE
 			return temp;
 		}
 
+		//
+		//  Finds out sample size from words to bytes
+		//
 		unsigned int ModuleFile::ConvertSampleSize(unsigned char sample)
 		{
 			//Check for a valid sample
@@ -1454,13 +1541,6 @@ namespace SGE
 		}
 
 
-
-
-
-
-
-
-
 		//
 		//
 		//  Sound System Wave File Definitions
@@ -1499,16 +1579,27 @@ namespace SGE
 
 			soundFile = fopen(targetFilename, "rb");
 
+			//
+			//
 			//Check to see if the file is even there.
+			//
+			//
+
 			if (soundFile == NULL)
 			{
 				fprintf(stderr, "Sound System Wave File Error:  Cannot open file \"%s\"\n", targetFilename);
 				return -1;
 			}
 
+			//
+			//
 			//Start parsing the file and check to see if it is valid or not
+			//
+			//
 
+			//
 			//Try to read a RIFF header in
+			//
 			readCount = fread(&waveFileHeader, 1, sizeof(waveFileHeader), soundFile);
 
 			//Check to see if we actually read enough bytes to make up a proper wave file header
@@ -1531,10 +1622,14 @@ namespace SGE
 				return -10;
 			}
 
+			//
 			//Offset: 4		Size: 4		ChunkSize:				Check the chunk size and save it for double checking purposes
+			//
 			printf("DEBUG: Sound System Wave File: %s - Chunk Size: %d\n", targetFilename, waveFileHeader.chunkSize);
 
+			//
 			//Offset: 8		Size: 4		Format:		Check format for "WAVE"
+			//
 			if (memcmp("WAVE", &waveFileHeader.format, 4) != 0)
 			{
 				//No WAVE format... Not the format we are looking for!
@@ -1546,10 +1641,16 @@ namespace SGE
 				return -20;
 			}
 
+			//
 			//First chunk of data: "fmt "
+			//
+
 			//Offset: 12	Size: 4		SubchunkID:				Look for the "fmt " (space is null)
 
+			//
 			//Start going through the subchunks looking for the "fmt " subchunk
+			//
+
 			while (keepLookingThroughSubchunks)
 			{
 				//Read in the header info
@@ -1587,7 +1688,10 @@ namespace SGE
 				}
 			}
 
+			//
 			//Offset: 16	Size: 4		Subchunksize:			For PCM files, it should be 16, otherwise this is probably a different format
+			//
+
 			if (subChunkHeader.subChunkSize != 16)
 			{
 				//The format chunk size should be 16 bytes, if not... This isn't right
@@ -1615,8 +1719,10 @@ namespace SGE
 				return -45;
 			}
 
-
+			//
 			//Offset: 20	Size: 2		Audio Format:			Should be 1 for PCM.  If not 1, then probably another format we aren't wanting.
+			//
+
 			if (fmtSubChunkData.audioFormat != 1)
 			{
 				//The format audio format should be 1, if not...  Abort!
@@ -1628,14 +1734,19 @@ namespace SGE
 				return -50;
 			}
 
+			//
 			//Offset: 22	Size: 2		Number of Channels:		1 = Mono, 2 = Stereo, and so forth.   We are looking for Mono channels currently,
+			//
+
 			//May support more channels later
 			printf("DEBUG: Sound System Wave File: %s - Number of Channels: %d\n", targetFilename, fmtSubChunkData.numberOfChannels);
 
+			//
 			//Offset: 24	Size: 4		Sample Rate
+			//
+
 			//Sample Rate of the data.  Currently looking for 44100.
 			//May implement resampling in future, but not right now.
-
 			if (fmtSubChunkData.sampleRate != 44100)
 			{
 				//Not 44100Hz sample rate...  Not exactly an error, but no support for other sample rates at the moment.
@@ -1672,10 +1783,16 @@ namespace SGE
 			}
 
 
+			//
 			//Reset the logic
+			//
+
 			keepLookingThroughSubchunks = true;
 
+			//
 			//Start going through the subchunks looking for the "data" subchunk
+			//
+
 			while (keepLookingThroughSubchunks)
 			{
 				//Read in the header info
@@ -1743,7 +1860,10 @@ namespace SGE
 				return -110;
 			}
 
+			//
 			//Offset: 40	Size: 4		Subchunk 2 Size
+			//
+
 			//Data that indicates the size of the data chunk
 			//Equal to:  Number of Samples * Number of Channels * Bits Per Sample / 8
 			//Indicates the amount to read after this chunk
@@ -1751,9 +1871,11 @@ namespace SGE
 			printf("DEBUG: Sound System Wave File: %s - Data Size: %d\n", targetFilename, subChunkHeader.subChunkSize);
 
 
+			//
 			//Offset: 44	Size: *?	Data
-			//Actual sound data
+			//
 
+			//Actual sound data
 			//Calculate the number of Samples
 			numberOfSamples = subChunkHeader.subChunkSize / fmtSubChunkData.blockAlignment;
 
