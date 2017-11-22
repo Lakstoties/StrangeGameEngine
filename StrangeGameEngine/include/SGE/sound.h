@@ -6,6 +6,10 @@ namespace SGE
 {
 	namespace Sound
 	{
+		//Sound system sample rate
+		const int SAMPLE_RATE = 44100;
+
+
 		//A list of MIDI notes and their associated frequencies.
 		const float MIDI_NOTE_FRENQUENCY[] =
 		{
@@ -176,6 +180,8 @@ namespace SGE
 		//Default Ticks a Division
 		const unsigned int DEFAULT_TICKS_A_DIVISION = 6;
 
+		const unsigned int MOD_DEFAULT_SAMPLES_TICK = SAMPLE_RATE * 20 / 1000;
+
 		//Precalculated PI/2 to float precision
 		const float HALF_PI_FLOAT = 1.57079632679489661923f;
 
@@ -185,8 +191,7 @@ namespace SGE
 		//Precalculated 2*PI to float precision 
 		const float TWO_PI_FLOAT = 6.28318530717958647692f;
 
-		//Sound system sample rate
-		const int SAMPLE_RATE = 44100;
+
 
 		//Sound system bit depth
 		const int SAMPLE_BITS = 16;
@@ -285,14 +290,26 @@ namespace SGE
 			float Volume = 1.0f;
 			float Pan = 0.0f;
 
+			//
 			//Effects for Module system
+			//
+
+			//Arpeggio effect, Effect 0
 			bool EnableArpeggio = false;
 			unsigned int ArpeggioSampleInterval = 0;
 			unsigned int currentArpeggioSamples = 0;
 			unsigned int arpeggioState = 0;
 			unsigned int arpeggioSemitoneX = 0;
 			unsigned int arpeggioSemitoneY = 0;
-			float arpeggioOffsetIncrement = 0;
+			float arpeggioOffsetIncrement = 0.0f;
+
+			//Volume Slide, Effect 10
+			bool EnableVolumeSlide = false;
+			unsigned int VolumeSlideSampleInterval = 0;
+			unsigned int currentVolumeSlideSamples = 0;
+			float currentVolumeSlide = 0.0f;
+			float VolumeSlideRate = 0.0f;
+
 
 			//Statistics Stuff
 			unsigned int LastRenderedAverageLevel = 0;

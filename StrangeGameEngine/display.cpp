@@ -97,7 +97,6 @@ namespace SGE
 		{
 			//Initialize for drawing
 
-			//Experimental
 			//Create a simple handle for the Pixel Buffer Object
 			GLuint pixelBufferObject;
 
@@ -498,21 +497,22 @@ namespace SGE
 			//Ideal version that used persistent, coherently mapped pixel buffer object
 			if (GLEW_VERSION_4_4)
 			{
-				fprintf(stderr, "OpenGL version 4.4 bits detected!\n");
+				fprintf(stderr, "OpenGL version 4.4 detected!\n");
 				OpenGL44DrawFunction();
 			}
-			//Basic very slow fallback
+			//Fallback to a lower standard
 			else
 			{
 				//Used Pixel Buffer Objects with basic data transfer, supported in OpenGL 2.0... So should be a safe alternative.
 				if (GLEW_VERSION_2_0)
 				{
+					fprintf(stderr, "OpenGL version 2.0 detected!\n");
 					OpenGL20DrawFunction();
 				}
 				else
 				{
 					//Oh sweet baby jesus, we are on a potato.  Only OpenGL 1?  Really?
-					fprintf(stderr, "Potato Mode Engaged!\n");
+					fprintf(stderr, "OpenGL Potato Mode Engaged!\n");
 					FailSafeDrawFunction();
 				}
 			}	

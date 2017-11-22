@@ -41,7 +41,8 @@ namespace SGE
 					//
 
 					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
-					sampleBuffer[i] = int(currentSampleBuffer->buffer[(unsigned int)offset] * Volume);
+					//If the volume effect is in use, use that volume value.
+					sampleBuffer[i] = int(currentSampleBuffer->buffer[(unsigned int)offset] *  Volume);
 
 					//Add to the acculumator for the average
 					//Negate negatives since we are only interested in overall amplitude
@@ -85,6 +86,24 @@ namespace SGE
 						currentArpeggioSamples++;
 					}
 
+					if (EnableVolumeSlide)
+					{
+						//Check the state of Volume Slide Effect
+						if (currentVolumeSlideSamples > VolumeSlideSampleInterval)
+						{
+							//Reset and roll the counter
+							currentVolumeSlideSamples %= VolumeSlideSampleInterval;
+
+							//Apply the slide
+							Volume += VolumeSlideRate;
+
+							//Check to make sure it did not exit normal ranges
+							//Short circuit logic
+							(Volume < 0.0f) && (Volume = 0.0f);
+							(Volume > 1.0f) && (Volume = 1.0f);
+						}
+						currentVolumeSlideSamples++;
+					}
 
 					//
 					//  Increment Offset  Appropriately
@@ -1162,6 +1181,7 @@ namespace SGE
 			unsigned char effectTypeOnChannel[4] = { 0 };
 			unsigned char effectXOnChannel[4] = { 0 };
 			unsigned char effectYOnChannel[4] = { 0 };
+			unsigned 
 
 			int positionToJumpAfterDivision = -1;
 
@@ -1228,7 +1248,7 @@ namespace SGE
 							//Check for arpeggio effect 0
 							if (effectTypeOnChannel[c] == 0 && (effectXOnChannel[c] != 0 || effectYOnChannel[c] != 0 ))
 							{
-								channelMap[c]->ArpeggioSampleInterval = int (SAMPLE_RATE * 0.020f);
+								channelMap[c]->ArpeggioSampleInterval = MOD_DEFAULT_SAMPLES_TICK;
 								channelMap[c]->arpeggioSemitoneX = effectXOnChannel[c];
 								channelMap[c]->arpeggioSemitoneY = effectYOnChannel[c];
 								channelMap[c]->EnableArpeggio = true;
@@ -1243,6 +1263,36 @@ namespace SGE
 								channelMap[c]->arpeggioSemitoneY = 0;
 							}
 
+							//If effect A or 10, then do a volume slide with division
+							if (effectTypeOnChannel[c] == 0xA)
+							{
+								//Set the number of samples that progress for each tick in the effect.
+								channelMap[c]->VolumeSlideSampleInterval = MOD_DEFAULT_SAMPLES_TICK;
+
+								//Check to see the rate we have to slide the volume up
+								if (effectXOnChannel[c] != 0)
+								{
+									channelMap[c]->VolumeSlideRate = effectXOnChannel[c] / 64.0f;
+								}
+
+								//Check to see the rate we have to slide the volume down
+								//Y is only paid attention if X is zero and is therefor assumed to be zero
+								else if (effectYOnChannel[c] != 0)
+								{
+									channelMap[c]->VolumeSlideRate = -effectYOnChannel[c] / 64.0f;
+								}
+
+								//Enable Volume Slide
+								channelMap[c]->EnableVolumeSlide = true;
+							}
+							else
+							{
+								channelMap[c]->EnableVolumeSlide = false;
+								channelMap[c]->VolumeSlideSampleInterval = 0;
+								channelMap[c]->VolumeSlideRate = 0.0f;
+							}
+						
+							
 							//if effect B or 11, then jump positions after this division
 							if (effectTypeOnChannel[c] == 0xB)
 							{
@@ -1276,15 +1326,16 @@ namespace SGE
 								//fprintf(stderr, "DEBUG: Mod Player: Channel %d Changing Speed: %d \n", c, effectXOnChannel[c] * 16 + effectYOnChannel[c]);
 								ticksADivision = effectXOnChannel[c] * 16 + effectYOnChannel[c];
 							}
-							else if (effectTypeOnChannel[c] != 0x0)
+							else if (effectTypeOnChannel[c] != 0x0 && effectTypeOnChannel[c] != 0xA)
 							{
 								fprintf(stderr, "DEBUG: Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
 							}
 						}
 
-						//Set the periods
+						//Play the bits that need to be played.
 						for (int c = 0; c < 4; c++)
 						{
+							//Set any new periods
 							if (modFile.patterns[CurrentPattern].division[i].channels[c].period > 0)
 							{
 								//Changing periods, so stop the current stuff
@@ -1294,8 +1345,13 @@ namespace SGE
 								//Using NTSC sampling
 								channelMap[c]->offsetIncrement = MOD_NTSC_TUNING / float(modFile.patterns[CurrentPattern].division[i].channels[c].period)
 									/ float(SAMPLE_RATE) / 2.0f;
+							}
 
-								//Play at new period
+							//If there was a sample mentioned, play it
+							//If the sample is not equal to 0, play the new sample
+							if (modFile.patterns[CurrentPattern].division[i].channels[c].sample != 0)
+							{
+								//Play it
 								channelMap[c]->Play();
 							}
 						}
@@ -1320,8 +1376,6 @@ namespace SGE
 
 						//Calculate the delta time
 						deltaTime = std::chrono::steady_clock::now() - startTime;
-
-
 					}
 				}
 			}
