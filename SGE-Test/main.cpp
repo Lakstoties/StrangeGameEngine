@@ -138,7 +138,7 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 
 	//Check to see if we can draw this thing anyway.
 	if ((xPosition + (int)bufferSize < 0) ||					//If the xPosition is so far off screen that nothing shows up
-		(xPosition >= SGE::Display::ResolutionX))
+		(xPosition >= SGE::Display::Video::ResolutionX))
 	{
 		return;
 	}
@@ -152,15 +152,15 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 	}
 
 	//Prune the amount of the buffer we are going to copy
-	if (xPosition + bufferSize >= (unsigned int)SGE::Display::ResolutionX)
+	if (xPosition + bufferSize >= (unsigned int)SGE::Display::Video::ResolutionX)
 	{
-		copyLength = SGE::Display::ResolutionX - xPosition - 1;
+		copyLength = SGE::Display::Video::ResolutionX - xPosition - 1;
 	}
 
-	for (int i = 0; i < SGE::Display::ResolutionY; i++)
+	for (int i = 0; i < SGE::Display::Video::ResolutionY; i++)
 	{
 		//memcpy(&SGE::Display::VideoRAM[xPosition + i * SGE::Display::ResolutionX], &buffer[copyStart], copyLength);
-		std::memmove(&SGE::Display::VideoRAM[xPosition + i * SGE::Display::ResolutionX], &buffer[copyStart], copyLength);
+		std::memmove(&SGE::Display::Video::RAM[xPosition + i * SGE::Display::Video::ResolutionX], &buffer[copyStart], copyLength);
 
 	}
 }
@@ -224,10 +224,10 @@ void InputTest(bool& testInputRunning)
 	testMenu.CursorOn();
 
 	//Create a previous keyboard state
-	bool lastKeyboardState[SGE::Controls::NUMBER_OF_KEYS];
+	bool lastKeyboardState[SGE::Controls::Keyboard::NUMBER_OF_KEYS];
 
 	//Capture keyboard state
-	SGE::Controls::SaveKeyboardStatus(lastKeyboardState);
+	SGE::Controls::Keyboard::SaveStatus(lastKeyboardState);
 
 
 	//Load a bitmap
@@ -324,7 +324,7 @@ void InputTest(bool& testInputRunning)
 		
 		currentWaveX++;
 
-		if (currentWaveX > SGE::Display::ResolutionX + 8)
+		if (currentWaveX > SGE::Display::Video::ResolutionX + 8)
 		{
 			currentWaveX = -8;
 		}
@@ -354,26 +354,26 @@ void InputTest(bool& testInputRunning)
 
 
 		//Print string for Mouse's X
-		sprintf(temp, "Mouse Position X: %i", SGE::Controls::MousePositionX);
+		sprintf(temp, "Mouse Position X: %i", SGE::Controls::Mouse::PositionX);
 		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 4, 75, 128, 255, 128);
 
 		//Print string for Mouse's Y
-		sprintf(temp, "Mouse Position Y: %i", SGE::Controls::MousePositionY);
+		sprintf(temp, "Mouse Position Y: %i", SGE::Controls::Mouse::PositionY);
 		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 4, 85, 128, 255, 128);
 
 		//Print String for Mouse's X Scroll
-		sprintf(temp, "Scroll Position X: %i", SGE::Controls::MouseScrollX);
+		sprintf(temp, "Scroll Position X: %i", SGE::Controls::Mouse::ScrollX);
 		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 4, 95, 128, 255, 128);
 
 		//Print string for Mouse's Y Scroll
-		sprintf(temp, "Scroll Position Y: %i", SGE::Controls::MouseScrollY);
+		sprintf(temp, "Scroll Position Y: %i", SGE::Controls::Mouse::ScrollY);
 		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 4, 105, 128, 255, 128);
 
 		//Print Mouse button array
 
 		//Left Mouse Button
 		SGE::Render::Draw8x8Character('L', SGE::Render::CHARACTER_8x8_ROM, 5, 115, 128, 255, 128);
-		if (SGE::Controls::MouseButtons[0])
+		if (SGE::Controls::Mouse::Buttons[0])
 		{ 
 			SGE::Render::DrawBox(15, 115, 5, 8, 192, 16, 16);
 		}
@@ -384,7 +384,7 @@ void InputTest(bool& testInputRunning)
 
 		//Right Mouse Button
 		SGE::Render::Draw8x8Character('R', SGE::Render::CHARACTER_8x8_ROM, 25, 115, 128, 255, 128);
-		if (SGE::Controls::MouseButtons[1])
+		if (SGE::Controls::Mouse::Buttons[1])
 		{
 			SGE::Render::DrawBox(35, 115, 5, 8, 192, 16, 16);
 		}
@@ -396,7 +396,7 @@ void InputTest(bool& testInputRunning)
 		
 		//Center Mouse Button
 		SGE::Render::Draw8x8Character('M', SGE::Render::CHARACTER_8x8_ROM, 45, 115, 128, 255, 128);
-		if (SGE::Controls::MouseButtons[2])
+		if (SGE::Controls::Mouse::Buttons[2])
 		{
 			SGE::Render::DrawBox(55, 115, 5, 8, 192, 16, 16);
 		}
@@ -407,7 +407,7 @@ void InputTest(bool& testInputRunning)
 
 		//Extra Button
 		SGE::Render::Draw8x8Character('A', SGE::Render::CHARACTER_8x8_ROM, 65, 115, 128, 255, 128);
-		if (SGE::Controls::MouseButtons[3])
+		if (SGE::Controls::Mouse::Buttons[3])
 		{
 			SGE::Render::DrawBox(75, 115, 5, 8, 192, 16, 16);
 		}
@@ -418,7 +418,7 @@ void InputTest(bool& testInputRunning)
 		
 		//Extra Button
 		SGE::Render::Draw8x8Character('B', SGE::Render::CHARACTER_8x8_ROM, 85, 115, 128, 255, 128);
-		if (SGE::Controls::MouseButtons[4])
+		if (SGE::Controls::Mouse::Buttons[4])
 		{
 			SGE::Render::DrawBox(95, 115, 5, 8, 192, 16, 16);
 		}
@@ -450,7 +450,7 @@ void InputTest(bool& testInputRunning)
 		SGE::Display::AllowRefresh();
 
 		//Check to see if Enter is pressed and where the menu cursor is
-		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_ENTER])
+		if (SGE::Controls::Keyboard::Status[SGE::Controls::Keymap::KEY_ENTER])
 		{
 			//If the Enter key wasn't pressed before
 			if (!lastKeyboardState[SGE::Controls::Keymap::KEY_ENTER])
@@ -495,14 +495,14 @@ void InputTest(bool& testInputRunning)
 
 		//System Master Volume
 		//Decrease volume
-		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_Z])
+		if (SGE::Controls::Keyboard::Status[SGE::Controls::Keymap::KEY_Z])
 		{
 			SGE::Sound::MasterVolume -= .01f;
 			printf("Debug - Master Volume: %f\n", SGE::Sound::MasterVolume);
 		}
 
 		//Increase volume
-		if (SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_X])
+		if (SGE::Controls::Keyboard::Status[SGE::Controls::Keymap::KEY_X])
 		{
 			SGE::Sound::MasterVolume += .01f;
 			printf("Debug - Master Volume: %f\n", SGE::Sound::MasterVolume);
@@ -511,36 +511,35 @@ void InputTest(bool& testInputRunning)
 	
 		//Select box stuff
 		//If the Down key state has changed and it wasn't pressed previously
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_DOWN] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_DOWN] &&
+		if (lastKeyboardState[SGE::Controls::Keymap::KEY_DOWN] != SGE::Controls::Keyboard::Status[SGE::Controls::Keymap::KEY_DOWN] &&
 			!lastKeyboardState[SGE::Controls::Keymap::KEY_DOWN])
 		{
 			testMenu.NextSelection();
 		}
 
 		//If the Up key state has changed and it wasn't pressed previously
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_UP] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_UP] &&
+		if (lastKeyboardState[SGE::Controls::Keymap::KEY_UP] != SGE::Controls::Keyboard::Status[SGE::Controls::Keymap::KEY_UP] &&
 			!lastKeyboardState[SGE::Controls::Keymap::KEY_UP])
 		{
 			testMenu.PreviousSelection();
 		}
 
 		//If the Left key state has changed and it wasn't pressed previously
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_LEFT] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_LEFT] &&
+		if (lastKeyboardState[SGE::Controls::Keymap::KEY_LEFT] != SGE::Controls::Keyboard::Status[SGE::Controls::Keymap::KEY_LEFT] &&
 			!lastKeyboardState[SGE::Controls::Keymap::KEY_LEFT])
 		{
 			testMenu.MoveCursor(testMenu.GetCursorLocation() - 1);
 		}
 
 		//If the Right key state has changed and it wasn't pressed previously
-		if (lastKeyboardState[SGE::Controls::Keymap::KEY_RIGHT] != SGE::Controls::KeyboardStatus[SGE::Controls::Keymap::KEY_RIGHT] &&
+		if (lastKeyboardState[SGE::Controls::Keymap::KEY_RIGHT] != SGE::Controls::Keyboard::Status[SGE::Controls::Keymap::KEY_RIGHT] &&
 			!lastKeyboardState[SGE::Controls::Keymap::KEY_RIGHT])
 		{
 			testMenu.MoveCursor(testMenu.GetCursorLocation() + 1);
 		}
 
 		//Capture keyboard state
-		SGE::Controls::SaveKeyboardStatus(lastKeyboardState);
-
+		SGE::Controls::Keyboard::SaveStatus(lastKeyboardState);
 
 		//Wait a little after each iteration
 		std::this_thread::sleep_for(std::chrono::milliseconds(10));

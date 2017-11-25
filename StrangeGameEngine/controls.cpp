@@ -8,31 +8,52 @@ namespace SGE
 {
 	namespace Controls
 	{
+		namespace Mouse
+		{
+			int PositionX = 0;
+			int PositionRawX = 0;
+
+			int PositionY = 0;
+			int PositionRawY = 0;
+
+			int ScrollX = 0;
+			int ScrollY = 0;
+
+			bool Buttons[NUMBER_OF_BUTTONS] = { false };
+		}
+
+		namespace Keyboard
+		{
+			//Keyboard status array that keeps track of which keys are pressed
+			bool Status[NUMBER_OF_KEYS] = { false };
+
+			//Current keyboard input buffer
+			int InputBuffer[INPUT_BUFFER_SIZE] = { 0 };
+
+			//Current buffer positions
+			int CurrentBufferPosition = 0;
+
+			//Clear and reset the buffer.
+			void ResetInputBuffer()
+			{
+				//Reset position
+				CurrentBufferPosition = 0;
+
+				//Clear out all the data in the buffer
+				memset(InputBuffer, 0, sizeof(InputBuffer));
+			}
+
+
+			//Copy current keyboard state to another array
+			void SaveStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS])
+			{
+				memcpy(targetKeyboardStatusArray, Status, sizeof(Status));
+			}
+		}
+
+
 		//Flag to indicate to the handle events threads to continue or not
 		bool ContinueToHandleEvents = true;
-
-
-		//Keyboard status array that keeps track of which keys are pressed
-		bool KeyboardStatus[NUMBER_OF_KEYS] = { false };
-
-		int MousePositionX = 0;
-		int MousePositionRawX = 0;
-
-		int MousePositionY = 0;
-		int MousePositionRawY = 0;
-
-		float MouseXScaling = 1.0f;
-		int MouseXOffset = 0;
-
-		float MouseYScaling = 1.0f;
-		int MouseYOffset = 0;
-
-		int MouseScrollX = 0;
-		int MouseScrollY = 0;
-
-
-		bool MouseButtons[NUMBER_OF_BUTTONS] = { false };
-
 
 		void HandleEvents()
 		{
@@ -49,14 +70,6 @@ namespace SGE
 				//Wait for new events
 				glfwWaitEvents();
 			}
-		}
-
-		//Copy current keyboard state to another array
-		void SaveKeyboardStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS])
-		{
-			//memcpy(targetKeyboardStatusArray, KeyboardStatus, sizeof(KeyboardStatus));
-			//std::copy(KeyboardStatus, KeyboardStatus + NUMBER_OF_KEYS, targetKeyboardStatusArray);
-			std::memmove(targetKeyboardStatusArray, KeyboardStatus, sizeof(KeyboardStatus));
 		}
 	}
 }

@@ -10,23 +10,27 @@ namespace SGE
 	//The Virtual Display class to simulate the display component of the Strange Game Engine
 	namespace Display
 	{
-		//The virtual video RAM.  Public accessible to allow other components to write to it directly.
-		extern unsigned int* VideoRAM;
+		namespace Video
+		{
+			//The virtual video RAM.  Public accessible to allow other components to write to it directly.
+			extern unsigned int* RAM;
 
-		//The virtual video Back Buffer.  Another chunk of video ram to use as needed that's the same size as the VideoRAM.
-		extern unsigned int* VideoBackBuffer;
+			//The virtual video Back Buffer.  Another chunk of video ram to use as needed that's the same size as the VideoRAM.
+			extern unsigned int* BackBuffer;
 
-		//A pixel buffers set to the width of the screen to allow a memory block to use for mass copying pixels to the screen.
-		extern unsigned int* VideoRowBuffer;
+			//A pixel buffers set to the width of the screen to allow a memory block to use for mass copying pixels to the screen.
+			extern unsigned int* RowBuffer;
 
-		//The virtual Video RAM size.
-		extern unsigned int VideoRAMSize;
+			//The virtual Video RAM size.
+			extern unsigned int RAMSize;
 
-		//The virtual video horizontal resolution
-		extern int ResolutionX;
+			//The virtual video horizontal resolution
+			extern int ResolutionX;
 
-		//The virtual video vertical resolution
-		extern int ResolutionY;
+			//The virtual video vertical resolution
+			extern int ResolutionY;
+		}
+
 
 		//The framebuffer window horizontal resolution within OS window
 		extern int FrameBufferX;

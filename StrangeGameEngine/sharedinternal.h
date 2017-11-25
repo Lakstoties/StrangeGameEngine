@@ -18,11 +18,14 @@ namespace SGE
 
 	namespace Display
 	{
-		//The virtual video horizontal resolution
-		extern int ResolutionX;
+		namespace Video
+		{
+			//The virtual video horizontal resolution
+			extern int ResolutionX;
 
-		//The virtual video vertical resolution
-		extern int ResolutionY;
+			//The virtual video vertical resolution
+			extern int ResolutionY;
+		}
 
 		//The framebuffer window horizontal resolution within OS window
 		extern int FrameBufferX;

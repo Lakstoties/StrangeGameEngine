@@ -3,6 +3,126 @@
 
 namespace SGE
 {
+	namespace GUI
+	{
+		void TextBox::Draw()
+		{
+			//Start and end points for rows
+			unsigned int startRow = 0;
+			unsigned int endRow = rows;
+
+			//Start and end points for columns
+			unsigned int startColumn = 0;
+			unsigned int endColumn = columns;
+
+
+			//
+			//Trim starting points based on upper left corner position
+			//
+
+			//Figure out how many columns are clipped out completely
+			if (XPosition < 0)
+			{
+				//Flip the sign
+				
+				//Divide by 8 to get the number of whole columns cut
+
+				//Add to the startRow
+			}
+
+			//Figure out how many rows are clipped out completely
+			if (YPosition < 0)
+			{
+				//Flip the sign
+				
+				//Divide by 8
+
+			}
+
+			//Calculate VideoRAM starting point
+			unsigned int videoRAMPosition;
+
+			//Draw the background
+			for (int i = startRow; i < endRow; i++)
+			{
+				for (int j = startColumn; j < endColumn; j++)
+				{
+					//If there's something other than pure black in the background
+					if (BackgroundColorArray[i*j] != 0)
+					{
+
+					}
+				}
+			}
+
+			//Draw the characters
+		}
+
+		//Reset the buffers used to store characters.
+		void TextBox::ResetBuffers(unsigned int newRows, unsigned int newColumns)
+		{
+			//Check for any invalid row and colums sizes
+			if (newRows == 0 || newColumns == 0)
+			{
+				return;
+			}
+
+			//
+			//Delete any old stuff
+			//
+
+			//Characters
+			//Delete the buffer array
+			delete CharacterRowBuffers;
+
+			//Foreground Color
+			//Delete the buffer array
+			delete ForegroundColorArray;
+
+			//Background Color
+			//Delete the buffer array
+			delete BackgroundColorArray;
+
+			//
+			//Assign new rows and colums sizes
+			//
+
+			columns = newColumns;
+			rows = newRows;
+
+			//
+			//Create the new stuff
+			//
+			
+			//
+			//Characters
+			//
+			//Create the buffer array
+			CharacterRowBuffers = new char[rows * columns];
+
+			//Zero out the array
+			memset(CharacterRowBuffers, 0, rows * columns);
+
+			//
+			//Foreground Color
+			//
+			//Create the buffer array
+			ForegroundColorArray = new unsigned int[rows * columns];
+
+			//Zero out the array
+			memset(ForegroundColorArray, 0, rows * columns);
+
+			//
+			//Background Color
+			//
+			//Create the buffer array
+			BackgroundColorArray = new unsigned int[rows * columns];
+
+			//Zero out the array
+			memset(BackgroundColorArray, 0, rows * columns);
+
+		}
+	}
 
 	Menu::Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, int targetNumberOfSelections, char** targetMenuItems)
 	{

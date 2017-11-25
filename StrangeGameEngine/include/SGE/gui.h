@@ -3,6 +3,44 @@
 
 namespace SGE
 {
+	namespace GUI
+	{
+		class TextBox
+		{
+		private:
+			//The number of rows in the text box
+			unsigned int rows = 0;
+
+			//The number of columns in the text box
+			unsigned int columns = 0;
+
+		public:
+
+			//The spacing between characters between columns
+			unsigned int ColumnSpacing = 0;
+
+			//The spacing between character between rows
+			unsigned int RowSpacing = 0;
+
+			//Buffers to store characters
+			char* CharacterRowBuffers = nullptr;
+
+			//Color Array for Foreground
+			unsigned int* ForegroundColorArray = nullptr;
+			
+			//Color Array for Background
+			unsigned int* BackgroundColorArray = nullptr;
+
+			//Upper Left corner to align to
+			int XPosition = 0;
+			int YPosition = 0;
+
+
+			void Draw();
+			void ResetBuffers(unsigned int newRows, unsigned int newColumns);
+		};
+	}
+
 	class Menu
 	{
 	private:

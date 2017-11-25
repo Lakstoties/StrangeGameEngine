@@ -44,7 +44,7 @@ namespace SGE
 			unsigned char* characterToDraw = (unsigned char*)&characterROM[(unsigned char)character];
 
 			//Get the RAM position to start writing to in Video RAM
-			int currentRAM = targetX + (targetY * SGE::Display::ResolutionX);
+			int currentRAM = targetX + (targetY * SGE::Display::Video::ResolutionX);
 
 			//Pack the colors into pixel format
 			unsigned int targetColor = PackColors(rColor, gColor, bColor);
@@ -64,140 +64,140 @@ namespace SGE
 				{
 					//Row of pixels
 					//This uses short circuit logic
-					characterToDraw[0] & 0x01 && (SGE::Display::VideoRAM[currentRAM + 0] = targetColor);
-					characterToDraw[0] & 0x02 && (SGE::Display::VideoRAM[currentRAM + 1] = targetColor);
-					characterToDraw[0] & 0x04 && (SGE::Display::VideoRAM[currentRAM + 2] = targetColor);
-					characterToDraw[0] & 0x08 && (SGE::Display::VideoRAM[currentRAM + 3] = targetColor);
-					characterToDraw[0] & 0x10 && (SGE::Display::VideoRAM[currentRAM + 4] = targetColor);
-					characterToDraw[0] & 0x20 && (SGE::Display::VideoRAM[currentRAM + 5] = targetColor);
-					characterToDraw[0] & 0x40 && (SGE::Display::VideoRAM[currentRAM + 6] = targetColor);
-					characterToDraw[0] & 0x80 && (SGE::Display::VideoRAM[currentRAM + 7] = targetColor);
+					characterToDraw[0] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
+					characterToDraw[0] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
+					characterToDraw[0] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
+					characterToDraw[0] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
+					characterToDraw[0] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
+					characterToDraw[0] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
+					characterToDraw[0] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
+					characterToDraw[0] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
 				}
 
 				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::ResolutionX;
+				currentRAM += SGE::Display::Video::ResolutionX;
 
 				//Second Row
 				if (characterToDraw[1])
 				{
 					//Row of pixels
 					//This uses short circuit logic
-					characterToDraw[1] & 0x01 && (SGE::Display::VideoRAM[currentRAM + 0] = targetColor);
-					characterToDraw[1] & 0x02 && (SGE::Display::VideoRAM[currentRAM + 1] = targetColor);
-					characterToDraw[1] & 0x04 && (SGE::Display::VideoRAM[currentRAM + 2] = targetColor);
-					characterToDraw[1] & 0x08 && (SGE::Display::VideoRAM[currentRAM + 3] = targetColor);
-					characterToDraw[1] & 0x10 && (SGE::Display::VideoRAM[currentRAM + 4] = targetColor);
-					characterToDraw[1] & 0x20 && (SGE::Display::VideoRAM[currentRAM + 5] = targetColor);
-					characterToDraw[1] & 0x40 && (SGE::Display::VideoRAM[currentRAM + 6] = targetColor);
-					characterToDraw[1] & 0x80 && (SGE::Display::VideoRAM[currentRAM + 7] = targetColor);
+					characterToDraw[1] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
+					characterToDraw[1] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
+					characterToDraw[1] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
+					characterToDraw[1] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
+					characterToDraw[1] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
+					characterToDraw[1] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
+					characterToDraw[1] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
+					characterToDraw[1] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
 				}
 
 				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::ResolutionX;
+				currentRAM += SGE::Display::Video::ResolutionX;
 
 				//Third row
 				if (characterToDraw[2])
 				{
 					//Row of pixels
 					//This uses short circuit logic
-					characterToDraw[2] & 0x01 && (SGE::Display::VideoRAM[currentRAM + 0] = targetColor);
-					characterToDraw[2] & 0x02 && (SGE::Display::VideoRAM[currentRAM + 1] = targetColor);
-					characterToDraw[2] & 0x04 && (SGE::Display::VideoRAM[currentRAM + 2] = targetColor);
-					characterToDraw[2] & 0x08 && (SGE::Display::VideoRAM[currentRAM + 3] = targetColor);
-					characterToDraw[2] & 0x10 && (SGE::Display::VideoRAM[currentRAM + 4] = targetColor);
-					characterToDraw[2] & 0x20 && (SGE::Display::VideoRAM[currentRAM + 5] = targetColor);
-					characterToDraw[2] & 0x40 && (SGE::Display::VideoRAM[currentRAM + 6] = targetColor);
-					characterToDraw[2] & 0x80 && (SGE::Display::VideoRAM[currentRAM + 7] = targetColor);
+					characterToDraw[2] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
+					characterToDraw[2] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
+					characterToDraw[2] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
+					characterToDraw[2] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
+					characterToDraw[2] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
+					characterToDraw[2] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
+					characterToDraw[2] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
+					characterToDraw[2] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
 				}
 
 				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::ResolutionX;
+				currentRAM += SGE::Display::Video::ResolutionX;
 
 				//Fourth Row
 				if (characterToDraw[3])
 				{
 					//Row of pixels
 					//This uses short circuit logic
-					characterToDraw[3] & 0x01 && (SGE::Display::VideoRAM[currentRAM + 0] = targetColor);
-					characterToDraw[3] & 0x02 && (SGE::Display::VideoRAM[currentRAM + 1] = targetColor);
-					characterToDraw[3] & 0x04 && (SGE::Display::VideoRAM[currentRAM + 2] = targetColor);
-					characterToDraw[3] & 0x08 && (SGE::Display::VideoRAM[currentRAM + 3] = targetColor);
-					characterToDraw[3] & 0x10 && (SGE::Display::VideoRAM[currentRAM + 4] = targetColor);
-					characterToDraw[3] & 0x20 && (SGE::Display::VideoRAM[currentRAM + 5] = targetColor);
-					characterToDraw[3] & 0x40 && (SGE::Display::VideoRAM[currentRAM + 6] = targetColor);
-					characterToDraw[3] & 0x80 && (SGE::Display::VideoRAM[currentRAM + 7] = targetColor);
+					characterToDraw[3] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
+					characterToDraw[3] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
+					characterToDraw[3] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
+					characterToDraw[3] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
+					characterToDraw[3] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
+					characterToDraw[3] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
+					characterToDraw[3] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
+					characterToDraw[3] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
 				}
 
 				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::ResolutionX;
+				currentRAM += SGE::Display::Video::ResolutionX;
 
 				//Fifth Row
 				if (characterToDraw[4])
 				{
 					//Row of pixels
 					//This uses short circuit logic
-					characterToDraw[4] & 0x01 && (SGE::Display::VideoRAM[currentRAM + 0] = targetColor);
-					characterToDraw[4] & 0x02 && (SGE::Display::VideoRAM[currentRAM + 1] = targetColor);
-					characterToDraw[4] & 0x04 && (SGE::Display::VideoRAM[currentRAM + 2] = targetColor);
-					characterToDraw[4] & 0x08 && (SGE::Display::VideoRAM[currentRAM + 3] = targetColor);
-					characterToDraw[4] & 0x10 && (SGE::Display::VideoRAM[currentRAM + 4] = targetColor);
-					characterToDraw[4] & 0x20 && (SGE::Display::VideoRAM[currentRAM + 5] = targetColor);
-					characterToDraw[4] & 0x40 && (SGE::Display::VideoRAM[currentRAM + 6] = targetColor);
-					characterToDraw[4] & 0x80 && (SGE::Display::VideoRAM[currentRAM + 7] = targetColor);
+					characterToDraw[4] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
+					characterToDraw[4] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
+					characterToDraw[4] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
+					characterToDraw[4] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
+					characterToDraw[4] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
+					characterToDraw[4] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
+					characterToDraw[4] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
+					characterToDraw[4] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
 				}
 
 				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::ResolutionX;
+				currentRAM += SGE::Display::Video::ResolutionX;
 
 				//Sixth Row
 				if (characterToDraw[5])
 				{
 					//Row of pixels
 					//This uses short circuit logic
-					characterToDraw[5] & 0x01 && (SGE::Display::VideoRAM[currentRAM + 0] = targetColor);
-					characterToDraw[5] & 0x02 && (SGE::Display::VideoRAM[currentRAM + 1] = targetColor);
-					characterToDraw[5] & 0x04 && (SGE::Display::VideoRAM[currentRAM + 2] = targetColor);
-					characterToDraw[5] & 0x08 && (SGE::Display::VideoRAM[currentRAM + 3] = targetColor);
-					characterToDraw[5] & 0x10 && (SGE::Display::VideoRAM[currentRAM + 4] = targetColor);
-					characterToDraw[5] & 0x20 && (SGE::Display::VideoRAM[currentRAM + 5] = targetColor);
-					characterToDraw[5] & 0x40 && (SGE::Display::VideoRAM[currentRAM + 6] = targetColor);
-					characterToDraw[5] & 0x80 && (SGE::Display::VideoRAM[currentRAM + 7] = targetColor);
+					characterToDraw[5] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
+					characterToDraw[5] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
+					characterToDraw[5] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
+					characterToDraw[5] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
+					characterToDraw[5] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
+					characterToDraw[5] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
+					characterToDraw[5] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
+					characterToDraw[5] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
 				}
 
 				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::ResolutionX;
+				currentRAM += SGE::Display::Video::ResolutionX;
 
 				//Seventh Row
 				if (characterToDraw[6])
 				{
 					//Row of pixels
 					//This uses short circuit logic
-					characterToDraw[6] & 0x01 && (SGE::Display::VideoRAM[currentRAM + 0] = targetColor);
-					characterToDraw[6] & 0x02 && (SGE::Display::VideoRAM[currentRAM + 1] = targetColor);
-					characterToDraw[6] & 0x04 && (SGE::Display::VideoRAM[currentRAM + 2] = targetColor);
-					characterToDraw[6] & 0x08 && (SGE::Display::VideoRAM[currentRAM + 3] = targetColor);
-					characterToDraw[6] & 0x10 && (SGE::Display::VideoRAM[currentRAM + 4] = targetColor);
-					characterToDraw[6] & 0x20 && (SGE::Display::VideoRAM[currentRAM + 5] = targetColor);
-					characterToDraw[6] & 0x40 && (SGE::Display::VideoRAM[currentRAM + 6] = targetColor);
-					characterToDraw[6] & 0x80 && (SGE::Display::VideoRAM[currentRAM + 7] = targetColor);
+					characterToDraw[6] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
+					characterToDraw[6] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
+					characterToDraw[6] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
+					characterToDraw[6] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
+					characterToDraw[6] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
+					characterToDraw[6] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
+					characterToDraw[6] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
+					characterToDraw[6] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
 				}
 
 				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::ResolutionX;
+				currentRAM += SGE::Display::Video::ResolutionX;
 
 				//Eigth row
 				if (characterToDraw[7])
 				{
 					//Row of pixels
 					//This uses short circuit logic
-					characterToDraw[7] & 0x01 && (SGE::Display::VideoRAM[currentRAM + 0] = targetColor);
-					characterToDraw[7] & 0x02 && (SGE::Display::VideoRAM[currentRAM + 1] = targetColor);
-					characterToDraw[7] & 0x04 && (SGE::Display::VideoRAM[currentRAM + 2] = targetColor);
-					characterToDraw[7] & 0x08 && (SGE::Display::VideoRAM[currentRAM + 3] = targetColor);
-					characterToDraw[7] & 0x10 && (SGE::Display::VideoRAM[currentRAM + 4] = targetColor);
-					characterToDraw[7] & 0x20 && (SGE::Display::VideoRAM[currentRAM + 5] = targetColor);
-					characterToDraw[7] & 0x40 && (SGE::Display::VideoRAM[currentRAM + 6] = targetColor);
-					characterToDraw[7] & 0x80 && (SGE::Display::VideoRAM[currentRAM + 7] = targetColor);
+					characterToDraw[7] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
+					characterToDraw[7] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
+					characterToDraw[7] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
+					characterToDraw[7] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
+					characterToDraw[7] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
+					characterToDraw[7] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
+					characterToDraw[7] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
+					characterToDraw[7] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
 				}
 			}
 		}
@@ -211,7 +211,7 @@ namespace SGE
 			unsigned int* sourceDataBlock)				//The source data block
 		{
 			//Set the starting point in VideoRAM
-			int targetRAM = (targetX + (targetY * SGE::Display::ResolutionX));
+			int targetRAM = (targetX + (targetY * SGE::Display::Video::ResolutionX));
 
 			//Set the starting pint in the source data block RAM
 			int sourceRAM = 0;
@@ -220,10 +220,10 @@ namespace SGE
 			for (int i = 0; i < sourceHeight; i++)
 			{
 				//Copy of row from the source over to the target
-				std::memmove(&SGE::Display::VideoRAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * sizeof(unsigned int));
+				std::memmove(&SGE::Display::Video::RAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * sizeof(unsigned int));
 
 				//Increment to the next row in the display
-				targetRAM += SGE::Display::ResolutionX;
+				targetRAM += SGE::Display::Video::ResolutionX;
 
 				//Increment to the next row in the source
 				sourceRAM += sourceWidth;
@@ -249,8 +249,8 @@ namespace SGE
 			//Check for lines that cannot possibly exist on the +X, +Y quadrant
 			if ((startX < 0 && endX < 0) ||														//Both X's are negative
 				(startY < 0 && endY < 0) ||														//Both Y's are negative
-				(startX >= SGE::Display::ResolutionX && endX >= SGE::Display::ResolutionX) ||	//Both X's are outside the resolution
-				(startY >= SGE::Display::ResolutionY && endY >= SGE::Display::ResolutionY))		//Both Y's are outside the resolution
+				(startX >= SGE::Display::Video::ResolutionX && endX >= SGE::Display::Video::ResolutionX) ||	//Both X's are outside the resolution
+				(startY >= SGE::Display::Video::ResolutionY && endY >= SGE::Display::Video::ResolutionY))		//Both Y's are outside the resolution
 			{
 				//This line doesn't exist anywhere we could possibly draw it.
 				return;
@@ -259,8 +259,8 @@ namespace SGE
 			//Check for straight lines outside what we can do anything about
 			if ((startX < 0 && deltaX == 0) ||								//X is negative and it's going to stay that way
 				(startY < 0 && deltaY == 0) ||								//Y is negative and it's going to stay that way
-				(startX >= SGE::Display::ResolutionX && deltaX == 0) ||		//X is outside the resolution and it's going to stay that way
-				(startY >= SGE::Display::ResolutionY && deltaY == 0))		//Y is outside the resoltuion and it's going to stay that way
+				(startX >= SGE::Display::Video::ResolutionX && deltaX == 0) ||		//X is outside the resolution and it's going to stay that way
+				(startY >= SGE::Display::Video::ResolutionY && deltaY == 0))		//Y is outside the resoltuion and it's going to stay that way
 			{
 				//Can't draw this line
 				return;
@@ -274,9 +274,9 @@ namespace SGE
 				startX = 0;
 				startY += (-startX * deltaY) / deltaX;
 			}
-			else if (startX >= SGE::Display::ResolutionX)
+			else if (startX >= SGE::Display::Video::ResolutionX)
 			{
-				startX = SGE::Display::ResolutionX - 1;
+				startX = SGE::Display::Video::ResolutionX - 1;
 				startY -= (-startX * deltaY) / deltaX;
 			}
 
@@ -287,10 +287,10 @@ namespace SGE
 				startX += (-startY * deltaX) / deltaY;
 				startY = 0;
 			}
-			else if (startY >= SGE::Display::ResolutionY)
+			else if (startY >= SGE::Display::Video::ResolutionY)
 			{
 				startX -= (-startY * deltaX) / deltaY;
-				startY = SGE::Display::ResolutionY - 1;
+				startY = SGE::Display::Video::ResolutionY - 1;
 			}
 
 			//Check to see if we need to prune the end point back to the right quardrant
@@ -301,9 +301,9 @@ namespace SGE
 				endX = 0;
 				endY += (-endX * deltaY) / deltaX;
 			}
-			else if (endX >= SGE::Display::ResolutionX)
+			else if (endX >= SGE::Display::Video::ResolutionX)
 			{
-				endX = SGE::Display::ResolutionX - 1;
+				endX = SGE::Display::Video::ResolutionX - 1;
 				endY -= (-endX * deltaY) / deltaX;
 			}
 
@@ -314,10 +314,10 @@ namespace SGE
 				endX += (-endY * deltaX) / deltaY;
 				endY = 0;
 			}
-			else if (endY >= SGE::Display::ResolutionY)
+			else if (endY >= SGE::Display::Video::ResolutionY)
 			{
 				endX -= (-endY * deltaX) / deltaY;
-				endY = SGE::Display::ResolutionY;
+				endY = SGE::Display::Video::ResolutionY;
 			}
 
 			//Double check the deltas
@@ -354,12 +354,12 @@ namespace SGE
 				deltaXY = float(deltaY) / float(deltaX);
 
 				//Start the starting RAM position
-				ramPosition = startX + (SGE::Display::ResolutionX * startY);
+				ramPosition = startX + (SGE::Display::Video::ResolutionX * startY);
 
 				//Draw the line
 				for (int i = 0; (i <= deltaX); i++)
 				{
-					SGE::Display::VideoRAM[ramPosition + i + int(i * deltaXY) * SGE::Display::ResolutionX] = pixelColor;
+					SGE::Display::Video::RAM[ramPosition + i + int(i * deltaXY) * SGE::Display::Video::ResolutionX] = pixelColor;
 				}
 			}
 
@@ -390,12 +390,12 @@ namespace SGE
 				deltaXY = float(deltaX) / float(deltaY);
 
 				//Start the starting RAM position
-				ramPosition = startX + (SGE::Display::ResolutionX * startY);
+				ramPosition = startX + (SGE::Display::Video::ResolutionX * startY);
 
 				//Draw the line
 				for (int i = 0; (i <= deltaY); i++)
 				{
-					SGE::Display::VideoRAM[ramPosition + (i * SGE::Display::ResolutionX) + int(i * deltaXY)] = pixelColor;
+					SGE::Display::Video::RAM[ramPosition + (i * SGE::Display::Video::ResolutionX) + int(i * deltaXY)] = pixelColor;
 				}
 			}
 		}
@@ -437,8 +437,8 @@ namespace SGE
 			//Check for boxes we cannot draw...
 			if ((startX + width < 0) ||						//If the X never graces the +x, +y quadrant
 				(startY + height < 0) ||					//If the Y never graces the +x, +y quadrant
-				(startX >= SGE::Display::ResolutionX) ||	//If the X start is outside the display resolution
-				(startY >= SGE::Display::ResolutionY))		//If the Y start is outside the display resolution
+				(startX >= SGE::Display::Video::ResolutionX) ||	//If the X start is outside the display resolution
+				(startY >= SGE::Display::Video::ResolutionY))		//If the Y start is outside the display resolution
 			{
 				return;
 			}
@@ -458,18 +458,18 @@ namespace SGE
 				startY = 0;
 			}
 
-			if (startX + width >= SGE::Display::ResolutionX)
+			if (startX + width >= SGE::Display::Video::ResolutionX)
 			{
-				width = SGE::Display::ResolutionX - startX;
+				width = SGE::Display::Video::ResolutionX - startX;
 			}
 
-			if (startY + height >= SGE::Display::ResolutionY)
+			if (startY + height >= SGE::Display::Video::ResolutionY)
 			{
-				height = SGE::Display::ResolutionY - startY;
+				height = SGE::Display::Video::ResolutionY - startY;
 			}
 
 			//Get the starting point in video RAM based on desired location and size of the display
-			int targetRAM = (startX + (startY * SGE::Display::ResolutionX));
+			int targetRAM = (startX + (startY * SGE::Display::Video::ResolutionX));
 
 			//Starting point
 			int startingRAM = targetRAM;
@@ -481,23 +481,21 @@ namespace SGE
 			for (int i = 0; i < width; i++)
 			{
 				//Copy the color into video ram
-				SGE::Display::VideoRAM[targetRAM + i] = targetColor;
+				SGE::Display::Video::RAM[targetRAM + i] = targetColor;
 			}
 
 			//Then memcpy the rest of the rows from this one
 			//First move to the next row
-			targetRAM += SGE::Display::ResolutionX;
+			targetRAM += SGE::Display::Video::ResolutionX;
 
 			//Loop through the remaining rows
 			for (int i = 1; i < height; i++)
 			{
 				//Copy the first row to the rest of the rows
-				//memcpy(&SGE::Display::VideoRAM[targetRAM], &SGE::Display::VideoRAM[startingRAM], width * 4);
-				//std::copy(&SGE::Display::VideoRAM[startingRAM], &SGE::Display::VideoRAM[startingRAM] + width, &SGE::Display::VideoRAM[targetRAM]);
-				std::memmove(&SGE::Display::VideoRAM[targetRAM], &SGE::Display::VideoRAM[startingRAM], width * sizeof(unsigned int));
-
+				memcpy(&SGE::Display::Video::RAM[targetRAM], &SGE::Display::Video::RAM[startingRAM], width * 4);
+				
 				//Next Row
-				targetRAM += SGE::Display::ResolutionX;
+				targetRAM += SGE::Display::Video::ResolutionX;
 			}
 		}
 
@@ -505,7 +503,7 @@ namespace SGE
 		void ZBlank()
 		{
 			//Memset for the win!!
-			memset(SGE::Display::VideoRAM, 0, SGE::Display::VideoRAMSize * sizeof(unsigned int));
+			memset(SGE::Display::Video::RAM, 0, SGE::Display::Video::RAMSize * sizeof(unsigned int));
 		}
 
 		//Packs the Red, Green, and Blue 8-bit components with a dummy Alpha value into a 32-bit unsigned int
@@ -708,9 +706,9 @@ namespace SGE
 			targetPixelBufferSize = (topMostPointVSMiddlePointX > bottomMostPointVSMiddlePointX) ? (topMostPointVSMiddlePointX + 1) : (bottomMostPointVSMiddlePointX + 1);
 
 			//Load up the Row Buffer
-			for (int i = 0; i < targetPixelBufferSize && i < SGE::Display::ResolutionX; i++)
+			for (int i = 0; i < targetPixelBufferSize && i < SGE::Display::Video::ResolutionX; i++)
 			{
-				SGE::Display::VideoRowBuffer[i] = targetColor;
+				SGE::Display::Video::RowBuffer[i] = targetColor;
 			}
 
 			//Start from the top most and go a long the lines between top and bottom, and top and middle.
@@ -729,11 +727,11 @@ namespace SGE
 			for (; currentY < middlePointVertex.y + startY; currentY++)
 			{
 				//copy the row out
-				std::memmove(&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ?			//Go to the leftmost point and set that as the destination point in VideoRAM
+				std::memmove(&SGE::Display::Video::RAM[(currentTopMostToBottomMostX < currentOtherLineX ?			//Go to the leftmost point and set that as the destination point in VideoRAM
 					currentTopMostToBottomMostX :
 					currentOtherLineX) +
-					SGE::Display::ResolutionX * (currentY)],
-					SGE::Display::VideoRowBuffer,														//Pull from the VideoRowBuffer
+					SGE::Display::Video::ResolutionX * (currentY)],
+					SGE::Display::Video::RowBuffer,														//Pull from the VideoRowBuffer
 					((currentTopMostToBottomMostX > currentOtherLineX ?								//Subtract based on which is the greater for a positive difference
 						currentTopMostToBottomMostX - currentOtherLineX :
 						currentOtherLineX - currentTopMostToBottomMostX)
@@ -782,11 +780,11 @@ namespace SGE
 			for (; currentY <= bottomMostVertex.y + startY; currentY++)
 			{
 				//Copy the row out
-				std::memmove(&SGE::Display::VideoRAM[(currentTopMostToBottomMostX < currentOtherLineX ?			//Go to the leftmost point and set that as the destination point in VideoRAM
+				std::memmove(&SGE::Display::Video::RAM[(currentTopMostToBottomMostX < currentOtherLineX ?			//Go to the leftmost point and set that as the destination point in VideoRAM
 					currentTopMostToBottomMostX : 
 					currentOtherLineX) + 
-					SGE::Display::ResolutionX * (currentY)],
-					SGE::Display::VideoRowBuffer,														//Pull from the VideoRowBuffer
+					SGE::Display::Video::ResolutionX * (currentY)],
+					SGE::Display::Video::RowBuffer,														//Pull from the VideoRowBuffer
 					((currentTopMostToBottomMostX > currentOtherLineX ?								//Subtract based on which is the greater for a positive difference
 							currentTopMostToBottomMostX - currentOtherLineX :
 							currentOtherLineX - currentTopMostToBottomMostX)
@@ -935,7 +933,7 @@ namespace SGE
 						partialProductY31 - partialProductX31 >= 0)
 					{
 						//Copy the color over.
-						SGE::Display::VideoRAM[x + (y*SGE::Display::ResolutionX)] = targetColor;
+						SGE::Display::Video::RAM[x + (y*SGE::Display::Video::ResolutionX)] = targetColor;
 					}
 					//Increment the partial product
 					partialProductX12 += spanningVector12.y;

@@ -3,37 +3,53 @@ namespace SGE
 {
 	namespace Controls
 	{
-		//Values for the key and scan code arrays
-		const int NUMBER_OF_KEYS = 512;
+		namespace Mouse
+		{
+			const int NUMBER_OF_BUTTONS = 10;
 
-		const int NUMBER_OF_BUTTONS = 10;
+			extern int PositionRawX;
+			extern int PositionX;
 
-		//Current keyboard key state array
-		//It's an extern to keep the linker from going crazy over multiple definitions between the headers.
-		//It's officially defined in the control.cpp
-		extern bool KeyboardStatus[NUMBER_OF_KEYS];
+			extern int PositionRawY;
+			extern int PositionY;
+
+			extern bool Buttons[NUMBER_OF_BUTTONS];
+
+			extern int ScrollX;
+			extern int ScrollY;
+		}
+
+		namespace Keyboard
+		{
+			//Values for the key and scan code arrays
+			const int NUMBER_OF_KEYS = 512;
+
+			//Keyboard input buffer size
+			const int INPUT_BUFFER_SIZE = 512;
+
+			//Current keyboard key state array
+			//It's an extern to keep the linker from going crazy over multiple definitions between the headers.
+			//It's officially defined in the control.cpp
+			extern bool Status[NUMBER_OF_KEYS];
+
+			//Current keyboard input buffer
+			extern int InputBuffer[INPUT_BUFFER_SIZE];
+
+			//Current buffer positions
+			extern int CurrentBufferPosition;
+
+			void ResetInputBuffer();
+
+			void SaveStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS]);
+		}
 
 		//Flag to indicate if the input handling system should keep on going.
 		extern bool ContinueToHandleEvents;
-
-		extern int MousePositionRawX;
-		extern int MousePositionX;
-
-		extern int MousePositionRawY;
-		extern int MousePositionY;
-
-		extern bool MouseButtons[NUMBER_OF_BUTTONS];
-
-		extern int MouseScrollX;
-		extern int MouseScrollY;
 
 		//Start Handling Events through Main Interface
 		//This has to handled by the same thread that spawned the GUI window
 		//And in OSX this has to be done by the thread that invoked the main function of the program..  Fuckin' Macs...
 		void HandleEvents();
-
-		void SaveKeyboardStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS]);
-
 
 		///
 		///Keymap

@@ -28,8 +28,8 @@ namespace SGE
 	//Mouse Scrool Wheel callback for GLFW
 	void ScrollWheelCallback(GLFWwindow* window, double xOffset, double yOffset)
 	{
-		SGE::Controls::MouseScrollX += xOffset;
-		SGE::Controls::MouseScrollY += yOffset;
+		SGE::Controls::Mouse::ScrollX += xOffset;
+		SGE::Controls::Mouse::ScrollY += yOffset;
 
 		//fprintf(stderr, "Scroll event catpured: %f, %f \n", xOffset, yOffset);
 	}
@@ -40,12 +40,12 @@ namespace SGE
 		switch (action)
 		{
 		case GLFW_PRESS:
-			SGE::Controls::MouseButtons[button] = true;
+			SGE::Controls::Mouse::Buttons[button] = true;
 			//fprintf(stderr, "Mouse Button %i Pressed.\n", button);
 			break;
 
 		case GLFW_RELEASE:
-			SGE::Controls::MouseButtons[button] = false;
+			SGE::Controls::Mouse::Buttons[button] = false;
 			//fprintf(stderr, "Mouse Button %i Released.\n", button);
 			break;
 		}
@@ -64,12 +64,26 @@ namespace SGE
 			//Update the key array for the state of the key
 			if (action == GLFW_PRESS)
 			{
-				SGE::Controls::KeyboardStatus[key] = true;
+				SGE::Controls::Keyboard::Status[key] = true;
+
+				//Add key to the buffer
+				SGE::Controls::Keyboard::InputBuffer[SGE::Controls::Keyboard::CurrentBufferPosition] = key;
+
+				//Increment Input Buffer position
+				++SGE::Controls::Keyboard::CurrentBufferPosition %= SGE::Controls::Keyboard::INPUT_BUFFER_SIZE;
+
+				//Print out current input buffer
+				//fprintf(stderr, "Current Contents of Keyboard Input Buffer: ");
+				//for (int i = 0; i < SGE::Controls::Keyboard::CurrentBufferPosition; i++)
+				//{
+				//	fprintf(stderr, "%i ", SGE::Controls::Keyboard::InputBuffer[i]);
+				//}
+				//fprintf(stderr, "\n");
 			}
 
 			else if (action == GLFW_RELEASE)
 			{
-				SGE::Controls::KeyboardStatus[key] = false;
+				SGE::Controls::Keyboard::Status[key] = false;
 			}
 		}
 	}
@@ -87,8 +101,8 @@ namespace SGE
 		glfwGetFramebufferSize(mainWindow, &currentFrameBufferX, &currentFrameBufferY);
 
 		//Calculate offsets
-		currentFrameBufferXOffset = (currentFrameBufferX - (currentFrameBufferY * SGE::Display::ResolutionX) / SGE::Display::ResolutionY) / 2;
-		currentFrameBufferYOffset = (currentFrameBufferY - (currentFrameBufferX * SGE::Display::ResolutionY) / SGE::Display::ResolutionX) / 2;
+		currentFrameBufferXOffset = (currentFrameBufferX - (currentFrameBufferY * SGE::Display::Video::ResolutionX) / SGE::Display::Video::ResolutionY) / 2;
+		currentFrameBufferYOffset = (currentFrameBufferY - (currentFrameBufferX * SGE::Display::Video::ResolutionY) / SGE::Display::Video::ResolutionX) / 2;
 
 		//Short circuit logic
 		//If the Offset goes negative it needs to be hard capped or it throws off calculations.
@@ -96,12 +110,12 @@ namespace SGE
 		(currentFrameBufferYOffset < 0) && (currentFrameBufferYOffset = 0);
 
 		//Raw Numbers
-		SGE::Controls::MousePositionRawX = (int)xPosition;
-		SGE::Controls::MousePositionRawY = (int)yPosition;
+		SGE::Controls::Mouse::PositionRawX = (int)xPosition;
+		SGE::Controls::Mouse::PositionRawY = (int)yPosition;
 
 		//Scaled
-		SGE::Controls::MousePositionX = ((SGE::Controls::MousePositionRawX - currentFrameBufferXOffset) * SGE::Display::ResolutionX) / (currentFrameBufferX - currentFrameBufferXOffset * 2);
-		SGE::Controls::MousePositionY = ((SGE::Controls::MousePositionRawY - currentFrameBufferYOffset) * SGE::Display::ResolutionY) / (currentFrameBufferY - currentFrameBufferYOffset * 2);
+		SGE::Controls::Mouse::PositionX = ((SGE::Controls::Mouse::PositionRawX - currentFrameBufferXOffset) * SGE::Display::Video::ResolutionX) / (currentFrameBufferX - currentFrameBufferXOffset * 2);
+		SGE::Controls::Mouse::PositionY = ((SGE::Controls::Mouse::PositionRawY - currentFrameBufferYOffset) * SGE::Display::Video::ResolutionY) / (currentFrameBufferY - currentFrameBufferYOffset * 2);
 	}
 
 
