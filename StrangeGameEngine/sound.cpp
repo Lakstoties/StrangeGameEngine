@@ -52,7 +52,11 @@ namespace SGE
 					//  Calculate the next offset based on the appropriate increment
 					//
 
-					//Check to see if the Arpeggio Effect is in effect
+					float currentOffsetIncrement = offsetIncrement;
+
+					//
+					//  Check to see if the Arpeggio Effect is in effect
+					//
 					if (EnableArpeggio)
 					{
 						//Check the state of the Arpeggio effect
@@ -68,17 +72,11 @@ namespace SGE
 							//Based on that state alter the argpeggio offset increment
 
 							//If at the base state
-							if (arpeggioState == 0)
-							{
-								arpeggioOffsetIncrement = offsetIncrement;
-							}
-
-							//Otherwise we are doing semitones
-							else
+							if (arpeggioState != 0)
 							{
 								//Caclulate the semitone using the current offset
 								//Check to see if state 1 or 2 and use X and Y values accordingly
-								arpeggioOffsetIncrement = float(offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioState == 1 ? arpeggioSemitoneX : arpeggioSemitoneY));
+								currentOffsetIncrement = float(currentOffsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioState == 1 ? arpeggioSemitoneX : arpeggioSemitoneY));
 							}
 						}
 
@@ -86,6 +84,21 @@ namespace SGE
 						currentArpeggioSamples++;
 					}
 
+					//
+					//  Check for Vibrato Effect
+					//
+					if (EnableVibrato)
+					{
+						//Calculate the offset
+						currentOffsetIncrement = currentOffsetIncrement * pow(SEMITONE_MULTIPLIER, VibratoAmplitude * VibratoWaveform[currentVibratoWaveformPosition]);
+
+						//Increment the vibrato waveform position
+						currentVibratoWaveformPosition = (int)(currentVibratoWaveformPosition + VibratoCycles) % SAMPLE_RATE;
+					}
+
+					//
+					//  Check for the Volume Slide effect
+					//
 					if (EnableVolumeSlide)
 					{
 						//Check the state of Volume Slide Effect
@@ -108,8 +121,9 @@ namespace SGE
 					//
 					//  Increment Offset  Appropriately
 					//
-					offset += EnableArpeggio ? arpeggioOffsetIncrement : offsetIncrement;
 
+					//For the Arpeggio Effect
+					offset += currentOffsetIncrement;
 
 					//
 					//  Check for repeating loops
@@ -119,9 +133,8 @@ namespace SGE
 					if ((currentSampleBuffer->repeatDuration > 0) && ((unsigned int)offset >= (currentSampleBuffer->repeatOffset + currentSampleBuffer->repeatDuration)))
 					{
 						//Rewind back by the repeatDuration.
-						offset -= currentSampleBuffer->repeatDuration;
+						offset -= currentSampleBuffer->repeatDuration; 
 					}
-
 
 					//
 					//  Check to see if it's gone pass the valid bufferSize
@@ -246,6 +259,64 @@ namespace SGE
 		{
 			//Reset the buffer which will free the memory.
 			ResetBuffer();
+		}
+
+		//
+		//
+		// Waveforms
+		//
+		//
+
+		namespace Waveforms
+		{
+			float Sine[SAMPLE_RATE] = { 0 };
+			float RampDown[SAMPLE_RATE] = { 0 };
+			float Square[SAMPLE_RATE] = { 0 };
+
+			void GenerateSine()
+			{
+				//Calculate radian to frequency step for a 1Hz full sine wave
+				float periodStepping = (TWO_PI_FLOAT) / SAMPLE_RATE;
+
+				//Calculate all the points
+				for (unsigned int i = 0; i < SAMPLE_RATE; i++)
+				{
+					//Put the data in the Sine waveform array
+					Sine[i] = sinf(periodStepping * i);
+				}
+			}
+
+			void GenerateRampDown()
+			{
+				//Calculate all the points
+				for (unsigned int i = 0; i < SAMPLE_RATE; i++)
+				{
+					//Put all the data in the Ramp Down waveform array
+					RampDown[i] = 1.0f - (i / float(SAMPLE_RATE / 2));
+				}
+			}
+
+			void GenerateSquare()
+			{
+				//Calculate all the points
+				//First part
+				for (unsigned int i = 0; i < (SAMPLE_RATE / 2); i++)
+				{
+					//Put all the data in the Squrre waveform array.
+					Square[i] = 1.0f;
+				}
+
+				//Second part
+				for (unsigned int i = (SAMPLE_RATE / 2); i < SAMPLE_RATE; i++)
+				{
+					Square[i] = -1.0f;
+				}
+			}
+
+			void Derive16BitSine(short* targetBuffer, unsigned int bufferLength, float frequency)
+			{
+
+			}
 		}
 
 
@@ -687,6 +758,15 @@ namespace SGE
 					printf("PortAudio Stream Started.\n");
 				}
 			}
+
+			//
+			//Generate PreGenerated Base Waveforms.
+			//
+
+			Waveforms::GenerateSine();
+			Waveforms::GenerateRampDown();
+			Waveforms::GenerateSquare();
+
 		}
 
 		//Stop the audio system
@@ -1268,9 +1348,11 @@ namespace SGE
 			unsigned char effectTypeOnChannel[4] = { 0 };
 			unsigned char effectXOnChannel[4] = { 0 };
 			unsigned char effectYOnChannel[4] = { 0 };
-			unsigned 
-
 			int positionToJumpAfterDivision = -1;
+
+			//
+			bool channelPlays[4] = { false };
+
 
 			//Default for most mods, can be changed.
 			ticksADivision = DEFAULT_TICKS_A_DIVISION;
@@ -1314,9 +1396,13 @@ namespace SGE
 							//  Check for sample changes on each channel
 							//
 
+							//Keep track to see if the channel needs to play again
+							channelPlays[c] = false;
+
 							//Check to see if sample is not zero
 							//If it is zero don't change the sample used in the channel
-							if (modFile.patterns[CurrentPattern].division[i].channels[c].sample > 0)
+							if (modFile.patterns[CurrentPattern].division[i].channels[c].sample > 0 &&
+								modFile.patterns[CurrentPattern].division[i].channels[c].sample != CurrentChannelSamples[c])
 							{
 								//Otherwise, channel up the sample used, effectively reseting the channel to the sample settings.
 								//Stop this channel
@@ -1330,6 +1416,15 @@ namespace SGE
 
 								//Indicate Current Channel's Sample
 								CurrentChannelSamples[c] = modFile.patterns[CurrentPattern].division[i].channels[c].sample;
+
+								channelPlays[c] = true;
+							}
+
+							//If the sample is the same, just reset the volume.
+							if (modFile.patterns[CurrentPattern].division[i].channels[c].sample == CurrentChannelSamples[c])
+							{
+								//Set sample volume
+								channelMap[c]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern].division[i].channels[c].sample - 1].volume) / 64.0f;
 							}
 
 
@@ -1349,6 +1444,9 @@ namespace SGE
 								//Using NTSC sampling
 								channelMap[c]->offsetIncrement = MOD_NTSC_TUNING / float(modFile.patterns[CurrentPattern].division[i].channels[c].period)
 									/ float(SAMPLE_RATE) / 2.0f;
+
+								//Channel plays
+								channelPlays[c] = true;
 							}
 
 
@@ -1369,8 +1467,18 @@ namespace SGE
 							//Turn off Arpeggio
 							channelMap[c]->EnableArpeggio = false;
 
-							//Turn of Volume Slide
+							//Turn off Volume Slide
 							channelMap[c]->EnableVolumeSlide = false;
+
+							//Turn off Vibrato
+							channelMap[c]->EnableVibrato = false;
+
+							//Check to see if we need to retrigger vibrato
+							if (channelMap[c]->RetriggerVibrato)
+							{
+								channelMap[c]->currentVibratoWaveformPosition = 0;
+							}
+
 
 							//Is there an effect at all?
 							//If the whole effect value is 0, then there is no effect
@@ -1396,6 +1504,28 @@ namespace SGE
 
 									//Enable it and signal the sound system to start rendering it
 									channelMap[c]->EnableArpeggio = true;
+
+									//Found our effect.  Moving on!
+									break;
+
+								//Configure the Vibrato Effect or Effect 4 / 0x4
+								case 0x4:
+									//Set the Amplitude for the frequency shift y/16 semitones.
+									//If 0, use previous settings
+									if (effectYOnChannel[c] != 0)
+									{
+										channelMap[c]->VibratoAmplitude = effectYOnChannel[c] / 16.0f;
+									}
+
+									//Set the cycle rate for the Vibrato so that (X * Ticks) / 64 cyckes occur in the division
+									//If 0, use previous settings
+									if (effectXOnChannel[c] != 0)
+									{
+										channelMap[c]->VibratoCycles = (effectXOnChannel[c] * ticksADivision) / 64.0f;
+									}
+
+									//Enable Vibrato
+									channelMap[c]->EnableVibrato = true;
 
 									//Found our effect.  Moving on!
 									break;
@@ -1450,6 +1580,64 @@ namespace SGE
 										//Not implemented.
 										break;
 
+									//Set Vibrato Effect Waveform
+									case 0x4:
+										//Set the waveform
+										//If Y is 0 or 4, set it to a sine waveform
+										switch (effectYOnChannel[c])
+										{
+											//If Y is 0, Sine waveform with Retrigger.
+										case 0x0:
+											channelMap[c]->VibratoWaveform = Waveforms::Sine;
+											channelMap[c]->RetriggerVibrato = true;
+											break;
+
+											//If Y is 1, Ramp Down waveform with Retrigger.
+										case 0x1:
+											channelMap[c]->VibratoWaveform = Waveforms::RampDown;
+											channelMap[c]->RetriggerVibrato = true;
+											break;
+
+											//If Y is 2, Square waveform with Retrigger.
+										case 0x2:
+											channelMap[c]->VibratoWaveform = Waveforms::Square;
+											channelMap[c]->RetriggerVibrato = true;
+											break;
+
+											//If Y is 3, Random choice with Retrigger
+										case 0x3:
+
+											channelMap[c]->RetriggerVibrato = true;
+											break;
+
+											//If Y is 4, Sine waveform without Retrigger
+										case 0x4:
+											channelMap[c]->VibratoWaveform = Waveforms::Sine;
+											channelMap[c]->RetriggerVibrato = false;
+											break;
+
+											//If Y is 5, Ramp Down waveform without Retrigger
+										case 0x5:
+											channelMap[c]->VibratoWaveform = Waveforms::RampDown;
+											channelMap[c]->RetriggerVibrato = false;
+											break;
+
+											//If Y is 6, Square waveform without Retrigger
+										case 0x6:
+											channelMap[c]->VibratoWaveform = Waveforms::Square;
+											channelMap[c]->RetriggerVibrato = false;
+											break;
+
+											//If Y is 7, random choice without Retrigger
+										case 0x7:
+
+											channelMap[c]->RetriggerVibrato = false;
+											break;
+										}
+
+										//Found the effect, move on!
+										break;
+
 									//Not implemented effect
 									default:
 										fprintf(stderr, "DEBUG: Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
@@ -1485,7 +1673,7 @@ namespace SGE
 						for (int c = 0; c < 4; c++)
 						{
 							//If there was a sample or period mentioned, play it if it is not equal to 0
-							if (modFile.patterns[CurrentPattern].division[i].channels[c].sample != 0 || modFile.patterns[CurrentPattern].division[i].channels[c].period != 0)
+							if (channelPlays[c])
 							{
 								//Play it
 								channelMap[c]->Play();

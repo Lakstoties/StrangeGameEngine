@@ -9,7 +9,6 @@ namespace SGE
 		//Sound system sample rate
 		const int SAMPLE_RATE = 44100;
 
-
 		//A list of MIDI notes and their associated frequencies.
 		const float MIDI_NOTE_FRENQUENCY[] =
 		{
@@ -191,8 +190,6 @@ namespace SGE
 		//Precalculated 2*PI to float precision 
 		const float TWO_PI_FLOAT = 6.28318530717958647692f;
 
-
-
 		//Sound system bit depth
 		const int SAMPLE_BITS = 16;
 
@@ -206,6 +203,39 @@ namespace SGE
 		//Number of samples for the system
 		const int MAX_SAMPLE_BUFFERS = 256;
 
+
+		//
+		//  Base Pre-Generated Waveforms
+		//
+		namespace Waveforms
+		{
+			//
+			//  Data regions to store waves
+			//
+			
+			//Square Waveform
+			extern float Sine[SAMPLE_RATE];
+
+			//Ramp Down Waveform
+			extern float RampDown[SAMPLE_RATE];
+
+			//Square Waveform
+			extern float Square[SAMPLE_RATE];
+
+			//
+			//  Generation Functions
+			//
+
+			//Generate Sine waveform
+			void GenerateSine();
+
+			//Generate Ramp Down waveform
+			void GenerateRampDown();
+
+			//Generate Square waveform
+			void GenerateSquare();
+
+		}
 
 		namespace Generators
 		{
@@ -310,6 +340,16 @@ namespace SGE
 			float currentVolumeSlide = 0.0f;
 			float VolumeSlideRate = 0.0f;
 
+			//Vibrato, Effect 4 
+			bool EnableVibrato = false;
+			unsigned int currentVibratoWaveformPosition = 0;
+			float VibratoAmplitude = 0;
+			float VibratoCycles = 0;
+			float vibratoOffsetIncrement = 0;
+
+			//Vibrato with Effect 14 - 4 settings
+			float* VibratoWaveform = Waveforms::Sine;
+			bool RetriggerVibrato = false;
 
 			//Statistics Stuff
 			unsigned int LastRenderedAverageLevel = 0;
