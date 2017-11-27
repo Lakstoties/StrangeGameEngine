@@ -299,6 +299,9 @@ namespace SGE
 			//Amount to increment the offset by
 			float offsetIncrement = 0;
 
+			//Current offset Increment after all effects have been applied
+			float currentOffsetIncrement = 0;
+
 			//Current Sound Sample Buffer in use
 			//Set to the maximum buffers, to indicate one hasn't been selected.
 			SoundSampleBuffer* currentSampleBuffer = nullptr;

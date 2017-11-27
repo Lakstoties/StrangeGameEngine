@@ -2,7 +2,7 @@
 #include <thread>
 #include <string>
 
-void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, unsigned int sampleLevel)
+void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, unsigned int sampleLevel, float channelVolume)
 {
 	//Channel Label
 	SGE::Render::DrawString(label, SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition, yCornerPosition, 128, 255, 128);
@@ -46,6 +46,9 @@ void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, uns
 	{
 		SGE::Render::DrawBox(xCornerPosition + 115, yCornerPosition, 5, 8, 64, 16, 16);
 	}
+
+	//Draw the Volume level indicator box
+	SGE::Render::DrawRectangle(xCornerPosition + 24 +  6 * (int)(channelVolume * 15), yCornerPosition - 1, 7, 10, 192, 192, 192);
 }
 
 void DrawPlayerStatusBox(SGE::Sound::ModulePlayer* modulePlayerToUse, int xCornerPosition, int yCornerPosition)
@@ -122,10 +125,10 @@ void DrawPlayerStatusBox(SGE::Sound::ModulePlayer* modulePlayerToUse, int xCorne
 	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[3] % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 135, yCornerPosition + 49, 0, 192, 0);
 
 	//Draw Channel Meter
-	DrawLevelMeter((char*)"CH1", xCornerPosition + 5, yCornerPosition + 16, modulePlayerToUse->channelMap[0]->LastRenderedAverageLevel);
-	DrawLevelMeter((char*)"CH2", xCornerPosition + 5, yCornerPosition + 27, modulePlayerToUse->channelMap[1]->LastRenderedAverageLevel);
-	DrawLevelMeter((char*)"CH3", xCornerPosition + 5, yCornerPosition + 38, modulePlayerToUse->channelMap[2]->LastRenderedAverageLevel);
-	DrawLevelMeter((char*)"CH4", xCornerPosition + 5, yCornerPosition + 49, modulePlayerToUse->channelMap[3]->LastRenderedAverageLevel);
+	DrawLevelMeter((char*)"CH1", xCornerPosition + 5, yCornerPosition + 16, modulePlayerToUse->channelMap[0]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[0]->Volume);
+	DrawLevelMeter((char*)"CH2", xCornerPosition + 5, yCornerPosition + 27, modulePlayerToUse->channelMap[1]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[1]->Volume);
+	DrawLevelMeter((char*)"CH3", xCornerPosition + 5, yCornerPosition + 38, modulePlayerToUse->channelMap[2]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[2]->Volume);
+	DrawLevelMeter((char*)"CH4", xCornerPosition + 5, yCornerPosition + 49, modulePlayerToUse->channelMap[3]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[3]->Volume);
 
 	//Draw Title of Track at the Bottom
 	SGE::Render::DrawString(modulePlayerToUse->modFile.header.title, SGE::Render::CHARACTER_8x8_ROM, 5, xCornerPosition + 5, yCornerPosition + 60, 128, 255, 128);
@@ -169,17 +172,19 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 
 void InputTest(bool& testInputRunning)
 {
-	char* menuItemText[5] =
+	char* menuItemText[7] =
 	{
 		(char*)"Play: Hyper.mod",
 		(char*)"Play: Yehat.mod",
+		(char*)"Play: Stardstm.mod",
 		(char*)"Stop: Hyper.mod",
 		(char*)"Stop: Yehat.mod",
+		(char*)"Stop: Stardstm.mod",
 		(char*)"Exit Demo",		
 	};
 
 	//Create the test menu
-	SGE::Menu testMenu(0, 175, 126, 64, 2, 12, 2, 5, menuItemText);
+	SGE::Menu testMenu(0, 150, 150, 88, 2, 12, 2, 7, menuItemText);
 
 	//Current Selection
 	testMenu.selection = 0;
@@ -212,14 +217,17 @@ void InputTest(bool& testInputRunning)
 	//Create some players
 	SGE::Sound::ModulePlayer modulePlayerTest;
 	SGE::Sound::ModulePlayer modulePlayerTest2;
+	SGE::Sound::ModulePlayer modulePlayerTest3;
 	
 	//Load up the module files
 	modulePlayerTest.Load((char*)"hyper.mod");
 	modulePlayerTest2.Load((char*)"yehat.mod");
+	modulePlayerTest3.Load((char*)"stardstm.mod");
 
 	//Connect up to the sound system
 	modulePlayerTest.Connect(12, 64);
 	modulePlayerTest2.Connect(24, 128);
+	modulePlayerTest3.Connect(28, 192);
 
 	testMenu.CursorOn();
 
@@ -437,14 +445,17 @@ void InputTest(bool& testInputRunning)
 		//One for the yehat.mod
 		DrawPlayerStatusBox(&modulePlayerTest2, 160, 120);
 
+		//One for the stardstm.mod
+		DrawPlayerStatusBox(&modulePlayerTest3, 160, 200);
+
 		//Draw Master Volume Meters
 		//Draw Box
-		SGE::Render::DrawBox(160, 200, 150, 30, 0, 128, 0);
-		SGE::Render::DrawRectangle(160, 200, 150, 30, 0, 64, 0);
+		SGE::Render::DrawBox(160, 280, 150, 30, 0, 128, 0);
+		SGE::Render::DrawRectangle(160, 280, 150, 30, 0, 64, 0);
 
 		//Draw meters
-		DrawLevelMeter((char*)"M-L", 165, 205, SGE::Sound::MasterVolumeAverageLeftLevel);
-		DrawLevelMeter((char*)"M-R", 165, 217, SGE::Sound::MasterVolumeAverageRightLevel);
+		DrawLevelMeter((char*)"M-L", 165, 285, SGE::Sound::MasterVolumeAverageLeftLevel, SGE::Sound::MasterVolume);
+		DrawLevelMeter((char*)"M-R", 165, 297, SGE::Sound::MasterVolumeAverageRightLevel, SGE::Sound::MasterVolume);
 		
 		//Unlock the display refresh
 		SGE::Display::AllowRefresh();
@@ -457,37 +468,34 @@ void InputTest(bool& testInputRunning)
 			{
 				//Check to see where the cursor is and perform the action
 				
-				//If Play: hyper.mod - Selection 0
-				if (testMenu.selection == 0)
+				switch (testMenu.selection)
 				{
+				case 0:
 					modulePlayerTest.Play();
-				}
+					break;
 
-				//If Play: yehat.mod - Selection 1
-				if (testMenu.selection == 1)
-				{
+				case 1:
 					modulePlayerTest2.Play();
-				}
+					break;
 
-				//If Stop: hyper.omd - Selection 2
-				if (testMenu.selection == 2)
-				{
+				case 2:
+					modulePlayerTest3.Play();
+					break;
+
+				case 3:
 					modulePlayerTest.Stop();
-				}
+					break;
 
-				//If Stop: yehat.mod - Selection 3
-				if (testMenu.selection == 3)
-				{
+				case 4:
 					modulePlayerTest2.Stop();
-				}
+					break;
 
-				//IF Exit Demo - Selection 4
-				if (testMenu.selection == 4)
-				{
-					//This thread is done
+				case 5:
+					modulePlayerTest3.Stop();
+					break;
+
+				case 6:
 					testInputRunning = false;
-
-					//Tell the event handler we are done, too.
 					SGE::Controls::ContinueToHandleEvents = false;
 				}
 			}

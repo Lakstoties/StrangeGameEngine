@@ -52,8 +52,6 @@ namespace SGE
 					//  Calculate the next offset based on the appropriate increment
 					//
 
-					float currentOffsetIncrement = offsetIncrement;
-
 					//
 					//  Check to see if the Arpeggio Effect is in effect
 					//
@@ -76,12 +74,20 @@ namespace SGE
 							{
 								//Caclulate the semitone using the current offset
 								//Check to see if state 1 or 2 and use X and Y values accordingly
-								currentOffsetIncrement = float(currentOffsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioState == 1 ? arpeggioSemitoneX : arpeggioSemitoneY));
+								currentOffsetIncrement = float(offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioState == 1 ? arpeggioSemitoneX : arpeggioSemitoneY));
+							}
+							else
+							{
+								currentOffsetIncrement = offsetIncrement;
 							}
 						}
 
 						//Advance the number of samples
 						currentArpeggioSamples++;
+					}
+					else
+					{
+						currentOffsetIncrement = offsetIncrement;
 					}
 
 					//
@@ -1425,6 +1431,11 @@ namespace SGE
 							{
 								//Set sample volume
 								channelMap[c]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern].division[i].channels[c].sample - 1].volume) / 64.0f;
+
+								if (!channelMap[c]->Playing)
+								{
+									channelPlays[c] = true;
+								}
 							}
 
 
