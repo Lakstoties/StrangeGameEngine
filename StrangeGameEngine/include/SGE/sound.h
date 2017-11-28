@@ -9,6 +9,9 @@ namespace SGE
 		//Sound system sample rate
 		const int SAMPLE_RATE = 44100;
 
+		//Max frequency that can represented by the Sample Rate
+		const int MAX_FREQUENCY = SAMPLE_RATE / 2;
+
 		//A list of MIDI notes and their associated frequencies.
 		const float MIDI_NOTE_FRENQUENCY[] =
 		{

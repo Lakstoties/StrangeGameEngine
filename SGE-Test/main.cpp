@@ -49,13 +49,39 @@ void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, uns
 
 	//Draw the Volume level indicator box
 	SGE::Render::DrawRectangle(xCornerPosition + 24 +  6 * (int)(channelVolume * 15), yCornerPosition - 1, 7, 10, 192, 192, 192);
+
+
+
+}
+void DrawFrequencyMeter(int xCornerPosition, int yCornerPosition, float channelFrequency)
+{
+	char tempString[10];
+
+	//Draw Frequency bar
+	SGE::Render::DrawBox(xCornerPosition + 1, yCornerPosition + 1, 300, 8, 64, 64, 64);
+
+	//Draw Border for Frequency Bar
+	SGE::Render::DrawRectangle(xCornerPosition, yCornerPosition, 302, 10, 16, 64, 16);
+
+	//Draw frequency indicator
+	SGE::Render::DrawBox(xCornerPosition + 1 + (channelFrequency * SGE::Sound::MAX_FREQUENCY / float(SGE::Sound::MAX_FREQUENCY)) * 300, yCornerPosition + 1, 1, 8, 192, 192, 192);
+
+	//Write out current frequency
+	sprintf(tempString, "%08.2f", channelFrequency * SGE::Sound::MAX_FREQUENCY);
+
+	//Draw Background
+	SGE::Render::DrawBox(xCornerPosition + 305, yCornerPosition, 57, 10, 32, 32, 32);
+
+	//Draw Number from string
+	SGE::Render::DrawString(tempString, SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + 305, yCornerPosition + 1, 128, 255, 128);
+
 }
 
 void DrawPlayerStatusBox(SGE::Sound::ModulePlayer* modulePlayerToUse, int xCornerPosition, int yCornerPosition)
 {
 	//Draw Player Status Boxes
-	SGE::Render::DrawBox(xCornerPosition, yCornerPosition, 150, 75, 0, 128, 0);
-	SGE::Render::DrawRectangle(xCornerPosition, yCornerPosition, 150, 75, 0, 064, 0);
+	SGE::Render::DrawBox(xCornerPosition, yCornerPosition, 510, 75, 0, 128, 0);
+	SGE::Render::DrawRectangle(xCornerPosition, yCornerPosition, 510, 75, 0, 064, 0);
 
 	//Draw Song Status Row
 	//Song Position
@@ -124,11 +150,17 @@ void DrawPlayerStatusBox(SGE::Sound::ModulePlayer* modulePlayerToUse, int xCorne
 	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[3] / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 128, yCornerPosition + 49, 0, 192, 0);
 	SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[3] % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 135, yCornerPosition + 49, 0, 192, 0);
 
-	//Draw Channel Meter
+	//Draw Channel Meters
 	DrawLevelMeter((char*)"CH1", xCornerPosition + 5, yCornerPosition + 16, modulePlayerToUse->channelMap[0]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[0]->Volume);
 	DrawLevelMeter((char*)"CH2", xCornerPosition + 5, yCornerPosition + 27, modulePlayerToUse->channelMap[1]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[1]->Volume);
 	DrawLevelMeter((char*)"CH3", xCornerPosition + 5, yCornerPosition + 38, modulePlayerToUse->channelMap[2]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[2]->Volume);
 	DrawLevelMeter((char*)"CH4", xCornerPosition + 5, yCornerPosition + 49, modulePlayerToUse->channelMap[3]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[3]->Volume);
+
+	//Draw Frequency Meters
+	DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 15, modulePlayerToUse->channelMap[0]->currentOffsetIncrement);
+	DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 26, modulePlayerToUse->channelMap[1]->currentOffsetIncrement);
+	DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 37, modulePlayerToUse->channelMap[2]->currentOffsetIncrement);
+	DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 48, modulePlayerToUse->channelMap[3]->currentOffsetIncrement);
 
 	//Draw Title of Track at the Bottom
 	SGE::Render::DrawString(modulePlayerToUse->modFile.header.title, SGE::Render::CHARACTER_8x8_ROM, 5, xCornerPosition + 5, yCornerPosition + 60, 128, 255, 128);
