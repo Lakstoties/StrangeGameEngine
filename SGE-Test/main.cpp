@@ -57,6 +57,8 @@ void DrawFrequencyMeter(int xCornerPosition, int yCornerPosition, float channelF
 {
 	char tempString[10];
 
+	float calculatedPeriod = SGE::Sound::MOD_NTSC_TUNING / (SGE::Sound::SAMPLE_RATE * 2 * channelFrequency);
+
 	//Draw Frequency bar
 	SGE::Render::DrawBox(xCornerPosition + 1, yCornerPosition + 1, 300, 8, 64, 64, 64);
 
@@ -64,10 +66,10 @@ void DrawFrequencyMeter(int xCornerPosition, int yCornerPosition, float channelF
 	SGE::Render::DrawRectangle(xCornerPosition, yCornerPosition, 302, 10, 16, 64, 16);
 
 	//Draw frequency indicator
-	SGE::Render::DrawBox(xCornerPosition + 1 + (channelFrequency * SGE::Sound::MAX_FREQUENCY / float(SGE::Sound::MAX_FREQUENCY)) * 300, yCornerPosition + 1, 1, 8, 192, 192, 192);
+	SGE::Render::DrawBox(xCornerPosition + 1 + 300 - ((calculatedPeriod / 1712) * 300), yCornerPosition + 1, 1, 8, 192, 192, 192);
 
 	//Write out current frequency
-	sprintf(tempString, "%08.2f", channelFrequency * SGE::Sound::MAX_FREQUENCY);
+	sprintf(tempString, "%06.1f", calculatedPeriod);
 
 	//Draw Background
 	SGE::Render::DrawBox(xCornerPosition + 305, yCornerPosition, 57, 10, 32, 32, 32);
@@ -75,6 +77,93 @@ void DrawFrequencyMeter(int xCornerPosition, int yCornerPosition, float channelF
 	//Draw Number from string
 	SGE::Render::DrawString(tempString, SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + 305, yCornerPosition + 1, 128, 255, 128);
 
+}
+
+void DrawChannelMonitor(int xCornerPosition, int yCornerPosition, unsigned int channelNumber)
+{
+	const int CHANNEL_MONITOR_WIDTH = 35;
+	const int CHANNEL_MONITOR_HEIGHT = 125;
+
+	//Check for a valid channel number
+	if (channelNumber >= SGE::Sound::MAX_CHANNELS)
+	{
+		return;
+	}
+
+	char tempString[5];
+
+	sprintf(tempString, "CH%02i", channelNumber);
+
+	//Draw background box
+	SGE::Render::DrawBox(xCornerPosition, yCornerPosition, CHANNEL_MONITOR_WIDTH, CHANNEL_MONITOR_HEIGHT, 0, 128, 0);
+
+	//Draw background border
+	SGE::Render::DrawRectangle(xCornerPosition, yCornerPosition, CHANNEL_MONITOR_WIDTH, CHANNEL_MONITOR_HEIGHT, 0, 064, 0);
+
+	//Draw Pan gauge background
+	SGE::Render::DrawBox(xCornerPosition + 2, yCornerPosition + 5, CHANNEL_MONITOR_WIDTH - 4, 8, 64, 64, 64);
+
+	//Draw Pan gauge itself
+	SGE::Render::DrawBox(xCornerPosition + 2 + (CHANNEL_MONITOR_WIDTH / 2) + SGE::Sound::Channels[channelNumber].Pan * (CHANNEL_MONITOR_WIDTH), yCornerPosition + 5, 1, 8, 192, 192, 192);
+
+	//Draw "L"
+	SGE::Render::Draw8x8Character('L', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 2, yCornerPosition + 5, 128, 255, 128);
+
+	//Draw "R"
+	SGE::Render::Draw8x8Character('R', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + CHANNEL_MONITOR_WIDTH - 10, yCornerPosition + 5, 128, 255, 128);
+
+	//Draw Meter Lights
+	//
+	//Green Lights: 11
+	//
+	for (int i = 0; i < 11; i++)
+	{
+		if (SGE::Sound::Channels[channelNumber].LastRenderedAverageLevel >(unsigned int)(i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16)
+		{
+			SGE::Render::DrawBox(xCornerPosition + 5, yCornerPosition + 105 - i * 6, 8, 5, 16, 192, 16);
+		}
+		else
+		{
+			SGE::Render::DrawBox(xCornerPosition + 5, yCornerPosition + 105 - i * 6, 8, 5, 16, 64, 16);
+		}
+	}
+
+	//
+	//Yellow Lights: 4
+	//
+	for (int i = 11; i < 15; i++)
+	{
+		if (SGE::Sound::Channels[channelNumber].LastRenderedAverageLevel >(unsigned int)(i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16)
+		{
+			SGE::Render::DrawBox(xCornerPosition + 5, yCornerPosition + 105 - i * 6, 8, 5, 192, 192, 16);
+		}
+		else
+		{
+			SGE::Render::DrawBox(xCornerPosition + 5, yCornerPosition + 105 - i * 6, 8, 5, 64, 64, 16);
+		}
+	}
+
+	//Sixthteenth Level Light
+	if (SGE::Sound::Channels[channelNumber].LastRenderedAverageLevel > (15 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16))
+	{
+		SGE::Render::DrawBox(xCornerPosition + 5, yCornerPosition + 15, 8, 5, 192, 16, 16);
+	}
+	else
+	{
+		SGE::Render::DrawBox(xCornerPosition + 5, yCornerPosition + 15, 8, 5, 64, 16, 16);
+	}
+
+	//Draw the Volume level indicator box
+	SGE::Render::DrawRectangle(xCornerPosition + 4, yCornerPosition + 104 - 6 * (int)(SGE::Sound::Channels[channelNumber].Volume * 15), 10, 7, 192, 192, 192);
+
+	//Draw Channel Label
+	SGE::Render::DrawString(tempString, SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + 2, yCornerPosition + 113, 128, 255, 128);
+
+
+
+
+
+	//Draw Mode lights
 }
 
 void DrawPlayerStatusBox(SGE::Sound::ModulePlayer* modulePlayerToUse, int xCornerPosition, int yCornerPosition)
@@ -350,7 +439,9 @@ void InputTest(bool& testInputRunning)
 
 	while (testInputRunning)
 	{
+		//
 		//Lock the display refresh
+		//
 		SGE::Display::BlockRefresh();
 
 		//Blank the virtual display RAM
@@ -488,8 +579,17 @@ void InputTest(bool& testInputRunning)
 		//Draw meters
 		DrawLevelMeter((char*)"M-L", 165, 285, SGE::Sound::MasterVolumeAverageLeftLevel, SGE::Sound::MasterVolume);
 		DrawLevelMeter((char*)"M-R", 165, 297, SGE::Sound::MasterVolumeAverageRightLevel, SGE::Sound::MasterVolume);
-		
+
+		//Draw bottom channel meters
+		for (int i = 0; i < SGE::Sound::MAX_CHANNELS; i++)
+		{
+			DrawChannelMonitor(5 + (39 * i), 595, i);
+		}
+
+
+		//
 		//Unlock the display refresh
+		//
 		SGE::Display::AllowRefresh();
 
 		//Check to see if Enter is pressed and where the menu cursor is

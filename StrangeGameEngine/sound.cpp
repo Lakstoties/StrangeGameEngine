@@ -1453,8 +1453,8 @@ namespace SGE
 
 								//Convert the period to offset timing interval in relation to system sampling rate
 								//Using NTSC sampling
-								channelMap[c]->offsetIncrement = MOD_NTSC_TUNING / float(modFile.patterns[CurrentPattern].division[i].channels[c].period)
-									/ float(SAMPLE_RATE) / 2.0f;
+								channelMap[c]->offsetIncrement = MOD_NTSC_TUNING / 
+									(float)(modFile.patterns[CurrentPattern].division[i].channels[c].period * SAMPLE_RATE * 2);
 
 								//Channel plays
 								channelPlays[c] = true;
