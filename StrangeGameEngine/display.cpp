@@ -34,11 +34,6 @@ namespace SGE
 			int ResolutionY = 0;
 		}
 
-
-		//Virtual Display Scaling between intended resolution and actual.
-		float VirtualDisplayScaling = 1.0f;
-
-
 		//A mutex that can be used to temporarily pause the drawing thread at a key point to allow the video ram to be updated fully.
 		//Prevents flicking and tearing by the display thread from updating mid way through writes to VRAM
 		std::mutex refreshHold;
@@ -70,9 +65,6 @@ namespace SGE
 		//Flag to indicate the game resolution has changed
 		//Start as true to set up the initial texture
 		bool GameResolutionChanged = true;
-
-
-
 
 		//C++ thread pointer to keep track of the spawned drawing thread.
 		std::thread* drawingThread = nullptr;
@@ -194,10 +186,10 @@ namespace SGE
 
 				//Check to see if we have a valid place to update to
 				//Or if the window should be closed.
-				if (!glfwWindowShouldClose(SGE::mainWindow))
+				if (!glfwWindowShouldClose(SGE::OSWindow))
 				{
 					//Display the new shit after we are done drawing it
-					glfwSwapBuffers(SGE::mainWindow);
+					glfwSwapBuffers(SGE::OSWindow);
 				}
 
 				//We don't have a window to swap buffers to
@@ -322,10 +314,10 @@ namespace SGE
 
 				//Check to see if we have a valid place to update to
 				//Or if the window should be closed.
-				if (!glfwWindowShouldClose(SGE::mainWindow))
+				if (!glfwWindowShouldClose(SGE::OSWindow))
 				{
 					//Display the new shit after we are done drawing it
-					glfwSwapBuffers(SGE::mainWindow);
+					glfwSwapBuffers(SGE::OSWindow);
 				}
 
 				//We don't have a window to swap buffers to
@@ -423,10 +415,10 @@ namespace SGE
 
 				//Check to see if we have a valid place to update to
 				//Or if the window should be closed.
-				if (!glfwWindowShouldClose(SGE::mainWindow))
+				if (!glfwWindowShouldClose(SGE::OSWindow))
 				{
 					//Display the new shit after we are done drawing it
-					glfwSwapBuffers(SGE::mainWindow);
+					glfwSwapBuffers(SGE::OSWindow);
 				}
 
 				//We don't have a window to swap buffers to
@@ -454,7 +446,7 @@ namespace SGE
 			GLuint textureHandle = 0;
 
 			//Check to see if we have a valid window to draw to or if the window is closing down
-			if (glfwWindowShouldClose(SGE::mainWindow))
+			if (glfwWindowShouldClose(SGE::OSWindow))
 			{
 				//If the window is closing, we ain't doing anymore drawing.
 				continueDrawing = false;
@@ -464,7 +456,7 @@ namespace SGE
 			}
 
 			//Snag the Open context for the main window
-			glfwMakeContextCurrent(SGE::mainWindow);
+			glfwMakeContextCurrent(SGE::OSWindow);
 
 			//Initialize GLEW so it can find all the bits and pieces it needs.
 			glewInit();
@@ -648,7 +640,7 @@ namespace SGE
 				return;
 			
 			//Adjust the window size
-			glfwSetWindowSize(mainWindow, width, height);
+			glfwSetWindowSize(OSWindow, width, height);
 		}
 	}
 }

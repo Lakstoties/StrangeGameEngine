@@ -57,7 +57,7 @@ void DrawFrequencyMeter(int xCornerPosition, int yCornerPosition, float channelF
 {
 	char tempString[10];
 
-	float calculatedPeriod = SGE::Sound::MOD_NTSC_TUNING / (SGE::Sound::SAMPLE_RATE * 2 * channelFrequency);
+	float calculatedPeriod = SGE::Sound::ModTracker::NTSC_TUNING / (SGE::Sound::SAMPLE_RATE * 2 * channelFrequency);
 
 	//Draw Frequency bar
 	SGE::Render::DrawBox(xCornerPosition + 1, yCornerPosition + 1, 300, 8, 64, 64, 64);

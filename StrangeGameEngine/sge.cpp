@@ -5,121 +5,122 @@
 namespace SGE
 {
 	//GLFW Window pointer for the Strange Game Engine
-	GLFWwindow* mainWindow = nullptr;
+	GLFWwindow* OSWindow = nullptr;
 
-	//Callback to handle any error reporting from GLFW
-	void GLFWErrorCallback(int error, const char* description)
+	//
+	//  Namespace that contains all the major callbacks to handle input from the operating system
+	//
+	namespace Callbacks
 	{
-		//Dump the error info straight to the stderr
-		fprintf(stderr, "GLFW Error: %s\n", description);
-	}
-
-	//Window Resize Context callback for GLFW
-	void WindowResizeCallback(GLFWwindow* window, int width, int height)
-	{
-		//Update the framebuffer window sizes
-		SGE::Display::FrameBufferX = width;
-		SGE::Display::FrameBufferY = height;
-
-		//Flag that the framebuffer window size has changed for the rest of the system
-		SGE::Display::FrameBufferChanged = true;
-	}
-
-	//Mouse Scrool Wheel callback for GLFW
-	void ScrollWheelCallback(GLFWwindow* window, double xOffset, double yOffset)
-	{
-		SGE::Controls::Mouse::ScrollX += xOffset;
-		SGE::Controls::Mouse::ScrollY += yOffset;
-
-		//fprintf(stderr, "Scroll event catpured: %f, %f \n", xOffset, yOffset);
-	}
-
-	//Mouse Button callback for GLFW
-	void MouseButtonCallback(GLFWwindow* window, int button, int action, int mods)
-	{
-		switch (action)
+		//Callback to handle any error reporting from GLFW
+		void GLFWError(int error, const char* description)
 		{
-		case GLFW_PRESS:
-			SGE::Controls::Mouse::Buttons[button] = true;
-			//fprintf(stderr, "Mouse Button %i Pressed.\n", button);
-			break;
+			//Dump the error info straight to the stderr
+			fprintf(stderr, "GLFW Error: %s\n", description);
+		}
 
-		case GLFW_RELEASE:
-			SGE::Controls::Mouse::Buttons[button] = false;
-			//fprintf(stderr, "Mouse Button %i Released.\n", button);
-			break;
+		//Window Resize Context callback for GLFW
+		void WindowResize(GLFWwindow* window, int width, int height)
+		{
+			//Update the framebuffer window sizes
+			SGE::Display::FrameBufferX = width;
+			SGE::Display::FrameBufferY = height;
+
+			//Flag that the framebuffer window size has changed for the rest of the system
+			SGE::Display::FrameBufferChanged = true;
+		}
+
+		//Mouse Scrool Wheel callback for GLFW
+		void ScrollWheel(GLFWwindow* window, double xOffset, double yOffset)
+		{
+			SGE::Controls::Mouse::ScrollX += xOffset;
+			SGE::Controls::Mouse::ScrollY += yOffset;
+
+			//fprintf(stderr, "Scroll event catpured: %f, %f \n", xOffset, yOffset);
+		}
+
+		//Mouse Button callback for GLFW
+		void MouseButton(GLFWwindow* window, int button, int action, int mods)
+		{
+			switch (action)
+			{
+			case GLFW_PRESS:
+				SGE::Controls::Mouse::Buttons[button] = true;
+				//fprintf(stderr, "Mouse Button %i Pressed.\n", button);
+				break;
+
+			case GLFW_RELEASE:
+				SGE::Controls::Mouse::Buttons[button] = false;
+				//fprintf(stderr, "Mouse Button %i Released.\n", button);
+				break;
+			}
+		}
+
+		//Keyboard callback for GLFW
+		void Keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
+		{
+			//Check to make sure we are dealing with the GLFW_UNKNOWN key bit.
+			//Fuck that unkwown key bullshit.
+			//Ain't having it.
+			//Nope...
+			if (key >= 0)
+			{
+				//Update the key array for the state of the key
+				if (action == GLFW_PRESS)
+				{
+					SGE::Controls::Keyboard::Status[key] = true;
+
+					//Add key to the buffer
+					SGE::Controls::Keyboard::InputBuffer[SGE::Controls::Keyboard::CurrentBufferPosition] = key;
+
+					//Increment Input Buffer position
+					++SGE::Controls::Keyboard::CurrentBufferPosition %= SGE::Controls::Keyboard::INPUT_BUFFER_SIZE;
+				}
+
+				else if (action == GLFW_RELEASE)
+				{
+					SGE::Controls::Keyboard::Status[key] = false;
+				}
+			}
+		}
+
+		//Mouse Cursor callback for GLFW
+		void Cursor(GLFWwindow* window, double xPosition, double yPosition)
+		{
+			int currentFrameBufferX = 0;
+			int currentFrameBufferY = 0;
+
+			int currentFrameBufferXOffset = 0;
+			int currentFrameBufferYOffset = 0;
+
+			//Get the current Frame buffer data
+			glfwGetFramebufferSize(OSWindow, &currentFrameBufferX, &currentFrameBufferY);
+
+			//Calculate offsets
+			currentFrameBufferXOffset = (currentFrameBufferX - (currentFrameBufferY * SGE::Display::Video::ResolutionX) / SGE::Display::Video::ResolutionY) / 2;
+			currentFrameBufferYOffset = (currentFrameBufferY - (currentFrameBufferX * SGE::Display::Video::ResolutionY) / SGE::Display::Video::ResolutionX) / 2;
+
+			//Short circuit logic
+			//If the Offset goes negative it needs to be hard capped or it throws off calculations.
+			(currentFrameBufferXOffset < 0) && (currentFrameBufferXOffset = 0);
+			(currentFrameBufferYOffset < 0) && (currentFrameBufferYOffset = 0);
+
+			//Raw Numbers
+			SGE::Controls::Mouse::PositionRawX = (int)xPosition;
+			SGE::Controls::Mouse::PositionRawY = (int)yPosition;
+
+			//Scaled
+			SGE::Controls::Mouse::PositionX = ((SGE::Controls::Mouse::PositionRawX - currentFrameBufferXOffset) * SGE::Display::Video::ResolutionX) / (currentFrameBufferX - currentFrameBufferXOffset * 2);
+			SGE::Controls::Mouse::PositionY = ((SGE::Controls::Mouse::PositionRawY - currentFrameBufferYOffset) * SGE::Display::Video::ResolutionY) / (currentFrameBufferY - currentFrameBufferYOffset * 2);
 		}
 	}
 
 
-	//Keyboard callback for GLFW
-	void KeyboardCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
-	{
-		//Check to make sure we are dealing with the GLFW_UNKNOWN key bit.
-		//Fuck that unkwown key bullshit.
-		//Ain't having it.
-		//Nope...
-		if (key >= 0)
-		{
-			//Update the key array for the state of the key
-			if (action == GLFW_PRESS)
-			{
-				SGE::Controls::Keyboard::Status[key] = true;
 
-				//Add key to the buffer
-				SGE::Controls::Keyboard::InputBuffer[SGE::Controls::Keyboard::CurrentBufferPosition] = key;
-
-				//Increment Input Buffer position
-				++SGE::Controls::Keyboard::CurrentBufferPosition %= SGE::Controls::Keyboard::INPUT_BUFFER_SIZE;
-
-				//Print out current input buffer
-				//fprintf(stderr, "Current Contents of Keyboard Input Buffer: ");
-				//for (int i = 0; i < SGE::Controls::Keyboard::CurrentBufferPosition; i++)
-				//{
-				//	fprintf(stderr, "%i ", SGE::Controls::Keyboard::InputBuffer[i]);
-				//}
-				//fprintf(stderr, "\n");
-			}
-
-			else if (action == GLFW_RELEASE)
-			{
-				SGE::Controls::Keyboard::Status[key] = false;
-			}
-		}
-	}
-
-	//Mouse Cursor callback for GLFW
-	void CursorCallback(GLFWwindow* window, double xPosition, double yPosition)
-	{
-		int currentFrameBufferX = 0;
-		int currentFrameBufferY = 0;
-
-		int currentFrameBufferXOffset = 0;
-		int currentFrameBufferYOffset = 0;
-
-		//Get the current Frame buffer data
-		glfwGetFramebufferSize(mainWindow, &currentFrameBufferX, &currentFrameBufferY);
-
-		//Calculate offsets
-		currentFrameBufferXOffset = (currentFrameBufferX - (currentFrameBufferY * SGE::Display::Video::ResolutionX) / SGE::Display::Video::ResolutionY) / 2;
-		currentFrameBufferYOffset = (currentFrameBufferY - (currentFrameBufferX * SGE::Display::Video::ResolutionY) / SGE::Display::Video::ResolutionX) / 2;
-
-		//Short circuit logic
-		//If the Offset goes negative it needs to be hard capped or it throws off calculations.
-		(currentFrameBufferXOffset < 0) && (currentFrameBufferXOffset = 0);
-		(currentFrameBufferYOffset < 0) && (currentFrameBufferYOffset = 0);
-
-		//Raw Numbers
-		SGE::Controls::Mouse::PositionRawX = (int)xPosition;
-		SGE::Controls::Mouse::PositionRawY = (int)yPosition;
-
-		//Scaled
-		SGE::Controls::Mouse::PositionX = ((SGE::Controls::Mouse::PositionRawX - currentFrameBufferXOffset) * SGE::Display::Video::ResolutionX) / (currentFrameBufferX - currentFrameBufferXOffset * 2);
-		SGE::Controls::Mouse::PositionY = ((SGE::Controls::Mouse::PositionRawY - currentFrameBufferYOffset) * SGE::Display::Video::ResolutionY) / (currentFrameBufferY - currentFrameBufferYOffset * 2);
-	}
-
-
+	//
 	//Startup Function that performs all initializations to the system overall
+	//
+
 	//Needs to be called first.   Really...  Call it first...
 	void Startup(int windowX, int windowY, const char* gameTitle)
 	{
@@ -132,22 +133,22 @@ namespace SGE
 		}
 
 		//Set the GLFW Error Callback
-		glfwSetErrorCallback(GLFWErrorCallback);
+		glfwSetErrorCallback(SGE::Callbacks::GLFWError);
 
 		//Start up the sound system
 		SGE::Sound::Start();
 
 		//Check to make sure another window isn't active, we only want one window going at a time.
-		if (mainWindow != nullptr)
+		if (OSWindow != nullptr)
 		{
 			fprintf(stderr, "There's already a game window open!\n");
 			return;
 		}
 
 		//Otherwise, let's create this window.
-		mainWindow = glfwCreateWindow(windowX, windowY, gameTitle, NULL, NULL);
+		OSWindow = glfwCreateWindow(windowX, windowY, gameTitle, NULL, NULL);
 
-		if (mainWindow == nullptr)
+		if (OSWindow == nullptr)
 		{
 			//Huh, window creation failed...
 			fprintf(stderr, "GLFW failed to create the main game window.\n");
@@ -158,19 +159,19 @@ namespace SGE
 		//
 
 		//Window Resize callback
-		glfwSetWindowSizeCallback(SGE::mainWindow, WindowResizeCallback);
+		glfwSetWindowSizeCallback(SGE::OSWindow, SGE::Callbacks::WindowResize);
 
 		//Mouse scrool wheel callback
-		glfwSetScrollCallback(SGE::mainWindow, ScrollWheelCallback);
+		glfwSetScrollCallback(SGE::OSWindow, SGE::Callbacks::ScrollWheel);
 
 		//Mouse button callback
-		glfwSetMouseButtonCallback(SGE::mainWindow, MouseButtonCallback);
+		glfwSetMouseButtonCallback(SGE::OSWindow, SGE::Callbacks::MouseButton);
 
 		//Mouse cursor callback
-		glfwSetCursorPosCallback(SGE::mainWindow, CursorCallback);
+		glfwSetCursorPosCallback(SGE::OSWindow, SGE::Callbacks::Cursor);
 
 		//Keyboard callback
-		glfwSetKeyCallback(SGE::mainWindow, KeyboardCallback);
+		glfwSetKeyCallback(SGE::OSWindow, SGE::Callbacks::Keyboard);
 
 	}
 
@@ -182,14 +183,14 @@ namespace SGE
 		SGE::Display::StopDrawing();
 
 		//Check to see if there is an active window to close
-		if (mainWindow == nullptr)
+		if (OSWindow == nullptr)
 		{
 			//There's no window to close!
 			fprintf(stderr, "There is no active game window to close.\n");
 		}
 
 		//Close that window
-		glfwDestroyWindow(mainWindow);
+		glfwDestroyWindow(OSWindow);
 
 		//Make sure the mainSoundSystem has stopped running.
 		SGE::Sound::Stop();

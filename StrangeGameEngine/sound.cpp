@@ -74,7 +74,7 @@ namespace SGE
 							{
 								//Caclulate the semitone using the current offset
 								//Check to see if state 1 or 2 and use X and Y values accordingly
-								currentOffsetIncrement = float(offsetIncrement * pow(SEMITONE_MULTIPLIER, arpeggioState == 1 ? arpeggioSemitoneX : arpeggioSemitoneY));
+								currentOffsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, arpeggioState == 1 ? arpeggioSemitoneX : arpeggioSemitoneY));
 							}
 							else
 							{
@@ -96,7 +96,7 @@ namespace SGE
 					if (EnableVibrato)
 					{
 						//Calculate the offset
-						currentOffsetIncrement = currentOffsetIncrement * pow(SEMITONE_MULTIPLIER, VibratoAmplitude * VibratoWaveform[currentVibratoWaveformPosition]);
+						currentOffsetIncrement = currentOffsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, VibratoAmplitude * VibratoWaveform[currentVibratoWaveformPosition]);
 
 						//Increment the vibrato waveform position
 						currentVibratoWaveformPosition = (int)(currentVibratoWaveformPosition + VibratoCycles) % SAMPLE_RATE;
@@ -279,10 +279,10 @@ namespace SGE
 			float RampDown[SAMPLE_RATE] = { 0 };
 			float Square[SAMPLE_RATE] = { 0 };
 
-			void GenerateSine()
+			void PreGenerateSine()
 			{
 				//Calculate radian to frequency step for a 1Hz full sine wave
-				float periodStepping = (TWO_PI_FLOAT) / SAMPLE_RATE;
+				float periodStepping = (Precalculated::TWO_PI_FLOAT) / SAMPLE_RATE;
 
 				//Calculate all the points
 				for (unsigned int i = 0; i < SAMPLE_RATE; i++)
@@ -292,7 +292,7 @@ namespace SGE
 				}
 			}
 
-			void GenerateRampDown()
+			void PreGenerateRampDown()
 			{
 				//Calculate all the points
 				for (unsigned int i = 0; i < SAMPLE_RATE; i++)
@@ -302,7 +302,7 @@ namespace SGE
 				}
 			}
 
-			void GenerateSquare()
+			void PreGenerateSquare()
 			{
 				//Calculate all the points
 				//First part
@@ -325,159 +325,6 @@ namespace SGE
 			}
 		}
 
-
-		//
-		//
-		//  Generators Definitions
-		//
-		//
-
-		//Sample Generation Tools
-		//Generates a sine wave
-		short* Generators::SineGenerator(float hertz, unsigned int samplesToGenerate, short amplitude)
-		{
-			//Create buffer to store samples in
-			short* tempBuffer = new short[samplesToGenerate];
-
-			//Calculate radian to frequency step
-			float periodStepping = (TWO_PI_FLOAT * hertz) / SAMPLE_RATE;
-
-			for (unsigned int i = 0; i < samplesToGenerate; i++)
-			{
-				tempBuffer[i] = short(amplitude * sinf(periodStepping * i));
-			}
-
-			//Return a pointer to what we have wrought
-			return tempBuffer;
-		}
-
-		//Generates a pulse wave
-		short* Generators::PulseGenerator(float hertz, float dutyCycle, unsigned int samplesToGenerate, short amplitude)
-		{
-			//Create buffer to store samples in
-			short* tempBuffer = new short[samplesToGenerate];
-
-			//Calculate radian to frequency step
-			float periodStepping = (TWO_PI_FLOAT * hertz) / SAMPLE_RATE;
-
-			//Variable to keep track of the current period of the current hertz
-			float currentPeriod = 0;
-
-			//Variable to keep track of the duty cycle length
-			float dutyCycleLength;
-
-			//Check for valid dutyCycle
-			if (dutyCycle > 0 && dutyCycle < 1.0)
-			{
-				//If valid calculate the dutyCycleLength
-				dutyCycleLength = dutyCycle * TWO_PI_FLOAT;
-
-			}
-			//If not a valid dutyCycle
-			else
-			{
-				//Calculate dutyCycleLength using .50 dutyCycle or 50%
-				dutyCycleLength = PI_FLOAT;
-			}
-
-			//Generate some pulses
-			for (unsigned int i = 0; i < samplesToGenerate; i++)
-			{
-				//Check to see if we are within the duty cycle of the current hertz, given the current period.
-				if (currentPeriod < dutyCycleLength)
-				{
-					tempBuffer[i] = amplitude;
-				}
-				else
-				{
-					tempBuffer[i] = -amplitude;
-				}
-
-				//Go to the next period step
-				currentPeriod += periodStepping;
-
-				//If we got through a whole hertz
-				if (currentPeriod > TWO_PI_FLOAT)
-				{
-					//Roll it back over to the start of a new one.
-					currentPeriod -= TWO_PI_FLOAT;
-				}
-			}
-
-			//Return a pointer to what we have wrought
-			return tempBuffer;
-		}
-
-		//Generates a triangle wave
-		short* Generators::TriangleGenerator(float hertz, unsigned int samplesToGenerate, short amplitude)
-		{
-			//Create buffer to store samples in
-			short* tempBuffer = new short[samplesToGenerate];
-
-			//Calculate radian to frequency step
-			float periodStepping = (TWO_PI_FLOAT * hertz) / SAMPLE_RATE;
-
-			//Variable to keep track of the current period of the current hertz
-			float currentPeriod = 0;
-
-			//Generate some triangles
-			for (unsigned int i = 0; i < samplesToGenerate; i++)
-			{
-
-				//If we are in the first incline
-				if (currentPeriod < HALF_PI_FLOAT)
-				{
-					tempBuffer[i] = short((currentPeriod / HALF_PI_FLOAT) * amplitude);
-				}
-
-				//If we are in the decline (positive part)
-				else if (currentPeriod < PI_FLOAT)
-				{
-					tempBuffer[i] = short(((PI_FLOAT - currentPeriod) / HALF_PI_FLOAT) * amplitude);
-				}
-
-				//If we are in the decline (negative part)
-				else if (currentPeriod < (PI_FLOAT + HALF_PI_FLOAT))
-				{
-					tempBuffer[i] = short(((currentPeriod - PI_FLOAT - HALF_PI_FLOAT) / HALF_PI_FLOAT) * -amplitude);
-				}
-
-				//If we are in the second incline
-				else if (currentPeriod < TWO_PI_FLOAT)
-				{
-					tempBuffer[i] = short(((TWO_PI_FLOAT - currentPeriod) / HALF_PI_FLOAT) * -amplitude);
-				}
-
-				//Go to the next period step
-				currentPeriod += periodStepping;
-
-				//If we got through a whole hertz
-				if (currentPeriod > TWO_PI_FLOAT)
-				{
-					//Roll it back over to the start of a new one.
-					currentPeriod -= TWO_PI_FLOAT;
-				}
-			}
-
-			//Return a pointer to what we have wrought
-			return tempBuffer;
-		}
-
-		//Generates a sawtooth wave
-		short* Generators::SawtoothGenerator(float hertz, unsigned int samplesToGenerate, short amplitude)
-		{
-			return nullptr;
-		}
-
-		//Generates noise
-		short* Generators::NoiseGenerator(unsigned int samplesToGenerate, short amplitude)
-		{
-			//Create buffer to store samples in
-			short* tempBuffer = new short[samplesToGenerate];
-
-			//Return a pointer to what we have wrought
-			return tempBuffer;
-		}
 
 		//
 		//
@@ -769,9 +616,9 @@ namespace SGE
 			//Generate PreGenerated Base Waveforms.
 			//
 
-			Waveforms::GenerateSine();
-			Waveforms::GenerateRampDown();
-			Waveforms::GenerateSquare();
+			Waveforms::PreGenerateSine();
+			Waveforms::PreGenerateRampDown();
+			Waveforms::PreGenerateSquare();
 
 		}
 
@@ -1361,7 +1208,7 @@ namespace SGE
 
 
 			//Default for most mods, can be changed.
-			ticksADivision = DEFAULT_TICKS_A_DIVISION;
+			ticksADivision = ModTracker::DEFAULT_TICKS_A_DIVISION;
 
 			std::chrono::time_point<std::chrono::steady_clock> startTime;
 			std::chrono::nanoseconds deltaTime = std::chrono::nanoseconds(0);
@@ -1453,7 +1300,7 @@ namespace SGE
 
 								//Convert the period to offset timing interval in relation to system sampling rate
 								//Using NTSC sampling
-								channelMap[c]->offsetIncrement = MOD_NTSC_TUNING / 
+								channelMap[c]->offsetIncrement = ModTracker::NTSC_TUNING / 
 									(float)(modFile.patterns[CurrentPattern].division[i].channels[c].period * SAMPLE_RATE * 2);
 
 								//Channel plays
@@ -1503,7 +1350,7 @@ namespace SGE
 								//Configure Arpeggio or Effect 0 / 0x0
 								case 0x0:
 									//Set rate the arpeggio effect will change states
-									channelMap[c]->ArpeggioSampleInterval = MOD_DEFAULT_SAMPLES_TICK;
+									channelMap[c]->ArpeggioSampleInterval = ModTracker::DEFAULT_SAMPLES_TICK;
 
 									//Set the semitones arpeggio will alternate between
 									channelMap[c]->arpeggioSemitoneX = effectXOnChannel[c];
@@ -1544,7 +1391,7 @@ namespace SGE
 								//Configure Volume Slide or Effect 10 / 0xA
 								case 0xA:
 									//Set the number of samples that progress for each tick in the effect.
-									channelMap[c]->VolumeSlideSampleInterval = MOD_DEFAULT_SAMPLES_TICK;
+									channelMap[c]->VolumeSlideSampleInterval = ModTracker::DEFAULT_SAMPLES_TICK;
 
 									//Check to see the rate we have to slide the volume up
 									if (effectXOnChannel[c] != 0)
@@ -1692,7 +1539,7 @@ namespace SGE
 						}
 
 						//Wait for the next division
-						std::this_thread::sleep_for(std::chrono::nanoseconds(ticksADivision * MOD_DEFAULT_TICK_TIMING_NANO));
+						std::this_thread::sleep_for(std::chrono::nanoseconds(ticksADivision * ModTracker::DEFAULT_TICK_TIMING_NANO));
 
 						//Post division checks
 

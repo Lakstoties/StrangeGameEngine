@@ -50,7 +50,7 @@ namespace SGE
 	}
 
 	//GLFW Window pointer for the Strange Game Engine
-	extern GLFWwindow* mainWindow;
+	extern GLFWwindow* OSWindow;
 }
 
 
