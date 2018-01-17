@@ -239,100 +239,30 @@ namespace SGE
 			unsigned char green,
 			unsigned char blue)
 		{
-			int deltaX = endX - startX;									//X Delta
-			int deltaY = endY - startY;									//Y Delta
 			unsigned int pixelColor = PackColors(red, green, blue);		//Pixel Color data, packed together.
 			int ramPosition = 0;										//Position in Video RAM
 			float deltaXY = 0.0f;
 
-
-			//Check for lines that cannot possibly exist on the +X, +Y quadrant
-			if ((startX < 0 && endX < 0) ||														//Both X's are negative
-				(startY < 0 && endY < 0) ||														//Both Y's are negative
-				(startX >= SGE::Display::Video::ResolutionX && endX >= SGE::Display::Video::ResolutionX) ||	//Both X's are outside the resolution
-				(startY >= SGE::Display::Video::ResolutionY && endY >= SGE::Display::Video::ResolutionY))		//Both Y's are outside the resolution
+			//Check for a valid line and prune if it is
+			//If the return of Prune Line is false, then we can't draw this damn thing anyway
+			if (!PruneLine(startX, startY, endX, endY))
 			{
-				//This line doesn't exist anywhere we could possibly draw it.
 				return;
 			}
 
-			//Check for straight lines outside what we can do anything about
-			if ((startX < 0 && deltaX == 0) ||								//X is negative and it's going to stay that way
-				(startY < 0 && deltaY == 0) ||								//Y is negative and it's going to stay that way
-				(startX >= SGE::Display::Video::ResolutionX && deltaX == 0) ||		//X is outside the resolution and it's going to stay that way
-				(startY >= SGE::Display::Video::ResolutionY && deltaY == 0))		//Y is outside the resoltuion and it's going to stay that way
-			{
-				//Can't draw this line
-				return;
-			}
-
-			//Check to see if we need to prune the start point back to the right quardrant
-			//Bring in the X
-			if (startX < 0)
-			{
-				//Calculate new Y along X axis
-				startX = 0;
-				startY += (-startX * deltaY) / deltaX;
-			}
-			else if (startX >= SGE::Display::Video::ResolutionX)
-			{
-				startX = SGE::Display::Video::ResolutionX - 1;
-				startY -= (-startX * deltaY) / deltaX;
-			}
-
-			//Bring in the Y
-			if (startY < 0)
-			{
-				//Calculate new X along Y axis
-				startX += (-startY * deltaX) / deltaY;
-				startY = 0;
-			}
-			else if (startY >= SGE::Display::Video::ResolutionY)
-			{
-				startX -= (-startY * deltaX) / deltaY;
-				startY = SGE::Display::Video::ResolutionY - 1;
-			}
-
-			//Check to see if we need to prune the end point back to the right quardrant
-			//Bring in the X
-			if (endX < 0)
-			{
-				//Calculate new Y along X axis
-				endX = 0;
-				endY += (-endX * deltaY) / deltaX;
-			}
-			else if (endX >= SGE::Display::Video::ResolutionX)
-			{
-				endX = SGE::Display::Video::ResolutionX - 1;
-				endY -= (-endX * deltaY) / deltaX;
-			}
-
-			//Bring in the Y
-			if (endY < 0)
-			{
-				//Calculate new X along Y axis
-				endX += (-endY * deltaX) / deltaY;
-				endY = 0;
-			}
-			else if (endY >= SGE::Display::Video::ResolutionY)
-			{
-				endX -= (-endY * deltaX) / deltaY;
-				endY = SGE::Display::Video::ResolutionY;
-			}
-
-			//Double check the deltas
-			//New deltas
-			deltaX = endX - startX;
-			deltaY = endY - startY;
+			//Calculate the deltas
+			int deltaX = endX - startX;		//X Delta
+			int deltaY = endY - startY;		//Y Delta
 
 
 			//Which is the bigger delta
 			//Delta X is bigger and we will draw based on the X-axis
+			//We square the numbers to avoid bothering with absolute value calculations
 			if (deltaX * deltaX > deltaY * deltaY)
 			{
 				if (deltaX < 0)
 				{
-					//Swap the points if there's a negative X delta
+					//Swap the points if there's a negative X delta, since we like draw positive deltas for simplicity
 					int temp = 0;
 
 					//Swap the X
@@ -398,6 +328,96 @@ namespace SGE
 					SGE::Display::Video::RAM[ramPosition + (i * SGE::Display::Video::ResolutionX) + int(i * deltaXY)] = pixelColor;
 				}
 			}
+		}
+
+
+		//Prune two starting points back down to the visible area of the screen
+		//Return a true if line can even be drawn on screen
+		//Return a false if line is completely off screen
+		bool PruneLine(int& startX, int& startY, int& endX, int& endY)
+		{
+			//Figure out the deltas
+			int deltaX = endX - startX;									//X Delta
+			int deltaY = endY - startY;									//Y Delta
+			
+
+			//Check for lines that cannot possibly exist on the +X, +Y quadrant
+			if ((startX < 0 && endX < 0) ||																	//Both X's are negative
+				(startY < 0 && endY < 0) ||																	//Both Y's are negative
+				(startX >= SGE::Display::Video::ResolutionX && endX >= SGE::Display::Video::ResolutionX) ||	//Both X's are outside the resolution
+				(startY >= SGE::Display::Video::ResolutionY && endY >= SGE::Display::Video::ResolutionY))	//Both Y's are outside the resolution
+			{
+				//This line doesn't exist anywhere we could possibly draw it.
+				return false;
+			}
+
+			//Check for straight lines outside what we can do anything about
+			if ((startX < 0 && deltaX == 0) ||										//X is negative and it's going to stay that way
+				(startY < 0 && deltaY == 0) ||										//Y is negative and it's going to stay that way
+				(startX >= SGE::Display::Video::ResolutionX && deltaX == 0) ||		//X is outside the resolution and it's going to stay that way
+				(startY >= SGE::Display::Video::ResolutionY && deltaY == 0))		//Y is outside the resoltuion and it's going to stay that way
+			{
+				//Can't draw this line
+				return false;
+			}
+
+			//Check to see if we need to prune the start point back to the right quardrant
+			//Bring in the X
+			if (startX < 0)
+			{
+				//Calculate new Y along X axis
+				startX = 0;
+				startY += (-startX * deltaY) / deltaX;
+			}
+			else if (startX >= SGE::Display::Video::ResolutionX)
+			{
+				startX = SGE::Display::Video::ResolutionX - 1;
+				startY -= (-startX * deltaY) / deltaX;
+			}
+
+			//Bring in the Y
+			if (startY < 0)
+			{
+				//Calculate new X along Y axis
+				startX += (-startY * deltaX) / deltaY;
+				startY = 0;
+			}
+			else if (startY >= SGE::Display::Video::ResolutionY)
+			{
+				startX -= (-startY * deltaX) / deltaY;
+				startY = SGE::Display::Video::ResolutionY - 1;
+			}
+
+			//Check to see if we need to prune the end point back to the right quardrant
+			//Bring in the X
+			if (endX < 0)
+			{
+				//Calculate new Y along X axis
+				endX = 0;
+				endY += (-endX * deltaY) / deltaX;
+			}
+			else if (endX >= SGE::Display::Video::ResolutionX)
+			{
+				endX = SGE::Display::Video::ResolutionX - 1;
+				endY -= (-endX * deltaY) / deltaX;
+			}
+
+			//Bring in the Y
+			if (endY < 0)
+			{
+				//Calculate new X along Y axis
+				endX += (-endY * deltaX) / deltaY;
+				endY = 0;
+			}
+			else if (endY >= SGE::Display::Video::ResolutionY)
+			{
+				endX -= (-endY * deltaX) / deltaY;
+				endY = SGE::Display::Video::ResolutionY;
+			}
+
+
+			//In theory we've trimmed the line down to valid points within the viewable area of the screen
+			return true;
 		}
 
 		//Draw a hollow rectangle of a given color and in a desired location of a desired size
@@ -557,7 +577,6 @@ namespace SGE
 			unsigned int targetColor = PackColors(rColor, gColor, bColor);
 
 			//Pixel Buffer to mass copy memory from
-			//unsigned int* targetPixelBuffer = nullptr;
 			int targetPixelBufferSize = 0;
 
 			//Scale the vertexes

@@ -131,6 +131,9 @@ namespace SGE
 		//Draw a block of data from a source to target video ram
 		void DrawDataBlock(int targetX, int targetY, int sourceWidth, int sourceHeight, unsigned int* sourceDataBlock);
 
+		//Function that prunes a line represented by two points to within the viewable area of the game screen
+		inline bool PruneLine(int& startX, int& startY, int& endX, int& endY);
+
 		//Draw a line from one point to another
 		void DrawLine(int startX, int startY, int endX, int endY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
 
