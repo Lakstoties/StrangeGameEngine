@@ -512,7 +512,7 @@ namespace SGE
 			for (int i = 1; i < height; i++)
 			{
 				//Copy the first row to the rest of the rows
-				memcpy(&SGE::Display::Video::RAM[targetRAM], &SGE::Display::Video::RAM[startingRAM], width * 4);
+				std::memmove(&SGE::Display::Video::RAM[targetRAM], &SGE::Display::Video::RAM[startingRAM], width * sizeof(unsigned int));
 				
 				//Next Row
 				targetRAM += SGE::Display::Video::ResolutionX;
@@ -580,149 +580,149 @@ namespace SGE
 			int targetPixelBufferSize = 0;
 
 			//Scale the vertexes
-			vertex1.x = int(vertex1.x * scalingFactor);
-			vertex1.y = int(vertex1.y * scalingFactor);
-			vertex2.x = int(vertex2.x * scalingFactor);
-			vertex2.y = int(vertex2.y * scalingFactor);
-			vertex3.x = int(vertex3.x * scalingFactor);
-			vertex3.y = int(vertex3.y * scalingFactor);
+			vertex1.x = int(vertex1.x * scalingFactor) + startX;
+			vertex1.y = int(vertex1.y * scalingFactor) + startY;
+			vertex2.x = int(vertex2.x * scalingFactor) + startX;
+			vertex2.y = int(vertex2.y * scalingFactor) + startY;
+			vertex3.x = int(vertex3.x * scalingFactor) + startX;
+			vertex3.y = int(vertex3.y * scalingFactor) + startY;
 
 			//Variables to hold the top most, bottom most, and middle point vertexes
-			VertexPoint topMostVertex;
-			VertexPoint bottomMostVertex;
-			VertexPoint middlePointVertex;
+			VertexPoint topVertex;
+			VertexPoint bottomVertex;
+			VertexPoint middleVertex;
 
-			//Do some comparison to figure out the max, mins, and vertexes.
-			//Basically figure out how this triangle is configured and arrangement
-			//So we can make some decisions about how to draw it.
-			//Find the topMostVertex
+			//
+			//  Floats to hold deltas for the three line segments
+			//
 
-			//Vertex 1 is above Vertex 2
+			float topToBottomLineDelta = 0.0f;
+			float topToMiddleLineDelta = 0.0f;
+			float middleToBottomLineDelta = 0.0f;
+
+			//
+			//  Mapping Offsets
+			//
+			int bufferMappingOffsetY = 0;
+			int bufferMappingOffsetX = 0;
+
+
+
+			//
+			//  Sanity Checks for drawing
+			//
+
+			if ((vertex1.y < 0 && vertex2.y < 0 && vertex3.y < 0) ||		//Do all these vertexes have Y's in the negatives?
+				(vertex1.x < 0 && vertex2.x < 0 && vertex3.x < 0) ||		//Do all these vertexes have X's in the negatives?
+				(vertex1.y >= SGE::Display::Video::ResolutionY && vertex2.y >= SGE::Display::Video::ResolutionY && vertex3.y >= SGE::Display::Video::ResolutionY) ||	//Do all these vertexes have Y's greater than our Y resolution?
+				(vertex1.x >= SGE::Display::Video::ResolutionY && vertex2.x >= SGE::Display::Video::ResolutionY && vertex3.x >= SGE::Display::Video::ResolutionX))	//Do all these vertexes have X's greater than our X resoltuon?
+			{
+				//We can't draw this!
+				//No part of it will ever exist within the screen
+				//Eject!
+				return;
+			}
+
+
+			//
+			//Calculate the ideal orientation of the vertexs for drawing from lowest Y down the screen.
+			//
+
+			//Is Vertex 1 is above Vertex 2
 			if (vertex1.y < vertex2.y)
 			{
-				//Vertex 1 is above Vertex 3
+				//Vertex 1 IS above Vertex 2
+				
+				//Is Vertex 1 is above Vertex 3
 				if (vertex1.y < vertex3.y)
 				{
-					//Vertex 1 is topmost
-					topMostVertex = vertex1;
+					//Vertex 1 is above Vertex 3
+					//Hence, Vertex 1 is topmost
+					topVertex = vertex1;
 
-					//Compare the remain two figure out the Bottom and middle
-					//If Vertex 2 is above Vertex 3
-					middlePointVertex = vertex2.y < vertex3.y ? vertex2 : vertex3;
-					bottomMostVertex = vertex2.y < vertex3.y ? vertex3 : vertex2;
+					//Compare Vertex 2 and Vertex 3 to figure out which is above the other
+					middleVertex = vertex2.y < vertex3.y ? vertex2 : vertex3;
+					bottomVertex =  vertex2.y < vertex3.y ? vertex3 : vertex2;
 				}
 
-				//Vertex 3 is above Vertex 1
 				else
 				{
-					//Vertex 3 is topmost
-					topMostVertex = vertex3;
+					//Vertex 3 is above Vertex 1
+					//Hence, Vertex 3 is top vertex
+					topVertex = vertex3;
 
-					//Compare the remain two figure out the Bottom and middle
-					//If Vertex 1 is above Vertex 2
-					middlePointVertex = vertex1.y < vertex2.y ? vertex1 : vertex2;
-					bottomMostVertex = vertex1.y < vertex2.y ? vertex2 : vertex1;
+					//By elimination Vetrex 1 is the middle vertex
+					middleVertex = vertex1;
+
+					//And Vertex 2 is the bottom vertex
+					bottomVertex = vertex2;
 				}
 			}
 
-			//Vertex 2 is higher than Vertex 1 (or equal)
 			else
 			{
-				//Vertex 2 is above Vertex 3
+				//Vertex 2 is above Vertex 1 (or equal)
+
+				//Is Vertex 2 above Vertex 3
 				if (vertex2.y < vertex3.y)
 				{
-					//Vertex 2 is topmost
-					topMostVertex = vertex2;
+					//Vertex 2 is above Vertex 3
 
-					//Compare the remain two figure out the Bottom and middle
-					//If Vertex 1 is above Vertex 3
-					middlePointVertex = vertex1.y < vertex3.y ? vertex1 : vertex3;
-					bottomMostVertex = vertex1.y < vertex3.y ? vertex3 : vertex1;
+					//Vertex 2 is top vertex
+					topVertex = vertex2;
+
+					//Compare Vertex 1 and Vertex 3 to figure out which is above the other
+					middleVertex = vertex1.y < vertex3.y ? vertex1 : vertex3;
+					bottomVertex =  vertex1.y < vertex3.y ? vertex3 : vertex1;
 				}
 
-				//Vertex 3 is above Vertex 2
 				else
 				{
-					//Vertex 3 is topmost
-					topMostVertex = vertex3;
+					//Vertex 3 is above Vertex 2
+					//Hence, Vertex 3 is top vertex
+					topVertex = vertex3;
 
-					//Compare the remain two figure out the Bottom and middle
-					//If Vertex 1 is above Vertex 2
-					middlePointVertex = vertex1.y < vertex2.y ? vertex1 : vertex2;
-					bottomMostVertex = vertex1.y < vertex2.y ? vertex2 : vertex1;
+					//By elimination Vertex 2 is the middle vertex
+					middleVertex = vertex2;
+
+					//And Vertex 2 is the bottom vertex
+					bottomVertex = vertex1;
 				}
 			}
 
-			//Int Vector based on the DRAWING_DECIMAL_RESOLUTION
-			int topMostToBottomMostVector = 0;
-			int topMostToMiddlePointVector = 0;
-			int middlePointToBottomMostVector = 0;
+			//
+			//  Calculate line deltas
+			//
 
-			//Int Vectors
-			int topMostToBottomMostVectorInt = 0;
-			int topMostToMiddlePointVectorInt = 0;
-			int middlePointToBottomMostVectorInt = 0;
+			topToBottomLineDelta = (float) (bottomVertex.x - topVertex.x) / (float) (bottomVertex.y - topVertex.y);
+			topToMiddleLineDelta = (float) (middleVertex.x - topVertex.x) / (float) (middleVertex.y - topVertex.y);
+			middleToBottomLineDelta = (float) (bottomVertex.x - middleVertex.x) / (float)(bottomVertex.y - middleVertex.y);
 
-			//Error leftover from Int appropximation
-			int topMostToBottomMostVectorError = 0;
-			int topMostToMiddlePointVectorError = 0;
-			int middlePointToBottomMostVectorError = 0;
+			//Check for division by zeros
+			(std::isinf(topToBottomLineDelta)) && (topToBottomLineDelta = 0.0f);
+			(std::isinf(topToMiddleLineDelta)) && (topToMiddleLineDelta = 0.0f);
+			(std::isinf(middleToBottomLineDelta)) && (middleToBottomLineDelta = 0.0f);
 
-			//Calculate the slopes for the lines in the triangle
-			//And...
-			//Catch any possible divde by 0 errors.
+			//
+			//  Setup pixel buffers
+			//
 
-			//Line from the TopMost to the BottomMost
-			if (bottomMostVertex.y - topMostVertex.y != 0)
-			{
-				//Figure out the delta between the points in relation to Y
-				topMostToBottomMostVector = (DRAWING_DECIMAL_RESOLUTION * (bottomMostVertex.x - topMostVertex.x)) / (bottomMostVertex.y - topMostVertex.y);
+			//Determine greatest distance between triangle points
+			int lowestX = vertex1.x;
+			int greatestX = vertex1.x;
 
-				//Precalculate the Int, so we don't have to do weird casting in calculations below
-				topMostToBottomMostVectorInt = topMostToBottomMostVector / DRAWING_DECIMAL_RESOLUTION;
+			//Short circuit logic
 
-				//Grab the error amount, so we don't have to recacluate everytime below, since it doesn't change.
-				topMostToBottomMostVectorError = topMostToBottomMostVector % DRAWING_DECIMAL_RESOLUTION;
-			}
+			//Lowest checks
+			(vertex2.x < lowestX) && (lowestX = vertex2.x);
+			(vertex3.x < lowestX) && (lowestX = vertex3.x);
 
-			//Line from the TopMost to the Middle Poiint
-			if (middlePointVertex.y - topMostVertex.y != 0)
-			{
-				//Figure out the delta between the points in relation to Y
-				topMostToMiddlePointVector = (DRAWING_DECIMAL_RESOLUTION * (middlePointVertex.x - topMostVertex.x)) / (middlePointVertex.y - topMostVertex.y);
+			//Greatest checks
+			(vertex2.x > greatestX) && (greatestX = vertex2.x);
+			(vertex3.x > greatestX) && (greatestX = vertex3.x);
 
-				//Precalculate the Int, so we don't have to do weird casting in calculations below
-				topMostToMiddlePointVectorInt = topMostToMiddlePointVector / DRAWING_DECIMAL_RESOLUTION;
+			targetPixelBufferSize = greatestX - lowestX;
 
-				//Grab the error amount, so we don't have to recacluate everytime below, since it doesn't change.
-				topMostToMiddlePointVectorError = topMostToMiddlePointVector % DRAWING_DECIMAL_RESOLUTION;
-			}
-
-			//Line from the Middle Point to the Bottom Most
-			if (bottomMostVertex.y - middlePointVertex.y != 0)
-			{
-				//Figure out the delta between the points in relation to Y
-				middlePointToBottomMostVector = (DRAWING_DECIMAL_RESOLUTION * (bottomMostVertex.x - middlePointVertex.x)) / (bottomMostVertex.y - middlePointVertex.y);
-
-				//Precalculate the Int, so we don't have to do weird casting in calculations below
-				middlePointToBottomMostVectorInt = middlePointToBottomMostVector / DRAWING_DECIMAL_RESOLUTION;
-
-				//Grab the error amount, so we don't have to recacluate everytime below, since it doesn't change.
-				middlePointToBottomMostVectorError = middlePointToBottomMostVector % DRAWING_DECIMAL_RESOLUTION;
-			}
-
-			//Given the vertexes, figure out the pixel buffer needed
-			int topMostPointVSMiddlePointX = topMostVertex.x - middlePointVertex.x;
-			int bottomMostPointVSMiddlePointX = bottomMostVertex.x - middlePointVertex.x;
-
-			//If negative, flip to get the absolute value
-			(topMostPointVSMiddlePointX < 0) && (topMostPointVSMiddlePointX = -topMostPointVSMiddlePointX);
-
-			//If negative, flip to get the absolute value
-			(bottomMostPointVSMiddlePointX < 0) && (bottomMostPointVSMiddlePointX = -bottomMostPointVSMiddlePointX);
-
-			//Figure out which one is bigger
-			targetPixelBufferSize = (topMostPointVSMiddlePointX > bottomMostPointVSMiddlePointX) ? (topMostPointVSMiddlePointX + 1) : (bottomMostPointVSMiddlePointX + 1);
 
 			//Load up the Row Buffer
 			for (int i = 0; i < targetPixelBufferSize && i < SGE::Display::Video::ResolutionX; i++)
@@ -730,116 +730,136 @@ namespace SGE
 				SGE::Display::Video::RowBuffer[i] = targetColor;
 			}
 
-			//Start from the top most and go a long the lines between top and bottom, and top and middle.
-			int currentTopMostToBottomMostX = topMostVertex.x + startX;
-			int currentOtherLineX = topMostVertex.x + startX;
 
-			//Error accumulators
-			//To determine when adjustments to slope need to be made
-			int currentTopMostToMostError = 0;
-			int currentOtherLineError = 0;
+			//
+			//  Save starting Y mapping offset if negative, that way we can copy data properly taking into account culled data
+			//
 
-			//Variable to keep track of current Y position
-			int currentY = topMostVertex.y + startY;
+			bufferMappingOffsetY = topVertex.y < 0 ? -topVertex.y : 0;
 
-			//Calculate points along the lines between TopMost and BottomMost, and TopMost and MiddlePoint
-			for (; currentY < middlePointVertex.y + startY; currentY++)
+
+			//
+			// Start drawing the line points pairs
+			//
+
+			//Top-To-Middle Line and Top-To-Bottom Line pairing
+			for (int currentScreenY = (topVertex.y < 0) ? 0 : topVertex.y;									//Start screenY at topVertex Y, or 0 if topVertex Y is negative
+				currentScreenY <= middleVertex.y && currentScreenY < SGE::Display::Video::ResolutionY;		//Keep drawing to the middleVertex Y or until the end of the viewable screen
+				currentScreenY++)
 			{
-				//copy the row out
-				std::memmove(&SGE::Display::Video::RAM[(currentTopMostToBottomMostX < currentOtherLineX ?			//Go to the leftmost point and set that as the destination point in VideoRAM
-					currentTopMostToBottomMostX :
-					currentOtherLineX) +
-					SGE::Display::Video::ResolutionX * (currentY)],
-					SGE::Display::Video::RowBuffer,														//Pull from the VideoRowBuffer
-					((currentTopMostToBottomMostX > currentOtherLineX ?								//Subtract based on which is the greater for a positive difference
-						currentTopMostToBottomMostX - currentOtherLineX :
-						currentOtherLineX - currentTopMostToBottomMostX)
-						+ 1) * sizeof(unsigned int));													//Fill at least one pixel plus the fillWidth
+				//
+				//  Figure out Top-To-Middle line point
+				//
 
-				//Calculate the X points from Y using a modified Bresenham algorithm.
-				currentTopMostToBottomMostX += topMostToBottomMostVectorInt;
-				currentOtherLineX += topMostToMiddlePointVectorInt;
+				int currentTopToMiddleX = topVertex.x + ((currentScreenY - topVertex.y) * topToMiddleLineDelta);
+				
+				//Check for any out of bounds issues and correct
+				//Short circuit logic
+				(currentTopToMiddleX < 0) && (currentTopToMiddleX = 0);																		//Check to see if currentTopToBottomX is negative
+				(currentTopToMiddleX >= SGE::Display::Video::ResolutionX) && (currentTopToMiddleX = SGE::Display::Video::ResolutionX - 1);	//Check to see if currentTopToBottomX is beyond the resolution
 
-				//Accumulate error
-				currentTopMostToMostError += topMostToBottomMostVectorError;
-				currentOtherLineError += topMostToMiddlePointVectorError;
+				//
+				//  Figure out Top-To-Bottom line point
+				//
 
-				//Check to see if error is high enough to warrant a correction
-				if (currentTopMostToMostError > DRAWING_DECIMAL_RESOLUTION)
-				{
-					currentTopMostToBottomMostX++;
-					currentTopMostToMostError -= DRAWING_DECIMAL_RESOLUTION;
-				}
-				else if (currentTopMostToMostError < -DRAWING_DECIMAL_RESOLUTION)
-				{
-					currentTopMostToBottomMostX--;
-					currentTopMostToMostError += DRAWING_DECIMAL_RESOLUTION;
-				}
+				int currentTopToBottomX = topVertex.x + ((currentScreenY - topVertex.y) * topToBottomLineDelta);
 
-				//Check to see if error is high enough to warrant a correction
-				if (currentOtherLineError > DRAWING_DECIMAL_RESOLUTION)
-				{
-					currentOtherLineX++;
-					currentOtherLineError -= DRAWING_DECIMAL_RESOLUTION;
-				}
-				else if (currentOtherLineError < -DRAWING_DECIMAL_RESOLUTION)
-				{
-					currentOtherLineX--;
-					currentOtherLineError += DRAWING_DECIMAL_RESOLUTION;
-				}
+				//Check for any out of bounds issues and correct
+				//Short circuit logic
+				(currentTopToBottomX < 0) && (currentTopToBottomX = 0);																		//Check to see if currentTopToBottomX is negative
+				(currentTopToBottomX >= SGE::Display::Video::ResolutionX) && (currentTopToBottomX = SGE::Display::Video::ResolutionX - 1);	//Check to see if currentTopToBottomX is beyond the resolution
+
+				//
+				//  Figure out dimensions for memory copy operations
+				//
+
+				//What offset are we moving to
+				int copyRowDestination = (currentScreenY * SGE::Display::Video::ResolutionX) +					//Starting a the memory location for the current row (Y) we are on
+					((currentTopToBottomX < currentTopToMiddleX) ? currentTopToBottomX : currentTopToMiddleX);		//Offset by the smallest X
+
+				//What offset are we moving from
+				//int copyRowSource = (int) (currentTopToBottomX < currentTopToMiddleX) ? (currentScreenY * topToBottomLineDelta) : (currentScreenY * topToMiddleLineDelta);		//Offset by the smallest X delta
+				int copyRowSource = 0;
+
+				//And how much
+				int copyRowLength = currentTopToBottomX - currentTopToMiddleX;
+				
+				//Short circuit logic for sign flip
+				(copyRowLength < 0) && (copyRowLength = -copyRowLength);
+
+				//Add a little extra
+				copyRowLength++;
+
+				//
+				//  Mass move data
+				//
+
+				std::memmove(&SGE::Display::Video::RAM[copyRowDestination],		//In Video RAM
+						&SGE::Display::Video::RowBuffer[copyRowSource],			//From the Row Buffer
+						sizeof(unsigned int) * copyRowLength);
 			}
 
-			//Reset the currentOtherLineX to the middlePointVertex
-			currentOtherLineX = middlePointVertex.x + startX;
+			//
+			//  Update buffer mapping offsets
+			//
 
-			//Reset the error on the current line, since it is starting from a new point
-			currentOtherLineError = 0;
+			//Take the delta between the middleVertex Y and the topVertex Y and any culling distance from a negative Y
+			bufferMappingOffsetX = (middleVertex.y - topVertex.y) + middleVertex.y < 0 ? -middleVertex.y : 0;
 
-			//Calculate points along the lines between TopMost and BottomMost, and MiddlePoint and BottomMost
-			for (; currentY <= bottomMostVertex.y + startY; currentY++)
+			//Middle-To-Bottom and Top-To-Bottom Line pairing
+			for (int currentScreenY = middleVertex.y < 0 ? 0 : middleVertex.y;									//Start screenY at middleVertex Y, or 0 if middleVertex Y is negative
+				currentScreenY <= bottomVertex.y && currentScreenY < SGE::Display::Video::ResolutionY;			//Keep drawing to the bottomVertex Y or until the end of the viewable screen
+				currentScreenY++)
 			{
-				//Copy the row out
-				std::memmove(&SGE::Display::Video::RAM[(currentTopMostToBottomMostX < currentOtherLineX ?			//Go to the leftmost point and set that as the destination point in VideoRAM
-					currentTopMostToBottomMostX : 
-					currentOtherLineX) + 
-					SGE::Display::Video::ResolutionX * (currentY)],
-					SGE::Display::Video::RowBuffer,														//Pull from the VideoRowBuffer
-					((currentTopMostToBottomMostX > currentOtherLineX ?								//Subtract based on which is the greater for a positive difference
-							currentTopMostToBottomMostX - currentOtherLineX :
-							currentOtherLineX - currentTopMostToBottomMostX)
-						+ 1) * sizeof(unsigned int));													//Fill at least one pixel plus the fillWidth
+				//
+				//  Figure out Top-To-Middle line point
+				//
 
-				//Calculate the X points from Y using a modified Bresenham algorithm.
-				currentTopMostToBottomMostX += topMostToBottomMostVectorInt;
-				currentOtherLineX += middlePointToBottomMostVectorInt;
+				int currentMiddleToBottom = middleVertex.x + ((currentScreenY - middleVertex.y) * middleToBottomLineDelta);
 
-				//Accumulate error
-				currentTopMostToMostError += topMostToBottomMostVectorError;
-				currentOtherLineError += middlePointToBottomMostVectorError;
+				//Check for any out of bounds issues and correct
+				//Short circuit logic
+				(currentMiddleToBottom < 0) && (currentMiddleToBottom = 0);																		//Check to see if currentTopToBottomX is negative
+				(currentMiddleToBottom >= SGE::Display::Video::ResolutionX) && (currentMiddleToBottom = SGE::Display::Video::ResolutionX - 1);	//Check to see if currentTopToBottomX is beyond the resolution
 
-				//Check to see if error is high enough to warrant a correction
-				if (currentTopMostToMostError > DRAWING_DECIMAL_RESOLUTION)
-				{
-					currentTopMostToBottomMostX++;
-					currentTopMostToMostError -= DRAWING_DECIMAL_RESOLUTION;
-				}
-				else if (currentTopMostToMostError < -DRAWING_DECIMAL_RESOLUTION)
-				{
-					currentTopMostToBottomMostX--;
-					currentTopMostToMostError += DRAWING_DECIMAL_RESOLUTION;
-				}
+				//
+				//  Figure out Top-To-Bottom line point
+				//
 
-				//Check to see if error is high enough to warrant a correction
-				if (currentOtherLineError > DRAWING_DECIMAL_RESOLUTION)
-				{
-					currentOtherLineX++;
-					currentOtherLineError -= DRAWING_DECIMAL_RESOLUTION;
-				}
-				else if (currentOtherLineError < -DRAWING_DECIMAL_RESOLUTION)
-				{
-					currentOtherLineX--;
-					currentOtherLineError += DRAWING_DECIMAL_RESOLUTION;
-				}
+				int currentTopToBottomX = topVertex.x + ((currentScreenY - topVertex.y) * topToBottomLineDelta);
+
+				//Check for any out of bounds issues and correct
+				//Short circuit logic
+				(currentTopToBottomX < 0) && (currentTopToBottomX = 0);																		//Check to see if currentTopToBottomX is negative
+				(currentTopToBottomX >= SGE::Display::Video::ResolutionX) && (currentTopToBottomX = SGE::Display::Video::ResolutionX - 1);	//Check to see if currentTopToBottomX is beyond the resolution
+
+				//
+				//  Figure out dimensions for memory copy operations
+				//
+
+				//What offset are we moving to
+				int copyRowDestination = currentScreenY * SGE::Display::Video::ResolutionX +						//Starting a the memory location for the current row (Y) we are on
+					((currentTopToBottomX < currentMiddleToBottom) ? currentTopToBottomX : currentMiddleToBottom);		//Offset by the smallest X
+
+																												//What offset are we moving from
+				//int copyRowSource = (int)(currentTopToBottomX < currentMiddleToBottom) ? (currentScreenY * topToBottomLineDelta) : (currentScreenY * topToMiddleLineDelta);		//Offset by the smallest X delta
+				int copyRowSource = 0;
+
+																																												//And how much
+				int copyRowLength = currentTopToBottomX - currentMiddleToBottom;
+
+				//Short circuit logic for sign flip
+				(copyRowLength < 0) && (copyRowLength = -copyRowLength);
+
+				copyRowLength++;
+
+				//
+				//  Mass move data
+				//
+
+				std::memmove(&SGE::Display::Video::RAM[copyRowDestination],	//In Video RAM
+					&SGE::Display::Video::RowBuffer[copyRowSource],			//From the Row Buffer
+					sizeof(unsigned int) * copyRowLength);
 			}
 		}
 

@@ -328,6 +328,128 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 
 
 
+void DrawMouseStatusBox(int xCornerPosition, int yCornerPosition)
+{
+	char temp[100] = { 0 };
+	//
+	//Draw Background Box
+	//
+	SGE::Render::DrawBox(xCornerPosition, yCornerPosition, 145, 58, 0, 128, 0);
+	SGE::Render::DrawRectangle(xCornerPosition, yCornerPosition, 145, 58, 0, 64, 0);
+
+	//
+	//Position Labels
+	//
+
+	//Print string for Mouse's X
+	sprintf(temp, "Mouse Position X: %i", SGE::Controls::Mouse::PositionX);
+	SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, xCornerPosition + 4, yCornerPosition + 05, 128, 255, 128);
+
+	//Print string for Mouse's Y
+	sprintf(temp, "Mouse Position Y: %i", SGE::Controls::Mouse::PositionY);
+	SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, xCornerPosition + 4, yCornerPosition + 15, 128, 255, 128);
+
+	//Print String for Mouse's X Scroll
+	sprintf(temp, "Scroll Position X: %i", SGE::Controls::Mouse::ScrollX);
+	SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, xCornerPosition + 4, yCornerPosition + 25, 128, 255, 128);
+
+	//Print string for Mouse's Y Scroll
+	sprintf(temp, "Scroll Position Y: %i", SGE::Controls::Mouse::ScrollY);
+	SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, xCornerPosition + 4, yCornerPosition + 35, 128, 255, 128);
+
+	//
+	//
+	//Print Mouse button array
+	//
+	//
+
+	//
+	//Left Mouse Button
+	//
+
+	//Draw Label
+	SGE::Render::Draw8x8Character('L', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 5, yCornerPosition + 45, 128, 255, 128);
+
+	//Draw Light
+	SGE::Render::DrawBox(
+		xCornerPosition + 15,							//X Upper Left Corner Position
+		yCornerPosition + 45,							//Y Upper Left Corner Position
+		5,												//Width
+		8,												//Height
+		SGE::Controls::Mouse::Buttons[0] ? 192 : 64,	//Red Color Value  (Changes if active or not)
+		16,												//Green Color Value
+		16);											//Blue Color Value
+
+	//
+	//Right Mouse Button
+	//
+
+	//Draw Label
+	SGE::Render::Draw8x8Character('R', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 25, yCornerPosition + 45, 128, 255, 128);
+
+	//Draw Light
+	SGE::Render::DrawBox(
+		xCornerPosition + 35,							//X Upper Left Corner Position
+		yCornerPosition + 45,							//Y Upper Left Corner Position
+		5,												//Width
+		8,												//Height
+		SGE::Controls::Mouse::Buttons[1] ? 192 : 64,	//Red Color Value  (Changes if active or not)
+		16,												//Green Color Value
+		16);											//Blue Color Value
+
+	//
+	//Center Mouse Button
+	//
+
+	//Draw Label
+	SGE::Render::Draw8x8Character('M', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 45, yCornerPosition + 45, 128, 255, 128);
+
+	//Draw Light
+	SGE::Render::DrawBox(
+		xCornerPosition + 55,							//X Upper Left Corner Position
+		yCornerPosition + 45,							//Y Upper Left Corner Position
+		5,												//Width
+		8,												//Height
+		SGE::Controls::Mouse::Buttons[2] ? 192 : 64,	//Red Color Value  (Changes if active or not)
+		16,												//Green Color Value
+		16);
+
+	//
+	//Extra Button #1
+	//
+
+	//Draw Label
+	SGE::Render::Draw8x8Character('A', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 65, yCornerPosition + 45, 128, 255, 128);
+
+	//Draw Light
+	SGE::Render::DrawBox(
+		xCornerPosition + 75,							//X Upper Left Corner Position
+		yCornerPosition + 45,							//Y Upper Left Corner Position
+		5,												//Width
+		8,												//Height
+		SGE::Controls::Mouse::Buttons[3] ? 192 : 64,	//Red Color Value  (Changes if active or not)
+		16,												//Green Color Value
+		16);
+
+	//
+	//Extra Button #2
+	//
+
+	//Draw Label
+	SGE::Render::Draw8x8Character('B', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 85, yCornerPosition + 45, 128, 255, 128);
+
+	//Draw Light
+	SGE::Render::DrawBox(
+		xCornerPosition + 95,							//X Upper Left Corner Position
+		yCornerPosition + 45,							//Y Upper Left Corner Position
+		5,												//Width
+		8,												//Height
+		SGE::Controls::Mouse::Buttons[4] ? 192 : 64,	//Red Color Value  (Changes if active or not)
+		16,												//Green Color Value
+		16);
+}
+
+
 void InputTest(bool& testInputRunning)
 {
 	char* menuItemText[7] =
@@ -342,7 +464,7 @@ void InputTest(bool& testInputRunning)
 	};
 
 	//Create the test menu
-	SGE::Menu testMenu(0, 150, 150, 88, 2, 12, 2, 7, menuItemText);
+	SGE::Menu testMenu(0, 350, 150, 88, 2, 12, 2, 7, menuItemText);
 
 	//Current Selection
 	testMenu.selection = 0;
@@ -509,91 +631,12 @@ void InputTest(bool& testInputRunning)
 		SGE::Render::DrawString((char*)"Version: 0.01", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 20, 128, 255, 128);
 		SGE::Render::DrawString((char*)"\"It actually works!\" Ed.", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 30, 128, 255, 128);
 
-		char temp[100] = { 0 };
-
-
 		//
 		//Draw Mouse Status Box
 		//
 
-		//Draw Background Box
-		SGE::Render::DrawBox(0, 70, 145, 58, 0, 128, 0);
-		SGE::Render::DrawRectangle(0, 70, 145, 58, 0, 64, 0);
+		DrawMouseStatusBox(0, 270);
 
-
-		//Print string for Mouse's X
-		sprintf(temp, "Mouse Position X: %i", SGE::Controls::Mouse::PositionX);
-		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 4, 75, 128, 255, 128);
-
-		//Print string for Mouse's Y
-		sprintf(temp, "Mouse Position Y: %i", SGE::Controls::Mouse::PositionY);
-		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 4, 85, 128, 255, 128);
-
-		//Print String for Mouse's X Scroll
-		sprintf(temp, "Scroll Position X: %i", SGE::Controls::Mouse::ScrollX);
-		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 4, 95, 128, 255, 128);
-
-		//Print string for Mouse's Y Scroll
-		sprintf(temp, "Scroll Position Y: %i", SGE::Controls::Mouse::ScrollY);
-		SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 6, 4, 105, 128, 255, 128);
-
-		//Print Mouse button array
-
-		//Left Mouse Button
-		SGE::Render::Draw8x8Character('L', SGE::Render::CHARACTER_8x8_ROM, 5, 115, 128, 255, 128);
-		if (SGE::Controls::Mouse::Buttons[0])
-		{ 
-			SGE::Render::DrawBox(15, 115, 5, 8, 192, 16, 16);
-		}
-		else
-		{
-			SGE::Render::DrawBox(15, 115, 5, 8, 64, 16, 16);
-		}
-
-		//Right Mouse Button
-		SGE::Render::Draw8x8Character('R', SGE::Render::CHARACTER_8x8_ROM, 25, 115, 128, 255, 128);
-		if (SGE::Controls::Mouse::Buttons[1])
-		{
-			SGE::Render::DrawBox(35, 115, 5, 8, 192, 16, 16);
-		}
-		else
-		{
-			SGE::Render::DrawBox(35, 115, 5, 8, 64, 16, 16);
-		}
-
-		
-		//Center Mouse Button
-		SGE::Render::Draw8x8Character('M', SGE::Render::CHARACTER_8x8_ROM, 45, 115, 128, 255, 128);
-		if (SGE::Controls::Mouse::Buttons[2])
-		{
-			SGE::Render::DrawBox(55, 115, 5, 8, 192, 16, 16);
-		}
-		else
-		{
-			SGE::Render::DrawBox(55, 115, 5, 8, 64, 16, 16);
-		}
-
-		//Extra Button
-		SGE::Render::Draw8x8Character('A', SGE::Render::CHARACTER_8x8_ROM, 65, 115, 128, 255, 128);
-		if (SGE::Controls::Mouse::Buttons[3])
-		{
-			SGE::Render::DrawBox(75, 115, 5, 8, 192, 16, 16);
-		}
-		else
-		{
-			SGE::Render::DrawBox(75, 115, 5, 8, 64, 16, 16);
-		}
-		
-		//Extra Button
-		SGE::Render::Draw8x8Character('B', SGE::Render::CHARACTER_8x8_ROM, 85, 115, 128, 255, 128);
-		if (SGE::Controls::Mouse::Buttons[4])
-		{
-			SGE::Render::DrawBox(95, 115, 5, 8, 192, 16, 16);
-		}
-		else
-		{
-			SGE::Render::DrawBox(95, 115, 5, 8, 64, 16, 16);
-		}
 	
 		//Draw Menu
 		testMenu.Draw();
