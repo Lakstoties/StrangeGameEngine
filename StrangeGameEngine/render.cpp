@@ -523,7 +523,7 @@ namespace SGE
 		void ZBlank()
 		{
 			//Memset for the win!!
-			memset(SGE::Display::Video::RAM, 0, SGE::Display::Video::RAMSize * sizeof(unsigned int));
+			std::memset(SGE::Display::Video::RAM, 0, SGE::Display::Video::RAMSize * sizeof(unsigned int));
 		}
 
 		//Packs the Red, Green, and Blue 8-bit components with a dummy Alpha value into a 32-bit unsigned int

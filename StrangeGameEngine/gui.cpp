@@ -101,7 +101,7 @@ namespace SGE
 			CharacterRowBuffers = new char[rows * columns];
 
 			//Zero out the array
-			memset(CharacterRowBuffers, 0, rows * columns);
+			std::memset(CharacterRowBuffers, 0, rows * columns);
 
 			//
 			//Foreground Color
@@ -110,7 +110,7 @@ namespace SGE
 			ForegroundColorArray = new unsigned int[rows * columns];
 
 			//Zero out the array
-			memset(ForegroundColorArray, 0, rows * columns);
+			std::memset(ForegroundColorArray, 0, rows * columns);
 
 			//
 			//Background Color
@@ -119,7 +119,7 @@ namespace SGE
 			BackgroundColorArray = new unsigned int[rows * columns];
 
 			//Zero out the array
-			memset(BackgroundColorArray, 0, rows * columns);
+			std::memset(BackgroundColorArray, 0, rows * columns);
 
 		}
 	}

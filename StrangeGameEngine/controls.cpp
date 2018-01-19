@@ -40,7 +40,7 @@ namespace SGE
 				CurrentBufferPosition = 0;
 
 				//Clear out all the data in the buffer
-				memset(InputBuffer, 0, sizeof(InputBuffer));
+				std::memset(InputBuffer, 0, sizeof(InputBuffer));
 			}
 
 
