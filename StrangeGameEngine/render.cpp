@@ -53,151 +53,26 @@ namespace SGE
 			//Or if the thing is blank
 			if (characterROM[(unsigned char)character])
 			{
-				//
-				//  Yes, we could use a for loop, but it has been unrolled for performance sake.
-				//  It seems that unrolled, static offsets can be used instead of have to contend with the i variable.
-				//  Hacky, but it does seem to perform better.
-				//
-
-				//First Row
-				if (characterToDraw[0])
+				//For each of the 8 rows for a character
+				for (int i = 0; i < 8; i++)
 				{
-					//Row of pixels
-					//This uses short circuit logic
-					characterToDraw[0] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
-					characterToDraw[0] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
-					characterToDraw[0] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
-					characterToDraw[0] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
-					characterToDraw[0] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
-					characterToDraw[0] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
-					characterToDraw[0] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
-					characterToDraw[0] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
-				}
+					//IF there's actually anything to draw in the row
+					if (characterToDraw[i])
+					{
+						//Row of pixels
+						//This uses short circuit logic
+						if (characterToDraw[i] & 0x01) { SGE::Display::Video::RAM[currentRAM + 0] = targetColor; }
+						if (characterToDraw[i] & 0x02) { SGE::Display::Video::RAM[currentRAM + 1] = targetColor; }
+						if (characterToDraw[i] & 0x04) { SGE::Display::Video::RAM[currentRAM + 2] = targetColor; }
+						if (characterToDraw[i] & 0x08) { SGE::Display::Video::RAM[currentRAM + 3] = targetColor; }
+						if (characterToDraw[i] & 0x10) { SGE::Display::Video::RAM[currentRAM + 4] = targetColor; }
+						if (characterToDraw[i] & 0x20) { SGE::Display::Video::RAM[currentRAM + 5] = targetColor; }
+						if (characterToDraw[i] & 0x40) { SGE::Display::Video::RAM[currentRAM + 6] = targetColor; }
+						if (characterToDraw[i] & 0x80) { SGE::Display::Video::RAM[currentRAM + 7] = targetColor; }
+					}
 
-				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::Video::ResolutionX;
-
-				//Second Row
-				if (characterToDraw[1])
-				{
-					//Row of pixels
-					//This uses short circuit logic
-					characterToDraw[1] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
-					characterToDraw[1] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
-					characterToDraw[1] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
-					characterToDraw[1] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
-					characterToDraw[1] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
-					characterToDraw[1] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
-					characterToDraw[1] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
-					characterToDraw[1] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
-				}
-
-				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::Video::ResolutionX;
-
-				//Third row
-				if (characterToDraw[2])
-				{
-					//Row of pixels
-					//This uses short circuit logic
-					characterToDraw[2] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
-					characterToDraw[2] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
-					characterToDraw[2] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
-					characterToDraw[2] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
-					characterToDraw[2] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
-					characterToDraw[2] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
-					characterToDraw[2] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
-					characterToDraw[2] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
-				}
-
-				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::Video::ResolutionX;
-
-				//Fourth Row
-				if (characterToDraw[3])
-				{
-					//Row of pixels
-					//This uses short circuit logic
-					characterToDraw[3] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
-					characterToDraw[3] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
-					characterToDraw[3] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
-					characterToDraw[3] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
-					characterToDraw[3] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
-					characterToDraw[3] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
-					characterToDraw[3] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
-					characterToDraw[3] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
-				}
-
-				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::Video::ResolutionX;
-
-				//Fifth Row
-				if (characterToDraw[4])
-				{
-					//Row of pixels
-					//This uses short circuit logic
-					characterToDraw[4] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
-					characterToDraw[4] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
-					characterToDraw[4] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
-					characterToDraw[4] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
-					characterToDraw[4] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
-					characterToDraw[4] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
-					characterToDraw[4] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
-					characterToDraw[4] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
-				}
-
-				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::Video::ResolutionX;
-
-				//Sixth Row
-				if (characterToDraw[5])
-				{
-					//Row of pixels
-					//This uses short circuit logic
-					characterToDraw[5] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
-					characterToDraw[5] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
-					characterToDraw[5] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
-					characterToDraw[5] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
-					characterToDraw[5] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
-					characterToDraw[5] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
-					characterToDraw[5] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
-					characterToDraw[5] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
-				}
-
-				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::Video::ResolutionX;
-
-				//Seventh Row
-				if (characterToDraw[6])
-				{
-					//Row of pixels
-					//This uses short circuit logic
-					characterToDraw[6] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
-					characterToDraw[6] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
-					characterToDraw[6] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
-					characterToDraw[6] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
-					characterToDraw[6] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
-					characterToDraw[6] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
-					characterToDraw[6] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
-					characterToDraw[6] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
-				}
-
-				//Hop to the next row in RAM from the start of the current row
-				currentRAM += SGE::Display::Video::ResolutionX;
-
-				//Eigth row
-				if (characterToDraw[7])
-				{
-					//Row of pixels
-					//This uses short circuit logic
-					characterToDraw[7] & 0x01 && (SGE::Display::Video::RAM[currentRAM + 0] = targetColor);
-					characterToDraw[7] & 0x02 && (SGE::Display::Video::RAM[currentRAM + 1] = targetColor);
-					characterToDraw[7] & 0x04 && (SGE::Display::Video::RAM[currentRAM + 2] = targetColor);
-					characterToDraw[7] & 0x08 && (SGE::Display::Video::RAM[currentRAM + 3] = targetColor);
-					characterToDraw[7] & 0x10 && (SGE::Display::Video::RAM[currentRAM + 4] = targetColor);
-					characterToDraw[7] & 0x20 && (SGE::Display::Video::RAM[currentRAM + 5] = targetColor);
-					characterToDraw[7] & 0x40 && (SGE::Display::Video::RAM[currentRAM + 6] = targetColor);
-					characterToDraw[7] & 0x80 && (SGE::Display::Video::RAM[currentRAM + 7] = targetColor);
+					//Hop to the next row in RAM from the start of the current row
+					currentRAM += SGE::Display::Video::ResolutionX;
 				}
 			}
 		}
@@ -699,9 +574,10 @@ namespace SGE
 			middleToBottomLineDelta = (float) (bottomVertex.x - middleVertex.x) / (float)(bottomVertex.y - middleVertex.y);
 
 			//Check for division by zeros
-			(std::isinf(topToBottomLineDelta)) && (topToBottomLineDelta = 0.0f);
-			(std::isinf(topToMiddleLineDelta)) && (topToMiddleLineDelta = 0.0f);
-			(std::isinf(middleToBottomLineDelta)) && (middleToBottomLineDelta = 0.0f);
+			//For our purposes of logic, a zero will work just as well...  Sorry math majors.
+			if (std::isinf(topToBottomLineDelta))		{ topToBottomLineDelta = 0.0f; }
+			if (std::isinf(topToMiddleLineDelta))		{ topToMiddleLineDelta = 0.0f; }
+			if (std::isinf(middleToBottomLineDelta))	{ middleToBottomLineDelta = 0.0f; }
 
 			//
 			//  Setup pixel buffers
@@ -711,15 +587,13 @@ namespace SGE
 			int lowestX = vertex1.x;
 			int greatestX = vertex1.x;
 
-			//Short circuit logic
-
 			//Lowest checks
-			(vertex2.x < lowestX) && (lowestX = vertex2.x);
-			(vertex3.x < lowestX) && (lowestX = vertex3.x);
+			if (vertex2.x < lowestX) { lowestX = vertex2.x; }
+			if (vertex3.x < lowestX) { lowestX = vertex3.x; }
 
 			//Greatest checks
-			(vertex2.x > greatestX) && (greatestX = vertex2.x);
-			(vertex3.x > greatestX) && (greatestX = vertex3.x);
+			if (vertex2.x > greatestX) { (greatestX = vertex2.x); }
+			if (vertex3.x > greatestX) { (greatestX = vertex3.x); }
 
 			targetPixelBufferSize = greatestX - lowestX;
 
@@ -785,7 +659,7 @@ namespace SGE
 				int copyRowLength = currentTopToBottomX - currentTopToMiddleX;
 				
 				//Short circuit logic for sign flip
-				(copyRowLength < 0) && (copyRowLength = -copyRowLength);
+				if (copyRowLength < 0) { (copyRowLength = -copyRowLength); }
 
 				//Add a little extra
 				copyRowLength++;
@@ -849,7 +723,7 @@ namespace SGE
 				int copyRowLength = currentTopToBottomX - currentMiddleToBottom;
 
 				//Short circuit logic for sign flip
-				(copyRowLength < 0) && (copyRowLength = -copyRowLength);
+				if (copyRowLength < 0) { (copyRowLength = -copyRowLength); }
 
 				copyRowLength++;
 
@@ -1038,15 +912,15 @@ namespace SGE
 			//Check to see if we got a whole header, or if the end of file hit early
 			if (readCount == 0)
 			{
-				fprintf(stderr, "Render Bitmap File Error:  File \"%s\" is not correct format - File too small.\n", targetFilename);
+				std::fprintf(stderr, "Render Bitmap File Error:  File \"%s\" is not correct format - File too small.\n", targetFilename);
 				return -2;
 			}
 
 			//Let's check to see if we got some valid data
 			//Check the ID field
-			if (memcmp("BM", &bitmapHeader.idField, 2) != 0)
+			if (std::memcmp("BM", &bitmapHeader.idField, 2) != 0)
 			{
-				fprintf(stderr, "Render Bitmap File Error:  File \"%s\" is not correct format - Bitmap File Header ID Field incorrect.\n", targetFilename);
+				std::fprintf(stderr, "Render Bitmap File Error:  File \"%s\" is not correct format - Bitmap File Header ID Field incorrect.\n", targetFilename);
 				return -3;
 			}
 
@@ -1056,7 +930,7 @@ namespace SGE
 			//Check to see if we got a whole header, or if the end of file hit early
 			if (readCount != sizeof(bitmapInfo))
 			{
-				fprintf(stderr, "Render Bitmap File Error:  File \"%s\" is not correct format - File too small.\n", targetFilename);
+				std::fprintf(stderr, "Render Bitmap File Error:  File \"%s\" is not correct format - File too small.\n", targetFilename);
 				return -2;
 			}
 
