@@ -44,7 +44,7 @@ namespace SGE
 			unsigned char* characterToDraw = (unsigned char*)&characterROM[(unsigned char)character];
 
 			//Get the RAM position to start writing to in Video RAM
-			int currentRAM = targetX + (targetY * SGE::Display::Video::ResolutionX);
+			unsigned int* currentRAMPointer = &SGE::Display::Video::RAM[targetX + (targetY * SGE::Display::Video::ResolutionX)];
 
 			//Pack the colors into pixel format
 			unsigned int targetColor = PackColors(rColor, gColor, bColor);
@@ -60,19 +60,18 @@ namespace SGE
 					if (characterToDraw[i])
 					{
 						//Row of pixels
-						//This uses short circuit logic
-						if (characterToDraw[i] & 0x01) { SGE::Display::Video::RAM[currentRAM + 0] = targetColor; }
-						if (characterToDraw[i] & 0x02) { SGE::Display::Video::RAM[currentRAM + 1] = targetColor; }
-						if (characterToDraw[i] & 0x04) { SGE::Display::Video::RAM[currentRAM + 2] = targetColor; }
-						if (characterToDraw[i] & 0x08) { SGE::Display::Video::RAM[currentRAM + 3] = targetColor; }
-						if (characterToDraw[i] & 0x10) { SGE::Display::Video::RAM[currentRAM + 4] = targetColor; }
-						if (characterToDraw[i] & 0x20) { SGE::Display::Video::RAM[currentRAM + 5] = targetColor; }
-						if (characterToDraw[i] & 0x40) { SGE::Display::Video::RAM[currentRAM + 6] = targetColor; }
-						if (characterToDraw[i] & 0x80) { SGE::Display::Video::RAM[currentRAM + 7] = targetColor; }
+						if (characterToDraw[i] & 0x01) { currentRAMPointer[0] = targetColor; }
+						if (characterToDraw[i] & 0x02) { currentRAMPointer[1] = targetColor; }
+						if (characterToDraw[i] & 0x04) { currentRAMPointer[2] = targetColor; }
+						if (characterToDraw[i] & 0x08) { currentRAMPointer[3] = targetColor; }
+						if (characterToDraw[i] & 0x10) { currentRAMPointer[4] = targetColor; }
+						if (characterToDraw[i] & 0x20) { currentRAMPointer[5] = targetColor; }
+						if (characterToDraw[i] & 0x40) { currentRAMPointer[6] = targetColor; }
+						if (characterToDraw[i] & 0x80) { currentRAMPointer[7] = targetColor; }
 					}
 
 					//Hop to the next row in RAM from the start of the current row
-					currentRAM += SGE::Display::Video::ResolutionX;
+					currentRAMPointer += SGE::Display::Video::ResolutionX;
 				}
 			}
 		}
@@ -95,7 +94,7 @@ namespace SGE
 			for (int i = 0; i < sourceHeight; i++)
 			{
 				//Copy of row from the source over to the target
-				std::memmove(&SGE::Display::Video::RAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * sizeof(unsigned int));
+				std::memcpy(&SGE::Display::Video::RAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * sizeof(unsigned int));
 
 				//Increment to the next row in the display
 				targetRAM += SGE::Display::Video::ResolutionX;
@@ -305,17 +304,95 @@ namespace SGE
 			unsigned char gColor,					//8-bit (0-255) Green color component
 			unsigned char bColor)					//8-bit (0-255) Blue color component
 		{
-			//Top Row Line
-			DrawLine(startX, startY, startX + width - 1, startY, rColor, gColor, bColor);
 
-			//Bottom Row Line
-			DrawLine(startX, startY + height - 1, startX + width - 1, startY + height - 1, rColor, gColor, bColor);
+			//
+			//  Sanity check to see if we can even draw this fuckin' thing
+			//
+			if (startX + width < 0 ||							//If the start X is further off screen than the width
+				startX >= SGE::Display::Video::ResolutionX ||	//If the start X is beyond the maximum drawable
+				startY + height < 0 ||							//If the start Y is further off screen than the height
+				startY >= SGE::Display::Video::ResolutionY)		//If the start Y is beyond the maximum drawable
+			{
+				//You kidding me?  We can't draw this shit!
+				return;				
+			}
 
-			//Left Column Line
-			DrawLine(startX, startY, startX, startY + height - 1, rColor, gColor, bColor);
+			//
+			//  Prune down the rectangle to acceptable drawing limits
+			//
 
-			//Right Column Line
-			DrawLine(startX + width - 1, startY, startX + width - 1, startY + height - 1, rColor, gColor, bColor);
+			//
+			//  For X's outside normal ranges
+			//
+
+
+			//If the starting X is in the negative zone
+			if (startX < 0)
+			{
+				//The drawing width is adjusted based on how far in the negative the startX is
+				width += startX;
+
+				//And the starting X is now 0
+				startX = 0;
+			}
+
+			//If the rectangle wander off the drawable area
+			if (startX + width >= SGE::Display::Video::ResolutionX)
+			{
+				//THe drawing width is adjusted by how far off the drawable edge it goes
+				width -= (startX + width) - SGE::Display::Video::ResolutionX;
+			}
+
+			//
+			//  For Y's outside normal ranges
+			//
+
+			//If the starting X is in the negative zone
+			if (startY < 0)
+			{
+				//The drawing width is adjusted based on how far in the negative the startX is
+				height += startY;
+
+				//And the starting X is now 0
+				startY = 0;
+			}
+
+			//If the rectangle wander off the drawable area
+			if (startY + height >= SGE::Display::Video::ResolutionY)
+			{
+				//THe drawing width is adjusted by how far off the drawable edge it goes
+				height -= (startY + height) - SGE::Display::Video::ResolutionY;
+			}
+
+			//
+			//  Time to draw it!
+			//
+
+			//
+			//  Start with the top and bottom rows
+			//
+
+			//Figure out the top and bottom row start positions in video ram
+			unsigned int* topLeftRAMPointer = &SGE::Display::Video::RAM[startX + (startY * SGE::Display::Video::ResolutionX)];
+			unsigned int* bottomLeftRAMPointer = &SGE::Display::Video::RAM[startX + ((startY + height - 1) * SGE::Display::Video::ResolutionX)];
+			unsigned int* topRightRAMPointer = &topLeftRAMPointer[width - 1];
+
+			//Pack up the colors
+			unsigned int lineColor = PackColors(rColor, gColor, bColor);
+
+			//Start the rows
+			for (int i = 0; i < width; i++)
+			{
+				bottomLeftRAMPointer[i] = lineColor;
+				topLeftRAMPointer[i] = lineColor;
+			}
+
+			//Start the columns
+			for (int i = 0; i < height * SGE::Display::Video::ResolutionX; i += SGE::Display::Video::ResolutionX)
+			{
+				topRightRAMPointer[i] = lineColor;
+				topLeftRAMPointer[i] = lineColor;
+			}
 		}
 
 
@@ -364,10 +441,7 @@ namespace SGE
 			}
 
 			//Get the starting point in video RAM based on desired location and size of the display
-			int targetRAM = (startX + (startY * SGE::Display::Video::ResolutionX));
-
-			//Starting point
-			int startingRAM = targetRAM;
+			unsigned int* targetRAMPointer = &SGE::Display::Video::RAM[(startX + (startY * SGE::Display::Video::ResolutionX))];
 
 			//Pack the colors up
 			unsigned int targetColor = PackColors(rColor, gColor, bColor);
@@ -376,21 +450,14 @@ namespace SGE
 			for (int i = 0; i < width; i++)
 			{
 				//Copy the color into video ram
-				SGE::Display::Video::RAM[targetRAM + i] = targetColor;
+				targetRAMPointer[i] = targetColor;
 			}
 
-			//Then memcpy the rest of the rows from this one
-			//First move to the next row
-			targetRAM += SGE::Display::Video::ResolutionX;
-
 			//Loop through the remaining rows
-			for (int i = 1; i < height; i++)
+			for (int i = SGE::Display::Video::ResolutionX; i < height * SGE::Display::Video::ResolutionX; i += SGE::Display::Video::ResolutionX)
 			{
 				//Copy the first row to the rest of the rows
-				std::memmove(&SGE::Display::Video::RAM[targetRAM], &SGE::Display::Video::RAM[startingRAM], width * sizeof(unsigned int));
-				
-				//Next Row
-				targetRAM += SGE::Display::Video::ResolutionX;
+				std::memcpy(&targetRAMPointer[i], targetRAMPointer, width * sizeof(unsigned int));
 			}
 		}
 
@@ -668,7 +735,7 @@ namespace SGE
 				//  Mass move data
 				//
 
-				std::memmove(&SGE::Display::Video::RAM[copyRowDestination],		//In Video RAM
+				std::memcpy(&SGE::Display::Video::RAM[copyRowDestination],		//In Video RAM
 						&SGE::Display::Video::RowBuffer[copyRowSource],			//From the Row Buffer
 						sizeof(unsigned int) * copyRowLength);
 			}
@@ -731,7 +798,7 @@ namespace SGE
 				//  Mass move data
 				//
 
-				std::memmove(&SGE::Display::Video::RAM[copyRowDestination],	//In Video RAM
+				std::memcpy(&SGE::Display::Video::RAM[copyRowDestination],	//In Video RAM
 					&SGE::Display::Video::RowBuffer[copyRowSource],			//From the Row Buffer
 					sizeof(unsigned int) * copyRowLength);
 			}

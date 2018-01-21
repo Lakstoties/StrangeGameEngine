@@ -269,7 +269,7 @@ namespace SGE
 					pixelBufferMapping = (char*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, Video::RAMSize * sizeof(unsigned int), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 
 					//Copy our data to it
-					std::memmove(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(unsigned int));
+					std::memcpy(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(unsigned int));
 
 					//Move load up the texture data from the buffer
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::ResolutionX, Video::ResolutionY, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -284,7 +284,7 @@ namespace SGE
 				else
 				{
 					//Update the data
-					std::memmove(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(unsigned int));
+					std::memcpy(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(unsigned int));
 
 					//Move the data to the texture from the buffer
 					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::ResolutionX, Video::ResolutionY, GL_RGBA, GL_UNSIGNED_BYTE, 0);
