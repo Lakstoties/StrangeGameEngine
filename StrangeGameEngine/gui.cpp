@@ -167,10 +167,10 @@ namespace SGE
 	void Menu::Draw()
 	{
 		//Draw Menu Back
-		SGE::Render::DrawBox(menuX, menuY, menuWidth, menuHeight, backgroundRColor, backgroundGColor, backgroundBColor);
+		SGE::Render::DrawBox(menuX, menuY, menuWidth, menuHeight, backgroundColor);
 
 		//Draw Menu Border
-		SGE::Render::DrawRectangle(menuX, menuY, menuWidth, menuHeight, borderRColor, borderGColor, borderBColor);
+		SGE::Render::DrawRectangle(menuX, menuY, menuWidth, menuHeight, borderColor);
 
 		//Write Text
 		for (int i = 0; i < numberOfSelections; i++)
@@ -179,25 +179,25 @@ namespace SGE
 			//If it's just normal text
 			if (i != selection)
 			{
-				SGE::Render::DrawString(menuItemText[i], SGE::Render::CHARACTER_8x8_ROM, 8, menuXMargin + textBoxMargin, menuYMargin + (itemHeight * i) + textBoxMargin, textRColor, textGColor, textBColor);
+				SGE::Render::DrawString(menuItemText[i], SGE::Render::CHARACTER_8x8_ROM, 8, menuXMargin + textBoxMargin, menuYMargin + (itemHeight * i) + textBoxMargin, regularColor);
 			}
 
 			//Else it's the current selection text
 			else
 			{
 				//Draw the selected text box
-				SGE::Render::DrawBox(menuXMargin, menuYMargin + (itemHeight * i), menuWidth - (margin << 1), itemHeight, highlightRColor, highlightGColor, highlightBColor);
+				SGE::Render::DrawBox(menuXMargin, menuYMargin + (itemHeight * i), menuWidth - (margin << 1), itemHeight, highlightColor);
 
 				//Draw the selected characters
-				SGE::Render::DrawString(menuItemText[i], SGE::Render::CHARACTER_8x8_ROM, 8, menuXMargin + textBoxMargin, menuYMargin + (itemHeight * i) + textBoxMargin, highlightTextRColor, highlightTextGColor, highlightTextBColor);
+				SGE::Render::DrawString(menuItemText[i], SGE::Render::CHARACTER_8x8_ROM, 8, menuXMargin + textBoxMargin, menuYMargin + (itemHeight * i) + textBoxMargin, highlightTextColor);
 
 				//If the cursor is active draw it
 				if (cursorActive)
 				{
 					//Draw the text box for the cursor
-					SGE::Render::DrawBox(menuXMargin + textBoxMargin + 8 * rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, 8, 8, highlightTextRColor, highlightTextGColor, highlightTextBColor);
+					SGE::Render::DrawBox(menuXMargin + textBoxMargin + 8 * rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, 8, 8, highlightTextColor);
 					//Draw the selected character
-					SGE::Render::Draw8x8Character(menuItemText[i][rowTextCursorLocation], SGE::Render::CHARACTER_8x8_ROM, menuXMargin + textBoxMargin + 8 * rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, highlightRColor, highlightGColor, highlightBColor);
+					SGE::Render::Draw8x8Character(menuItemText[i][rowTextCursorLocation], SGE::Render::CHARACTER_8x8_ROM, menuXMargin + textBoxMargin + 8 * rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, highlightColor);
 				}
 			}
 		}

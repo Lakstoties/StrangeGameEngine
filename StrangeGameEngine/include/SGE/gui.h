@@ -26,10 +26,10 @@ namespace SGE
 			char* CharacterRowBuffers = nullptr;
 
 			//Color Array for Foreground
-			unsigned int* ForegroundColorArray = nullptr;
+			SGE::Display::Video::pixel* ForegroundColorArray = nullptr;
 			
 			//Color Array for Background
-			unsigned int* BackgroundColorArray = nullptr;
+			SGE::Display::Video::pixel* BackgroundColorArray = nullptr;
 
 			//Upper Left corner to align to
 			int XPosition = 0;
@@ -70,29 +70,19 @@ namespace SGE
 
 
 		//Background Color
-		unsigned char backgroundRColor;
-		unsigned char backgroundGColor;
-		unsigned char backgroundBColor;
+		SGE::Display::Video::pixel backgroundColor;
 
 		//Border Color
-		unsigned char borderRColor;
-		unsigned char borderGColor;
-		unsigned char borderBColor;
+		SGE::Display::Video::pixel borderColor;
 
 		//Highlight Color
-		unsigned char highlightRColor;
-		unsigned char highlightGColor;
-		unsigned char highlightBColor;
+		SGE::Display::Video::pixel highlightColor;
 
 		//Regular Text Color
-		unsigned char textRColor;
-		unsigned char textGColor;
-		unsigned char textBColor;
+		SGE::Display::Video::pixel regularColor;
 
 		//Highlight Text Color
-		unsigned char highlightTextRColor;
-		unsigned char highlightTextGColor;
-		unsigned char highlightTextBColor;
+		SGE::Display::Video::pixel highlightTextColor;
 
 		Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, int targetNumberOfSelections, char** targetMenuItems);
 

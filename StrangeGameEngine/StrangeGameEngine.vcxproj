@@ -77,8 +77,8 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\GLFW\include;..\PortAudio\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <AdditionalIncludeDirectories>..\GLFW\include;..\PortAudio\include;..\GLEW\include</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>GLEW_STATIC;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <CLanguageStandard>gnu11</CLanguageStandard>
       <CppLanguageStandard>gnu++1y</CppLanguageStandard>
@@ -91,8 +91,8 @@
       <AdditionalDependencies>portaudio_x86.lib;glfw3.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
-      <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\lib;</AdditionalLibraryDirectories>
-      <AdditionalDependencies>portaudio.lib;glfw3.lib;opengl32.lib;</AdditionalDependencies>
+      <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\lib;..\GLEW\lib\Release\Win32;</AdditionalLibraryDirectories>
+      <AdditionalDependencies>portaudio.lib;glfw3.lib;opengl32.lib;glew32s.lib</AdditionalDependencies>
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>

@@ -68,14 +68,413 @@ namespace SGE
 			int y;
 		};
 
-		//Structure to handle Color Data
-		struct ColorInfo
+
+		//
+		//  Pixels, Colors, and other Visual bits!
+		//
+
+		//
+		//  Color Format
+		//
+
+
+		//  32-bit Unsigned Int
+		//     XX BB GG RR
+		//  0x 00 00 00 00
+		//  
+		//  xx = Extra Data	- In theory it is supposed to be used for texture transparency, but that is disabled in OpenGL.  But can be used for others things now.
+		//  BB = Blue Data
+		//  GG = Green Data
+		//  RR = Red Data
+
+
+		namespace Colors
 		{
-			unsigned char red;
-			unsigned char green;
-			unsigned char blue;
-			unsigned char xData;
-		};
+			//
+			//Classic Named Colors from 3/4 bit days
+			//
+			namespace Named
+			{
+				//
+				//  Values in use are from the standard defined for PuTTY
+				//  Because I like PuTTY
+				//  So there...
+				//
+
+				//  Regular Colors
+				//  Data Formating Notes						  XXBBGGRR
+				const SGE::Display::Video::pixel Black = 0x00000000;
+				const SGE::Display::Video::pixel Red = 0x000000BB;
+				const SGE::Display::Video::pixel Green = 0x0000BB00;
+				const SGE::Display::Video::pixel Yellow = 0x0000BBBB;
+				const SGE::Display::Video::pixel Blue = 0x00BB0000;
+				const SGE::Display::Video::pixel Magenta = 0x00BB00BB;
+				const SGE::Display::Video::pixel Cyan = 0x00BBBB00;
+				const SGE::Display::Video::pixel White = 0x00BBBBBB;
+
+				//  Bright Colors
+				//  Data Formating Notes						  XXBBGGRR
+				const SGE::Display::Video::pixel BrightBlack = 0x00555555;
+				const SGE::Display::Video::pixel BrightRed = 0x005555FF;
+				const SGE::Display::Video::pixel BrightGreen = 0x0055FF55;
+				const SGE::Display::Video::pixel BrightYellow = 0x0055FFFF;
+				const SGE::Display::Video::pixel BrightBlue = 0x00FF5555;
+				const SGE::Display::Video::pixel BrightMagenta = 0x00FF55FF;
+				const SGE::Display::Video::pixel BrightCyan = 0x00FFFF55;
+				const SGE::Display::Video::pixel BrightWhite = 0x00FFFFFF;
+			}
+
+
+			//
+			// 3 - 4 Bit Color Mode Map (8/16 Colors)
+			//
+
+			const SGE::Display::Video::pixel ColorMode4Bit[16] =
+			{
+				//Regular Colors
+				//XXBBGGRR		Name				Hex		Bit Field
+				0x00000000,		//Black				0		0000
+				0x000000BB,		//Red				1		0001
+				0x0000BB00,		//Green				2		0010
+				0x0000BBBB,		//Yellow			3		0011
+				0x00BB0000,		//Blue				4		0100
+				0x00BB00BB,		//Magenta			5		0101
+				0x00BBBB00,		//Cyan				6		0110
+				0x00BBBBBB,		//White				7		0111
+
+				//Bright Colors
+				//XXBBGGRR							Hex		Bit Field
+				0x00555555,		//Bright Black		8		1000
+				0x005555FF,		//Bright Red		9		1001
+				0x0055FF55,		//Bright Green		A		1010
+				0x0055FFFF,		//Bright Yellow		B		1011
+				0x00FF5555,		//Bright Blue		C		1100
+				0x00FF55FF,		//Bright Magenta	D		1101
+				0x00FFFF55,		//Bright Cyan		E		1110
+				0x00FFFFFF		//Bright White		F		1111
+			};
+
+
+			//
+			//  256 Color Mode Map
+			//
+
+			//  These colors were dervied from Wikipedia under ANSI escape codes
+			//  May be tweaked for effect later
+			//	Leaving them alone for now
+
+			const SGE::Display::Video::pixel ColorMode8Bit[256] =
+			{
+				//Standard Colors (0-7)
+				//XXBBGGRR		//Hex	//Dec
+				0x00000000,		//00	000
+				0x00000080,		//01	001
+				0x00008000,		//02	002
+				0x00008080,		//03	003
+				0x00800000,		//04	004
+				0x00800080,		//05	005
+				0x00808000,		//06	006
+				0x00c0c0c0,		//07	007
+
+				//High-Insensity Colors (8-15)
+				//XXBBGGRR
+				0x00808080,		//08	008
+				0x000000FF,		//09	009
+				0x0000FF00,		//0A	010
+				0x0000FFFF,		//0B	011
+				0x00FF0000,		//0C	012
+				0x00FF00FF,		//0D	013
+				0x00FFFF00,		//0E	014
+				0x00FFFFFF,		//0F	015
+
+				//216 Colors (16-231)
+				//XXBBGGRR		//Hex
+				0x00000000,		//10	016
+				0x005F0000,		//11	017
+				0X00870000,		//12	018
+				0X00AF0000,		//13	019
+				0x00D70000,		//14	020
+				0x00FF0000,		//15	021
+
+				0x00005F00,		//16	022
+				0x005F5F00,		//17	023
+				0x00875F00,		//18	024
+				0x00AF5F00,		//19	025
+				0x00D75F00,		//1A	026
+				0x00FF5F00,		//1B	027
+
+				0x00008700,		//1C	028
+				0x005F8700,		//1D	029
+				0x00878700,		//1E	030
+				0x00AF8700,		//1F	031
+				0x00D78700,		//20	032
+				0x00FF8700,		//21	033
+
+				0x0000AF00,		//22	034
+				0x005FAF00,		//23	035
+				0x0087AF00,		//24	036
+				0x00AFAF00,		//25	037
+				0x00D7AF00,		//26	038
+				0x00FFAF00,		//27	039
+
+				0x0000D700,		//28	040
+				0x005FD700,		//29	041
+				0x0087D700,		//2A	042
+				0x00AFD700,		//2B	043
+				0x00D7D700,		//2C	044
+				0x00FFD700,		//2D	045
+
+				0x0000FF00,		//2E	046
+				0x005FFF00,		//2F	047
+				0x0087FF00,		//30	048
+				0x00AFFF00,		//31	049
+				0x00D7FF00,		//32	050
+				0x00FFFF00,		//33	051
+
+				//XXBBGGRR		//Hex
+				0x0000005F,		//34	052
+				0x005F005F,		//35	053
+				0X0087005F,		//36	054
+				0X00AF005F,		//37	055
+				0x00D7005F,		//38	056
+				0x00FF005F,		//39	057
+		
+				0x00005F5F,		//3A	058
+				0x005F5F5F,		//3B	059
+				0x00875F5F,		//3C	060
+				0x00AF5F5F,		//3D	061
+				0x00D75F5F,		//3E	062
+				0x00FF5F5F,		//3F	063
+
+				0x0000875F,		//40	064
+				0x005F875F,		//41	065
+				0x0087875F,		//42	066
+				0x00AF875F,		//43	067
+				0x00D7875F,		//44	068
+				0x00FF875F,		//45	069
+
+				0x0000AF5F,		//46	070
+				0x005FAF5F,		//47	071
+				0x0087AF5F,		//48	072
+				0x00AFAF5F,		//49	073
+				0x00D7AF5F,		//4A	074
+				0x00FFAF5F,		//4B	075
+
+				0x0000D75F,		//4C	076
+				0x005FD75F,		//4D	077
+				0x0087D75F,		//4E	078
+				0x00AFD75F,		//4F	079
+				0x00D7D75F,		//50	080
+				0x00FFD75F,		//51	081
+
+				0x0000FF5F,		//52	082
+				0x005FFF5F,		//53	083
+				0x0087FF5F,		//54	084
+				0x00AFFF5F,		//55	085
+				0x00D7FF5F,		//56	086
+				0x00FFFF5F,		//57	087
+
+				//XXBBGGRR		//Hex
+				0x00000087,		//58	088
+				0x005F0087,		//59	089
+				0X00870087,		//5A	090
+				0X00AF0087,		//5B	091
+				0x00D70087,		//5C	092
+				0x00FF0087,		//5D	093
+
+				0x00005F87,		//5E	094
+				0x005F5F87,		//5F	095
+				0x00875F87,		//60	096
+				0x00AF5F87,		//61	097
+				0x00D75F87,		//62	098
+				0x00FF5F87,		//63	099
+
+				0x00008787,		//64	100
+				0x005F8787,		//65	101
+				0x00878787,		//66	102
+				0x00AF8787,		//67	103
+				0x00D78787,		//68	104
+				0x00FF8787,		//69	105
+
+				0x0000AF87,		//6A	106
+				0x005FAF87,		//6B	107
+				0x0087AF87,		//6C	108
+				0x00AFAF87,		//6D	109
+				0x00D7AF87,		//6E	110
+				0x00FFAF87,		//6F	111
+
+				0x0000D787,		//70	112
+				0x005FD787,		//71	113
+				0x0087D787,		//72	114
+				0x00AFD787,		//73	115
+				0x00D7D787,		//74	116
+				0x00FFD787,		//75	117
+
+				0x0000FF87,		//76	118
+				0x005FFF87,		//77	119
+				0x0087FF87,		//78	120
+				0x00AFFF87,		//79	121
+				0x00D7FF87,		//7A	122
+				0x00FFFF87,		//7B	123
+
+				//XXBBGGRR		//Hex
+				0x000000AF,		//7C	124
+				0x005F00AF,		//7D	125
+				0X008700AF,		//7E	126
+				0X00AF00AF,		//7F	127
+				0x00D700AF,		//80	128
+				0x00FF00AF,		//81	129
+
+				0x00005FAF,		//82	130
+				0x005F5FAF,		//83	131
+				0x00875FAF,		//84	132
+				0x00AF5FAF,		//85	133
+				0x00D75FAF,		//86	134
+				0x00FF5FAF,		//87	135
+
+				0x000087AF,		//88	136
+				0x005F87AF,		//89	137
+				0x008787AF,		//8A	138
+				0x00AF87AF,		//8B	139
+				0x00D787AF,		//8C	140
+				0x00FF87AF,		//8D	141
+
+				0x0000AFAF,		//8E	142
+				0x005FAFAF,		//8F	143
+				0x0087AFAF,		//90	144
+				0x00AFAFAF,		//91	145
+				0x00D7AFAF,		//92	146
+				0x00FFAFAF,		//93	147
+
+				0x0000D7AF,		//94	148
+				0x005FD7AF,		//95	149
+				0x0087D7AF,		//96	150
+				0x00AFD7AF,		//97	151
+				0x00D7D7AF,		//98	152
+				0x00FFD7AF,		//99	153
+
+				0x0000FFAF,		//9A	154
+				0x005FFFAF,		//9B	155
+				0x0087FFAF,		//9C	156
+				0x00AFFFAF,		//9D	157
+				0x00D7FFAF,		//9E	158
+				0x00FFFFAF,		//9F	159
+
+				//XXBBGGRR		//Hex
+				0x000000D7,		//A0	160
+				0x005F00D7,		//A1	161
+				0X008700D7,		//A2	162
+				0X00AF00D7,		//A3	163
+				0x00D700D7,		//A4	164
+				0x00FF00D7,		//A5	165
+
+				0x00005FD7,		//A6	166
+				0x005F5FD7,		//A7	167
+				0x00875FD7,		//A8	168
+				0x00AF5FD7,		//A9	169
+				0x00D75FD7,		//AA	170
+				0x00FF5FD7,		//AB	171
+
+				0x000087D7,		//AC	172
+				0x005F87D7,		//AD	173
+				0x008787D7,		//AE	174
+				0x00AF87D7,		//AF	175
+				0x00D787D7,		//B0	176
+				0x00FF87D7,		//B1	177
+
+				0x0000AFD7,		//B2	178
+				0x005FAFD7,		//B3	179
+				0x0087AFD7,		//B4	180
+				0x00AFAFD7,		//B5	181
+				0x00D7AFD7,		//B6	182
+				0x00FFAFD7,		//B7	183
+
+				0x0000D7D7,		//B8	184
+				0x005FD7D7,		//B9	185
+				0x0087D7D7,		//BA	186
+				0x00AFD7D7,		//BB	187
+				0x00D7D7D7,		//BC	188
+				0x00FFD7D7,		//BD	189
+
+				0x0000FFD7,		//BE	190
+				0x005FFFD7,		//BF	191
+				0x0087FFD7,		//C0	192
+				0x00AFFFD7,		//C1	193
+				0x00D7FFD7,		//C2	194
+				0x00FFFFD7,		//C3	195
+
+				//XXBBGGRR		//Hex
+				0x000000FF,		//C4	196
+				0x005F00FF,		//C5	197
+				0X008700FF,		//C6	198
+				0X00AF00FF,		//C7	199
+				0x00D700FF,		//C8	200
+				0x00FF00FF,		//C9	201
+
+				0x00005FFF,		//CA	202
+				0x005F5FFF,		//CB	203
+				0x00875FFF,		//CC	204
+				0x00AF5FFF,		//CD	205
+				0x00D75FFF,		//CE	206
+				0x00FF5FFF,		//CF	207
+
+				0x000087FF,		//D0	208
+				0x005F87FF,		//D1	209
+				0x008787FF,		//D2	210
+				0x00AF87FF,		//D3	211
+				0x00D787FF,		//D4	212
+				0x00FF87FF,		//D5	213
+
+				0x0000AFFF,		//D6	214
+				0x005FAFFF,		//D7	215
+				0x0087AFFF,		//D8	216
+				0x00AFAFFF,		//D9	217
+				0x00D7AFFF,		//DA	218
+				0x00FFAFFF,		//DB	219
+
+				0x0000D7FF,		//DC	220
+				0x005FD7FF,		//DD	221
+				0x0087D7FF,		//DE	222
+				0x00AFD7FF,		//DF	223
+				0x00D7D7FF,		//E0	224
+				0x00FFD7FF,		//E1	225
+
+				0x0000FFFF,		//E2	226
+				0x005FFFFF,		//E3	227
+				0x0087FFFF,		//E4	228
+				0x00AFFFFF,		//E5	229
+				0x00D7FFFF,		//E6	230
+				0x00FFFFFF,		//E7	231
+
+				//Grayscale Colors (232-255)
+				//XXBBGGRR		//Hex
+				0x00080808,		//E8	232
+				0x00121212,		//E9	233
+				0x001C1C1C,		//EA	234
+				0x00262626,		//EB	235
+				0x00303030,		//EC	236
+				0x003A3A3A,		//ED	237
+				0x00444444,		//EE	238
+				0x004E4E4E,		//EF	239
+				0x00585858,		//F0	240
+				0x00626262,		//F1	241
+				0x006C6C6C,		//F2	242
+				0x00767676,		//F3	243
+				0x00808080,		//F4	244
+				0x008A8A8A,		//F5	245
+				0x00949494,		//F6	246
+				0x009E9E9E,		//F7	247
+				0x00A8A8A8,		//F8	248
+				0x00B2B2B2,		//F9	249
+				0x00BCBCBC,		//FA	250
+				0x00C6C6C6,		//FB	251
+				0x00D0D0D0,		//FC	252
+				0x00DADADA,		//FD	253
+				0x00E4E4E4,		//FE	254
+				0x00EEEEEE		//FF	255
+			};
+
+		}
 
 		class AnimationBlock
 		{
@@ -123,10 +522,10 @@ namespace SGE
 
 
 		//Draw a character to the screen
-		void Draw8x8Character(char character, const unsigned long long characterROM[], int targetX, int targetY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void Draw8x8Character(char character, const unsigned long long characterROM[], int targetX, int targetY, SGE::Display::Video::pixel color);
 
 		//Draw a string of characters to the screen, from a null terminated string
-		void DrawString(char* characters, const unsigned long long characterROM[], int characterSpacing, int targetX, int targetY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawString(char* characters, const unsigned long long characterROM[], int characterSpacing, int targetX, int targetY, SGE::Display::Video::pixel color);
 
 		//Draw a block of data from a source to target video ram
 		void DrawDataBlock(int targetX, int targetY, int sourceWidth, int sourceHeight, unsigned int* sourceDataBlock);
@@ -135,37 +534,39 @@ namespace SGE
 		inline bool PruneLine(int& startX, int& startY, int& endX, int& endY);
 
 		//Draw a line from one point to another
-		void DrawLine(int startX, int startY, int endX, int endY, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawLine(int startX, int startY, int endX, int endY, SGE::Display::Video::pixel color);
 
 		//Draw a rectangle
-		void DrawRectangle(int startX, int startY, int width, int height, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawRectangle(int startX, int startY, int width, int height, SGE::Display::Video::pixel color);
 
 		//Draw a filled box
-		void DrawBox(int startX, int startY, int width, int height, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawBox(int startX, int startY, int width, int height, SGE::Display::Video::pixel color);
 
 		//Blank the video ram with zero alpha black.  Or the blackest of blacks... it's like you can't get any blacker.
 		void ZBlank();
 
 		//Pack the byte colors in to a 4 byte pixel to use.
-		unsigned int PackColors(unsigned char redValue, unsigned char greenValue, unsigned char blueValue);
+		SGE::Display::Video::pixel PackColors(unsigned char redValue, unsigned char greenValue, unsigned char blueValue);
 
 		//Arbitrary Vector Shape drawing
-		void DrawVectorShape(int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawVectorShape(int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], SGE::Display::Video::pixel color);
 
 		//Draw a filled triangle
-		void DrawFilledTriangleTrue(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawFilledTriangleTrue(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color);
 
 		//Draw a filled triangle (New method)
-		void DrawFilledTriangleFast(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawFilledTriangleFast(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color);
 
 		//Draw a list of triangles
-		void DrawFilledTriangles(int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, unsigned char rColor, unsigned char gColor, unsigned char bColor);
+		void DrawFilledTriangles(int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, SGE::Display::Video::pixel color);
 
 		//
 		const int DRAWING_DECIMAL_RESOLUTION = 1000;
 
+		//
+		//  Character ROM for an 8x8 character set
+		//
 
-		//Character ROM for an 8x8 character set
 		//The 8x8 Character ROM that maps to the extendned ASCII standard
 		//Each 64-bit unsigned is a 8x8 bit array
 		//     0 1 2 3 4 5 6 7 MSB

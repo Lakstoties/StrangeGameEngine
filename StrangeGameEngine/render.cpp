@@ -11,9 +11,7 @@ namespace SGE
 			int characterSpacing,						//The amount space to give each character, standard spacing is 8 to go along with the 8X8 character size
 			int targetX,								//Target X location to start drawing from (Upper Left Corner)
 			int targetY,								//Target Y location to start drawing from (Upper Left Corner)
-			unsigned char rColor,						//8-bit (0-255) Red component of the character color
-			unsigned char gColor,						//8-bit (0-255) Green component of the character color
-			unsigned char bColor)						//8-bit (0-255) Blue component of the character color
+			SGE::Display::Video::pixel targetColor) 		//Target pixel data for the color
 		{
 			//Initialize the stringPosition to the starting point for any string.
 			int stringPosition = 0;
@@ -22,7 +20,7 @@ namespace SGE
 			while (characters[stringPosition] != 0)
 			{
 				//Call the Draw the 8x8 character
-				Draw8x8Character(characters[stringPosition], characterROM, targetX + stringPosition*characterSpacing, targetY, rColor, gColor, bColor);
+				Draw8x8Character(characters[stringPosition], characterROM, targetX + stringPosition*characterSpacing, targetY, targetColor);
 
 				//Move to the next position in the string
 				stringPosition++;
@@ -35,19 +33,14 @@ namespace SGE
 			const unsigned long long characterROM[],	//64-bit Character ROM array to map characters against
 			int targetX,								//Target X location to start drawing from (Upper Left Corner)
 			int targetY,								//Target Y location to start drawing from (Upper Left Corner)
-			unsigned char rColor,						//8-bit (0-255) Red component of the character color
-			unsigned char gColor,						//8-bit (0-255) Green component of the character color
-			unsigned char bColor)						//8-bit (0-255) Blue component of the character color
+			SGE::Display::Video::pixel targetColor)		//Target pixel data for the color
 		{
 			//Get a pointer to what we are interested in.
 			//Cast down to an unsigned char so to work with 8-bit at a time of the 64-bit
 			unsigned char* characterToDraw = (unsigned char*)&characterROM[(unsigned char)character];
 
 			//Get the RAM position to start writing to in Video RAM
-			unsigned int* currentRAMPointer = &SGE::Display::Video::RAM[targetX + (targetY * SGE::Display::Video::ResolutionX)];
-
-			//Pack the colors into pixel format
-			unsigned int targetColor = PackColors(rColor, gColor, bColor);
+			SGE::Display::Video::pixel* currentRAMPointer = &SGE::Display::Video::RAM[targetX + (targetY * SGE::Display::Video::ResolutionX)];
 
 			//Check the whole character to see if there's anything to draw at all...
 			//Or if the thing is blank
@@ -94,7 +87,7 @@ namespace SGE
 			for (int i = 0; i < sourceHeight; i++)
 			{
 				//Copy of row from the source over to the target
-				std::memcpy(&SGE::Display::Video::RAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * sizeof(unsigned int));
+				std::memcpy(&SGE::Display::Video::RAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * sizeof(SGE::Display::Video::pixel));
 
 				//Increment to the next row in the display
 				targetRAM += SGE::Display::Video::ResolutionX;
@@ -109,11 +102,8 @@ namespace SGE
 			int startY,
 			int endX,
 			int endY,
-			unsigned char red,
-			unsigned char green,
-			unsigned char blue)
+			SGE::Display::Video::pixel color)
 		{
-			unsigned int pixelColor = PackColors(red, green, blue);		//Pixel Color data, packed together.
 			int ramPosition = 0;										//Position in Video RAM
 			float deltaXY = 0.0f;
 
@@ -163,7 +153,7 @@ namespace SGE
 				//Draw the line
 				for (int i = 0; (i <= deltaX); i++)
 				{
-					SGE::Display::Video::RAM[ramPosition + i + int(i * deltaXY) * SGE::Display::Video::ResolutionX] = pixelColor;
+					SGE::Display::Video::RAM[ramPosition + i + int(i * deltaXY) * SGE::Display::Video::ResolutionX] = color;
 				}
 			}
 
@@ -199,7 +189,7 @@ namespace SGE
 				//Draw the line
 				for (int i = 0; (i <= deltaY); i++)
 				{
-					SGE::Display::Video::RAM[ramPosition + (i * SGE::Display::Video::ResolutionX) + int(i * deltaXY)] = pixelColor;
+					SGE::Display::Video::RAM[ramPosition + (i * SGE::Display::Video::ResolutionX) + int(i * deltaXY)] = color;
 				}
 			}
 		}
@@ -300,9 +290,7 @@ namespace SGE
 			int startY,								//Starting Y to draw from (Upper Left Corner)
 			int width,								//Width of rectangle to draw
 			int height,								//Height of rectangle to draw
-			unsigned char rColor,					//8-bit (0-255) Red color component
-			unsigned char gColor,					//8-bit (0-255) Green color component
-			unsigned char bColor)					//8-bit (0-255) Blue color component
+			SGE::Display::Video::pixel color)		//Pixel color data to use
 		{
 
 			//
@@ -373,25 +361,22 @@ namespace SGE
 			//
 
 			//Figure out the top and bottom row start positions in video ram
-			unsigned int* topLeftRAMPointer = &SGE::Display::Video::RAM[startX + (startY * SGE::Display::Video::ResolutionX)];
-			unsigned int* bottomLeftRAMPointer = &SGE::Display::Video::RAM[startX + ((startY + height - 1) * SGE::Display::Video::ResolutionX)];
-			unsigned int* topRightRAMPointer = &topLeftRAMPointer[width - 1];
-
-			//Pack up the colors
-			unsigned int lineColor = PackColors(rColor, gColor, bColor);
+			SGE::Display::Video::pixel* topLeftRAMPointer = &SGE::Display::Video::RAM[startX + (startY * SGE::Display::Video::ResolutionX)];
+			SGE::Display::Video::pixel* bottomLeftRAMPointer = &SGE::Display::Video::RAM[startX + ((startY + height - 1) * SGE::Display::Video::ResolutionX)];
+			SGE::Display::Video::pixel* topRightRAMPointer = &topLeftRAMPointer[width - 1];
 
 			//Start the rows
 			for (int i = 0; i < width; i++)
 			{
-				bottomLeftRAMPointer[i] = lineColor;
-				topLeftRAMPointer[i] = lineColor;
+				bottomLeftRAMPointer[i] = color;
+				topLeftRAMPointer[i] = color;
 			}
 
 			//Start the columns
 			for (int i = 0; i < height * SGE::Display::Video::ResolutionX; i += SGE::Display::Video::ResolutionX)
 			{
-				topRightRAMPointer[i] = lineColor;
-				topLeftRAMPointer[i] = lineColor;
+				topRightRAMPointer[i] = color;
+				topLeftRAMPointer[i] = color;
 			}
 		}
 
@@ -402,9 +387,7 @@ namespace SGE
 			int startY,								//Starting Y to draw from (Upper Left Corner)
 			int width,								//Width of box to draw
 			int height,								//Height of box to draw
-			unsigned char rColor,					//8-bit (0-255) Red color component
-			unsigned char gColor,					//8-bit (0-255) Green color component
-			unsigned char bColor)					//8-bit (0-255) Blue color component
+			SGE::Display::Video::pixel color)		//Pixel color data
 		{
 			//Check for boxes we cannot draw...
 			if ((startX + width < 0) ||						//If the X never graces the +x, +y quadrant
@@ -441,23 +424,20 @@ namespace SGE
 			}
 
 			//Get the starting point in video RAM based on desired location and size of the display
-			unsigned int* targetRAMPointer = &SGE::Display::Video::RAM[(startX + (startY * SGE::Display::Video::ResolutionX))];
-
-			//Pack the colors up
-			unsigned int targetColor = PackColors(rColor, gColor, bColor);
+			SGE::Display::Video::pixel* targetRAMPointer = &SGE::Display::Video::RAM[(startX + (startY * SGE::Display::Video::ResolutionX))];
 
 			//Draw the first row
 			for (int i = 0; i < width; i++)
 			{
 				//Copy the color into video ram
-				targetRAMPointer[i] = targetColor;
+				targetRAMPointer[i] = color;
 			}
 
 			//Loop through the remaining rows
 			for (int i = SGE::Display::Video::ResolutionX; i < height * SGE::Display::Video::ResolutionX; i += SGE::Display::Video::ResolutionX)
 			{
 				//Copy the first row to the rest of the rows
-				std::memcpy(&targetRAMPointer[i], targetRAMPointer, width * sizeof(unsigned int));
+				std::memcpy(&targetRAMPointer[i], targetRAMPointer, width * sizeof(SGE::Display::Video::pixel));
 			}
 		}
 
@@ -465,7 +445,7 @@ namespace SGE
 		void ZBlank()
 		{
 			//Memset for the win!!
-			std::memset(SGE::Display::Video::RAM, 0, SGE::Display::Video::RAMSize * sizeof(unsigned int));
+			std::memset(SGE::Display::Video::RAM, 0, SGE::Display::Video::RAMSize * sizeof(SGE::Display::Video::pixel));
 		}
 
 		//Packs the Red, Green, and Blue 8-bit components with a dummy Alpha value into a 32-bit unsigned int
@@ -481,7 +461,7 @@ namespace SGE
 
 
 
-		void DrawVectorShape(int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], unsigned char rColor, unsigned char gColor, unsigned char bColor)
+		void DrawVectorShape(int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], SGE::Display::Video::pixel color)
 		{
 			//Go through the vertex point list and draw lines
 			for (int i = 0; i < numberOfVertexes; i++)
@@ -492,13 +472,11 @@ namespace SGE
 					startY + int((vertexes[i].y) * scalingFactor),
 					startX + int((vertexes[(i + 1) % numberOfVertexes].x) * scalingFactor),
 					startY + int((vertexes[(i + 1) % numberOfVertexes].y) * scalingFactor),
-					rColor,
-					gColor,
-					bColor);
+					color);
 			}
 		}
 
-		void DrawFilledTriangles(int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, unsigned char rColor, unsigned char gColor, unsigned char bColor)
+		void DrawFilledTriangles(int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, SGE::Display::Video::pixel color)
 		{
 			//Figure out how many full triangle we have
 			int numberOfFullTriangles = numberOfVertexes / 3;
@@ -506,18 +484,14 @@ namespace SGE
 
 			for (int i = 0; i < numberOfVertexesToUse; i = i + 3)
 			{
-				DrawFilledTriangleFast(startX, startY, scalingFactor, vertexArray[i], vertexArray[i + 1], vertexArray[i + 2], rColor, gColor, bColor);
-				//DrawFilledTriangleTrue(targetDisplay, startX, startY, scalingFactor, vertexArray[i], vertexArray[i + 1], vertexArray[i + 2], rColor, gColor, bColor);
+				DrawFilledTriangleFast(startX, startY, scalingFactor, vertexArray[i], vertexArray[i + 1], vertexArray[i + 2], color);
 			}
 		}
 
 		//Uses a variant of the Bresenham algorithm to calculate the two X points along the X-axis for each Y
 		//Then mass memcpys from a created pixel buffer to fill in the gaps.
-		void DrawFilledTriangleFast(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor)
+		void DrawFilledTriangleFast(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color)
 		{
-			//Pack the colors up
-			unsigned int targetColor = PackColors(rColor, gColor, bColor);
-
 			//Pixel Buffer to mass copy memory from
 			int targetPixelBufferSize = 0;
 
@@ -668,7 +642,7 @@ namespace SGE
 			//Load up the Row Buffer
 			for (int i = 0; i < targetPixelBufferSize && i < SGE::Display::Video::ResolutionX; i++)
 			{
-				SGE::Display::Video::RowBuffer[i] = targetColor;
+				SGE::Display::Video::RowBuffer[i] = color;
 			}
 
 
@@ -695,9 +669,8 @@ namespace SGE
 				int currentTopToMiddleX = topVertex.x + ((currentScreenY - topVertex.y) * topToMiddleLineDelta);
 				
 				//Check for any out of bounds issues and correct
-				//Short circuit logic
-				(currentTopToMiddleX < 0) && (currentTopToMiddleX = 0);																		//Check to see if currentTopToBottomX is negative
-				(currentTopToMiddleX >= SGE::Display::Video::ResolutionX) && (currentTopToMiddleX = SGE::Display::Video::ResolutionX - 1);	//Check to see if currentTopToBottomX is beyond the resolution
+				if (currentTopToMiddleX < 0) { currentTopToMiddleX = 0; }																		//Check to see if currentTopToBottomX is negative
+				if (currentTopToMiddleX >= SGE::Display::Video::ResolutionX) { currentTopToMiddleX = SGE::Display::Video::ResolutionX - 1; }	//Check to see if currentTopToBottomX is beyond the resolution
 
 				//
 				//  Figure out Top-To-Bottom line point
@@ -706,9 +679,8 @@ namespace SGE
 				int currentTopToBottomX = topVertex.x + ((currentScreenY - topVertex.y) * topToBottomLineDelta);
 
 				//Check for any out of bounds issues and correct
-				//Short circuit logic
-				(currentTopToBottomX < 0) && (currentTopToBottomX = 0);																		//Check to see if currentTopToBottomX is negative
-				(currentTopToBottomX >= SGE::Display::Video::ResolutionX) && (currentTopToBottomX = SGE::Display::Video::ResolutionX - 1);	//Check to see if currentTopToBottomX is beyond the resolution
+				if (currentTopToBottomX < 0) { currentTopToBottomX = 0; }																		//Check to see if currentTopToBottomX is negative
+				if (currentTopToBottomX >= SGE::Display::Video::ResolutionX) { currentTopToBottomX = SGE::Display::Video::ResolutionX - 1; }	//Check to see if currentTopToBottomX is beyond the resolution
 
 				//
 				//  Figure out dimensions for memory copy operations
@@ -725,7 +697,7 @@ namespace SGE
 				//And how much
 				int copyRowLength = currentTopToBottomX - currentTopToMiddleX;
 				
-				//Short circuit logic for sign flip
+				//Logic for sign flip
 				if (copyRowLength < 0) { (copyRowLength = -copyRowLength); }
 
 				//Add a little extra
@@ -737,7 +709,7 @@ namespace SGE
 
 				std::memcpy(&SGE::Display::Video::RAM[copyRowDestination],		//In Video RAM
 						&SGE::Display::Video::RowBuffer[copyRowSource],			//From the Row Buffer
-						sizeof(unsigned int) * copyRowLength);
+						sizeof(SGE::Display::Video::pixel) * copyRowLength);
 			}
 
 			//
@@ -759,9 +731,8 @@ namespace SGE
 				int currentMiddleToBottom = middleVertex.x + ((currentScreenY - middleVertex.y) * middleToBottomLineDelta);
 
 				//Check for any out of bounds issues and correct
-				//Short circuit logic
-				(currentMiddleToBottom < 0) && (currentMiddleToBottom = 0);																		//Check to see if currentTopToBottomX is negative
-				(currentMiddleToBottom >= SGE::Display::Video::ResolutionX) && (currentMiddleToBottom = SGE::Display::Video::ResolutionX - 1);	//Check to see if currentTopToBottomX is beyond the resolution
+				if (currentMiddleToBottom < 0) { currentMiddleToBottom = 0; }																		//Check to see if currentTopToBottomX is negative
+				if (currentMiddleToBottom >= SGE::Display::Video::ResolutionX) { currentMiddleToBottom = SGE::Display::Video::ResolutionX - 1; }	//Check to see if currentTopToBottomX is beyond the resolution
 
 				//
 				//  Figure out Top-To-Bottom line point
@@ -770,9 +741,8 @@ namespace SGE
 				int currentTopToBottomX = topVertex.x + ((currentScreenY - topVertex.y) * topToBottomLineDelta);
 
 				//Check for any out of bounds issues and correct
-				//Short circuit logic
-				(currentTopToBottomX < 0) && (currentTopToBottomX = 0);																		//Check to see if currentTopToBottomX is negative
-				(currentTopToBottomX >= SGE::Display::Video::ResolutionX) && (currentTopToBottomX = SGE::Display::Video::ResolutionX - 1);	//Check to see if currentTopToBottomX is beyond the resolution
+				if (currentTopToBottomX < 0) { currentTopToBottomX = 0; }																			//Check to see if currentTopToBottomX is negative
+				if (currentTopToBottomX >= SGE::Display::Video::ResolutionX) { currentTopToBottomX = SGE::Display::Video::ResolutionX - 1; }		//Check to see if currentTopToBottomX is beyond the resolution
 
 				//
 				//  Figure out dimensions for memory copy operations
@@ -789,7 +759,7 @@ namespace SGE
 																																												//And how much
 				int copyRowLength = currentTopToBottomX - currentMiddleToBottom;
 
-				//Short circuit logic for sign flip
+				//Logic for sign flip
 				if (copyRowLength < 0) { (copyRowLength = -copyRowLength); }
 
 				copyRowLength++;
@@ -800,7 +770,7 @@ namespace SGE
 
 				std::memcpy(&SGE::Display::Video::RAM[copyRowDestination],	//In Video RAM
 					&SGE::Display::Video::RowBuffer[copyRowSource],			//From the Row Buffer
-					sizeof(unsigned int) * copyRowLength);
+					sizeof(SGE::Display::Video::pixel) * copyRowLength);
 			}
 		}
 
@@ -808,11 +778,8 @@ namespace SGE
 		//Uses the Barycentric Algorithm to calculate what pixels are within a defined triangle
 		//Accurate and true.... but expensive as can be computationally
 		//Useful for double checking the Fast Triangle draw function.
-		void DrawFilledTriangleTrue(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, unsigned char rColor, unsigned char gColor, unsigned char bColor)
+		void DrawFilledTriangleTrue(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color)
 		{
-			//Pack the colors up into something useful
-			unsigned int targetColor = PackColors(rColor, gColor, bColor);
-
 			//Apply offsets and scaling
 			vertex1.x = int(vertex1.x * scalingFactor + startX);
 			vertex1.y = int(vertex1.y * scalingFactor + startY);
@@ -913,7 +880,7 @@ namespace SGE
 						partialProductY31 - partialProductX31 >= 0)
 					{
 						//Copy the color over.
-						SGE::Display::Video::RAM[x + (y*SGE::Display::Video::ResolutionX)] = targetColor;
+						SGE::Display::Video::RAM[x + (y*SGE::Display::Video::ResolutionX)] = color;
 					}
 					//Increment the partial product
 					partialProductX12 += spanningVector12.y;

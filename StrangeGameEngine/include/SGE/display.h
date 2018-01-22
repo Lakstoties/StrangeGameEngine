@@ -12,14 +12,17 @@ namespace SGE
 	{
 		namespace Video
 		{
+			//Pixel data format
+			typedef unsigned int pixel;
+
 			//The virtual video RAM.  Public accessible to allow other components to write to it directly.
-			extern unsigned int* RAM;
+			extern pixel* RAM;
 
 			//The virtual video Back Buffer.  Another chunk of video ram to use as needed that's the same size as the VideoRAM.
-			extern unsigned int* BackBuffer;
+			extern pixel* BackBuffer;
 
 			//A pixel buffers set to the width of the screen to allow a memory block to use for mass copying pixels to the screen.
-			extern unsigned int* RowBuffer;
+			extern pixel* RowBuffer;
 
 			//The virtual Video RAM size.
 			extern unsigned int RAMSize;
