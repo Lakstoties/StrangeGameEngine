@@ -97,6 +97,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="display.cpp" />
+    <ClCompile Include="fileformats.cpp" />
     <ClCompile Include="gui.cpp" />
     <ClCompile Include="controls.cpp" />
     <ClCompile Include="render.cpp" />
@@ -104,6 +105,7 @@
     <ClCompile Include="sge.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\SGE\fileformats.h" />
     <ClInclude Include="sharedinternal.h" />
     <ClInclude Include="include\SGE\controls.h" />
     <ClInclude Include="include\SGE\display.h" />

@@ -7,60 +7,6 @@ namespace SGE
 {
 	namespace Render
 	{
-		namespace FileFormatStructs
-		{
-			namespace Bitmap
-			{
-				//Bitmap File Header
-				struct BMPFileHeader
-				{
-					char idField[2];				//ID Field,  should be "BM" for Bitmap.
-					unsigned int bmpSize;			//Bitmap file size
-					unsigned short reserved1;		//Reserved data that's application specific
-					unsigned short reserved2;		//Reserved data that's application specific
-					unsigned int offset;			//The offset/address where the bitmap image data can be found.
-				};
-
-				//Basic Bitmap info header... Mostly all the info we really need... hopefully.
-				struct BMPInfoHeader
-				{
-					unsigned int sizeOfHeader;		//Size of the header, used to indicate version of the header used and extended information that may exist
-					int bitmapWidth;				//Width of the bitmap in pixels
-					int bitmapHeight;				//Height of the bitmap in pixels
-					unsigned short colorPanes;		//Number of color panes
-					unsigned short bitsPerPixel;	//Bits per pixel or color depth of image
-					unsigned int compressionMethod;	//Compress method in use
-					unsigned int imageSize;			//Size of the raw bitmap data
-					int horizontalResolution;		//Print horizontal resolution
-					int verticalResolution;			//Print vertical resolution
-					unsigned int colorsInPalette;	//Number of colors in the color palette
-					unsigned int importantColors;	//Number of important colors
-				};
-			}
-		}
-
-		//Struct to hold internal image data
-		class ImageData
-		{
-		public:
-			unsigned int height = 0;
-			unsigned int width = 0;
-			unsigned int imageDataSize = 0;
-			unsigned int* imageData = nullptr;
-
-			ImageData();
-			~ImageData();
-		};
-
-		//Class that contains converted bitmap data from a file
-		struct RenderBitmapFile
-		{
-			FileFormatStructs::Bitmap::BMPFileHeader bitmapHeader;
-			FileFormatStructs::Bitmap::BMPInfoHeader bitmapInfo;
-			ImageData image;
-			int LoadFile(char* targetFilename);
-		};
-
 		//Structure to handle simple 2D vertex points
 		struct VertexPoint
 		{

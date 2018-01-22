@@ -498,7 +498,7 @@ void InputTest(bool& testInputRunning)
 
 
 	//Load a bitmap
-	SGE::Render::RenderBitmapFile testBitmap;
+	SGE::FileFormats::Bitmap testBitmap;
 
 	testBitmap.LoadFile((char*)"TestImage.bmp");
 

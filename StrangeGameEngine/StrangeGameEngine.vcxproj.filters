@@ -33,6 +33,9 @@
     <ClCompile Include="sge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="fileformats.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\SGE\controls.h">
@@ -54,6 +57,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\SGE\sge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SGE\fileformats.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
