@@ -12,7 +12,7 @@ namespace SGE
 
 		};
 
-		//Class that contains converted bitmap data from a file
+		//Struct that contains converted bitmap data from a file
 		struct Bitmap
 		{
 			//File Header
@@ -42,5 +42,6 @@ namespace SGE
 			//Function to Load Data
 			int LoadFile(char* targetFilename);
 		};
+
 	}
 }

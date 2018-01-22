@@ -205,7 +205,7 @@ namespace SGE
 			bufferSize = numOfSamples;
 
 			//Get some new some ram for the buffer
-			buffer = new short[bufferSize];
+			buffer = new sampleType[bufferSize];
 
 			//Zero out the buffer to make sure it is clean
 			//Some OSes don't make the ram is clean when given
@@ -216,15 +216,13 @@ namespace SGE
 		}
 
 		//Create a blank buffer, and then load data into it.
-		int SoundSampleBuffer::Load(unsigned int numOfSamples, short *samples)
+		int SoundSampleBuffer::Load(unsigned int numOfSamples, sampleType *samples)
 		{
 			//Get a clean buffer
 			CreateBlankBuffer(numOfSamples);
 
 			//memcpy over the data into the buffer
-			//std::memcpy(buffer, samples, sizeof(short) * bufferSize);
-			//std::copy(samples, samples + numOfSamples, buffer);
-			std::memmove(buffer, samples, sizeof(short) * bufferSize);
+			std::memcpy(buffer, samples, sizeof(sampleType) * bufferSize);
 
 			//Everything should have gone okay...
 			return 0;
@@ -241,7 +239,7 @@ namespace SGE
 			}
 
 			//Otherwise memset the bitch.
-			std::memset(buffer, 0, sizeof(short) * bufferSize);
+			std::memset(buffer, 0, sizeof(sampleType) * bufferSize);
 
 			//Everything happened okay in theory
 			return 0;
@@ -459,8 +457,8 @@ namespace SGE
 			unsigned int currentRightAverageLevel = 0;
 
 			//Recast the output buffers
-			short* outputBufferLeft = ((short**)output)[0];
-			short* outputBufferRight = ((short**)output)[1];
+			sampleType* outputBufferLeft =  ((sampleType**)output)[0];
+			sampleType* outputBufferRight = ((sampleType**)output)[1];
 
 
 			//Check to see if the frame buffer size is bigger than the frame buffers already allocated
@@ -1039,7 +1037,7 @@ namespace SGE
 		//
 		//  Converts sample data from 8 bits to 16
 		//
-		short* ModuleFile::ConvertSample(unsigned char sample)
+		sampleType* ModuleFile::ConvertSample(unsigned char sample)
 		{
 			//Check for a valid sample
 			if (sample > 32)
@@ -1048,7 +1046,7 @@ namespace SGE
 			}
 
 			//Create a buffer to store the converted samples into.
-			short* temp = new short[samples[sample].lengthInWords * 2];
+			sampleType* temp = new sampleType[samples[sample].lengthInWords * 2];
 
 			if (samples[sample].lengthInWords > 1)
 			{
@@ -1056,7 +1054,7 @@ namespace SGE
 				//Store it in the destinationBuffer
 				for (int i = 0; i < (samples[sample].lengthInWords * 2); i++)
 				{
-					temp[i] = short(samples[sample].data[i] << 8);
+					temp[i] = sampleType(samples[sample].data[i] << 8);
 				}
 			}
 
@@ -1132,7 +1130,7 @@ namespace SGE
 				if (modFile.ConvertSampleSize(i) > 2)
 				{
 					//Allocate memory to the size we need.
-					temp = new short[modFile.ConvertSampleSize(i)];
+					temp = new sampleType[modFile.ConvertSampleSize(i)];
 
 					//Convert the sample data
 					temp = modFile.ConvertSample(i);

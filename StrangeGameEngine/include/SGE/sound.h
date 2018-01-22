@@ -7,6 +7,13 @@ namespace SGE
 	namespace Sound
 	{
 		//
+		//  Typedef to define the format used for audio data
+		//
+
+		typedef short sampleType;
+
+
+		//
 		//  Sound System specific constants
 		//
 		//Number of channels for the system
@@ -19,7 +26,7 @@ namespace SGE
 		const int SAMPLE_RATE = 44100;
 
 		//Sound system bit depth
-		const int SAMPLE_BITS = 16;
+		const int SAMPLE_BITS = sizeof(sampleType) << 3;
 
 		//Max frequency that can represented by the Sample Rate
 		const int MAX_FREQUENCY = SAMPLE_RATE / 2;
@@ -347,7 +354,7 @@ namespace SGE
 		{
 		public:
 			//Buffer to contain the samples
-			short *buffer = nullptr;
+			sampleType *buffer = nullptr;
 
 			//Size of the buffer
 			unsigned int bufferSize = 0;
@@ -362,7 +369,7 @@ namespace SGE
 			int CreateBlankBuffer(unsigned int numOfSamples);
 
 			//Create a blank buffer, and then load data into it.
-			int Load(unsigned int numOfSamples, short *samples);
+			int Load(unsigned int numOfSamples, sampleType *samples);
 
 			//Zero out a buffer completely
 			int ZeroBuffer();
@@ -550,7 +557,7 @@ namespace SGE
 			~ModuleFile();
 
 			int LoadFile(char* targetFilename);
-			short* ConvertSample(unsigned char sample);
+			sampleType* ConvertSample(unsigned char sample);
 			unsigned int ConvertSampleSize(unsigned char sample);
 
 		};
@@ -605,7 +612,7 @@ namespace SGE
 
 			int LoadFile(char* targetFilename);
 
-			short** audioData = nullptr;
+			sampleType** audioData = nullptr;
 			unsigned int numberOfSamples = 0;
 			unsigned int numberOfChannels = 0;
 		};
