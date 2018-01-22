@@ -1,17 +1,12 @@
 #pragma once
 #include "render.h"
+#include "sound.h"
 #include "display.h"
 
 namespace SGE
 {
 	namespace FileFormats
 	{
-		//Basic Bitmap info header... Mostly all the info we really need... hopefully.
-		struct InfoHeader
-		{
-
-		};
-
 		//Struct that contains converted bitmap data from a file
 		struct Bitmap
 		{
@@ -43,5 +38,38 @@ namespace SGE
 			int LoadFile(char* targetFilename);
 		};
 
+		struct Wave
+		{
+			//
+			//  Wave File Header  (RIFF Chunk)
+			//
+			char chunkID[4];					//Should be "RIFF" to identify it is a RIFF encoded file
+			unsigned int chunkSize;				//Should be roughly the size of the file minus the 8 bytes for this and the ChunkID
+			char format[4];						//Should be "WAVE" to identify it is a WAVE formatted file
+
+			//
+			//  Format Subchunk Header
+			//
+			char subChunkID[4];				//Sub chunk ID, should be "fmt " (null space)
+			unsigned int subChunkSize;		//Sub chunk size, for PCM should be 16
+
+			//
+			//  Format SubChunk Data
+			//
+			unsigned short audioFormat;			//Audio Format, should be 1 for PCM
+			unsigned short numberOfChannels;	//Number of channels, 1 for Mono, 2 for Stereo, and so forth
+			unsigned int sampleRate;			//Sample rate of the audio data
+			unsigned int byteRate;				//Number of bytes per second:  sampleRate * numberOfChannels * bitsPerSample / 8
+			unsigned short blockAlignment;		//Number of bytes per frame with all channels:  numberOfChannels * bitsPerSamples / 8
+			unsigned short bitsPerSample;		//Bit Depth, 8 = 8 bits, 16 = 16 bits, etc..
+
+			Wave();
+			~Wave();
+
+			int LoadFile(char* targetFilename);
+
+			SGE::Sound::sampleType** audioData = nullptr;
+			unsigned int numberOfSamples = 0;
+		};
 	}
 }

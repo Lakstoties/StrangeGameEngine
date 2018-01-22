@@ -729,7 +729,7 @@ namespace SGE
 			//Read the module file title info
 			//
 
-			readCount = fread(&header.title, 1, 20, moduleFile);
+			readCount = fread(&title, 1, 20, moduleFile);
 			totalReadCount += readCount;
 
 			//DEBUG:  Current number of bytes read
@@ -828,7 +828,7 @@ namespace SGE
 			//Read number of song positions
 			//
 
-			readCount = fread(&header.songPositions, 1, 1, moduleFile);
+			readCount = fread(&songPositions, 1, 1, moduleFile);
 			totalReadCount += readCount;
 
 			//Check to see if we actually read enough bytes
@@ -855,7 +855,7 @@ namespace SGE
 			//Read the pattern table
 			//
 
-			readCount = fread(&header.patternTable, 1, 128, moduleFile);
+			readCount = fread(&patternTable, 1, 128, moduleFile);
 			totalReadCount += readCount;
 
 			//DEBUG: Check current read count
@@ -943,9 +943,9 @@ namespace SGE
 			//Go through the pattern table and find the largest number.
 			for (int i = 0; i < 128; i++)
 			{
-				if (header.patternTable[i] > numberOfPatterns)
+				if (patternTable[i] > numberOfPatterns)
 				{
-					numberOfPatterns = header.patternTable[i];
+					numberOfPatterns = patternTable[i];
 					fprintf(stderr, "DEBUG: Current number of patterns: %d\n", numberOfPatterns);
 				}
 			}
@@ -1216,15 +1216,15 @@ namespace SGE
 			//
 			while (PlayerThreadActive)
 			{
-				fprintf(stderr, "DEBUG: Mod Player: Starting to play: %s\n", modFile.header.title);
-				fprintf(stderr, "DEBUG: Mod Player: Song Positions: %d\n", modFile.header.songPositions);
+				fprintf(stderr, "DEBUG: Mod Player: Starting to play: %s\n", modFile.title);
+				fprintf(stderr, "DEBUG: Mod Player: Song Positions: %d\n", modFile.songPositions);
 
-				for (int j = 0; j < modFile.header.songPositions && PlayerThreadActive; j++)
+				for (int j = 0; j < modFile.songPositions && PlayerThreadActive; j++)
 				{
 					CurrentPosition = j;
 
 					//Pull the current pattern from the current position
-					CurrentPattern = modFile.header.patternTable[j];
+					CurrentPattern = modFile.patternTable[j];
 
 					//Process through the divisions
 					for (int i = 0; i < 64 && PlayerThreadActive; i++)
@@ -1236,7 +1236,7 @@ namespace SGE
 						CurrentDivision = i;
 
 						//Set up the channels
-						fprintf(stderr, "DEBUG: Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld\n", modFile.header.title, j, i, deltaTime.count());
+						fprintf(stderr, "DEBUG: Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld\n", modFile.title, j, i, deltaTime.count());
 
 						//
 						//  Check all the channels for any changes
@@ -1582,381 +1582,6 @@ namespace SGE
 		{
 			//Stop the player
 			this->Stop();
-		}
-
-
-		//
-		//
-		//  Sound System Wave File Definitions
-		//
-		//
-
-		//Default constructor for a SoundSystemWaveFile
-		WaveFile::WaveFile()
-		{
-		}
-
-		//Deconstructor for a SoundSystemWaveFile
-		WaveFile::~WaveFile()
-		{
-			//If audio data actually got loaded, delete it!
-			if (audioData != nullptr)
-			{
-				for (unsigned int i = 0; i < numberOfChannels; i++)
-				{
-					//Delete the buffer for that channel's data
-					delete audioData[i];
-				}
-
-				//Finally delete the data for the array of buffer pointers
-				delete audioData;
-			}
-		}
-
-		//Load audio data from a file into a collection of audio buffers
-		//Returns a 0 if all is well, something else if there is an error.
-		int WaveFile::LoadFile(char* targetFilename)
-		{
-			FILE* soundFile;
-			size_t readCount = 0;
-			bool keepLookingThroughSubchunks = true;
-
-			soundFile = fopen(targetFilename, "rb");
-
-			//
-			//
-			//Check to see if the file is even there.
-			//
-			//
-
-			if (soundFile == NULL)
-			{
-				fprintf(stderr, "Sound System Wave File Error:  Cannot open file \"%s\"\n", targetFilename);
-				return -1;
-			}
-
-			//
-			//
-			//Start parsing the file and check to see if it is valid or not
-			//
-			//
-
-			//
-			//Try to read a RIFF header in
-			//
-			readCount = fread(&waveFileHeader, 1, sizeof(waveFileHeader), soundFile);
-
-			//Check to see if we actually read enough bytes to make up a proper wave file header
-			if (readCount != sizeof(waveFileHeader))
-			{
-				//This file is way to small to be a proper wav file
-				fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
-				return -2;
-			}
-
-			//Offset: 0		Size: 4		ChunkID:				Check the chunk ID to see if it says RIFF in ASCII
-			if (memcmp("RIFF", &waveFileHeader.chunkID, 4) != 0)
-			{
-				//No RIFF header... Not the format we are looking for!
-				fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - Incorrect header.\n", targetFilename);
-
-				//Close out the file
-				fclose(soundFile);
-
-				return -10;
-			}
-
-			//
-			//Offset: 4		Size: 4		ChunkSize:				Check the chunk size and save it for double checking purposes
-			//
-			printf("DEBUG: Sound System Wave File: %s - Chunk Size: %d\n", targetFilename, waveFileHeader.chunkSize);
-
-			//
-			//Offset: 8		Size: 4		Format:		Check format for "WAVE"
-			//
-			if (memcmp("WAVE", &waveFileHeader.format, 4) != 0)
-			{
-				//No WAVE format... Not the format we are looking for!
-				fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - Incorrect Encoding Format.\n", targetFilename);
-
-				//Close out the file
-				fclose(soundFile);
-
-				return -20;
-			}
-
-			//
-			//First chunk of data: "fmt "
-			//
-
-			//Offset: 12	Size: 4		SubchunkID:				Look for the "fmt " (space is null)
-
-			//
-			//Start going through the subchunks looking for the "fmt " subchunk
-			//
-
-			while (keepLookingThroughSubchunks)
-			{
-				//Read in the header info
-				readCount = fread(&subChunkHeader, 1, sizeof(subChunkHeader), soundFile);
-
-				//Is this the "fmt " subchunk
-				if (memcmp("fmt", &subChunkHeader.subChunkID, 3) == 0)
-				{
-					//We found it!  Move along!
-					keepLookingThroughSubchunks = false;
-				}
-				else
-				{
-					//Advance past this section of the file
-					if (fseek(soundFile, subChunkHeader.subChunkSize, SEEK_CUR) != 0)
-					{
-						fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing fmt subchunk.\n", targetFilename);
-
-						//Close out the file
-						fclose(soundFile);
-
-						return -30;
-					}
-				}
-
-				//If we hit end of file early
-				if (readCount < sizeof(subChunkHeader))
-				{
-					fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing fmt subchunk.\n", targetFilename);
-
-					//Close out the file
-					fclose(soundFile);
-
-					return -30;
-				}
-			}
-
-			//
-			//Offset: 16	Size: 4		Subchunksize:			For PCM files, it should be 16, otherwise this is probably a different format
-			//
-
-			if (subChunkHeader.subChunkSize != 16)
-			{
-				//The format chunk size should be 16 bytes, if not... This isn't right
-				fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - Format Chunk Size Incorrect.\n", targetFilename);
-
-				//Close out the file
-				fclose(soundFile);
-
-				return -40;
-			}
-
-
-			//Confirmed a good subChunkHeader, read in the data
-			readCount = fread(&fmtSubChunkData, 1, sizeof(fmtSubChunkData), soundFile);
-
-			//If we hit end of file early
-			if (readCount < sizeof(fmtSubChunkData))
-			{
-				//The format audio format should be 1, if not...  Abort!
-				fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - fmt subchunk too small.\n", targetFilename);
-
-				//Close out the file
-				fclose(soundFile);
-
-				return -45;
-			}
-
-			//
-			//Offset: 20	Size: 2		Audio Format:			Should be 1 for PCM.  If not 1, then probably another format we aren't wanting.
-			//
-
-			if (fmtSubChunkData.audioFormat != 1)
-			{
-				//The format audio format should be 1, if not...  Abort!
-				fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - Format Chunk Size Incorrect.\n", targetFilename);
-
-				//Close out the file
-				fclose(soundFile);
-
-				return -50;
-			}
-
-			//
-			//Offset: 22	Size: 2		Number of Channels:		1 = Mono, 2 = Stereo, and so forth.   We are looking for Mono channels currently,
-			//
-
-			//May support more channels later
-			printf("DEBUG: Sound System Wave File: %s - Number of Channels: %d\n", targetFilename, fmtSubChunkData.numberOfChannels);
-
-			//
-			//Offset: 24	Size: 4		Sample Rate
-			//
-
-			//Sample Rate of the data.  Currently looking for 44100.
-			//May implement resampling in future, but not right now.
-			if (fmtSubChunkData.sampleRate != 44100)
-			{
-				//Not 44100Hz sample rate...  Not exactly an error, but no support for other sample rates at the moment.
-				fprintf(stderr, "Sound System Wave File Error:  File \"%s\" has an unsupported sample rate.  44100Hz Only.  Sorry.\n", targetFilename);
-
-				//Close out the file
-				fclose(soundFile);
-
-				return -70;
-			}
-
-
-			//Offset: 28	Size: 4		Byte Rate
-			//Equals to:  Sample Rate * Number of Channels * Bits Per Sample / 8
-			//The number of bytes per second
-
-			//Offset: 32	Size: 2		Block Alignment
-			//Equals to:  Numbers of Channels * Bits Per Sample / 8
-			//The number of bytes per frame/sample
-
-			//Offset: 34	Size: 2		Bits Per Sample
-			//Bits of data per sample
-			//We presently want to see 16 bits.
-
-			if (fmtSubChunkData.bitsPerSample != 16)
-			{
-				//Not 16 bit sample depth...  Not exactly an error, but no support for other bit rates at the moment.
-				fprintf(stderr, "Sound System Wave File Error:  File \"%s\" has an unsupported bit rate.  16-bit Only.  Sorry.\n", targetFilename);
-
-				//Close out the file
-				fclose(soundFile);
-
-				return -100;
-			}
-
-
-			//
-			//Reset the logic
-			//
-
-			keepLookingThroughSubchunks = true;
-
-			//
-			//Start going through the subchunks looking for the "data" subchunk
-			//
-
-			while (keepLookingThroughSubchunks)
-			{
-				//Read in the header info
-				readCount = fread(&subChunkHeader, 1, sizeof(subChunkHeader), soundFile);
-
-				//Is this the "data" subchunk
-				if (memcmp("data", &subChunkHeader.subChunkID, 4) == 0)
-				{
-					//We found it!  Move along!
-					keepLookingThroughSubchunks = false;
-				}
-				else
-				{
-					//Advance past this section of the file
-					if (fseek(soundFile, subChunkHeader.subChunkSize, SEEK_CUR) != 0)
-					{
-						fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing data subchunk.\n", targetFilename);
-
-						//Close out the file
-						fclose(soundFile);
-
-						return -105;
-					}
-				}
-
-
-				//If we hit end of file early
-				if (readCount < sizeof(subChunkHeader))
-				{
-					fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing data subchunk.\n", targetFilename);
-
-					//Close out the file
-					fclose(soundFile);
-
-					return -105;
-				}
-			}
-
-
-			//If we hit end of file early
-			if (readCount < sizeof(subChunkHeader))
-			{
-				//The format audio format should be 1, if not...  Abort!
-				fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - data subchunk too small.\n", targetFilename);
-
-				//Close out the file
-				fclose(soundFile);
-
-				return -105;
-			}
-
-
-			//Second chunk of data: "data"
-			//Offset: 36	Size: 4		Subchunk 2 ID
-			//ID to indicate the next subchunk of data, if it isn't "data" something is wrong
-
-			if (memcmp("data", &subChunkHeader.subChunkID, 4) != 0)
-			{
-				//Where's the data ID...
-				fprintf(stderr, "Sound System Wave File Error:  File \"%s\" is not correct format - Incorrect Data Chunk ID.\n", targetFilename);
-
-				//Close out the file
-				fclose(soundFile);
-
-				return -110;
-			}
-
-			//
-			//Offset: 40	Size: 4		Subchunk 2 Size
-			//
-
-			//Data that indicates the size of the data chunk
-			//Equal to:  Number of Samples * Number of Channels * Bits Per Sample / 8
-			//Indicates the amount to read after this chunk
-
-			printf("DEBUG: Sound System Wave File: %s - Data Size: %d\n", targetFilename, subChunkHeader.subChunkSize);
-
-
-			//
-			//Offset: 44	Size: *?	Data
-			//
-
-			//Actual sound data
-			//Calculate the number of Samples
-			numberOfSamples = subChunkHeader.subChunkSize / fmtSubChunkData.blockAlignment;
-
-			numberOfChannels = fmtSubChunkData.numberOfChannels;
-
-
-			//Create buffers to hold the data
-			//Create the pointer array for the channel buffers
-			audioData = new short*[numberOfChannels];
-
-			//Create short arrays to hold the channel data
-			for (unsigned int i = 0; i < numberOfChannels; i++)
-			{
-				audioData[i] = new short[numberOfSamples];
-			}
-
-			//Read the data in
-			readCount = 0;
-
-			//For each sample
-			for (unsigned int i = 0; i < numberOfSamples; i++)
-			{
-				//For each channel
-				for (unsigned int j = 0; j < numberOfChannels; j++)
-				{
-					readCount += fread(&audioData[j][i], 2, 1, soundFile);
-				}
-			}
-
-			printf("DEBUG: Sound System Wave File: %s - Data Bytes Read: %zd\n", targetFilename, readCount * 2);
-
-			//If we get here... It's all good!... Maybe... Hoepfully?
-
-			//Close out the sound file
-			fclose(soundFile);
-
-			return 0;
 		}
 	}
 }

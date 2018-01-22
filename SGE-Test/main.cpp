@@ -227,7 +227,7 @@ void DrawPlayerStatusBox(SGE::Sound::ModulePlayer* modulePlayerToUse, int xCorne
 	DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 48, modulePlayerToUse->channelMap[3]->currentOffsetIncrement);
 
 	//Draw Title of Track at the Bottom
-	SGE::Render::DrawString(modulePlayerToUse->modFile.header.title, SGE::Render::CHARACTER_8x8_ROM, 5, xCornerPosition + 5, yCornerPosition + 60, SGE::Render::Colors::ColorMode8Bit[157]);
+	SGE::Render::DrawString(modulePlayerToUse->modFile.title, SGE::Render::CHARACTER_8x8_ROM, 5, xCornerPosition + 5, yCornerPosition + 60, SGE::Render::Colors::ColorMode8Bit[157]);
 }
 
 void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPosition)
