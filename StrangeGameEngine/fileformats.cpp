@@ -628,5 +628,411 @@ namespace SGE
 
 			return 0;
 		}
+
+		//
+		//
+		//  Sound System Module File Definitions
+		//
+		//
+
+		ModuleFile::ModuleFile()
+		{
+
+		}
+
+
+		ModuleFile::~ModuleFile()
+		{
+			for (int i = 0; i < 31; i++)
+			{
+				delete[] samples[i].data;
+			}
+		}
+
+
+		//
+		//  Function to load data from mod fule
+		//
+		int ModuleFile::LoadFile(char* targetFilename)
+		{
+			FILE* moduleFile;
+			size_t readCount = 0;
+			size_t totalReadCount = 0;
+			unsigned char readBuffer[8];
+
+			//
+			//
+			//Attempt to open the file.
+			//
+			//
+
+			moduleFile = fopen(targetFilename, "rb");
+
+			//Check to see if the file is even there.
+			if (moduleFile == NULL)
+			{
+				fprintf(stderr, "Sound System Module File Error:  Cannot open file \"%s\"\n", targetFilename);
+				return -1;
+			}
+
+			//
+			//
+			//Start parsing through the file and grabbing all the data.
+			//
+			//
+
+			//
+			//Read the module file title info
+			//
+
+			readCount = fread(&title, 1, 20, moduleFile);
+			totalReadCount += readCount;
+
+			//DEBUG:  Current number of bytes read
+			fprintf(stderr, "DEBUG:  Post Title: Read Count: %d \n", totalReadCount);
+
+			//
+			//Read the module file's sample data
+			//
+
+			for (int i = 0; i < 31; i++)
+			{
+				//Read sample title
+				readCount = fread(&samples[i].title, 1, 22, moduleFile);
+				totalReadCount += readCount;
+
+				//Check to see if we actually read enough bytes
+				if (readCount != 22)
+				{
+					//This file is way to small to be a proper wav file
+					fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+					return -2;
+				}
+
+				//Read sample length
+				readCount = fread(&samples[i].lengthInWords, 1, 2, moduleFile);
+				totalReadCount += readCount;
+
+				//Flip the bits around since Amigas were Big Endian machines.
+				samples[i].lengthInWords = (((samples[i].lengthInWords & 0x00FF) << 8) | ((samples[i].lengthInWords & 0xFF00) >> 8));
+
+				//Check to see if we actually read enough bytes
+				if (readCount != 2)
+				{
+					//This file is way too small to be a proper mod file
+					fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+					return -3;
+				}
+
+				//Read sample finetune
+				readCount = fread(&samples[i].finetune, 1, 1, moduleFile);
+				totalReadCount += readCount;
+
+				//Check to see if we actually read enough bytes
+				if (readCount != 1)
+				{
+					//This file is way to small to be a proper wav file
+					fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+					return -4;
+				}
+
+				//Read sample volume
+				readCount = fread(&samples[i].volume, 1, 1, moduleFile);
+				totalReadCount += readCount;
+
+				//Check to see if we actually read enough bytes
+				if (readCount != 1)
+				{
+					//This file is way to small to be a proper wav file
+					fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+					return -5;
+				}
+
+				//Read repeat start offset
+				readCount = fread(&samples[i].repeatOffset, 1, 2, moduleFile);
+				totalReadCount += readCount;
+
+				samples[i].repeatOffset = (((samples[i].repeatOffset & 0x00FF) << 8) | ((samples[i].repeatOffset & 0xFF00) >> 8));
+
+				//Check to see if we actually read enough bytes
+				if (readCount != 2)
+				{
+					//This file is way to small to be a proper wav file
+					fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+					return -6;
+				}
+
+				//Read repeat length
+				readCount = fread(&samples[i].repeatLength, 1, 2, moduleFile);
+				totalReadCount += readCount;
+
+				samples[i].repeatLength = (((samples[i].repeatLength & 0x00FF) << 8) | ((samples[i].repeatLength & 0xFF00) >> 8));
+
+				//Check to see if we actually read enough bytes
+				if (readCount != 2)
+				{
+					//This file is way to small to be a proper wav file
+					fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+					return -7;
+				}
+			}
+
+			//DEBUG: Check current read count
+			fprintf(stderr, "DEBUG:  Post Sample Headers: Current Read Count: %d \n", totalReadCount);
+
+			//
+			//Read number of song positions
+			//
+
+			readCount = fread(&songPositions, 1, 1, moduleFile);
+			totalReadCount += readCount;
+
+			//Check to see if we actually read enough bytes
+			if (readCount != 1)
+			{
+				//This file is way to small to be a proper wav file
+				fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+				return -8;
+			}
+
+			//Burn through a read
+			readCount = fread(&readBuffer, 1, 1, moduleFile);
+			totalReadCount += readCount;
+
+			//Check to see if we actually read enough bytes
+			if (readCount != 1)
+			{
+				//This file is way to small to be a proper wav file
+				fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+				return -9;
+			}
+
+			//
+			//Read the pattern table
+			//
+
+			readCount = fread(&patternTable, 1, 128, moduleFile);
+			totalReadCount += readCount;
+
+			//DEBUG: Check current read count
+			fprintf(stderr, "DEBUG:  Current Read Count: %d \n", totalReadCount);
+
+			//Check to see if we actually read enough bytes
+			if (readCount != 128)
+			{
+				//This file is way to small to be a proper wav file
+				fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+				return -10;
+			}
+
+			//
+			//Read some tag info
+			//
+
+			readCount = fread(&readBuffer, 1, 4, moduleFile);
+			totalReadCount += readCount;
+
+			//Check to see if we actually read enough bytes
+			if (readCount != 4)
+			{
+				//This file is way to small to be a proper wav file
+				fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+				return -11;
+			}
+
+			//Check to see if there's anything special
+			//Check for "M.K."
+			if (memcmp(&readBuffer, "M.K.", 4) == 0)
+			{
+				//Detect M.K. Signature
+				fprintf(stderr, "DEBUG: M.K. Module File signature detected.\n");
+			}
+
+			//Check for "FLT4"
+			else if (memcmp(&readBuffer, "FLT4", 4) == 0)
+			{
+				//Detect FLT4 Signature
+				fprintf(stderr, "DEBUG: FLT4 Module File signature detected.\n");
+			}
+
+			//Check for "FLT8"
+			else if (memcmp(&readBuffer, "FLT8", 4) == 0)
+			{
+				//Detect FLT8 Signature
+				fprintf(stderr, "DEBUG: FLT8 Module File signature detected.\n");
+			}
+
+			//Check for "4CHN"
+			else  if (memcmp(&readBuffer, "4CHN", 4) == 0)
+			{
+				//Detect 4CHN Signature
+				fprintf(stderr, "DEBUG: 4CHN Module File signature detected.\n");
+			}
+
+			//Check for "6CHN"
+			else if (memcmp(&readBuffer, "6CHN", 4) == 0)
+			{
+				//Detect 6CHN Signature
+				fprintf(stderr, "DEBUG: 6CHN Module File signature detected.\n");
+			}
+
+			//Check for "8CHN"
+			else if (memcmp(&readBuffer, "8CHN", 4) == 0)
+			{
+				//Detect 8CHN Signature
+				fprintf(stderr, "DEBUG: 8CHN Module File signature detected.\n");
+			}
+
+			//No letters found
+			else
+			{
+				//Move the seek back since this is part of the pattern data
+				fseek(moduleFile, -4, SEEK_CUR);
+				totalReadCount -= 4;
+				fprintf(stderr, "DEBUG: No Module File signature detected.\n");
+			}
+
+			//
+			//Figure out how many patterns there are to read.
+			//
+
+			//Go through the pattern table and find the largest number.
+			for (int i = 0; i < 128; i++)
+			{
+				if (patternTable[i] > numberOfPatterns)
+				{
+					numberOfPatterns = patternTable[i];
+					fprintf(stderr, "DEBUG: Current number of patterns: %d\n", numberOfPatterns);
+				}
+			}
+
+			fprintf(stderr, "DEBUG: Module Load: %d patterns found.\n", numberOfPatterns);
+
+			//
+			//Start churning through all the pattern data
+			//
+
+			//Go through each pattern
+			for (int i = 0; i < numberOfPatterns + 1; i++)
+			{
+				//Go through each division
+				for (int j = 0; j < 64; j++)
+				{
+					//Go through each channel's data
+					for (int k = 0; k < 4; k++)
+					{
+						//Read the 4 bytes of data
+						fread(&readBuffer, 1, 4, moduleFile);
+						totalReadCount += readCount;
+
+						//Check to see if we actually read enough bytes
+						if (readCount != 4)
+						{
+							//This file is way to small to be a proper wav file
+							fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+							return -12;
+						}
+
+						//
+						//Parse out the data.
+						//
+
+						//Copy the first two bytes over into period
+						patterns[i].division[j].channels[k].period = ((readBuffer[0] & 0x0F) << 8) | (readBuffer[1]);
+
+						//Copy the second two bytes over into effect
+						patterns[i].division[j].channels[k].effect = ((readBuffer[2] & 0x0F) << 8) | (readBuffer[3]);
+
+						//Bit mask unneeded bits, shift, and add them together
+						patterns[i].division[j].channels[k].sample = (readBuffer[0] & 0xF0) | ((readBuffer[2] & 0xF0) >> 4);
+					}
+				}
+			}
+
+			//DEBUG: Check current read count
+			fprintf(stderr, "DEBUG:  Current Read Count: %d \n", totalReadCount);
+
+			//
+			//Load up the samples with their data
+			//
+
+			for (int i = 0; i < 31; i++)
+			{
+				if (samples[i].lengthInWords > 1)
+				{
+					//Create some memory to store the sample in.
+					samples[i].data = new char[samples[i].lengthInWords * 2];
+
+					//Read the data in there
+					readCount = fread(samples[i].data, 1, samples[i].lengthInWords * 2, moduleFile);
+					totalReadCount += readCount;
+
+					//Check to see if we actually read enough bytes
+					if (readCount != samples[i].lengthInWords * 2)
+					{
+						//This file is way to small to be a proper wav file
+						fprintf(stderr, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.  Sample Data Reported: %d  Sample Data Read: %d \n", targetFilename, samples[i].lengthInWords * 2, readCount);
+						//return -13;
+					}
+				}
+			}
+
+			//DEBUG: Check current read count
+			fprintf(stderr, "DEBUG:  Current Read Count: %d \n", totalReadCount);
+
+			//
+			//Close the file out
+			//
+
+			fclose(moduleFile);
+
+			//If we get to this point, everything is okay
+			return 0;
+		}
+
+		//
+		//  Converts sample data from 8 bits to 16
+		//
+		SGE::Sound::sampleType* ModuleFile::ConvertSample(unsigned char sample)
+		{
+			//Check for a valid sample
+			if (sample > 32)
+			{
+				return nullptr;
+			}
+
+			//Create a buffer to store the converted samples into.
+			SGE::Sound::sampleType* temp = new SGE::Sound::sampleType[samples[sample].lengthInWords * 2];
+
+			if (samples[sample].lengthInWords > 1)
+			{
+				//Go through the module sample and convert the 8-bit to 16-bit range
+				//Store it in the destinationBuffer
+				for (int i = 0; i < (samples[sample].lengthInWords * 2); i++)
+				{
+					temp[i] = SGE::Sound::sampleType(samples[sample].data[i] << 8);
+				}
+			}
+
+			return temp;
+		}
+
+		//
+		//  Finds out sample size from words to bytes
+		//
+		unsigned int ModuleFile::ConvertSampleSize(unsigned char sample)
+		{
+			//Check for a valid sample
+			if (sample > 32)
+			{
+				return 0;
+			}
+
+			return samples[sample].lengthInWords * 2;
+		}
+
+
+
+
 	}
 }

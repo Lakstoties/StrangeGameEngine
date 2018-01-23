@@ -103,9 +103,11 @@
     <ClCompile Include="render.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="sge.cpp" />
+    <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\SGE\fileformats.h" />
+    <ClInclude Include="include\SGE\utility.h" />
     <ClInclude Include="sharedinternal.h" />
     <ClInclude Include="include\SGE\controls.h" />
     <ClInclude Include="include\SGE\display.h" />

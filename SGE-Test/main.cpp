@@ -33,7 +33,7 @@ void DrawFrequencyMeter(int xCornerPosition, int yCornerPosition, float channelF
 {
 	char tempString[10];
 
-	float calculatedPeriod = SGE::Sound::ModTracker::NTSC_TUNING / (SGE::Sound::SAMPLE_RATE * 2 * channelFrequency);
+	float calculatedPeriod = SGE::Utility::ModuleTrackerMusic::NTSC_TUNING / (SGE::Sound::SAMPLE_RATE * 2 * channelFrequency);
 
 	//Draw Frequency bar
 	SGE::Render::DrawBox(xCornerPosition + 1, yCornerPosition + 1, 300, 8, SGE::Render::Colors::ColorMode8Bit[237]);
@@ -141,7 +141,7 @@ void DrawAudioChannelStatusBox(int xCornerPosition, int yCornerPosition)
 	}
 }
 
-void DrawPlayerStatusBox(SGE::Sound::ModulePlayer* modulePlayerToUse, int xCornerPosition, int yCornerPosition)
+void DrawPlayerStatusBox(SGE::Utility::ModuleTrackerMusic::ModulePlayer* modulePlayerToUse, int xCornerPosition, int yCornerPosition)
 {
 	//Draw Player Status Boxes
 	SGE::Render::DrawBox(xCornerPosition, yCornerPosition, 510, 75, SGE::Render::Colors::ColorMode8Bit[2]);
@@ -474,9 +474,9 @@ void InputTest(bool& testInputRunning)
 	testMenu.highlightTextColor = SGE::Render::PackColors(0, 0, 0);
 	
 	//Create some players
-	SGE::Sound::ModulePlayer modulePlayerTest;
-	SGE::Sound::ModulePlayer modulePlayerTest2;
-	SGE::Sound::ModulePlayer modulePlayerTest3;
+	SGE::Utility::ModuleTrackerMusic::ModulePlayer modulePlayerTest;
+	SGE::Utility::ModuleTrackerMusic::ModulePlayer modulePlayerTest2;
+	SGE::Utility::ModuleTrackerMusic::ModulePlayer modulePlayerTest3;
 	
 	//Load up the module files
 	modulePlayerTest.Load((char*)"hyper.mod");

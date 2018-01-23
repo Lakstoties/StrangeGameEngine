@@ -5,6 +5,7 @@
 #include "sound.h"
 #include "gui.h"
 #include "fileformats.h"
+#include "utility.h"
 
 namespace SGE
 {

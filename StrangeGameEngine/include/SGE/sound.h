@@ -2,6 +2,7 @@
 
 #include <thread>
 #include <mutex>
+
 namespace SGE
 {
 	namespace Sound
@@ -35,104 +36,7 @@ namespace SGE
 		//This is usually half the maximum number represented by the number of bits
 		const int SAMPLE_MAX_AMPLITUDE = (1 << (SAMPLE_BITS - 1)) - 1;
 
-		//
-		//  Components relevent to Module Tracker parts of the sound system
-		//
-		namespace ModTracker
-		{
-			//A list of Module Tracker Format periods
-			const unsigned int MOD_NOTE_PERIOD[] =
-			{
-				//Octave 0 - Historically, unsupported.
-				1712,	//C
-				1616,	//C#
-				1525,	//D
-				1440,	//D#
-				1357,	//E
-				1281,	//F
-				1209,	//F#
-				1141,	//G
-				1077,	//G#
-				1017,	//A
-				961,	//A#
-				907,	//B
 
-				//Octave 1
-				856,	//C
-				808,	//C#
-				762,	//D
-				720,	//D#
-				678,	//E
-				640,	//F
-				604,	//F#
-				570,	//G
-				538,	//G#
-				508,	//A
-				480,	//A#
-				453,	//B
-
-				//Octave 2
-				428,	//C
-				404,	//C#
-				381,	//D
-				360,	//D#
-				339,	//E
-				320,	//F
-				302,	//F#
-				285,	//G
-				269,	//G#
-				254,	//A
-				240,	//A#
-				226,	//B
-
-				//Octave 3
-				214,	//C
-				202,	//C#
-				190,	//D
-				180,	//D#
-				170,	//E
-				160,	//F
-				151,	//F#
-				143,	//G
-				135,	//G#
-				127,	//A
-				120,	//A#
-				113,	//B
-
-				//Octave 4 - Historically Unsupported
-				107,	//C
-				101,	//C#
-				95,		//D
-				90,		//D#
-				85,		//E
-				80,		//F
-				76,		//F#
-				71,		//G
-				67,		//G#
-				64,		//A
-				60,		//A#
-				57		//B
-			};
-
-			//A list of Tracker Music MODule file conversation notes.
-			//Tuning frequency for NTSC screens for Mod files
-			const float NTSC_TUNING = 7159090.5f;
-
-			//Tuning frequency for PAL screens for Mod Files
-			const float PAL_TUNING = 7093789.2f;
-
-			//Typical old school tick timing was around 20 milliseconds
-			const unsigned int DEFAULT_TICK_TIMING_MILLISECONDS = 20;
-
-			//Typical old school tick timing was around 20 milliseconds.
-			const unsigned int DEFAULT_TICK_TIMING_NANO = DEFAULT_TICK_TIMING_MILLISECONDS * 1000000;
-
-			//Default Ticks a Division
-			const unsigned int DEFAULT_TICKS_A_DIVISION = 6;
-
-			//  Number of samples sent per tick based on sample rate and typical tick rate
-			const unsigned int DEFAULT_SAMPLES_TICK = SAMPLE_RATE * DEFAULT_TICK_TIMING_MILLISECONDS / 1000;
-		}
 
 		//
 		//  Common values that are precalculated for efficiency.
@@ -473,99 +377,5 @@ namespace SGE
 		//System Managagement
 		void Start();
 		void Stop();
-	
-		namespace FileFormatStructs
-		{
-			namespace MODFile
-			{
-				struct MODSample
-				{
-					char title[23] = { 0 };					//Sample Title
-					unsigned short lengthInWords = 0;		//Sample Length in Words (16-bit chunks)
-					unsigned char finetune = 0;				//Sample Fine Tune, in lowest four bits.  Technically a signed nibble.
-					unsigned char volume = 0;				//Sample volume.  0 - 64 are legal values
-					unsigned short repeatOffset = 0;		//Sample repeat offset
-					unsigned short repeatLength = 0;		//Sample repeat length
-					char* data = nullptr;					//Pointer to Sample data
-				};
-
-				struct MODChannelData
-				{
-					unsigned char sample = 0;				//Sample to use for this channel this division
-					unsigned short period = 0;				//Period to play the sample at on this channel
-					unsigned short effect = 0;				//Effects to use on this channel this division
-				};
-
-				struct MODDivisionData
-				{
-					MODChannelData channels[4];			//Channels in a division
-				};
-
-				struct MODPatternData
-				{
-					MODDivisionData division[64];		//Division in a pattern
-				};
-			}
-		}
-
-		class ModuleFile
-		{
-		public:
-			//
-			//  MOD File Header
-			//
-
-			char title[20] = { 0 };						//Module Title
-			unsigned char songPositions = 0;			//Number of song positions, AKA patterns. 1 - 128
-			unsigned char patternTable[128] = { 0 };	//Pattern table, legal valves 0 - 63  (High value in table is the highest pattern stored.)
-
-			FileFormatStructs::MODFile::MODSample samples[31];
-			FileFormatStructs::MODFile::MODPatternData patterns[64];
-			unsigned char numberOfPatterns = 0;
-
-			ModuleFile();
-			~ModuleFile();
-
-			int LoadFile(char* targetFilename);
-			sampleType* ConvertSample(unsigned char sample);
-			unsigned int ConvertSampleSize(unsigned char sample);
-
-		};
-
-		//Player for module files
-		class ModulePlayer
-		{
-		public:
-			unsigned char CurrentPosition = 0;
-			unsigned char CurrentPattern = 0;
-			unsigned char CurrentDivision = 0;
-			unsigned char CurrentChannelSamples[4] = { 0 };
-
-			unsigned int beatsPerMinute = 125;
-			unsigned char ticksADivision = 6;
-
-			SoundSampleBuffer* sampleMap[31] = { nullptr };
-			SoundChannel* channelMap[4] = { nullptr };
-
-			//
-			ModuleFile modFile = ModuleFile();
-			bool PlayerThreadActive = false;
-			std::thread playerThread;
-
-
-			//Main functions
-			bool Load(char * filename);
-			bool Connect(unsigned int startChannel, unsigned int startSample);
-			bool Play();
-			bool Stop();
-
-			//Other fuction
-			void PlayThread();
-
-			//Constructor Stuff
-			ModulePlayer();
-			~ModulePlayer();
-
-		};
 	}
 }
