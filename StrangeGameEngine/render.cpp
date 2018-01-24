@@ -901,8 +901,6 @@ namespace SGE
 		}
 
 
-
-
 		//
 		//
 		//  Animation Stuff!

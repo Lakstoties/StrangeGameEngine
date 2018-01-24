@@ -173,6 +173,10 @@ namespace SGE
 		//Keyboard callback
 		glfwSetKeyCallback(SGE::OSWindow, SGE::Callbacks::Keyboard);
 
+		//
+		//  Fire up utility and other bits
+		//
+		SGE::Utility::Math::InitializeMath();
 	}
 
 	//Shutdown function that performs all the shutdown and termination bits for the system.

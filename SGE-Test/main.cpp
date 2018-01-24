@@ -573,6 +573,23 @@ void InputTest(bool& testInputRunning)
 
 	int currentWaveX = -8;
 
+
+	//
+	//  Simple Filled Trinagle Test
+	//
+	SGE::Render::VertexPoint spinningVertexO1 = { 100, -112 };
+	SGE::Render::VertexPoint spinningVertexO2 = { -100, -112 };
+	SGE::Render::VertexPoint spinningVertexO3 = { 0, 112 };
+	SGE::Render::VertexPoint spinningVertex1 = { 50, 50 };
+	SGE::Render::VertexPoint spinningVertex2 = { 50, 150 };
+	SGE::Render::VertexPoint spinningVertex3 = { 150, 100 };
+	int spinningVertexCX = 960;
+	int spinningVertexCY = 500;
+
+	float spinningDegree = 0;
+
+
+
 	while (testInputRunning)
 	{
 		//
@@ -648,6 +665,30 @@ void InputTest(bool& testInputRunning)
 
 		//8-bit Color Palette Test
 		DrawColorPalette8bit(700, 50);
+
+		//
+		//  Draw spinning Triangle 
+		//
+
+		//Draw the current triangle
+		SGE::Render::DrawFilledTriangleFast(spinningVertexCX, spinningVertexCY, 1.0, spinningVertex1, spinningVertex2, spinningVertex3, SGE::Render::Colors::Named::BrightWhite);
+
+		//Increment the degree
+		spinningDegree += 0.1;
+		if (spinningDegree > 360)
+		{
+			spinningDegree -= 360;
+		}
+
+
+
+
+		//Rotate the points
+		SGE::Utility::Math::RotatePointAroundPoint(spinningVertexO1.x, spinningVertexO1.y, 0, 0, spinningVertex1.x, spinningVertex1.y, spinningDegree);
+		SGE::Utility::Math::RotatePointAroundPoint(spinningVertexO2.x, spinningVertexO2.y, 0, 0, spinningVertex2.x, spinningVertex2.y, spinningDegree);
+		SGE::Utility::Math::RotatePointAroundPoint(spinningVertexO3.x, spinningVertexO3.y, 0, 0, spinningVertex3.x, spinningVertex3.y, spinningDegree);
+		
+		
 
 
 		//

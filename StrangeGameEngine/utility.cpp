@@ -6,14 +6,64 @@ namespace SGE
 {
 	namespace Utility
 	{
+		namespace Math
+		{
+			//
+			//  Precalculated Arrays for Common Math Functions
+			//
+
+			float SineDegree[PRECALCULATED_DEGREE_RESOLUTION];
+
+			float CosineDegree[PRECALCULATED_DEGREE_RESOLUTION];
+
+			void InitializeMath()
+			{
+				//Calculate radian to frequency step for a 1Hz full sine wave
+				float periodStepping = TWO_PI_FLOAT / PRECALCULATED_DEGREE_RESOLUTION;
+
+				//
+				//  Precalculate the values for the arrays
+				//
+
+				for (int i = 0; i < PRECALCULATED_DEGREE_RESOLUTION; i++)
+				{
+					//
+					//Generate Sine Values for Array
+					//
+
+					SineDegree[i] = sinf(periodStepping * i);
+
+					//
+					//Generate Cosine Value for Array
+					//
+
+					CosineDegree[i] = cosf(periodStepping * i);
+				}
+			}
+
+
+
+
+			void RotatePointAroundPoint(int originalPointX, int originalPointY, int centerPointX, int centerPointY, int &rotatedPointX, int &rotatedPointY, float degrees)
+			{
+				//Scale degrees to precalculated array range
+				int rotationIndex =	(int)(((degrees * PRECALCULATED_DEGREE_RESOLUTION) / 360) + PRECALCULATED_DEGREE_RESOLUTION) % PRECALCULATED_DEGREE_RESOLUTION;
+					
+								
+				rotatedPointX = (int)(CosineDegree[rotationIndex] * (originalPointX - centerPointX) - SineDegree[rotationIndex] * (originalPointY - centerPointY) + centerPointX);
+				rotatedPointY = (int)(SineDegree[rotationIndex] * (originalPointX - centerPointX) + CosineDegree[rotationIndex] * (originalPointY - centerPointY) + centerPointY);
+
+			}
+		}
+
+
+
+
+		//
+		//  Tracker Music Module components
+		//
 		namespace ModuleTrackerMusic
 		{
-
-
-
-
-
-
 			//
 			//
 			//  Module File Player

@@ -8,6 +8,37 @@ namespace SGE
 {
 	namespace Utility
 	{
+		namespace Math
+		{
+			//
+			//  Constants
+			//
+
+			//  
+			const int PRECALCULATED_DEGREE_RESOLUTION = 3600;
+
+			//Precalculated PI/2 to float precision
+			const float HALF_PI_FLOAT = 1.57079632679489661923f;
+
+			//Precalculated PI to float precision
+			const float PI_FLOAT = 3.14159265358979323846f;
+
+			//Precalculated 2*PI to float precision 
+			const float TWO_PI_FLOAT = 6.28318530717958647692f;
+
+			//
+			//  Precalculated Arrays for Common Math Functions
+			//
+
+			extern float SineDegree[PRECALCULATED_DEGREE_RESOLUTION];
+
+			extern float CosineDegree[PRECALCULATED_DEGREE_RESOLUTION];
+
+			void InitializeMath();
+
+			void RotatePointAroundPoint(int originalPointX, int originalPointY, int centerPointX, int centerPointY, int &rotatedPointX, int &rotatedPointY, float degrees);
+		}
+
 		namespace ModuleTrackerMusic
 		{
 			//
