@@ -742,14 +742,14 @@ void InputTest(bool& testInputRunning)
 		if (SGE::Controls::Keyboard::Status[SGE::Controls::Keymap::KEY_Z])
 		{
 			SGE::Sound::MasterVolume -= .01f;
-			printf("Debug - Master Volume: %f\n", SGE::Sound::MasterVolume);
+			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::Sound, "Master Volume: %f\n", SGE::Sound::MasterVolume);
 		}
 
 		//Increase volume
 		if (SGE::Controls::Keyboard::Status[SGE::Controls::Keymap::KEY_X])
 		{
 			SGE::Sound::MasterVolume += .01f;
-			printf("Debug - Master Volume: %f\n", SGE::Sound::MasterVolume);
+			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::Sound, "Master Volume: %f\n", SGE::Sound::MasterVolume);
 		}
 
 	

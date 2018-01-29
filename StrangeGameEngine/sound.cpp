@@ -8,6 +8,7 @@
 #include <fstream>
 #include <algorithm>
 #include <cstring>
+#include "include\SGE\system.h"
 
 namespace SGE
 {
@@ -333,51 +334,43 @@ namespace SGE
 		//
 		//Varibles to hold average volume levels from the last callback from PortAudio
 		//
-
 		unsigned int MasterVolumeAverageLeftLevel = 0;
 		unsigned int MasterVolumeAverageRightLevel = 0;
 
 		//
 		//  All the sound samples in the system
 		//
-
 		SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
 
 		//
 		//  All the system's sound channels
 		//
-
 		SoundChannel Channels[MAX_CHANNELS];
 
 		//
 		//  Initialize size for the Render Frame Buffers
 		//
-
 		const unsigned long INITIAL_RENDER_FRAME_BUFFER_SIZE = 1024;
 
 		//
 		//  Master volume for system
 		//
-
 		float MasterVolume = 1.0f;
 
 		//
 		//All the sound channel target render buffers
 		//
-
 		int* renderedChannelBuffers[MAX_CHANNELS] = { nullptr };
 
 		//
 		//32-bit mixing buffers
 		//
-
 		int* mixingFrameBufferRight = nullptr;		//Mixing buffer for Right Channel
 		int* mixingFrameBufferLeft  = nullptr;		//Mixing buffer for Left Channel
 
 		//
 		//Current Frame Buffer Sizes
 		//
-
 		unsigned long frameBufferSize = 0;
 
 		//
@@ -587,7 +580,8 @@ namespace SGE
 			}
 			else
 			{
-				printf("PortAudio Stream Opened.\n");
+				//printf("PortAudio Stream Opened.\n");
+				SGE::System::Message(SGE::System::MessageLevels::Information, System::MessageSourceCategories::Sound, "PortAudio Stream Opened");
 			}
 
 			//Generate the initial render frame buffers

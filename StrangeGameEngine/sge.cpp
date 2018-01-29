@@ -1,10 +1,13 @@
 #include "include\SGE\sge.h"
 #include "sharedinternal.h"
 #include <GLFW\glfw3.h>
-
+#include <ctime>
+#include <chrono>
 namespace SGE
 {
-	//GLFW Window pointer for the Strange Game Engine
+	//
+	//  GLFW Window pointer for the Strange Game Engine
+	//
 	GLFWwindow* OSWindow = nullptr;
 
 	//

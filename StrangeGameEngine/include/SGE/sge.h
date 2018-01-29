@@ -6,12 +6,17 @@
 #include "gui.h"
 #include "fileformats.h"
 #include "utility.h"
+#include "system.h"
 
 namespace SGE
 {
-	//Perform basic initialization of the system overall
+	//
+	//  Perform basic initialization of the system overall
+	//
 	void Startup(int windowX, int windowY, const char* gameTitle);
 
-	//Performs shutdown and termination operations
+	//
+	//  Performs shutdown and termination operations
+	//
 	void Shutdown();
 }
