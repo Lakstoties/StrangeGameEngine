@@ -312,7 +312,7 @@ void DrawMouseStatusBox(int xCornerPosition, int yCornerPosition)
 		yCornerPosition + 45,							//Y Upper Left Corner Position
 		5,												//Width
 		8,												//Height
-		SGE::Controls::Mouse::Buttons[1] ? SGE::Render::Colors::ColorMode8Bit[160] : SGE::Render::Colors::ColorMode8Bit[52]);	//Color (Changes if active or not)
+		SGE::Controls::Mouse::Buttons[0] ? SGE::Render::Colors::ColorMode8Bit[160] : SGE::Render::Colors::ColorMode8Bit[52]);	//Color (Changes if active or not)
 
 	//
 	//Right Mouse Button
@@ -342,7 +342,7 @@ void DrawMouseStatusBox(int xCornerPosition, int yCornerPosition)
 		yCornerPosition + 45,							//Y Upper Left Corner Position
 		5,												//Width
 		8,												//Height
-		SGE::Controls::Mouse::Buttons[1] ? SGE::Render::Colors::ColorMode8Bit[160] : SGE::Render::Colors::ColorMode8Bit[52]);	//Color (Changes if active or not)
+		SGE::Controls::Mouse::Buttons[2] ? SGE::Render::Colors::ColorMode8Bit[160] : SGE::Render::Colors::ColorMode8Bit[52]);	//Color (Changes if active or not)
 
 	//
 	//Extra Button #1
@@ -357,7 +357,7 @@ void DrawMouseStatusBox(int xCornerPosition, int yCornerPosition)
 		yCornerPosition + 45,							//Y Upper Left Corner Position
 		5,												//Width
 		8,												//Height
-		SGE::Controls::Mouse::Buttons[1] ? SGE::Render::Colors::ColorMode8Bit[160] : SGE::Render::Colors::ColorMode8Bit[52]);	//Color (Changes if active or not)
+		SGE::Controls::Mouse::Buttons[3] ? SGE::Render::Colors::ColorMode8Bit[160] : SGE::Render::Colors::ColorMode8Bit[52]);	//Color (Changes if active or not)
 
 	//
 	//Extra Button #2
@@ -372,7 +372,7 @@ void DrawMouseStatusBox(int xCornerPosition, int yCornerPosition)
 		yCornerPosition + 45,							//Y Upper Left Corner Position
 		5,												//Width
 		8,												//Height
-		SGE::Controls::Mouse::Buttons[1] ? SGE::Render::Colors::ColorMode8Bit[160] : SGE::Render::Colors::ColorMode8Bit[52]);	//Color (Changes if active or not)
+		SGE::Controls::Mouse::Buttons[4] ? SGE::Render::Colors::ColorMode8Bit[160] : SGE::Render::Colors::ColorMode8Bit[52]);	//Color (Changes if active or not)
 }
 
 void DrawColorPalette4bit(int xCornerPosition, int yCornerPosition)

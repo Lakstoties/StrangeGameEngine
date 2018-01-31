@@ -50,6 +50,10 @@ namespace SGE
 			//
 #ifdef _WIN32
 
+			//
+			//Check to see if we are running on Windows 10
+			//  Later versions of Windows 10 support Virtual Terminal processing and can read ANSI escape codes
+			//
 			static HANDLE windowsSTDOUTHandle = NULL;
 			static HANDLE windowsSTDERRHandle = NULL;
 			static bool windowsCanHanldeANSI = false;
@@ -62,6 +66,10 @@ namespace SGE
 				windowsSTDOUTHandle = GetStdHandle(STD_OUTPUT_HANDLE);
 				windowsSTDERRHandle = GetStdHandle(STD_ERROR_HANDLE);
 
+		//
+		//  Check for Windows 10 or higher, since it is the only current Window OS that have a terminal emulator that can possibly understand ANSI
+		//
+		#if (_WIN32_WINNT >= 0xA00)
 				//
 				//  Check the console window for ANSI capacities
 				//
@@ -78,7 +86,7 @@ namespace SGE
 				{
 					printf("Windows OS Console: CAN NOT handle color text!\n");
 				}
-
+		#endif
 			}
 #endif
 
@@ -111,32 +119,92 @@ namespace SGE
 			{
 				//If it's an Error message
 			case MessageLevels::Error:
-
+				//
 				//Output straight to stderr and bypass stdout's buffering to get the message out.
-				fprintf(stderr, "%s%s - ERROR: - %s -", ANSIEscapeColorCodes::Red, timestamp, source);
+				//
+
+			//
+			//Check for ANSI support
+			//
+
+			//If Windows 10 or a non-Windows OS (that will probably have a proper terminal emulator), then send the ANSI escape codes for a color change
+			#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
+				fprintf(stderr, ANSIEscapeColorCodes::Red);
+
+			//If Windows, but not Windows 10, use the Windows API to change the console color
+			#else
+				SetConsoleTextAttribute(windowsSTDERRHandle, FOREGROUND_RED);
+				
+			#endif
+
+				fprintf(stderr, "%s - ERROR: - %s -", timestamp, source);
 				vfprintf(stderr, message, messageArguments);
+
+			#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
 				fprintf(stderr, ANSIEscapeColorCodes::Reset);
+			#else	
+				SetConsoleTextAttribute(windowsSTDERRHandle, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
+			#endif
+
 				break;
 
 				//If it's an Information message
 			case MessageLevels::Information:
-				printf("%s%s - INFORMATION: - %s -", ANSIEscapeColorCodes::White, timestamp, source);
+			#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
+				printf(ANSIEscapeColorCodes::White);
+
+			#else
+				SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
+			#endif
+
+				printf("%s - INFORMATION: - %s -", timestamp, source);
 				vprintf(message, messageArguments);
+
+			#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
 				printf(ANSIEscapeColorCodes::Reset);
+			#else
+				SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
+
+			#endif		
+
 				break;
 
 				//If it's a Warning message
 			case MessageLevels::Warning:
-				printf("%s%s - INFORMATION: - %s -", ANSIEscapeColorCodes::Yellow, timestamp, source);
+			#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
+				printf(ANSIEscapeColorCodes::Yellow);
+			#else
+				SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_BLUE | FOREGROUND_GREEN);
+			#endif
+
+				printf("%s - INFORMATION: - %s -", timestamp, source);
 				vprintf(message, messageArguments);
+
+			#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
 				printf(ANSIEscapeColorCodes::Reset);
+			#else		
+				SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
+			#endif	
+
 				break;
 
 				//If it's a Debug message
 			case MessageLevels::Debug:
-				printf("%s%s - DEBUG: - %s -", ANSIEscapeColorCodes::Green, timestamp, source);
+			#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
+				printf(ANSIEscapeColorCodes::Green);
+			#else	
+				SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_GREEN);
+			#endif
+
+				printf("%s - DEBUG: - %s -", timestamp, source);
 				vprintf(message, messageArguments);
+
+			#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
 				printf(ANSIEscapeColorCodes::Reset);
+			#else
+				SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
+			#endif	
+
 				break;
 			}
 		}
