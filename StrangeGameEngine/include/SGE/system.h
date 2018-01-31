@@ -3,48 +3,59 @@ namespace SGE
 {
 	namespace System
 	{
-		//
-		//  Message Output level to control what messages get sent out
-		//
-		extern int MessageLevel;
-
-		//
-		//  Handles output to the console and changes output format and color slightly based on severity
-		//  Severety levels:   -1 = ERROR, 0 = INFORMATION, 1 = WARNING, 2 = DEBUG
-		//
-		void Message(int messageLevel, const char* source, const char* message, ...);
-
-		namespace MessageLevels
+		namespace Message
 		{
-			const int Error = -1;
-			const int Information = 0;
-			const int Warning = 1;
-			const int Debug = 2;
-		}
+			//
+			//  Message Output level to control what messages get sent out
+			//
+			extern int CurrentOutputLevel;
 
-		namespace MessageSourceCategories
-		{
-			const char System[] = "SGE::System";
-			const char Controls[] = "SGE::Controls";
-			const char FileFormats[] = "SGE::FileFormats";
-			const char Render[] = "SGE::Render";
-			const char Sound[] = "SGE::Sound";
-			const char Display[] = "SGE::Display";
-			const char Utility[] = "SGE::Utility";
-			const char SGE[] = "SGE";
+			//
+			//  Handles output to the console and changes output format and color slightly based on severity
+			//  Severety levels:   -1 = ERROR, 0 = INFORMATION, 1 = WARNING, 2 = DEBUG
+			//
+			void Output(int messageLevel, const char* source, const char* message, ...);
+
+			namespace Levels
+			{
+				const int Error = -1;
+				const int Information = 0;
+				const int Warning = 1;
+				const int Debug = 2;
+			}
+
+			namespace Sources
+			{
+				const char System[] = "SGE::System";
+				const char Controls[] = "SGE::Controls";
+				const char FileFormats[] = "SGE::FileFormats";
+				const char Render[] = "SGE::Render";
+				const char Sound[] = "SGE::Sound";
+				const char Display[] = "SGE::Display";
+				const char Utility[] = "SGE::Utility";
+				const char SGE[] = "SGE";
+			}
 		}
 
 		namespace ANSIEscapeColorCodes
 		{
-			const char Reset[] = "\x1b[27m";
+			const char Reset[] = "\x1b[39m";
 			const char Black[] = "\x1b[30m";
 			const char Red[] = "\x1b[31m";
 			const char Green[] = "\x1b[32m";
-			const char Blue[] = "\x1b[33m";
-			const char Yellow[] = "\x1b[34m";
+			const char Yellow[] = "\x1b[33m";
+			const char Blue[] = "\x1b[34m";
 			const char Magenta[] = "\x1b[35m";
 			const char Cyan[] = "\x1b[36m";
 			const char White[] = "\x1b[37m";
+			const char BrightBlack[] = "\x1b[90m";
+			const char BrightRed[] = "\x1b[91m";
+			const char BrightGreen[] = "\x1b[92m";
+			const char BrightYellow[] = "\x1b[93m";
+			const char BrightBlue[] = "\x1b[94m";
+			const char BrightMagenta[] = "\x1b[95m";
+			const char BrightCyan[] = "\x1b[96m";
+			const char BrightWhite[] = "\x1b[97m";
 		}
 	}
 }

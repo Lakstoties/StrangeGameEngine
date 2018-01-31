@@ -459,7 +459,8 @@ namespace SGE
 			{
 				DeleteFrameBuffers();
 				GenerateFrameBuffers(frameCount);
-				fprintf(stderr, "DEBUG:  Sound  System - Frame Buffer Size Increased to: %lu\n", frameBufferSize);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Sound, "DEBUG:  Sound  System - Frame Buffer Size Increased to: %lu\n", frameBufferSize);
+
 			}
 
 			//Initialize the mixing buffers
@@ -539,7 +540,7 @@ namespace SGE
 			//Check for any errors
 			if (portAudioError != paNoError)
 			{
-				fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
 			}
 
 			//Setup Stream parameters
@@ -549,7 +550,7 @@ namespace SGE
 			//If there is not default output device, Error
 			if (outputParameters.device == paNoDevice)
 			{
-				fprintf(stderr, "PortAudio Error: No default output device.\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: No default output device.\n");
 			}
 
 			//Set channels
@@ -576,12 +577,11 @@ namespace SGE
 			//Check for any errors
 			if (portAudioError != paNoError)
 			{
-				fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
 			}
 			else
 			{
-				//printf("PortAudio Stream Opened.\n");
-				SGE::System::Message(SGE::System::MessageLevels::Information, System::MessageSourceCategories::Sound, "PortAudio Stream Opened");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "PortAudio Stream Opened\n");
 			}
 
 			//Generate the initial render frame buffers
@@ -596,11 +596,11 @@ namespace SGE
 				//Check for errors
 				if (portAudioError != paNoError)
 				{
-					fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
 				}
 				else
 				{
-					printf("PortAudio Stream Started.\n");
+					SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "PortAudio Stream Started.\n");
 				}
 			}
 
@@ -626,11 +626,11 @@ namespace SGE
 				//Check for errors
 				if (portAudioError != paNoError)
 				{
-					fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
 				}
 				else
 				{
-					printf("PortAudio Stream Stopped.\n");
+					SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "PortAudio Stream Stopped.\n");
 				}
 			}
 
@@ -639,11 +639,11 @@ namespace SGE
 
 			if (portAudioError != paNoError)
 			{
-				fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
 			}
 			else
 			{
-				printf("PortAudio Stream Closed.\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "PortAudio Stream Closed.\n");
 			}
 
 			//Stream closed, it should be safe to nuke the render frame buffers
@@ -662,7 +662,7 @@ namespace SGE
 			//Check for any errors
 			if (portAudioError != paNoError)
 			{
-				fprintf(stderr, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
 			}
 		}
 	}

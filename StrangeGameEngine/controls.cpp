@@ -8,59 +8,91 @@ namespace SGE
 {
 	namespace Controls
 	{
+		//
+		//  Mouse namespace that contains global variables containing mouse positioning data.
+		//
 		namespace Mouse
 		{
+			//
+			//  Mapped Mouse position relative to the game screen
+			//
 			int PositionX = 0;
-			int PositionRawX = 0;
-
 			int PositionY = 0;
+
+			//
+			//  Raw Mouse position data reported from the OS relative to the OS window
+			//
+			int PositionRawX = 0;
 			int PositionRawY = 0;
 
+			//
+			//  Scroll position data
+			//
 			int ScrollX = 0;
 			int ScrollY = 0;
 
+			//
+			//  Flag array for button statuses
+			//
 			bool Buttons[NUMBER_OF_BUTTONS] = { false };
 		}
 
+		//
+		//  Keyboard namespace that contains global variables containing keyboard key statuses
+		//
 		namespace Keyboard
 		{
-			//Keyboard status array that keeps track of which keys are pressed
+			//
+			//  Keyboard status array that keeps track of which keys are pressed
+			//
 			bool Status[NUMBER_OF_KEYS] = { false };
 
-			//Current keyboard input buffer
+			//
+			//  Current keyboard input buffer
+			//
 			int InputBuffer[INPUT_BUFFER_SIZE] = { 0 };
 
-			//Current buffer positions
+			//
+			//  Current buffer positions
+			//
 			int CurrentBufferPosition = 0;
 
-			//Clear and reset the buffer.
+			//
+			//  Clear and reset the buffer.
+			//
 			void ResetInputBuffer()
 			{
-				//Reset position
+				//
+				//  Reset position
+				//
 				CurrentBufferPosition = 0;
 
-				//Clear out all the data in the buffer
+				//
+				//  Clear out all the data in the buffer
+				//
 				std::memset(InputBuffer, 0, sizeof(InputBuffer));
 			}
 
-
-			//Copy current keyboard state to another array
+			//
+			//  Copy current keyboard state to another array
+			//
 			void SaveStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS])
 			{
-				memcpy(targetKeyboardStatusArray, Status, sizeof(Status));
+				std::memcpy(targetKeyboardStatusArray, Status, sizeof(Status));
 			}
 		}
 
-
-		//Flag to indicate to the handle events threads to continue or not
+		//
+		//  Flag to indicate to the handle events thread to continue or not
+		//
 		bool ContinueToHandleEvents = true;
 
+		//
+		//  This function is called when the system is suppose to start Handling Events through Main Interface
+		//  This is usually the last thing called and is usually reserved for for the thread that spawned the GUI window...  because MacOS only reports events to the thread that spawned the GUI window of any process.
+		//  Stupid Macs... Really?
 		void HandleEvents()
 		{
-			//Start Handling Events through Main Interface
-			//This has to handled by the same thread that spawned the GUI window
-			//And in OSX this has to be done by the thread that invoked the main function of the program..  Fuckin' Macs...
-
 			//While the main window is going and isn't set to close...
 			while (!glfwWindowShouldClose(SGE::OSWindow) && ContinueToHandleEvents)
 			{

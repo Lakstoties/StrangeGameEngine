@@ -1,30 +1,63 @@
-//GLEW goes before GLFW3 because GLFW inlcudes GL.h
+//
+//  GLEW goes before GLFW3 because GLFW inlcudes GL.h
+//
 #include "GL\glew.h"
 
+//
+//  Include GLFW to handle windowing
+//
 #include <GLFW\glfw3.h>
+
+//
+//  Include threading and mutexs
+//
 #include <thread>
 #include <mutex>
+
+//
+//  Include display header
+//
 #include "include\SGE\display.h"
+
+//
+//  Include shared internals that are not meant for public manipulation and are used by multiple components
+//
 #include "sharedinternal.h"
 
+//
+//  Include SGE System header
+//
+#include "include\SGE\system.h"
 
-
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
+	//
+	//  Display namespace contains anything relating to the system's display functionality.
+	//
 	namespace Display
 	{
+		//
+		//  Video namespace contains anything relating directly to video output onto the main game window
+		//
 		namespace Video
 		{
-			//The virtual video RAM.  Public accessible to allow other components to write to it directly.
+			//
+			//  The virtual video RAM.  Publically accessible to allow other components to write to it directly.
+			//  This is by design.  
+			//
 			pixel* RAM = nullptr;
 
-			//The virtual video back buffer.
+			//
+			//  The virtual video back buffer.  An optional chunk of video RAM that is the same size as the main video RAM.
+			//
 			pixel* BackBuffer = nullptr;
 
-			//The virtual row buffer
-			pixel* RowBuffer = nullptr;
-
-			//The virtual video RAM Size.
+			//
+			//  The virtual video RAM Size.
+			//
 			unsigned int RAMSize = 0;
 
 			//The virtual video horizontal resolution
@@ -487,15 +520,17 @@ namespace SGE
 			//Adjust Texture magnification
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
 
-			//Detect what version of OpenGL were are working with and figure out what rendering method to use
-			fprintf(stderr, "OpenGL Version: %s\n", glGetString(GL_VERSION));
+			//
+			//  Detect what version of OpenGL were are working with and figure out what rendering method to use
+			//
+			SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Display, "OpenGL Version: %s\n", glGetString(GL_VERSION));
 
 			//Go through and find what method can be successfully used.
 
 			//Ideal version that used persistent, coherently mapped pixel buffer object
 			if (GLEW_VERSION_4_4)
 			{
-				fprintf(stderr, "OpenGL version 4.4 detected!\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Display, "OpenGL version 4.4 detected!\n");
 				OpenGL44DrawFunction();
 			}
 			//Fallback to a lower standard
@@ -504,13 +539,13 @@ namespace SGE
 				//Used Pixel Buffer Objects with basic data transfer, supported in OpenGL 2.0... So should be a safe alternative.
 				if (GLEW_VERSION_2_0)
 				{
-					fprintf(stderr, "OpenGL version 2.0 detected!\n");
+					SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Display, "OpenGL version 2.0 detected!\n");
 					OpenGL20DrawFunction();
 				}
 				else
 				{
 					//Oh sweet baby jesus, we are on a potato.  Only OpenGL 1?  Really?
-					fprintf(stderr, "OpenGL Potato Mode Engaged!\n");
+					SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Display, "OpenGL Potato Mode Engaged!\n");
 					FailSafeDrawFunction();
 				}
 			}	
@@ -531,9 +566,6 @@ namespace SGE
 
 				//Initialize the Virtual Video Back Buffer
 				Video::BackBuffer = new Video::pixel[Video::RAMSize];
-
-				//Initialize the Virtual Row Buffer
-				Video::RowBuffer = new Video::pixel[Video::ResolutionX];
 
 				//Flag that the game display is open
 				GameDisplayOpen = true;
@@ -558,7 +590,6 @@ namespace SGE
 				//Delete the old RAM bits
 				delete Video::RAM;
 				delete Video::BackBuffer;
-				delete Video::RowBuffer;
 
 				//Set the new resolution values
 				Video::ResolutionX = width;
@@ -574,9 +605,6 @@ namespace SGE
 
 				//Initialize the Virtual Video Back Buffer
 				Video::BackBuffer = new Video::pixel[Video::RAMSize];
-
-				//Initialize the Virtual Row Buffer
-				Video::RowBuffer = new Video::pixel[Video::ResolutionX];
 
 				//Flag the game resolution has changed
 				GameResolutionChanged = true;
@@ -596,7 +624,6 @@ namespace SGE
 				delete drawingThread;
 				delete Video::RAM;
 				delete Video::BackBuffer;
-				delete Video::RowBuffer;
 
 				//Set that the game display is not open
 				GameDisplayOpen = false;

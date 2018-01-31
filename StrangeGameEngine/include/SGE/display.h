@@ -21,9 +21,6 @@ namespace SGE
 			//The virtual video Back Buffer.  Another chunk of video ram to use as needed that's the same size as the VideoRAM.
 			extern pixel* BackBuffer;
 
-			//A pixel buffers set to the width of the screen to allow a memory block to use for mass copying pixels to the screen.
-			extern pixel* RowBuffer;
-
 			//The virtual Video RAM size.
 			extern unsigned int RAMSize;
 

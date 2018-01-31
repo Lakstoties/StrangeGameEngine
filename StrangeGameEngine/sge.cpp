@@ -19,7 +19,7 @@ namespace SGE
 		void GLFWError(int error, const char* description)
 		{
 			//Dump the error info straight to the stderr
-			fprintf(stderr, "GLFW Error: %s\n", description);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::SGE, "GLFW Error: %s\n", description);
 		}
 
 		//Window Resize Context callback for GLFW
@@ -38,8 +38,6 @@ namespace SGE
 		{
 			SGE::Controls::Mouse::ScrollX += xOffset;
 			SGE::Controls::Mouse::ScrollY += yOffset;
-
-			//fprintf(stderr, "Scroll event catpured: %f, %f \n", xOffset, yOffset);
 		}
 
 		//Mouse Button callback for GLFW
@@ -49,12 +47,10 @@ namespace SGE
 			{
 			case GLFW_PRESS:
 				SGE::Controls::Mouse::Buttons[button] = true;
-				//fprintf(stderr, "Mouse Button %i Pressed.\n", button);
 				break;
 
 			case GLFW_RELEASE:
 				SGE::Controls::Mouse::Buttons[button] = false;
-				//fprintf(stderr, "Mouse Button %i Released.\n", button);
 				break;
 			}
 		}
@@ -132,7 +128,7 @@ namespace SGE
 		if (!glfwInit())
 		{
 			//Report the error
-			fprintf(stderr, "GLFW initialization failure!\n");
+			SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::SGE, "GLFW initialization failure!\n");
 		}
 
 		//Set the GLFW Error Callback
@@ -144,7 +140,7 @@ namespace SGE
 		//Check to make sure another window isn't active, we only want one window going at a time.
 		if (OSWindow != nullptr)
 		{
-			fprintf(stderr, "There's already a game window open!\n");
+			SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::SGE, "There's already a game window open!\n");
 			return;
 		}
 
@@ -154,7 +150,7 @@ namespace SGE
 		if (OSWindow == nullptr)
 		{
 			//Huh, window creation failed...
-			fprintf(stderr, "GLFW failed to create the main game window.\n");
+			SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::SGE, "GLFW failed to create the main game window.\n");
 		}
 
 		//
@@ -193,7 +189,7 @@ namespace SGE
 		if (OSWindow == nullptr)
 		{
 			//There's no window to close!
-			fprintf(stderr, "There is no active game window to close.\n");
+			SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::SGE, "There is no active game window to close.\n");
 		}
 
 		//Close that window

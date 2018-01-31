@@ -1,5 +1,12 @@
+//
+//  Include the Utility header
+//
 #include "include\SGE\utility.h"
 
+//
+//  Include the System header
+//
+#include "include\SGE\system.h"
 
 
 namespace SGE
@@ -205,8 +212,8 @@ namespace SGE
 				//
 				while (PlayerThreadActive)
 				{
-					fprintf(stderr, "DEBUG: Mod Player: Starting to play: %s\n", modFile.title);
-					fprintf(stderr, "DEBUG: Mod Player: Song Positions: %d\n", modFile.songPositions);
+					SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: Starting to play: %s\n", modFile.title);
+					SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: Song Positions: %d\n", modFile.songPositions);
 
 					for (int j = 0; j < modFile.songPositions && PlayerThreadActive; j++)
 					{
@@ -225,7 +232,7 @@ namespace SGE
 							CurrentDivision = i;
 
 							//Set up the channels
-							fprintf(stderr, "DEBUG: Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld\n", modFile.title, j, i, deltaTime.count());
+							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld\n", modFile.title, j, i, deltaTime.count());
 
 							//
 							//  Check all the channels for any changes
@@ -485,7 +492,8 @@ namespace SGE
 
 											//Not implemented effect
 										default:
-											fprintf(stderr, "DEBUG: Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
+											SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
+
 											break;
 										}
 
@@ -502,7 +510,7 @@ namespace SGE
 
 										//If we are here, then we have found either an Unimplented or Unknown effect, Error Log it!
 									default:
-										fprintf(stderr, "DEBUG: Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
+										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
 										break;
 									}
 								}

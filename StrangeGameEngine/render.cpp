@@ -492,10 +492,24 @@ namespace SGE
 		//Then mass memcpys from a created pixel buffer to fill in the gaps.
 		void DrawFilledTriangleFast(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color)
 		{
-			//Pixel Buffer to mass copy memory from
+			//
+			//  Pixel Buffer to mass copy memory from
+			//
 			int targetPixelBufferSize = 0;
 
-			//Scale the vertexes
+			//
+			//  Row buffer to store and copy pixel data from
+			//
+			static SGE::Display::Video::pixel* rowBuffer = nullptr;
+
+			//
+			//  Row buffer size to compare in the future to expand the row buffer as needed
+			//
+			static int rowBufferSize = 0;
+
+			//
+			//  Scale the vertexes
+			//
 			vertex1.x = int(vertex1.x * scalingFactor) + startX;
 			vertex1.y = int(vertex1.y * scalingFactor) + startY;
 			vertex2.x = int(vertex2.x * scalingFactor) + startX;
@@ -503,7 +517,9 @@ namespace SGE
 			vertex3.x = int(vertex3.x * scalingFactor) + startX;
 			vertex3.y = int(vertex3.y * scalingFactor) + startY;
 
-			//Variables to hold the top most, bottom most, and middle point vertexes
+			//
+			//  Variables to hold the top most, bottom most, and middle point vertexes
+			//
 			VertexPoint topVertex;
 			VertexPoint bottomVertex;
 			VertexPoint middleVertex;
@@ -638,11 +654,28 @@ namespace SGE
 
 			targetPixelBufferSize = greatestX - lowestX;
 
+			//
+			//  Create a row buffer if it hasn't already
+			//
+			if (rowBuffer == nullptr)
+			{
+				rowBuffer = new SGE::Display::Video::pixel[targetPixelBufferSize];
+				rowBufferSize = targetPixelBufferSize;
+			}
+			else if (rowBufferSize < targetPixelBufferSize)
+			{
+				delete[] rowBuffer;
+				rowBuffer = new SGE::Display::Video::pixel[targetPixelBufferSize];
+				rowBufferSize = targetPixelBufferSize;
+			}
 
-			//Load up the Row Buffer
+
+			//
+			//  Load up the Row Buffer
+			//
 			for (int i = 0; i < targetPixelBufferSize && i < SGE::Display::Video::ResolutionX; i++)
 			{
-				SGE::Display::Video::RowBuffer[i] = color;
+				rowBuffer[i] = color;
 			}
 
 
@@ -708,7 +741,7 @@ namespace SGE
 				//
 
 				std::memcpy(&SGE::Display::Video::RAM[copyRowDestination],		//In Video RAM
-						&SGE::Display::Video::RowBuffer[copyRowSource],			//From the Row Buffer
+						&rowBuffer[copyRowSource],			//From the Row Buffer
 						sizeof(SGE::Display::Video::pixel) * copyRowLength);
 			}
 
@@ -769,7 +802,7 @@ namespace SGE
 				//
 
 				std::memcpy(&SGE::Display::Video::RAM[copyRowDestination],	//In Video RAM
-					&SGE::Display::Video::RowBuffer[copyRowSource],			//From the Row Buffer
+					&rowBuffer[copyRowSource],			//From the Row Buffer
 					sizeof(SGE::Display::Video::pixel) * copyRowLength);
 			}
 		}

@@ -31,7 +31,7 @@ namespace SGE
 			//Check to see if we got a valid file pointer
 			if (bitmapFile == NULL)
 			{
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Bitmap File Error:  Cannot open file \"%s\"\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  Cannot open file \"%s\"\n", targetFilename);
 				return -1;
 			}
 
@@ -53,7 +53,7 @@ namespace SGE
 			//If memcmp doesn't return a 0, something is different
 			if (std::memcmp("BM", &idField, 2) != 0)
 			{
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Incorrect ID field.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Incorrect ID field.\n", targetFilename);
 				return -2;
 			}
 
@@ -73,7 +73,7 @@ namespace SGE
 			//Check to see if we got a whole header, or if the end of file hit early
 			if (readCount < BITMAP_FILE_HEADER_SIZE)
 			{
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - File header too small.  Read count: %i\n", targetFilename, readCount);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - File header too small.  Read count: %i\n", targetFilename, readCount);
 				return -3;
 			}
 
@@ -102,7 +102,7 @@ namespace SGE
 				sizeOfHeader == 124))		//The size of a Windows NT 5.0, 98, or later header
 			{
 				//This header size is not a known size
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Bitmap Info Header not of a known size.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Bitmap Info Header not of a known size.\n", targetFilename);
 				return -4;
 			}
 
@@ -110,7 +110,7 @@ namespace SGE
 			if (sizeOfHeader < 40)
 			{
 				//This is not a supported version at the moment.
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Bitmap Info Header if of an unsupported version.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Bitmap Info Header if of an unsupported version.\n", targetFilename);
 				return -5;
 			}
 
@@ -128,7 +128,7 @@ namespace SGE
 			//Check color panes to make sure it is a value of one, otherwise there's probably something wrong with the file
 			if (colorPanes != 1)
 			{
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Color Panes value is not equal to 1, when it should be.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Color Panes value is not equal to 1, when it should be.\n", targetFilename);
 				return -6;
 			}
 
@@ -146,14 +146,14 @@ namespace SGE
 				bitsPerPixel == 32))	//True Color with Alpha
 			{
 				//This doesn't have a proper bits per pixel value
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Bits Per Pixel value is not 1, 4, 8, 16, 24, or 32.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Bits Per Pixel value is not 1, 4, 8, 16, 24, or 32.\n", targetFilename);
 				return -7;
 			}
 
 			//We are only supporting 24bpp at the moment, so error out if someone tries to us anything else right now
 			if (bitsPerPixel != 24)
 			{
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Only 24bpp BMPs supported right now.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Only 24bpp BMPs supported right now.\n", targetFilename);
 				return -8;
 			}
 
@@ -163,7 +163,7 @@ namespace SGE
 			//We don't support any kind of compression, so if it's anything other than a 0, we can't process it.
 			if (compressionMethod != 0)
 			{
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - No compression is presently supported\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - No compression is presently supported\n", targetFilename);
 				return -9;
 			}
 
@@ -190,7 +190,7 @@ namespace SGE
 			//Check to see if we got a whole header, or if the end of file hit early
 			if (readCount < BITMAP_DATA_HEADER_SIZE)
 			{
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - File too small - Incomplete Bitmap Data Header, size was %i.\n", targetFilename, readCount);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - File too small - Incomplete Bitmap Data Header, size was %i.\n", targetFilename, readCount);
 				return -10;
 			}
 
@@ -199,11 +199,11 @@ namespace SGE
 			//  Print out some common debug data
 			//
 
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Bitmap Load - \"%s\" - Bitmap Data Offset: %d\n", targetFilename, offset);
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Bitmap Load - \"%s\" - Header Size: %d\n", targetFilename, sizeOfHeader);
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Bitmap Load - \"%s\" - Height: %d\n", targetFilename, height);
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Bitmap Load - \"%s\" - Width: %d\n", targetFilename, width);
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Bitmap Load - \"%s\" - Size: %d\n", targetFilename, dataSize);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Bitmap Load - \"%s\" - Bitmap Data Offset: %d\n", targetFilename, offset);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Bitmap Load - \"%s\" - Header Size: %d\n", targetFilename, sizeOfHeader);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Bitmap Load - \"%s\" - Height: %d\n", targetFilename, height);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Bitmap Load - \"%s\" - Width: %d\n", targetFilename, width);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Bitmap Load - \"%s\" - Size: %d\n", targetFilename, dataSize);
 
 
 			//
@@ -292,7 +292,7 @@ namespace SGE
 
 			if (soundFile == NULL)
 			{
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  Cannot open file \"%s\"\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  Cannot open file \"%s\"\n", targetFilename);
 				return -1;
 			}
 
@@ -319,7 +319,7 @@ namespace SGE
 			if (memcmp("RIFF", &chunkID, 4) != 0)
 			{
 				//No RIFF header... Not the format we are looking for!
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Incorrect header.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Incorrect header.\n", targetFilename);
 
 				//Close out the file
 				fclose(soundFile);
@@ -333,7 +333,7 @@ namespace SGE
 
 			readCount += fread(&chunkSize, 1, 4, soundFile);
 
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File: %s - Chunk Size: %d\n", targetFilename, chunkSize);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Sound System Wave File: %s - Chunk Size: %d\n", targetFilename, chunkSize);
 
 			//
 			//Offset: 8		Size: 4		Format:		Check format for "WAVE"
@@ -344,7 +344,7 @@ namespace SGE
 			if (memcmp("WAVE", &format, 4) != 0)
 			{
 				//No WAVE format... Not the format we are looking for!
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Incorrect Encoding Format.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Incorrect Encoding Format.\n", targetFilename);
 
 				//Close out the file
 				fclose(soundFile);
@@ -356,7 +356,7 @@ namespace SGE
 			if (readCount != WAVE_FILE_HEADER_SIZE)
 			{
 				//This file is way to small to be a proper wav file
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 				return -2;
 			}
 
@@ -391,7 +391,7 @@ namespace SGE
 					//Advance past this section of the file
 					if (fseek(soundFile, subChunkSize, SEEK_CUR) != 0)
 					{
-						SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing fmt subchunk.\n", targetFilename);
+						SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing fmt subchunk.\n", targetFilename);
 
 						//Close out the file
 						fclose(soundFile);
@@ -403,7 +403,7 @@ namespace SGE
 				//If we hit end of file early
 				if (readCount < WAVE_FILE_SUBCHUNK_HEADER_SIZE)
 				{
-					SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing fmt subchunk.\n", targetFilename);
+					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing fmt subchunk.\n", targetFilename);
 
 					//Close out the file
 					fclose(soundFile);
@@ -416,7 +416,7 @@ namespace SGE
 			if (subChunkSize != 16)
 			{
 				//The format chunk size should be 16 bytes, if not... This isn't right
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Format Chunk Size Incorrect.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Format Chunk Size Incorrect.\n", targetFilename);
 
 				//Close out the file
 				fclose(soundFile);
@@ -437,7 +437,7 @@ namespace SGE
 			if (audioFormat != 1)
 			{
 				//The format audio format should be 1, if not...  Abort!
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Format Chunk Size Incorrect.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Format Chunk Size Incorrect.\n", targetFilename);
 
 				//Close out the file
 				fclose(soundFile);
@@ -451,7 +451,7 @@ namespace SGE
 			readCount += fread(&numberOfChannels, 1, 2, soundFile);
 
 			//May support more channels later
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File: %s - Number of Channels: %d\n", targetFilename, numberOfChannels);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Sound System Wave File: %s - Number of Channels: %d\n", targetFilename, numberOfChannels);
 
 			//
 			//Offset: 24	Size: 4		Sample Rate
@@ -463,7 +463,7 @@ namespace SGE
 			if (sampleRate != 44100)
 			{
 				//Not 44100Hz sample rate...  Not exactly an error, but no support for other sample rates at the moment.
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" has an unsupported sample rate.  44100Hz Only.  Sorry.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" has an unsupported sample rate.  44100Hz Only.  Sorry.\n", targetFilename);
 
 				//Close out the file
 				fclose(soundFile);
@@ -489,7 +489,7 @@ namespace SGE
 			if (bitsPerSample != 16)
 			{
 				//Not 16 bit sample depth...  Not exactly an error, but no support for other bit rates at the moment.
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" has an unsupported bit rate.  16-bit Only.  Sorry.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" has an unsupported bit rate.  16-bit Only.  Sorry.\n", targetFilename);
 
 				//Close out the file
 				fclose(soundFile);
@@ -501,7 +501,7 @@ namespace SGE
 			if (readCount < WAVE_FILE_SUBCHUNK_HEADER_SIZE)
 			{
 				//The format audio format should be 1, if not...  Abort!
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - fmt subchunk too small.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - fmt subchunk too small.\n", targetFilename);
 
 				//Close out the file
 				fclose(soundFile);
@@ -546,7 +546,7 @@ namespace SGE
 					//Advance past this section of the file
 					if (fseek(soundFile, subChunkSize, SEEK_CUR) != 0)
 					{
-						SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing data subchunk.\n", targetFilename);
+						SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing data subchunk.\n", targetFilename);
 
 						//Close out the file
 						fclose(soundFile);
@@ -559,7 +559,7 @@ namespace SGE
 				//If we hit end of file early
 				if (readCount < WAVE_FILE_SUBCHUNK_HEADER_SIZE)
 				{
-					SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing data subchunk.\n", targetFilename);
+					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing data subchunk.\n", targetFilename);
 
 					//Close out the file
 					fclose(soundFile);
@@ -573,7 +573,7 @@ namespace SGE
 			if (readCount < WAVE_FILE_SUBCHUNK_HEADER_SIZE)
 			{
 				//The format audio format should be 1, if not...  Abort!
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - data subchunk too small.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - data subchunk too small.\n", targetFilename);
 
 				//Close out the file
 				fclose(soundFile);
@@ -586,7 +586,7 @@ namespace SGE
 			//Equal to:  Number of Samples * Number of Channels * Bits Per Sample / 8
 			//Indicates the amount to read after this chunk
 
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File: %s - Data Size: %d\n", targetFilename, subChunkSize);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Sound System Wave File: %s - Data Size: %d\n", targetFilename, subChunkSize);
 
 
 			//
@@ -620,7 +620,7 @@ namespace SGE
 				}
 			}
 
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Sound System Wave File: %s - Data Bytes Read: %zd\n", targetFilename, readCount * 2);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Sound System Wave File: %s - Data Bytes Read: %zd\n", targetFilename, readCount * 2);
 
 			//If we get here... It's all good!... Maybe... Hoepfully?
 
@@ -672,7 +672,7 @@ namespace SGE
 			//Check to see if the file is even there.
 			if (moduleFile == NULL)
 			{
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File Error:  Cannot open file \"%s\"\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File Error:  Cannot open file \"%s\"\n", targetFilename);
 				return -1;
 			}
 
@@ -690,7 +690,7 @@ namespace SGE
 			totalReadCount += readCount;
 
 			//DEBUG:  Current number of bytes read
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Post Title: Read Count: %d \n", totalReadCount);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Post Title: Read Count: %d \n", totalReadCount);
 
 			//
 			//Read the module file's sample data
@@ -706,7 +706,7 @@ namespace SGE
 				if (readCount != 22)
 				{
 					//This file is way to small to be a proper wav file
-					SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 					return -2;
 				}
 
@@ -721,7 +721,7 @@ namespace SGE
 				if (readCount != 2)
 				{
 					//This file is way too small to be a proper mod file
-					SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 					return -3;
 				}
 
@@ -733,7 +733,7 @@ namespace SGE
 				if (readCount != 1)
 				{
 					//This file is way to small to be a proper wav file
-					SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 					return -4;
 				}
 
@@ -745,7 +745,7 @@ namespace SGE
 				if (readCount != 1)
 				{
 					//This file is way to small to be a proper wav file
-					SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 					return -5;
 				}
 
@@ -759,7 +759,7 @@ namespace SGE
 				if (readCount != 2)
 				{
 					//This file is way to small to be a proper wav file
-					SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 					return -6;
 				}
 
@@ -773,13 +773,13 @@ namespace SGE
 				if (readCount != 2)
 				{
 					//This file is way to small to be a proper wav file
-					SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 					return -7;
 				}
 			}
 
 			//DEBUG: Check current read count
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Post Sample Headers: Current Read Count: %d \n", totalReadCount);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Post Sample Headers: Current Read Count: %d \n", totalReadCount);
 
 			//
 			//Read number of song positions
@@ -792,7 +792,7 @@ namespace SGE
 			if (readCount != 1)
 			{
 				//This file is way to small to be a proper wav file
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 				return -8;
 			}
 
@@ -804,7 +804,7 @@ namespace SGE
 			if (readCount != 1)
 			{
 				//This file is way to small to be a proper wav file
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 				return -9;
 			}
 
@@ -816,13 +816,13 @@ namespace SGE
 			totalReadCount += readCount;
 
 			//DEBUG: Check current read count
-			fprintf(stderr, "DEBUG:  Current Read Count: %d \n", totalReadCount);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Current Read Count: %d \n", totalReadCount);
 
 			//Check to see if we actually read enough bytes
 			if (readCount != 128)
 			{
 				//This file is way to small to be a proper wav file
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 				return -10;
 			}
 
@@ -837,7 +837,7 @@ namespace SGE
 			if (readCount != 4)
 			{
 				//This file is way to small to be a proper wav file
-				SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 				return -11;
 			}
 
@@ -846,42 +846,42 @@ namespace SGE
 			if (memcmp(&readBuffer, "M.K.", 4) == 0)
 			{
 				//Detect M.K. Signature
-				SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "M.K. Module File signature detected.\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "M.K. Module File signature detected.\n");
 			}
 
 			//Check for "FLT4"
 			else if (memcmp(&readBuffer, "FLT4", 4) == 0)
 			{
 				//Detect FLT4 Signature
-				SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "FLT4 Module File signature detected.\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "FLT4 Module File signature detected.\n");
 			}
 
 			//Check for "FLT8"
 			else if (memcmp(&readBuffer, "FLT8", 4) == 0)
 			{
 				//Detect FLT8 Signature
-				SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "FLT8 Module File signature detected.\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "FLT8 Module File signature detected.\n");
 			}
 
 			//Check for "4CHN"
 			else  if (memcmp(&readBuffer, "4CHN", 4) == 0)
 			{
 				//Detect 4CHN Signature
-				SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "4CHN Module File signature detected.\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "4CHN Module File signature detected.\n");
 			}
 
 			//Check for "6CHN"
 			else if (memcmp(&readBuffer, "6CHN", 4) == 0)
 			{
 				//Detect 6CHN Signature
-				SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "6CHN Module File signature detected.\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "6CHN Module File signature detected.\n");
 			}
 
 			//Check for "8CHN"
 			else if (memcmp(&readBuffer, "8CHN", 4) == 0)
 			{
 				//Detect 8CHN Signature
-				SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "8CHN Module File signature detected.\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "8CHN Module File signature detected.\n");
 			}
 
 			//No letters found
@@ -890,7 +890,7 @@ namespace SGE
 				//Move the seek back since this is part of the pattern data
 				fseek(moduleFile, -4, SEEK_CUR);
 				totalReadCount -= 4;
-				SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "No Module File signature detected.\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "No Module File signature detected.\n");
 			}
 
 			//
@@ -903,11 +903,11 @@ namespace SGE
 				if (patternTable[i] > numberOfPatterns)
 				{
 					numberOfPatterns = patternTable[i];
-					SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Current number of patterns: %d\n", numberOfPatterns);
+					SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Current number of patterns: %d\n", numberOfPatterns);
 				}
 			}
 
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Module Load: %d patterns found.\n", numberOfPatterns);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Module Load: %d patterns found.\n", numberOfPatterns);
 
 			//
 			//Start churning through all the pattern data
@@ -930,7 +930,7 @@ namespace SGE
 						if (readCount != 4)
 						{
 							//This file is way to small to be a proper wav file
-							SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+							SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
 							return -12;
 						}
 
@@ -951,7 +951,7 @@ namespace SGE
 			}
 
 			//DEBUG: Check current read count
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Current Read Count: %d \n", totalReadCount);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Current Read Count: %d \n", totalReadCount);
 
 			//
 			//Load up the samples with their data
@@ -972,14 +972,14 @@ namespace SGE
 					if (readCount != samples[i].lengthInWords * 2)
 					{
 						//This file is way to small to be a proper wav file
-						SGE::System::Message(SGE::System::MessageLevels::Error, SGE::System::MessageSourceCategories::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.  Sample Data Reported: %d  Sample Data Read: %d \n", targetFilename, samples[i].lengthInWords * 2, readCount);
+						SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.  Sample Data Reported: %d  Sample Data Read: %d \n", targetFilename, samples[i].lengthInWords * 2, readCount);
 						//return -13;
 					}
 				}
 			}
 
 			//DEBUG: Check current read count
-			SGE::System::Message(SGE::System::MessageLevels::Debug, SGE::System::MessageSourceCategories::FileFormats, "Current Read Count: %d \n", totalReadCount);
+			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Current Read Count: %d \n", totalReadCount);
 			
 
 			//
