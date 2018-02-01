@@ -10,6 +10,9 @@
 #include <cstring>
 #include "include\SGE\system.h"
 
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
 	namespace Sound

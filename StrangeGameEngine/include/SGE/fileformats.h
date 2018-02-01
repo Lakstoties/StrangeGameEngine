@@ -1,8 +1,10 @@
 #pragma once
-#include "render.h"
 #include "sound.h"
 #include "display.h"
 
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
 	namespace FileFormats

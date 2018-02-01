@@ -1,6 +1,6 @@
 #pragma once
 //
-//  Core namespace for the Strange Game Engine
+//  Strange Game Engine Main Namespace
 //
 namespace SGE
 {

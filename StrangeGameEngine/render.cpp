@@ -1,5 +1,9 @@
 ﻿#include "include\SGE\render.h"
 #include <cstring>
+
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
 	namespace Render

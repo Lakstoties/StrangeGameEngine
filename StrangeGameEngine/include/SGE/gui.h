@@ -1,6 +1,9 @@
 #pragma once
 #include "render.h"
 
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
 	namespace GUI

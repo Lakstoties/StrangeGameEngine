@@ -3,6 +3,9 @@
 #include <thread>
 #include <mutex>
 
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
 	namespace Sound

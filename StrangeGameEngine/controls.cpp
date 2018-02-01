@@ -3,6 +3,9 @@
 #include <thread>
 #include <algorithm>
 
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
 	//
@@ -10,6 +13,9 @@ namespace SGE
 	//
 	extern GLFWwindow* OSWindow;
 
+	//
+	//  Controls namespace that handles input from keyboards, mice, and other controllers
+	//
 	namespace Controls
 	{
 		//

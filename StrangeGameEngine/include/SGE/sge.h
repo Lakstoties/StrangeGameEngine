@@ -8,6 +8,9 @@
 #include "utility.h"
 #include "system.h"
 
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
 	//

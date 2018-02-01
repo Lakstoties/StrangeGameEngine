@@ -3,6 +3,9 @@
 #include <fstream>
 #include <chrono>
 
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
 	namespace Render

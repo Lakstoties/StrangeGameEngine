@@ -1,6 +1,6 @@
 #pragma once
 //
-//  Use the SGE namespace to keep things seperated
+//  Strange Game Engine Main Namespace
 //
 namespace SGE
 {

@@ -13,7 +13,9 @@
 #include <Windows.h>
 #endif
 
-
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
 	namespace System

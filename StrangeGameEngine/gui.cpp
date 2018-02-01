@@ -1,6 +1,9 @@
 #include "include\SGE\gui.h"
 #include <cstring>
 
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
 	namespace GUI

@@ -1,6 +1,9 @@
 #include "include\SGE\fileformats.h"
 #include "include\SGE\system.h"
 
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
 	namespace FileFormats

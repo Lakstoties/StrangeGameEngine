@@ -3,7 +3,9 @@
 #include "fileformats.h"
 #include <thread>
 
-
+//
+//  Strange Game Engine Main Namespace
+//
 namespace SGE
 {
 	namespace Utility
