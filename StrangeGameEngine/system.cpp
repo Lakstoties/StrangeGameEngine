@@ -1,20 +1,12 @@
 #include "include\SGE\system.h"
 #include <chrono>
 #include <ctime>
-#include "sharedinternal.h"
 #include <mutex>
 
 //
 //  Because of certain weirdness with Windows and the terminal emulator, we have to check and do some weirdness to get colored text
 //
 #ifdef _WIN32
-#define GLFW_EXPOSE_NATIVE_WIN32
-
-//
-//  Clang compile has some weirdness with IUnknown, so make sure it is declared before the Windows header
-//
-#define CINTERFACE 
-
 //
 //  Include the Windows API
 //

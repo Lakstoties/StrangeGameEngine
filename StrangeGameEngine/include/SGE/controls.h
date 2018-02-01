@@ -1,54 +1,97 @@
 #pragma once
+//
+//  Core namespace for the Strange Game Engine
+//
 namespace SGE
 {
+	//
+	//  Controls namespace that handles input from keyboards, mice, and other controllers
+	//
 	namespace Controls
 	{
+		//
+		//  Mouse namespace that presents globals to maintain current position and button status of the mouse
+		//
 		namespace Mouse
 		{
+			//
+			//  Number of Button possible for a mouse
+			//
 			const int NUMBER_OF_BUTTONS = 10;
 
-			extern int PositionRawX;
-			extern int PositionX;
+			//
+			//  X Position Data
+			//
+			extern int PositionRawX;	//Raw Position Data from the OS
+			extern int PositionX;		//Translated position data mapped to the game window
 
-			extern int PositionRawY;
-			extern int PositionY;
+			//
+			//  Y Position Data
+			//
+			extern int PositionRawY;	//Raw Position Data from the OS
+			extern int PositionY;		//Translated position data mapped to the game window
 
+			//
+			//  Button Status array
+			//
 			extern bool Buttons[NUMBER_OF_BUTTONS];
 
+			//
+			//  Scroll Wheel Position data
+			//
 			extern int ScrollX;
 			extern int ScrollY;
 		}
 
+		//
+		//  Keyboard namespace that presents globals to maintain the current status of key on the keyboard and recent input
+		//
 		namespace Keyboard
 		{
-			//Values for the key and scan code arrays
+			//
+			//  Values for the key and scan code arrays
+			//
 			const int NUMBER_OF_KEYS = 512;
 
+			//
 			//Keyboard input buffer size
+			//
 			const int INPUT_BUFFER_SIZE = 512;
 
-			//Current keyboard key state array
-			//It's an extern to keep the linker from going crazy over multiple definitions between the headers.
-			//It's officially defined in the control.cpp
+			//
+			//  Extern to declare the keyboard key state array
+			//
 			extern bool Status[NUMBER_OF_KEYS];
 
-			//Current keyboard input buffer
+			//
+			//  Extern to declare the keyboard input buffer
+			//
 			extern int InputBuffer[INPUT_BUFFER_SIZE];
 
-			//Current buffer positions
+			//
+			//  Extern to declare the buffer positions
+			//
 			extern int CurrentBufferPosition;
 
+			//
+			//  Function to clear out the input buffer
+			//
 			void ResetInputBuffer();
 
+			//
+			//  Function to save the current keyboard status array to another array
+			//
 			void SaveStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS]);
 		}
 
-		//Flag to indicate if the input handling system should keep on going.
+		//
+		//  Flag to indicate if the input handling system should keep on going.
+		//
 		extern bool ContinueToHandleEvents;
 
 		//Start Handling Events through Main Interface
 		//This has to handled by the same thread that spawned the GUI window
-		//And in OSX this has to be done by the thread that invoked the main function of the program..  Fuckin' Macs...
+		//And in OSX this has to be done by the thread that invoked the main function of the program..  @#$%!#$^' Macs...
 		void HandleEvents();
 
 		///

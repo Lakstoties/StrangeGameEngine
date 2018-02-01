@@ -1,5 +1,4 @@
 #include "include\SGE\sge.h"
-#include "sharedinternal.h"
 #include <GLFW\glfw3.h>
 #include <ctime>
 #include <chrono>

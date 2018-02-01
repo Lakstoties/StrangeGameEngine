@@ -110,7 +110,6 @@
     <ClInclude Include="include\SGE\fileformats.h" />
     <ClInclude Include="include\SGE\system.h" />
     <ClInclude Include="include\SGE\utility.h" />
-    <ClInclude Include="sharedinternal.h" />
     <ClInclude Include="include\SGE\controls.h" />
     <ClInclude Include="include\SGE\display.h" />
     <ClInclude Include="include\SGE\gui.h" />

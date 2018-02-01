@@ -1,8 +1,14 @@
 #pragma once
 namespace SGE
 {
+	//
+	//  This namespace contains items related to the OS interaction, debugging, logging, and other system features
+	//
 	namespace System
 	{
+		//
+		//  Message system to logging and output system messages
+		//
 		namespace Message
 		{
 			//
@@ -16,6 +22,9 @@ namespace SGE
 			//
 			void Output(int messageLevel, const char* source, const char* message, ...);
 
+			//
+			//  Level of messages for the message system
+			//
 			namespace Levels
 			{
 				const int Error = -1;
@@ -24,6 +33,9 @@ namespace SGE
 				const int Debug = 2;
 			}
 
+			//
+			//  Official sources of the system messages can come from
+			//
 			namespace Sources
 			{
 				const char System[] = "SGE::System";
@@ -37,6 +49,9 @@ namespace SGE
 			}
 		}
 
+		//
+		//  ANSI Escape Color Codes for provide color to the console output
+		//
 		namespace ANSIEscapeColorCodes
 		{
 			const char Reset[] = "\x1b[39m";

@@ -1,11 +1,15 @@
 #include "include\SGE\controls.h"
-#include "sharedinternal.h"
 #include <GLFW\glfw3.h>
 #include <thread>
 #include <algorithm>
 
 namespace SGE
 {
+	//
+	//  This is an extern to the main GLFW window that is part of the SGE namespace
+	//
+	extern GLFWwindow* OSWindow;
+
 	namespace Controls
 	{
 		//

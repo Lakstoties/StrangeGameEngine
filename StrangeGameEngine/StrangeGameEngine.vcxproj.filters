@@ -59,9 +59,6 @@
     <ClInclude Include="include\SGE\sound.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="sharedinternal.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\SGE\sge.h">
       <Filter>Header Files</Filter>
     </ClInclude>

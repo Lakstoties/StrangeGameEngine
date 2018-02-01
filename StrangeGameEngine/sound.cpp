@@ -197,10 +197,10 @@ namespace SGE
 		//
 
 		//Create a blank buffer of a certain sample size
-		int SoundSampleBuffer::CreateBlankBuffer(unsigned int numOfSamples)
+		int SoundSampleBuffer::Allocate(unsigned int numOfSamples)
 		{
-			//Reset the buffer
-			ResetBuffer();
+			//Free the buffer
+			Free();
 
 			//Set the buffer size
 			bufferSize = numOfSamples;
@@ -210,7 +210,7 @@ namespace SGE
 
 			//Zero out the buffer to make sure it is clean
 			//Some OSes don't make the ram is clean when given
-			ZeroBuffer();
+			Zero();
 
 			//Everything thing should be okay.
 			return 0;
@@ -220,7 +220,7 @@ namespace SGE
 		int SoundSampleBuffer::Load(unsigned int numOfSamples, sampleType *samples)
 		{
 			//Get a clean buffer
-			CreateBlankBuffer(numOfSamples);
+			Allocate(numOfSamples);
 
 			//memcpy over the data into the buffer
 			std::memcpy(buffer, samples, sizeof(sampleType) * bufferSize);
@@ -230,7 +230,7 @@ namespace SGE
 		}
 
 		//Zero out a buffer completely
-		int SoundSampleBuffer::ZeroBuffer()
+		int SoundSampleBuffer::Zero()
 		{
 			//Check to make sure there's actually a buffer to zero out
 			if (buffer == nullptr)
@@ -247,7 +247,7 @@ namespace SGE
 		}
 
 		//Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
-		int SoundSampleBuffer::ResetBuffer()
+		int SoundSampleBuffer::Free()
 		{
 			//Delete the buffer
 			delete[] buffer;
@@ -263,7 +263,7 @@ namespace SGE
 		SoundSampleBuffer::~SoundSampleBuffer()
 		{
 			//Reset the buffer which will free the memory.
-			ResetBuffer();
+			Free();
 		}
 
 		//

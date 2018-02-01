@@ -10,55 +10,73 @@ namespace SGE
 		//
 		//  Typedef to define the format used for audio data
 		//
-
 		typedef short sampleType;
-
 
 		//
 		//  Sound System specific constants
 		//
-		//Number of channels for the system
+
+		//
+		//  Number of channels for the system
+		//
 		const int MAX_CHANNELS = 32;
 
-		//Number of samples for the system
+		//
+		//  Number of samples for the system
+		//
 		const int MAX_SAMPLE_BUFFERS = 256;
 
-		//Sound system sample rate
+		//
+		//  Sound system sample rate
+		//
 		const int SAMPLE_RATE = 44100;
 
-		//Sound system bit depth
+		//
+		//  Sound system bit depth
+		//
 		const int SAMPLE_BITS = sizeof(sampleType) << 3;
 
-		//Max frequency that can represented by the Sample Rate
+		//
+		//  Max frequency that can represented by the Sample Rate
+		//
 		const int MAX_FREQUENCY = SAMPLE_RATE / 2;
 
-		//Maximum Amplitude given the sample bit depth
-		//This is usually half the maximum number represented by the number of bits
+		//
+		//  Maximum Amplitude given the sample bit depth
+		//  This is usually half the maximum number represented by the number of bits
+		//
 		const int SAMPLE_MAX_AMPLITUDE = (1 << (SAMPLE_BITS - 1)) - 1;
-
-
 
 		//
 		//  Common values that are precalculated for efficiency.
 		//
 		namespace Precalculated
 		{
-			//Precalculated PI/2 to float precision
+			//
+			//  Precalculated PI/2 to float precision
+			//
 			const float HALF_PI_FLOAT = 1.57079632679489661923f;
 
-			//Precalculated PI to float precision
+			//
+			//  Precalculated PI to float precision
+			//
 			const float PI_FLOAT = 3.14159265358979323846f;
 
-			//Precalculated 2*PI to float precision 
+			//
+			//  Precalculated 2*PI to float precision 
+			//
 			const float TWO_PI_FLOAT = 6.28318530717958647692f;
 
-			//Semitone multipler
+			//
+			//  Semitone multipler
+			//
 			const float SEMITONE_MULTIPLIER = 1.0595f;
 		}
 
 
-
-		//A list of MIDI notes and their associated frequencies.
+		//
+		//  A list of MIDI notes and their associated frequencies.
+		//
 		const float MIDI_NOTE_FRENQUENCY[] =
 		{
 			//Octave -1
@@ -223,26 +241,38 @@ namespace SGE
 			//  Data regions to store waves
 			//
 			
-			//Square Waveform
+			//
+			//  Square Waveform
+			//
 			extern float Sine[SAMPLE_RATE];
 
-			//Ramp Down Waveform
+			//
+			//  Ramp Down Waveform
+			//
 			extern float RampDown[SAMPLE_RATE];
 
-			//Square Waveform
+			//
+			//  Square Waveform
+			//
 			extern float Square[SAMPLE_RATE];
 
 			//
 			//  Generation Functions
 			//
 
-			//Generate Sine waveform
+			//
+			//  Generate Sine waveform
+			//
 			void PreGenerateSine();
 
-			//Generate Ramp Down waveform
+			//
+			//  Generate Ramp Down waveform
+			//
 			void PreGenerateRampDown();
 
-			//Generate Square waveform
+			//
+			//  Generate Square waveform
+			//
 			void PreGenerateSquare();
 
 		}
@@ -251,37 +281,54 @@ namespace SGE
 		//  Sample Buffer Structure
 		//
 
-
 		//Sample Buffer to contain audio data that sound channels will link to and play from.
 		//For the purposes of the Strange Game Engine.  The data put into these buffers are assumed to be PCM Signed 16-bit at 44.1Khz sample rate.
 		struct SoundSampleBuffer
 		{
 		public:
-			//Buffer to contain the samples
+			//
+			//  Buffer to contain the samples
+			//
 			sampleType *buffer = nullptr;
 
-			//Size of the buffer
+			//
+			//  Size of the buffer
+			//
 			unsigned int bufferSize = 0;
 
-			//The offeset the sample will repeat at.
+			//
+			//  The offeset the sample will repeat at.
+			//
 			unsigned int repeatOffset = 0;
 
-			//The duration of the repeat
+			//
+			//  The duration of the repeat
+			//
 			unsigned int repeatDuration = 0;
 
-			//Create a blank buffer of a certain sample size
-			int CreateBlankBuffer(unsigned int numOfSamples);
+			//
+			//  Create a blank buffer of a certain sample size
+			//
+			int Allocate(unsigned int numOfSamples);
 
-			//Create a blank buffer, and then load data into it.
+			//
+			//  Create a blank buffer, and then load data into it.
+			//
 			int Load(unsigned int numOfSamples, sampleType *samples);
 
-			//Zero out a buffer completely
-			int ZeroBuffer();
+			//
+			//  Zero out a buffer completely
+			//
+			int Zero();
 
-			//Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
-			int ResetBuffer();
+			//
+			//  Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
+			//
+			int Free();
 
-			//Destructor to make sure the buffer memory is freed upon destruction to prevent memory leaks.
+			//
+			//  Destructor to make sure the buffer memory is freed upon destruction to prevent memory leaks.
+			//
 			~SoundSampleBuffer();			
 		};
 
@@ -289,45 +336,66 @@ namespace SGE
 		//
 		//  Sound Channel Structure
 		//
-
 		struct SoundChannel
 		{
-			//Offset 
-			//Sample offset
+			//
+			//  Sample offset
+			//
 			float offset = 0;
 
-			//Amount to increment the offset by
+			//
+			//  Amount to increment the offset by
+			//
 			float offsetIncrement = 0;
 
-			//Current offset Increment after all effects have been applied
+			//
+			//  Current offset Increment after all effects have been applied
+			//
 			float currentOffsetIncrement = 0;
 
-			//Current Sound Sample Buffer in use
-			//Set to the maximum buffers, to indicate one hasn't been selected.
+			//
+			//  Current Sound Sample Buffer in use
+			//  Set to the maximum buffers, to indicate one hasn't been selected.
+			//
 			SoundSampleBuffer* currentSampleBuffer = nullptr;
 			
-			//Render functions
+			//
+			//  Render function
+			//
 			void Render(unsigned int numerOfSamples, int* sampleBuffer);
+			
+			//
+			//  Basic functions
+			//
 
-			//Basic functions
-			//Play
+			//
+			//  Play
+			//
 			void Play();
 
-			//Hard stop
+			//
+			//  Hard stop
+			//
 			void Stop();
 
-			//Status flag
+			//
+			//  Status flag
+			//
 			bool Playing = false;
 
-			//Volumes/Panning
+			//
+			//  Volumes/Panning
+			//
 			float Volume = 1.0f;
 			float Pan = 0.0f;
 
 			//
-			//Effects for Module system
+			//  Effects for Module system
 			//
 
-			//Arpeggio effect, Effect 0
+			//
+			//  Arpeggio effect, Effect 0
+			//
 			bool EnableArpeggio = false;
 			unsigned int ArpeggioSampleInterval = 0;
 			unsigned int currentArpeggioSamples = 0;
@@ -336,45 +404,63 @@ namespace SGE
 			unsigned int arpeggioSemitoneY = 0;
 			float arpeggioOffsetIncrement = 0.0f;
 
-			//Volume Slide, Effect 10
+			//
+			//  Volume Slide, Effect 10
+			//
 			bool EnableVolumeSlide = false;
 			unsigned int VolumeSlideSampleInterval = 0;
 			unsigned int currentVolumeSlideSamples = 0;
 			float currentVolumeSlide = 0.0f;
 			float VolumeSlideRate = 0.0f;
 
-			//Vibrato, Effect 4 
+			//
+			//  Vibrato, Effect 4 
+			//
 			bool EnableVibrato = false;
 			unsigned int currentVibratoWaveformPosition = 0;
 			float VibratoAmplitude = 0;
 			float VibratoCycles = 0;
 			float vibratoOffsetIncrement = 0;
 
-			//Vibrato with Effect 14 - 4 settings
+			//
+			//  Vibrato with Effect 14 - 4 settings
+			//
 			float* VibratoWaveform = Waveforms::Sine;
 			bool RetriggerVibrato = false;
 
-			//Statistics Stuff
+			//
+			//  Statistics Stuff
+			//
 			unsigned int LastRenderedAverageLevel = 0;
 		};
 
 		//Class for the Sound System of the game engine.
 		//Typically only one instance is used.
 
-		//Master volume for the system
+		//
+		//  Master volume for the system
+		//
 		extern float MasterVolume;
 
-		//Statistics
+		//
+		//  Statistics
+		//
 		extern unsigned int MasterVolumeAverageLeftLevel;
 		extern unsigned int MasterVolumeAverageRightLevel;
 
-		//All the sound samples in the system
+		//
+		//  All the sound samples in the system
+		//
 		extern SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
 
-		//All the system's sound channels
+		//
+		//  All the system's sound channels
+		//
 		extern SoundChannel Channels[MAX_CHANNELS];
 
-		//System Managagement
+		//
+		//  System Managagement
+		//
 		void Start();
 		void Stop();
 	}

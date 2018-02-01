@@ -1,85 +1,133 @@
 #pragma once
-
-//Use the SGE namespace to keep things seperated
+//
+//  Use the SGE namespace to keep things seperated
+//
 namespace SGE
 {
+	//
 	//Default frame rate for the frame rate limiter
+	//
 	const int DEFAULT_FRAME_RATE_LIMIT = 100;
+
+	//
+	//
+	//
 	const int DEFAULT_FRAME_WAIT_MILLISECONDS = 1000 / DEFAULT_FRAME_RATE_LIMIT;
 	
+	//
 	//The Virtual Display class to simulate the display component of the Strange Game Engine
+	//
 	namespace Display
 	{
+		//
+		//
+		//
 		namespace Video
 		{
-			//Pixel data format
+			//
+			//  Pixel data format
+			//
 			typedef unsigned int pixel;
 
-			//The virtual video RAM.  Public accessible to allow other components to write to it directly.
+			//
+			//  The virtual video RAM.  Public accessible to allow other components to write to it directly.
+			//
 			extern pixel* RAM;
 
-			//The virtual video Back Buffer.  Another chunk of video ram to use as needed that's the same size as the VideoRAM.
-			extern pixel* BackBuffer;
-
-			//The virtual Video RAM size.
+			//
+			//  The virtual Video RAM size.
+			//
 			extern unsigned int RAMSize;
 
-			//The virtual video horizontal resolution
+			//
+			//  The virtual video horizontal resolution
+			//
 			extern int ResolutionX;
 
-			//The virtual video vertical resolution
+			//
+			//  The virtual video vertical resolution
+			//
 			extern int ResolutionY;
 		}
 
-
-		//The framebuffer window horizontal resolution within OS window
+		//
+		//  The framebuffer window horizontal resolution within OS window
+		//
 		extern int FrameBufferX;
 
-		//The framebuffer window vertical resolution within OS Window
+		//
+		//  The framebuffer window vertical resolution within OS Window
+		//
 		extern int FrameBufferY;
 
-		//Flag to indicate the framebuffer window size has changed
+		//
+		//  Flag to indicate the framebuffer window size has changed
+		//
 		extern bool FrameBufferChanged;
 
-		//The viewport window (within the framebuffer window) vertical resolution
+		//
+		//  The viewport window (within the framebuffer window) vertical resolution
+		//
 		extern int ViewPortWindowX;
 
-		//The viewport window (within the framebuffer window) horizontal resolution
+		//
+		//  The viewport window (within the framebuffer window) horizontal resolution
+		//
 		extern int ViewPortWindowY;
 
-		//The viewport window (within the framebuffer window) X offset
+		//
+		//  The viewport window (within the framebuffer window) X offset
+		//
 		extern int ViewPortWindowOffsetX;
 
-		//The viewport window (within the framebuffer window) Y offset
+		//
+		//  The viewport window (within the framebuffer window) Y offset
+		//
 		extern int ViewPortWindowOffsetY;
 
-		//Flag to indicate the game resolution has changed
+		//
+		//  Flag to indicate the game resolution has changed
+		//
 		extern bool GameResolutionChanged;
 
-		//Block display refresh.  Useful for preventing screen tearing from draw operations happening in the middle of a display refresh
+		//
+		//  Block display refresh.  Useful for preventing screen tearing from draw operations happening in the middle of a display refresh
+		//
 		void BlockRefresh();
 
-		//Allow the virtual display fresh to allow drawing to continue.
+		//
+		//  Allow the virtual display fresh to allow drawing to continue.
+		//
 		void AllowRefresh();
 
-		//Start the Display
+		//
+		//  Start the Display
+		//
 		void Open(int newVideoX, int newVideoY);
 
-		//Stop the Display
+		//
+		//  Stop the Display
+		//
 		void Close();
 
-		//Starts the thread to grab data from the virtual video RAM and dumping it to the virtual display
+		//
+		//  Starts the thread to grab data from the virtual video RAM and dumping it to the virtual display
+		//
 		void StartDrawing();
 
-		//Stops that thread, and waits for it to join back up.
+		//
+		//  Stops that thread, and waits for it to join back up.
+		//
 		void StopDrawing();
 
-		//Set framebuffer window size
+		//
+		//  Set framebuffer window size
+		//
 		void SetWindowSize(int width, int height);
 
-		//Change game resolution
+		//
+		//  Change game resolution
+		//
 		void ChangeGameResolution(int width, int height);
-
-
 	};
 }

@@ -39,9 +39,6 @@ namespace SGE
 
 			}
 
-			//Calculate VideoRAM starting point
-			unsigned int videoRAMPosition;
-
 			//Draw the background
 			for (int i = startRow; i < endRow; i++)
 			{

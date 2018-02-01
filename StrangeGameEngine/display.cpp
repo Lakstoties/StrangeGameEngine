@@ -20,11 +20,6 @@
 #include "include\SGE\display.h"
 
 //
-//  Include shared internals that are not meant for public manipulation and are used by multiple components
-//
-#include "sharedinternal.h"
-
-//
 //  Include SGE System header
 //
 #include "include\SGE\system.h"
@@ -34,6 +29,11 @@
 //
 namespace SGE
 {
+	//
+	//  Extern to a compoment within the SGE namespace.  It's the main GLFW window
+	//
+	extern GLFWwindow* OSWindow;
+
 	//
 	//  Display namespace contains anything relating to the system's display functionality.
 	//
@@ -49,11 +49,6 @@ namespace SGE
 			//  This is by design.  
 			//
 			pixel* RAM = nullptr;
-
-			//
-			//  The virtual video back buffer.  An optional chunk of video RAM that is the same size as the main video RAM.
-			//
-			pixel* BackBuffer = nullptr;
 
 			//
 			//  The virtual video RAM Size.
@@ -564,9 +559,6 @@ namespace SGE
 				//Initialize the Virtual Video RAM
 				Video::RAM = new Video::pixel[Video::RAMSize];
 
-				//Initialize the Virtual Video Back Buffer
-				Video::BackBuffer = new Video::pixel[Video::RAMSize];
-
 				//Flag that the game display is open
 				GameDisplayOpen = true;
 			}
@@ -589,7 +581,6 @@ namespace SGE
 
 				//Delete the old RAM bits
 				delete Video::RAM;
-				delete Video::BackBuffer;
 
 				//Set the new resolution values
 				Video::ResolutionX = width;
@@ -602,9 +593,6 @@ namespace SGE
 
 				//Initialize the Virtual Video RAM
 				Video::RAM = new Video::pixel[Video::RAMSize];
-
-				//Initialize the Virtual Video Back Buffer
-				Video::BackBuffer = new Video::pixel[Video::RAMSize];
 
 				//Flag the game resolution has changed
 				GameResolutionChanged = true;
@@ -623,7 +611,6 @@ namespace SGE
 				//Make sure created bits are deleted appropriately.
 				delete drawingThread;
 				delete Video::RAM;
-				delete Video::BackBuffer;
 
 				//Set that the game display is not open
 				GameDisplayOpen = false;
