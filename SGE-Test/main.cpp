@@ -436,6 +436,121 @@ void DrawColorPalette8bit(int xCornerPosition, int yCornerPosition)
 	}
 
 }
+void DrawKeyboardKey(int xCornerPosition, int yCornerPosition, char* label, const int key)
+{
+	SGE::Render::DrawBox(xCornerPosition,  yCornerPosition, 19, 19, SGE::Controls::Keyboard::Status[key] ? SGE::Render::Colors::Named::White : SGE::Render::Colors::Named::Black);
+	SGE::Render::DrawString(label, SGE::Render::CHARACTER_8x8_ROM, 5, xCornerPosition + 1, yCornerPosition + 5, SGE::Controls::Keyboard::Status[key] ? SGE::Render::Colors::Named::Black : SGE::Render::Colors::Named::BrightWhite);
+}
+
+void DrawKeyboardStatus(int xCornerPosition, int yCornerPosition)
+{
+	//Draw background box
+	SGE::Render::DrawBox(xCornerPosition, yCornerPosition, 500, 150, SGE::Render::Colors::Named::BrightBlack);
+
+	//Draw background border
+	SGE::Render::DrawRectangle(xCornerPosition, yCornerPosition, 500, 150, SGE::Render::Colors::Named::White);
+
+	//
+	//  Draw keys
+	//
+
+	//
+	//  First Row - Esc, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,   PntScr, ScrLck,  Pause
+	//
+
+	//Escape
+	DrawKeyboardKey(xCornerPosition + 5, yCornerPosition + 5, (char *)"Esc", SGE::Controls::Keymap::KEY_ESCAPE);
+
+
+	//F1
+	DrawKeyboardKey(xCornerPosition + 30, yCornerPosition + 5, (char *)"F1", SGE::Controls::Keymap::KEY_F1);
+
+	//F2
+	DrawKeyboardKey(xCornerPosition + 50, yCornerPosition + 5, (char *)"F2", SGE::Controls::Keymap::KEY_F2);
+
+	//F3
+	DrawKeyboardKey(xCornerPosition + 70, yCornerPosition + 5, (char *)"F3", SGE::Controls::Keymap::KEY_F3);
+
+	//F4
+	DrawKeyboardKey(xCornerPosition + 90, yCornerPosition + 5, (char *)"F4", SGE::Controls::Keymap::KEY_F4);
+
+
+	//F5
+	DrawKeyboardKey(xCornerPosition + 115, yCornerPosition + 5, (char *)"F5", SGE::Controls::Keymap::KEY_F5);
+
+	//F6
+	DrawKeyboardKey(xCornerPosition + 135, yCornerPosition + 5, (char *)"F6", SGE::Controls::Keymap::KEY_F6);
+
+	//F7
+	DrawKeyboardKey(xCornerPosition + 155, yCornerPosition + 5, (char *)"F7", SGE::Controls::Keymap::KEY_F7);
+
+	//F8
+	DrawKeyboardKey(xCornerPosition + 175, yCornerPosition + 5, (char *)"F8", SGE::Controls::Keymap::KEY_F8);
+
+
+	//F9
+	DrawKeyboardKey(xCornerPosition + 200, yCornerPosition + 5, (char *)"F9", SGE::Controls::Keymap::KEY_F9);
+
+	//F10
+	DrawKeyboardKey(xCornerPosition + 220, yCornerPosition + 5, (char *)"F10", SGE::Controls::Keymap::KEY_F10);
+
+	//F11
+	DrawKeyboardKey(xCornerPosition + 240, yCornerPosition + 5, (char *)"F11", SGE::Controls::Keymap::KEY_F11);
+
+	//F12
+	DrawKeyboardKey(xCornerPosition + 260, yCornerPosition + 5, (char *)"F12", SGE::Controls::Keymap::KEY_F12);
+
+
+	//
+	//  Second Row - `, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, -, =, BckSpc, Ins, Hom, PgUp, NumLck, /, *, -
+	//
+
+	// `
+
+	//1
+
+	//2
+
+	//3
+
+	//4
+
+	//5
+
+	//6
+
+	//7
+
+	//8
+
+	//9
+
+	//0
+
+	//-
+
+	//=
+
+	//BkS  (Backspace)
+
+	//Ins
+
+	//Hom
+
+	//PgU
+
+	//NmL
+
+	// /
+
+	//*
+
+	//Nm-
+
+	//
+	//  Third Row
+	//
+}
 
 
 
@@ -667,6 +782,11 @@ void InputTest(bool& testInputRunning)
 		DrawColorPalette8bit(700, 50);
 
 		//
+		//  Draw Keyboard Status
+		//
+		DrawKeyboardStatus(160, 315);
+
+		//
 		//  Draw spinning Triangle 
 		//
 
@@ -679,9 +799,6 @@ void InputTest(bool& testInputRunning)
 		{
 			spinningDegree -= 360;
 		}
-
-
-
 
 		//Rotate the points
 		SGE::Utility::Math::RotatePointAroundPoint(spinningVertexO1.x, spinningVertexO1.y, 0, 0, spinningVertex1.x, spinningVertex1.y, spinningDegree);
