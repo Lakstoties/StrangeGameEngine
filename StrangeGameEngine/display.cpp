@@ -66,7 +66,10 @@ namespace SGE
 		//Prevents flicking and tearing by the display thread from updating mid way through writes to VRAM
 		std::mutex refreshHold;
 
-		//Flag to indicate the framebuffer window size has changed
+		//
+		//  Flag to indicate the framebuffer window size has changed
+		//  This way components outside the event callback are informed of the need to change and check
+		//
 		bool FrameBufferChanged = false;
 
 		//The viewpoint window (within the framebuffer window) vertical resolution
@@ -605,22 +608,35 @@ namespace SGE
 				refreshHold.unlock();
 			}
 		}
-
+		
+		//
+		//  Closes out the drawing subsystem completely
+		//
 		void Close()
 		{
 			if (GameDisplayOpen)
 			{
+				//
+				//  Stop the drawing thread
+				//
 				StopDrawing();
 
-				//Make sure created bits are deleted appropriately.
+				//
+				//  Make sure created bits are deleted appropriately.
+				//
 				delete drawingThread;
 				delete Video::RAM;
 
-				//Set that the game display is not open
+				//
+				//  Set that the game display is not open
+				//
 				GameDisplayOpen = false;
 			}
 		}
 
+		//
+		//  Starts the main drawing thread
+		//
 		void StartDrawing()
 		{
 			//Flag the thread to start drawiong
@@ -630,26 +646,42 @@ namespace SGE
 			drawingThread = new std::thread(&Display::UpdateThread);
 		}
 
+		//
+		//  Stops the main drawing thread
+		//
 		void StopDrawing()
 		{
-			//Signal it to stop.
+			//
+			//  Signal it to stop.
+			//
 			continueDrawing = false;
 
-			//Wait for it to join back up
+			//
+			//  Wait for it to join back up
+			//
 			if (drawingThread->joinable())
 				drawingThread->join();
 		}
 
+		//
+		//  Blocks Drawing Refresh
+		//
 		void BlockRefresh()
 		{
 			refreshHold.lock();
 		}
 
+		//
+		//  Release the lock on the drawing refresh
+		//
 		void AllowRefresh()
 		{
 			refreshHold.unlock();
 		}
 
+		//
+		//  Sets the OS window size
+		//
 		void SetWindowSize(int width, int height)
 		{
 			//

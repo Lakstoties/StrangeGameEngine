@@ -286,7 +286,7 @@ namespace SGE
 
 		//Sample Buffer to contain audio data that sound channels will link to and play from.
 		//For the purposes of the Strange Game Engine.  The data put into these buffers are assumed to be PCM Signed 16-bit at 44.1Khz sample rate.
-		struct SoundSampleBuffer
+		struct SampleBuffer
 		{
 		public:
 			//
@@ -332,14 +332,14 @@ namespace SGE
 			//
 			//  Destructor to make sure the buffer memory is freed upon destruction to prevent memory leaks.
 			//
-			~SoundSampleBuffer();			
+			~SampleBuffer();			
 		};
 
 
 		//
 		//  Sound Channel Structure
 		//
-		struct SoundChannel
+		struct Channel
 		{
 			//
 			//  Sample offset
@@ -360,7 +360,7 @@ namespace SGE
 			//  Current Sound Sample Buffer in use
 			//  Set to the maximum buffers, to indicate one hasn't been selected.
 			//
-			SoundSampleBuffer* currentSampleBuffer = nullptr;
+			SampleBuffer* currentSampleBuffer = nullptr;
 			
 			//
 			//  Render function
@@ -454,12 +454,12 @@ namespace SGE
 		//
 		//  All the sound samples in the system
 		//
-		extern SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
+		extern SampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
 
 		//
 		//  All the system's sound channels
 		//
-		extern SoundChannel Channels[MAX_CHANNELS];
+		extern Channel Channels[MAX_CHANNELS];
 
 		//
 		//  System Managagement

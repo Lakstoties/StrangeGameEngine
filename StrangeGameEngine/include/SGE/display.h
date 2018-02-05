@@ -56,26 +56,6 @@ namespace SGE
 		extern bool FrameBufferChanged;
 
 		//
-		//  The viewport window (within the framebuffer window) vertical resolution
-		//
-		extern int ViewPortWindowX;
-
-		//
-		//  The viewport window (within the framebuffer window) horizontal resolution
-		//
-		extern int ViewPortWindowY;
-
-		//
-		//  The viewport window (within the framebuffer window) X offset
-		//
-		extern int ViewPortWindowOffsetX;
-
-		//
-		//  The viewport window (within the framebuffer window) Y offset
-		//
-		extern int ViewPortWindowOffsetY;
-
-		//
 		//  Flag to indicate the game resolution has changed
 		//
 		extern bool GameResolutionChanged;

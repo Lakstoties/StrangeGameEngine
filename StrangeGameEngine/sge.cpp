@@ -237,7 +237,7 @@ namespace SGE
 		//  Clean UP!
 		//  Make sure the mainDisplay has stopped drawing.
 		//
-		SGE::Display::StopDrawing();
+		SGE::Display::Close();
 
 		//
 		//  Check to see if there is an active window to close

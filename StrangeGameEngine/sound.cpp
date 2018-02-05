@@ -24,7 +24,7 @@ namespace SGE
 		//
 
 		//Given arguments, render a number of samples asked and return a pointer to the buffer.
-		void SoundChannel::Render(unsigned int numberOfSamples, int* sampleBuffer)
+		void Channel::Render(unsigned int numberOfSamples, int* sampleBuffer)
 		{
 			unsigned int currentSampleAverage = 0;
 
@@ -165,7 +165,7 @@ namespace SGE
 
 
 		//Function signals the channel is playing, so it will be rendered.
-		void SoundChannel::Play()
+		void Channel::Play()
 		{
 			//If the channel is at least loaded
 			if (currentSampleBuffer != nullptr)
@@ -179,7 +179,7 @@ namespace SGE
 		}
 
 		//Stop the currently playing audio
-		void SoundChannel::Stop()
+		void Channel::Stop()
 		{
 			//If the channel at least is loaded with some data
 			if (currentSampleBuffer != nullptr)
@@ -200,7 +200,7 @@ namespace SGE
 		//
 
 		//Create a blank buffer of a certain sample size
-		int SoundSampleBuffer::Allocate(unsigned int numOfSamples)
+		int SampleBuffer::Allocate(unsigned int numOfSamples)
 		{
 			//Free the buffer
 			Free();
@@ -220,7 +220,7 @@ namespace SGE
 		}
 
 		//Create a blank buffer, and then load data into it.
-		int SoundSampleBuffer::Load(unsigned int numOfSamples, sampleType *samples)
+		int SampleBuffer::Load(unsigned int numOfSamples, sampleType *samples)
 		{
 			//Get a clean buffer
 			Allocate(numOfSamples);
@@ -233,7 +233,7 @@ namespace SGE
 		}
 
 		//Zero out a buffer completely
-		int SoundSampleBuffer::Zero()
+		int SampleBuffer::Zero()
 		{
 			//Check to make sure there's actually a buffer to zero out
 			if (buffer == nullptr)
@@ -250,7 +250,7 @@ namespace SGE
 		}
 
 		//Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
-		int SoundSampleBuffer::Free()
+		int SampleBuffer::Free()
 		{
 			//Delete the buffer
 			delete[] buffer;
@@ -263,7 +263,7 @@ namespace SGE
 		}
 
 		//Destructor to make sure the buffer memory is freed upon destruction to prevent memory leaks.
-		SoundSampleBuffer::~SoundSampleBuffer()
+		SampleBuffer::~SampleBuffer()
 		{
 			//Reset the buffer which will free the memory.
 			Free();
@@ -343,12 +343,12 @@ namespace SGE
 		//
 		//  All the sound samples in the system
 		//
-		SoundSampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
+		SampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
 
 		//
 		//  All the system's sound channels
 		//
-		SoundChannel Channels[MAX_CHANNELS];
+		Channel Channels[MAX_CHANNELS];
 
 		//
 		//  Initialize size for the Render Frame Buffers
