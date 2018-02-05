@@ -920,45 +920,14 @@ int main(int argc, char *argv[])
 		//Check to see what it is
 	
 	}
-		
-	//Start the Strange Game Engine
-	SGE::Startup(640, 480, "Test Title");
 
-	//Initialize Virtual Display
-	SGE::Display::Open(320, 240);
+	//
+	//  Launch the game
+	//
+	SGE::Launch(1280, 720, "Test Title", 1280, 720, InputTest, inputCheck);
 
-	//Change the the Window size
-	SGE::Display::SetWindowSize(1280, 720);
-
-	//Change game resolution
-	SGE::Display::ChangeGameResolution(1280, 720);
-
-
-	//Launch the actual logic threads, before handling events.
-	//Input Test thread
-	std::thread testInputThread(InputTest, std::ref(inputCheck));
-	
-	//Start drawing
-	SGE::Display::StartDrawing();
-
-	//Handle some events
-	//Event handling has to be run from the main thread, hence why we are spawning the game logic off on it's own thread
-	//And we are running the event handler on the main thread
-	//Same OSes are weird about non-main threads handling keyboard/mouse input
-	SGE::Controls::HandleEvents();
-	
-	//Interface handling over, window is closed stop the drawing loop if it already hasn't
-	SGE::Display::StopDrawing();
-
-	//Signal Input Check to Stop
-	inputCheck = false;
-	
-	//Wait for all the threads to join back
-	testInputThread.join();
-
-	//Shutdown the Strange Game Engine
-	SGE::Shutdown();
-
+	//
 	//If we got here... In theory everything went well...  In theory...
+	//
 	return 0;
 }

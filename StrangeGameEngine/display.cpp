@@ -66,12 +66,6 @@ namespace SGE
 		//Prevents flicking and tearing by the display thread from updating mid way through writes to VRAM
 		std::mutex refreshHold;
 
-		//The framebuffer horizontal resolution within the OS Window
-		int FrameBufferX = 0;
-
-		//The framebuffer vertical resoltuion within the OS Window
-		int FrameBufferY = 0;
-
 		//Flag to indicate the framebuffer window size has changed
 		bool FrameBufferChanged = false;
 
@@ -104,20 +98,30 @@ namespace SGE
 		//Recalculate View Port Dimensions
 		void RecalculateViewport()
 		{
+			//
+			//  Temporary Values to get the latest framebuffer size from the OS
+			//
+			int frameBufferX = 0;
+			int frameBufferY = 0;
+
+			//
+			//  Get the frame buffer size
+			//
+			glfwGetFramebufferSize(SGE::OSWindow, &frameBufferX, &frameBufferY);
+
 			//Update the viewport sizes and offsets
 			//Calculate offsets
-			SGE::Display::ViewPortWindowOffsetX = (SGE::Display::FrameBufferX - (SGE::Display::FrameBufferY * Video::ResolutionX) / Video::ResolutionY) >> 1;
-			SGE::Display::ViewPortWindowOffsetY = (SGE::Display::FrameBufferY - (SGE::Display::FrameBufferX * Video::ResolutionY) / Video::ResolutionX) >> 1;
+			SGE::Display::ViewPortWindowOffsetX = (frameBufferX - (frameBufferY * Video::ResolutionX) / Video::ResolutionY) >> 1;
+			SGE::Display::ViewPortWindowOffsetY = (frameBufferY - (frameBufferX * Video::ResolutionY) / Video::ResolutionX) >> 1;
 
-			//Short circuit logic
 			//If the Offset goes negative it needs to be hard capped or it throws off calculations.
-			(SGE::Display::ViewPortWindowOffsetX < 0) && (SGE::Display::ViewPortWindowOffsetX = 0);
-			(SGE::Display::ViewPortWindowOffsetY < 0) && (SGE::Display::ViewPortWindowOffsetY = 0);
+			if (SGE::Display::ViewPortWindowOffsetX < 0) { (SGE::Display::ViewPortWindowOffsetX = 0); }
+			if (SGE::Display::ViewPortWindowOffsetY < 0) { (SGE::Display::ViewPortWindowOffsetY = 0); }
 
 			//Calculate viewport
 			//Take the framebuffer and subtract double the viewport offsets to scale appropriately for the window
-			SGE::Display::ViewPortWindowX = SGE::Display::FrameBufferX - (SGE::Display::ViewPortWindowOffsetX << 1);
-			SGE::Display::ViewPortWindowY = SGE::Display::FrameBufferY - (SGE::Display::ViewPortWindowOffsetY << 1);
+			SGE::Display::ViewPortWindowX = frameBufferX - (SGE::Display::ViewPortWindowOffsetX << 1);
+			SGE::Display::ViewPortWindowY = frameBufferY - (SGE::Display::ViewPortWindowOffsetY << 1);
 		}
 
 		void OpenGL20DrawFunction()
@@ -648,11 +652,15 @@ namespace SGE
 
 		void SetWindowSize(int width, int height)
 		{
-			//Check to make sure the window size is not negative or 0
+			//
+			//  Check to make sure the window size is not negative or 0
+			//
 			if (width < 1 || height < 1)
 				return;
-			
-			//Adjust the window size
+
+			//
+			//  Adjust the window size
+			//
 			glfwSetWindowSize(OSWindow, width, height);
 		}
 	}

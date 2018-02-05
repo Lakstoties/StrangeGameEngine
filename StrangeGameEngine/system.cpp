@@ -10,6 +10,7 @@
 //
 //  Include the Windows API
 //
+#define CINTERFACE 
 #include <Windows.h>
 #endif
 
@@ -139,7 +140,7 @@ namespace SGE
 					SetConsoleTextAttribute(windowsSTDERRHandle, FOREGROUND_RED);
 					#endif
 
-					fprintf(stderr, "%s - ERROR: - %s -", timestamp, source);
+					fprintf(stderr, "%s ---ERROR---(%s) ", timestamp, source);
 					vfprintf(stderr, message, messageArguments);
 
 					#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
@@ -178,7 +179,7 @@ namespace SGE
 
 					#endif
 
-					printf("%s - INFORMATION: - %s -", timestamp, source);
+					printf("%s INFORMATION(%s) ", timestamp, source);
 					vprintf(message, messageArguments);
 
 					#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
@@ -195,10 +196,10 @@ namespace SGE
 					#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
 					printf(ANSIEscapeColorCodes::BrightYellow);
 					#else
-					SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_GREEN);
+					SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN);
 					#endif
 
-					printf("%s - WARNING: - %s -", timestamp, source);
+					printf("%s --WARNING--(%s) ", timestamp, source);
 					vprintf(message, messageArguments);
 
 					#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
@@ -217,7 +218,7 @@ namespace SGE
 					SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_GREEN);
 					#endif
 
-					printf("%s - DEBUG: - %s -", timestamp, source);
+					printf("%s ---DEBUG---(%s) ", timestamp, source);
 					vprintf(message, messageArguments);
 
 					#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)

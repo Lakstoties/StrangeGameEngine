@@ -35,12 +35,6 @@ namespace SGE
 		void WindowResize(GLFWwindow* window, int width, int height)
 		{
 			//
-			//  Update the framebuffer window sizes
-			//
-			SGE::Display::FrameBufferX = width;
-			SGE::Display::FrameBufferY = height;
-
-			//
 			//  Flag that the framebuffer window size has changed for the rest of the system
 			//
 			SGE::Display::FrameBufferChanged = true;
@@ -270,5 +264,54 @@ namespace SGE
 		//  Terminate GLFW, if the game engine is done, so are we.
 		//
 		glfwTerminate();
+	}
+
+
+	void Launch(int displayX, int displayY, const char* gameTitle, int resolutionX, int resolutionY, void(*gameLogic)(bool &keepAlive), bool &keepAliveFlag)
+	{
+		//
+		//  Start the Strange Game Engine
+		//
+		Startup(displayX, displayY, "Test Title");
+
+		//
+		//  Initialize Virtual Display
+		//
+		Display::Open(resolutionX, resolutionY);
+
+		//
+		//  Start drawing
+		//
+		Display::StartDrawing();
+
+		//
+		//  Launch the actual logic threads, before handling events.
+		//
+		std::thread gameLogicThread(gameLogic, std::ref(keepAliveFlag));
+
+		//  Handle some events
+		//  Event handling has to be run from the main thread, hence why we are spawning the game logic off on it's own thread
+		//  And we are running the event handler on the main thread, Mac OS sends events to the main thread.
+		Controls::HandleEvents();
+
+		//
+		//  Interface handling over, window is closed stop the drawing loop if it already hasn't
+		//
+		Display::StopDrawing();
+
+		//
+		//  Signal Input Check to Stop
+		//
+		keepAliveFlag = false;
+
+		//
+		//  Wait for all the threads to join back
+		//
+		gameLogicThread.join();
+
+		//
+		//  Shutdown the Strange Game Engine
+		//
+		Shutdown();
 	}
 }

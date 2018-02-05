@@ -51,16 +51,6 @@ namespace SGE
 		}
 
 		//
-		//  The framebuffer window horizontal resolution within OS window
-		//
-		extern int FrameBufferX;
-
-		//
-		//  The framebuffer window vertical resolution within OS Window
-		//
-		extern int FrameBufferY;
-
-		//
 		//  Flag to indicate the framebuffer window size has changed
 		//
 		extern bool FrameBufferChanged;
