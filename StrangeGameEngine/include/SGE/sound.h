@@ -280,60 +280,61 @@ namespace SGE
 
 		}
 
-		//
-		//  Sample Buffer Structure
-		//
 
-		//Sample Buffer to contain audio data that sound channels will link to and play from.
-		//For the purposes of the Strange Game Engine.  The data put into these buffers are assumed to be PCM Signed 16-bit at 44.1Khz sample rate.
-		struct SampleBuffer
+
+		//
+		//  Sample Namespace
+		//  Contains sample buffers and operation to perform on the buffers
+		//
+		namespace Sample
 		{
-		public:
 			//
-			//  Buffer to contain the samples
+			//  An array of buffer pointers
 			//
-			sampleType *buffer = nullptr;
+			extern sampleType* Buffer[MAX_SAMPLE_BUFFERS];
 
 			//
-			//  Size of the buffer
+			//  Buffer sizes
 			//
-			unsigned int bufferSize = 0;
+			extern unsigned int Size[MAX_SAMPLE_BUFFERS];
 
 			//
-			//  The offeset the sample will repeat at.
+			//  Repeat offets
 			//
-			unsigned int repeatOffset = 0;
+			extern unsigned int RepeatOffset[MAX_SAMPLE_BUFFERS];
 
 			//
-			//  The duration of the repeat
+			//  Repeat Durations
 			//
-			unsigned int repeatDuration = 0;
+			extern unsigned int RepeatDuration[MAX_SAMPLE_BUFFERS];
 
 			//
-			//  Create a blank buffer of a certain sample size
+			//  Allocate memory to a buffer
 			//
-			int Allocate(unsigned int numOfSamples);
+			int Allocate(unsigned int bufferNumber, unsigned int numberOfSamples);
 
 			//
-			//  Create a blank buffer, and then load data into it.
+			//  Load data to a buffer
 			//
-			int Load(unsigned int numOfSamples, sampleType *samples);
+			int Load(unsigned int bufferNumber, unsigned int numOfSamples, sampleType *samples);
 
 			//
 			//  Zero out a buffer completely
 			//
-			int Zero();
+			int Zero(unsigned int bufferNumber);
 
 			//
 			//  Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
 			//
-			int Free();
+			int Free(unsigned int bufferNumber);
 
 			//
-			//  Destructor to make sure the buffer memory is freed upon destruction to prevent memory leaks.
+			//  Flush the system out
 			//
-			~SampleBuffer();			
-		};
+			void Flush();
+		}
+
+
 
 
 		//
@@ -360,7 +361,7 @@ namespace SGE
 			//  Current Sound Sample Buffer in use
 			//  Set to the maximum buffers, to indicate one hasn't been selected.
 			//
-			SampleBuffer* currentSampleBuffer = nullptr;
+			unsigned int currentSampleBuffer = MAX_SAMPLE_BUFFERS;
 			
 			//
 			//  Render function
@@ -450,11 +451,6 @@ namespace SGE
 		//
 		extern unsigned int MasterVolumeAverageLeftLevel;
 		extern unsigned int MasterVolumeAverageRightLevel;
-
-		//
-		//  All the sound samples in the system
-		//
-		extern SampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
 
 		//
 		//  All the system's sound channels

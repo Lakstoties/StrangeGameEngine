@@ -18,6 +18,218 @@ namespace SGE
 	namespace Sound
 	{
 		//
+		//  Sample Buffers Namespace
+		//
+		namespace Sample
+		{
+			//
+			//  An array of buffer pointers
+			//
+			sampleType* Buffer[MAX_SAMPLE_BUFFERS] = { NULL };
+
+			//
+			//  Buffer sizes
+			//
+			unsigned int Size[MAX_SAMPLE_BUFFERS] = { 0 };
+
+			//
+			//  Repeat offets
+			//
+			unsigned int RepeatOffset[MAX_SAMPLE_BUFFERS] = { 0 };
+
+			//
+			//  Repeat Durations
+			//
+			unsigned int RepeatDuration[MAX_SAMPLE_BUFFERS] = { 0 };
+
+			//
+			//  Allocate memory to a buffer
+			//
+			int Allocate(unsigned int bufferNumber, unsigned int numberOfSamples)
+			{
+				//
+				//  Check to make sure we've got a legit bufferNumber
+				//
+				if (bufferNumber >= MAX_SAMPLE_BUFFERS)
+				{
+					//
+					//  No such buffer, try again
+					//
+					return -1;
+				}
+
+				//
+				//  Attempt to free anything that could be there
+				//  If it's NULL, free won't do anything
+				//
+				std::free(Buffer[bufferNumber]);
+
+				//
+				//  Allocate some memory
+				//  Cast the void pointer to a sampletype pointer
+				//
+				Buffer[bufferNumber] = (sampleType*) std::malloc(numberOfSamples * sizeof(sampleType));
+
+				//
+				//  Set the buffer size
+				//
+				Size[bufferNumber] = numberOfSamples;
+
+				//
+				//  Should be good, return 0
+				//
+				return 0;
+			}
+
+			//
+			//  Load data to a buffer
+			//
+			int Load(unsigned int bufferNumber, unsigned int numOfSamples, sampleType *samples)
+			{
+				//
+				//  Check to make sure we've got a legit bufferNumber
+				//
+				if (bufferNumber >= MAX_SAMPLE_BUFFERS)
+				{
+					//
+					//  No such buffer, try again
+					//
+					return -1;
+				}
+
+				//
+				//  Allocate the buffer
+				//
+				Allocate(bufferNumber, numOfSamples);
+
+
+				//
+				//  Check the source samples
+				//
+				if (samples == NULL)
+				{
+					//
+					//  Okay, really?  There's nothing to copy!
+					//
+					return -3;
+				}
+
+				//
+				//  Attempt to copy all this stuff
+				//
+				std::memcpy(Buffer[bufferNumber], samples, numOfSamples * sizeof(sampleType));
+
+				//
+				//  Should be good to go, return 0
+				//
+				return 0;
+			}
+
+			//
+			//  Zero out a buffer completely
+			//
+			int Zero(unsigned int bufferNumber)
+			{
+				//
+				//  Check to make sure we've got a legit bufferNumber
+				//
+				if (bufferNumber >= MAX_SAMPLE_BUFFERS)
+				{
+					//
+					//  No such buffer, try again
+					//
+					return -1;
+				}
+
+				//
+				//  Is there anything in this buffer
+				//
+				if (Buffer[bufferNumber] == NULL)
+				{
+					//
+					//  There's nothing here, it's NULL
+					//
+					return -1;
+				}
+
+				//
+				//  Zero out the buffer
+				//
+				std::memset(Buffer[bufferNumber], 0, Size[bufferNumber] * sizeof(sampleType));
+
+				//
+				//  Should be good, return 0
+				//
+				return 0;
+			}
+
+			//
+			//  Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
+			//
+			int Free(unsigned int bufferNumber)
+			{
+				//
+				//  Check to make sure we've got a legit bufferNumber
+				//
+				if (bufferNumber >= MAX_SAMPLE_BUFFERS)
+				{
+					//
+					//  No such buffer, try again
+					//
+					return -1;
+				}
+
+				//
+				//  Attempt to free the buffer
+				//
+				free(Buffer[bufferNumber]);
+
+				//
+				//  Be sure to set the freed pointer to NULL
+				//
+				Buffer[bufferNumber] = NULL;
+
+				//
+				//  Should be good, return 0
+				//
+				return 0;
+			}
+
+			//
+			//  Flush the system out
+			//
+			void Flush()
+			{
+				//
+				//  Purge out all the sample buffers
+				//
+
+				for (int i = 0; i < MAX_SAMPLE_BUFFERS; i++)
+				{
+					//
+					//  Free doesn't do anything on 
+					//
+					free(Buffer[i]);
+
+					//
+					//  Assign the buffer point to NULL
+					//
+					Buffer[i] = NULL;
+				}
+
+				//
+				//  All done, at least in theory.
+				//
+				return;
+			}
+		}
+
+
+
+
+
+
+		//
 		//
 		//  Sound Channel Definitions
 		//
@@ -33,7 +245,7 @@ namespace SGE
 			{
 				//If we are currently not playing
 				//And there's actually something to play.
-				if (!Playing || currentSampleBuffer->bufferSize == 0 || currentSampleBuffer->buffer == nullptr)
+				if (!Playing || Sample::Size[currentSampleBuffer] == 0 || Sample::Buffer[currentSampleBuffer] == NULL)
 				{
 					//Nothing playing, 0 out the samples
 					sampleBuffer[i] = 0;
@@ -46,7 +258,7 @@ namespace SGE
 
 					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
 					//If the volume effect is in use, use that volume value.
-					sampleBuffer[i] = int(currentSampleBuffer->buffer[(unsigned int)offset] *  Volume);
+					sampleBuffer[i] = int((Sample::Buffer[currentSampleBuffer])[(unsigned int)offset] *  Volume);
 
 					//Add to the acculumator for the average
 					//Negate negatives since we are only interested in overall amplitude
@@ -140,10 +352,10 @@ namespace SGE
 					//
 
 					//Check to see if this same is suppose to repeat and is set to do so... correctly
-					if ((currentSampleBuffer->repeatDuration > 0) && ((unsigned int)offset >= (currentSampleBuffer->repeatOffset + currentSampleBuffer->repeatDuration)))
+					if ((Sample::RepeatDuration[currentSampleBuffer] > 0) && ((unsigned int)offset >= (Sample::RepeatOffset[currentSampleBuffer] + Sample::RepeatDuration[currentSampleBuffer])))
 					{
 						//Rewind back by the repeatDuration.
-						offset -= currentSampleBuffer->repeatDuration; 
+						offset -= Sample::RepeatDuration[currentSampleBuffer]; 
 					}
 
 					//
@@ -151,7 +363,7 @@ namespace SGE
 					//
 
 					//If not repeatable and the offset has gone past the end of the buffer
-					if ((unsigned int)offset >= currentSampleBuffer->bufferSize)
+					if ((unsigned int)offset >= Sample::Size[currentSampleBuffer])
 					{
 						//Fuck this shit we're out!
 						Stop();
@@ -168,7 +380,7 @@ namespace SGE
 		void Channel::Play()
 		{
 			//If the channel is at least loaded
-			if (currentSampleBuffer != nullptr)
+			if (currentSampleBuffer != MAX_SAMPLE_BUFFERS)
 			{
 				//Reset the play offset
 				offset = 0;
@@ -182,7 +394,7 @@ namespace SGE
 		void Channel::Stop()
 		{
 			//If the channel at least is loaded with some data
-			if (currentSampleBuffer != nullptr)
+			if (currentSampleBuffer != MAX_SAMPLE_BUFFERS)
 			{
 				//Set the flags
 				Playing = false;
@@ -192,82 +404,6 @@ namespace SGE
 			}
 		}
 
-
-		//
-		//
-		// Sound Sample Buffer Defintions
-		//
-		//
-
-		//Create a blank buffer of a certain sample size
-		int SampleBuffer::Allocate(unsigned int numOfSamples)
-		{
-			//Free the buffer
-			Free();
-
-			//Set the buffer size
-			bufferSize = numOfSamples;
-
-			//Get some new some ram for the buffer
-			buffer = new sampleType[bufferSize];
-
-			//Zero out the buffer to make sure it is clean
-			//Some OSes don't make the ram is clean when given
-			Zero();
-
-			//Everything thing should be okay.
-			return 0;
-		}
-
-		//Create a blank buffer, and then load data into it.
-		int SampleBuffer::Load(unsigned int numOfSamples, sampleType *samples)
-		{
-			//Get a clean buffer
-			Allocate(numOfSamples);
-
-			//memcpy over the data into the buffer
-			std::memcpy(buffer, samples, sizeof(sampleType) * bufferSize);
-
-			//Everything should have gone okay...
-			return 0;
-		}
-
-		//Zero out a buffer completely
-		int SampleBuffer::Zero()
-		{
-			//Check to make sure there's actually a buffer to zero out
-			if (buffer == nullptr)
-			{
-				//Hey, there's no buffer to zero out!
-				return -1;
-			}
-
-			//Otherwise memset the bitch.
-			std::memset(buffer, 0, sizeof(sampleType) * bufferSize);
-
-			//Everything happened okay in theory
-			return 0;
-		}
-
-		//Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
-		int SampleBuffer::Free()
-		{
-			//Delete the buffer
-			delete[] buffer;
-
-			//Reset the buffer size
-			bufferSize = 0;
-
-			//Everything happened okay in theory
-			return 0;
-		}
-
-		//Destructor to make sure the buffer memory is freed upon destruction to prevent memory leaks.
-		SampleBuffer::~SampleBuffer()
-		{
-			//Reset the buffer which will free the memory.
-			Free();
-		}
 
 		//
 		//
@@ -339,11 +475,6 @@ namespace SGE
 		//
 		unsigned int MasterVolumeAverageLeftLevel = 0;
 		unsigned int MasterVolumeAverageRightLevel = 0;
-
-		//
-		//  All the sound samples in the system
-		//
-		SampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
 
 		//
 		//  All the system's sound channels
