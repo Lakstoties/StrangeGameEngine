@@ -791,7 +791,7 @@ void InputTest(bool& testInputRunning)
 		//
 
 		//Draw the current triangle
-		SGE::Render::DrawFilledTriangleFast(spinningVertexCX, spinningVertexCY, 1.0, spinningVertex1, spinningVertex2, spinningVertex3, SGE::Render::Colors::Named::BrightWhite);
+		SGE::Render::DrawFilledTriangleFast(spinningVertexCX, spinningVertexCY, spinningVertex1, spinningVertex2, spinningVertex3, SGE::Render::Colors::Named::BrightWhite);
 
 		//Increment the degree
 		spinningDegree += 0.1;

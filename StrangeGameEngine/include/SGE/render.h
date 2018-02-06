@@ -521,12 +521,12 @@ namespace SGE
 		//
 		//  Draw a filled triangle
 		//
-		void DrawFilledTriangleTrue(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color);
+		void DrawFilledTriangleTrue(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a filled triangle (New method)
 		//
-		void DrawFilledTriangleFast(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color);
+		void DrawFilledTriangleFast(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a list of triangles

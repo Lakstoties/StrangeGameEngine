@@ -482,20 +482,51 @@ namespace SGE
 
 		void DrawFilledTriangles(int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, SGE::Display::Video::pixel color)
 		{
-			//Figure out how many full triangle we have
+			//
+			//  Create a temporary array to store scaled vertexes and leave the original ones alone
+			//
+			VertexPoint tempScaledVertexes[numberOfVertexes];
+
+			//
+			//  Figure out how many full triangle we have
+			//
 			int numberOfFullTriangles = numberOfVertexes / 3;
 			int numberOfVertexesToUse = numberOfFullTriangles * 3;
 
+			//
+			//  Scale the vertexes and shift them over in reference to the start point
+			//
+			for (int i = 0; i < numberOfVertexes; i++)
+			{
+				tempScaledVertexes[i].x = int(vertexArray[i].x * scalingFactor);
+				tempScaledVertexes[i].y = int(vertexArray[i].y * scalingFactor);
+			}
+
+			
+			//
+			//  Draw the vertexes
+			//
 			for (int i = 0; i < numberOfVertexesToUse; i = i + 3)
 			{
-				DrawFilledTriangleFast(startX, startY, scalingFactor, vertexArray[i], vertexArray[i + 1], vertexArray[i + 2], color);
+				DrawFilledTriangleFast(startX, startY, tempScaledVertexes[i], tempScaledVertexes[i + 1], tempScaledVertexes[i + 2], color);
 			}
 		}
 
 		//Uses a variant of the Bresenham algorithm to calculate the two X points along the X-axis for each Y
 		//Then mass memcpys from a created pixel buffer to fill in the gaps.
-		void DrawFilledTriangleFast(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color)
+		void DrawFilledTriangleFast(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color)
 		{
+			//
+			//  Offset the vertexes
+			//
+			vertex1.x += startX;
+			vertex2.x += startX;
+			vertex3.x += startX;
+
+			vertex1.y += startY;
+			vertex2.y += startY;
+			vertex3.y += startY;
+
 			//
 			//  Pixel Buffer to mass copy memory from
 			//
@@ -510,16 +541,6 @@ namespace SGE
 			//  Row buffer size to compare in the future to expand the row buffer as needed
 			//
 			static int rowBufferSize = 0;
-
-			//
-			//  Scale the vertexes
-			//
-			vertex1.x = int(vertex1.x * scalingFactor) + startX;
-			vertex1.y = int(vertex1.y * scalingFactor) + startY;
-			vertex2.x = int(vertex2.x * scalingFactor) + startX;
-			vertex2.y = int(vertex2.y * scalingFactor) + startY;
-			vertex3.x = int(vertex3.x * scalingFactor) + startX;
-			vertex3.y = int(vertex3.y * scalingFactor) + startY;
 
 			//
 			//  Variables to hold the top most, bottom most, and middle point vertexes
@@ -815,16 +836,8 @@ namespace SGE
 		//Uses the Barycentric Algorithm to calculate what pixels are within a defined triangle
 		//Accurate and true.... but expensive as can be computationally
 		//Useful for double checking the Fast Triangle draw function.
-		void DrawFilledTriangleTrue(int startX, int startY, float scalingFactor, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color)
+		void DrawFilledTriangleTrue(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color)
 		{
-			//Apply offsets and scaling
-			vertex1.x = int(vertex1.x * scalingFactor + startX);
-			vertex1.y = int(vertex1.y * scalingFactor + startY);
-			vertex2.x = int(vertex2.x * scalingFactor + startX);
-			vertex2.y = int(vertex2.y * scalingFactor + startY);
-			vertex3.x = int(vertex3.x * scalingFactor + startX);
-			vertex3.y = int(vertex3.y * scalingFactor + startY);
-
 			//Set the initial maxes and mins to the first vertex
 			//For comparison purposes.
 			int xMax = vertex1.x;
