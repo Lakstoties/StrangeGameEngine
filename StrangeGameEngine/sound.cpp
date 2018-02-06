@@ -33,7 +33,7 @@ namespace SGE
 			{
 				//If we are currently not playing
 				//And there's actually something to play.
-				if (!Playing || currentSampleBuffer->bufferSize == 0 || currentSampleBuffer->buffer == nullptr)
+				if (!Playing || currentSampleBuffer->size == 0 || currentSampleBuffer->data == NULL)
 				{
 					//Nothing playing, 0 out the samples
 					sampleBuffer[i] = 0;
@@ -46,7 +46,7 @@ namespace SGE
 
 					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
 					//If the volume effect is in use, use that volume value.
-					sampleBuffer[i] = int(currentSampleBuffer->buffer[(unsigned int)offset] *  Volume);
+					sampleBuffer[i] = int(currentSampleBuffer->data[(unsigned int)offset] *  Volume);
 
 					//Add to the acculumator for the average
 					//Negate negatives since we are only interested in overall amplitude
@@ -151,7 +151,7 @@ namespace SGE
 					//
 
 					//If not repeatable and the offset has gone past the end of the buffer
-					if ((unsigned int)offset >= currentSampleBuffer->bufferSize)
+					if ((unsigned int)offset >= currentSampleBuffer->size)
 					{
 						//Fuck this shit we're out!
 						Stop();
@@ -194,79 +194,117 @@ namespace SGE
 
 
 		//
-		//
 		// Sound Sample Buffer Defintions
 		//
+
 		//
-
-		//Create a blank buffer of a certain sample size
-		int SampleBuffer::Allocate(unsigned int numOfSamples)
+		//  Allocate a blank buffer of a certain sample size
+		//
+		bool SampleBuffer::Allocate(unsigned int numOfSamples)
 		{
-			//Free the buffer
-			Free();
+			//
+			//  Delete the previous buffer, if it exists
+			//
+			Delete();
 
-			//Set the buffer size
-			bufferSize = numOfSamples;
+			//
+			//  Set the buffer size
+			//
+			size = numOfSamples;
 
-			//Get some new some ram for the buffer
-			buffer = new sampleType[bufferSize];
+			//
+			//  Get an array to put in place
+			//
+			data = new sampleType[size];
 
-			//Zero out the buffer to make sure it is clean
-			//Some OSes don't make the ram is clean when given
+			//
+			//  Zero out the buffer to make sure it is clean
+			//  Some OSes don't make the ram is clean when given
+			//
 			Zero();
 
-			//Everything thing should be okay.
-			return 0;
+			//
+			//  Everything thing should be okay.
+			//
+			return true;
 		}
 
-		//Create a blank buffer, and then load data into it.
-		int SampleBuffer::Load(unsigned int numOfSamples, sampleType *samples)
+		//
+		//  Create a blank buffer, and then load data into it.
+		//
+		bool SampleBuffer::Load(unsigned int numOfSamples, sampleType *samples)
 		{
-			//Get a clean buffer
+			//
+			//  Get a clean buffer
+			//
 			Allocate(numOfSamples);
 
-			//memcpy over the data into the buffer
-			std::memcpy(buffer, samples, sizeof(sampleType) * bufferSize);
+			//
+			//  memcpy over the data into the buffer
+			//
+			std::memcpy(data, samples, sizeof(sampleType) * size);
 
-			//Everything should have gone okay...
-			return 0;
+			//
+			//  Everything should have gone okay...
+			//
+			return true;
 		}
 
-		//Zero out a buffer completely
-		int SampleBuffer::Zero()
+		//
+		//  Zero out a buffer completely
+		//
+		bool SampleBuffer::Zero()
 		{
-			//Check to make sure there's actually a buffer to zero out
-			if (buffer == nullptr)
+			//
+			//  Check to make sure there's actually a buffer to zero out
+			//
+			if (data == NULL)
 			{
 				//Hey, there's no buffer to zero out!
-				return -1;
+				return false;
 			}
 
-			//Otherwise memset the bitch.
-			std::memset(buffer, 0, sizeof(sampleType) * bufferSize);
+			//
+			//  Otherwise memset the bitch.
+			//
+			std::memset(data, 0, sizeof(sampleType) * size);
 
-			//Everything happened okay in theory
-			return 0;
+			//
+			//  Everything happened okay in theory
+			//
+			return true;
 		}
 
-		//Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
-		int SampleBuffer::Free()
+		//
+		//  Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
+		//
+		void SampleBuffer::Delete()
 		{
-			//Delete the buffer
-			delete[] buffer;
+			//
+			//  Delete the buffer
+			//
+			delete data;
 
-			//Reset the buffer size
-			bufferSize = 0;
+			//
+			//  Set the pointer back to NULL
+			//
+			data = NULL;
 
-			//Everything happened okay in theory
-			return 0;
+			//
+			//  Reset the buffer size
+			//
+			size = 0;
 		}
 
-		//Destructor to make sure the buffer memory is freed upon destruction to prevent memory leaks.
+		//
+		//  Destructor - Makes sure any memory assigned to the data pointer is deleted and sent back to the OS
+		//
 		SampleBuffer::~SampleBuffer()
 		{
-			//Reset the buffer which will free the memory.
-			Free();
+			//
+			//  Reset the buffer which will free the memory.
+			//
+			Delete();
 		}
 
 		//

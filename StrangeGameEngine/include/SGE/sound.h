@@ -281,23 +281,21 @@ namespace SGE
 		}
 
 		//
-		//  Sample Buffer Structure
+		//  Sample Buffer Class
+		//  Contain audio data that sound channels will link to and play from.
 		//
-
-		//Sample Buffer to contain audio data that sound channels will link to and play from.
-		//For the purposes of the Strange Game Engine.  The data put into these buffers are assumed to be PCM Signed 16-bit at 44.1Khz sample rate.
-		struct SampleBuffer
+		class SampleBuffer
 		{
 		public:
 			//
 			//  Buffer to contain the samples
 			//
-			sampleType *buffer = nullptr;
+			sampleType* data = NULL;
 
 			//
 			//  Size of the buffer
 			//
-			unsigned int bufferSize = 0;
+			unsigned int size = 0;
 
 			//
 			//  The offeset the sample will repeat at.
@@ -312,22 +310,22 @@ namespace SGE
 			//
 			//  Create a blank buffer of a certain sample size
 			//
-			int Allocate(unsigned int numOfSamples);
+			bool Allocate(unsigned int numOfSamples);
 
 			//
 			//  Create a blank buffer, and then load data into it.
 			//
-			int Load(unsigned int numOfSamples, sampleType *samples);
+			bool Load(unsigned int numOfSamples, sampleType *samples);
 
 			//
 			//  Zero out a buffer completely
 			//
-			int Zero();
+			bool Zero();
 
 			//
 			//  Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
 			//
-			int Free();
+			void Delete();
 
 			//
 			//  Destructor to make sure the buffer memory is freed upon destruction to prevent memory leaks.
