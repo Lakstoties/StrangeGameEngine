@@ -109,7 +109,7 @@ namespace SGE
 				//Map up samples
 				for (int i = 0; i < 31; i++)
 				{
-					sampleMap[i] = i + startSample;
+					sampleMap[i] = &SGE::Sound::SampleBuffers[i + startSample];
 				}
 
 				//Map up channels
@@ -134,17 +134,17 @@ namespace SGE
 						temp = modFile.ConvertSample(i);
 
 						//Load the convert sample data into the sample buffer
-						SGE::Sound::Sample::Load(sampleMap[i], modFile.ConvertSampleSize(i), temp);
+						sampleMap[i]->Load(modFile.ConvertSampleSize(i), temp);
 
 						//Get rid of the old buffer.
 						delete temp;
 					}
 
 					//Apply repeat data
-					SGE::Sound::Sample::RepeatOffset[sampleMap[i]] = modFile.samples[i].repeatOffset;
+					sampleMap[i]->repeatOffset = modFile.samples[i].repeatOffset;
 
 					//Because of mod file weirdness check to make sure the duration is more than 1.
-					SGE::Sound::Sample::RepeatDuration[sampleMap[i]] = modFile.samples[i].repeatLength > 1 ? modFile.samples[i].repeatLength : 0;
+					sampleMap[i]->repeatDuration = modFile.samples[i].repeatLength > 1 ? modFile.samples[i].repeatLength : 0;
 				}
 
 

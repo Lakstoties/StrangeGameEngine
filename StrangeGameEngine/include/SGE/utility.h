@@ -152,8 +152,8 @@ namespace SGE
 				unsigned int beatsPerMinute = 125;
 				unsigned char ticksADivision = 6;
 
-				unsigned int sampleMap[31] = { 0 };
-				SGE::Sound::Channel* channelMap[4] = { NULL };
+				SGE::Sound::SampleBuffer* sampleMap[31] = { nullptr };
+				SGE::Sound::Channel* channelMap[4] = { nullptr };
 
 				//
 				SGE::FileFormats::ModuleFile modFile = SGE::FileFormats::ModuleFile();
