@@ -11,7 +11,7 @@ namespace SGE
 	namespace Render
 	{
 		//
-		//Structure to handle simple 2D vertex points
+		//  Structure to handle simple 2D vertex points
 		//
 		struct VertexPoint
 		{
@@ -42,7 +42,7 @@ namespace SGE
 		namespace Colors
 		{
 			//
-			//Classic Named Colors from 3/4 bit days
+			//  Classic Named Colors from 3/4 bit days
 			//
 			namespace Named
 			{
@@ -77,9 +77,8 @@ namespace SGE
 
 
 			//
-			// 3 - 4 Bit Color Mode Map (8/16 Colors)
+			//  3 - 4 Bit Color Mode Map (8/16 Colors)
 			//
-
 			const SGE::Display::Video::pixel ColorMode4Bit[16] =
 			{
 				//Regular Colors
@@ -109,11 +108,9 @@ namespace SGE
 			//
 			//  256 Color Mode Map
 			//
-
 			//  These colors were dervied from Wikipedia under ANSI escape codes
 			//  May be tweaked for effect later
 			//	Leaving them alone for now
-
 			const SGE::Display::Video::pixel ColorMode8Bit[256] =
 			{
 				//Standard Colors (0-7)

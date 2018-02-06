@@ -8,16 +8,15 @@
 //
 namespace SGE
 {
+	//
+	//  Sound system namespace
+	//
 	namespace Sound
 	{
 		//
 		//  Typedef to define the format used for audio data
 		//
 		typedef short sampleType;
-
-		//
-		//  Sound System specific constants
-		//
 
 		//
 		//  Number of channels for the system
@@ -241,7 +240,7 @@ namespace SGE
 		namespace Waveforms
 		{
 			//
-			//  Data regions to store waves
+			//  Arrays to store waves in floats
 			//
 			
 			//
@@ -277,7 +276,6 @@ namespace SGE
 			//  Generate Square waveform
 			//
 			void PreGenerateSquare();
-
 		}
 
 		//
