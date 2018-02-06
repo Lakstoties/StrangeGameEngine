@@ -59,13 +59,13 @@ namespace SGE
 					//
 					//  Check to see if the Arpeggio Effect is in effect
 					//
-					if (EnableArpeggio)
+					if (arpeggioEnabled)
 					{
 						//Check the state of the Arpeggio effect
-						if (currentArpeggioSamples > ArpeggioSampleInterval)
+						if (arpeggioCurrentSamples > arpeggioSampleInterval)
 						{
 							//Reset and roll the counter
-							currentArpeggioSamples %= ArpeggioSampleInterval;
+							arpeggioCurrentSamples %= arpeggioSampleInterval;
 
 							//Transition the state
 							//Increment and then modulus to the states around.
@@ -87,7 +87,7 @@ namespace SGE
 						}
 
 						//Advance the number of samples
-						currentArpeggioSamples++;
+						arpeggioCurrentSamples++;
 					}
 					else
 					{
@@ -97,35 +97,35 @@ namespace SGE
 					//
 					//  Check for Vibrato Effect
 					//
-					if (EnableVibrato)
+					if (vibratoEnabled)
 					{
 						//Calculate the offset
-						currentOffsetIncrement = currentOffsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, VibratoAmplitude * VibratoWaveform[currentVibratoWaveformPosition]);
+						currentOffsetIncrement = currentOffsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, vibratoAmplitude * vibratoWaveform[vibratoCurrentWaveformPosition]);
 
 						//Increment the vibrato waveform position
-						currentVibratoWaveformPosition = (int)(currentVibratoWaveformPosition + VibratoCycles) % SAMPLE_RATE;
+						vibratoCurrentWaveformPosition = (int)(vibratoCurrentWaveformPosition + vibratoCycles) % SAMPLE_RATE;
 					}
 
 					//
 					//  Check for the Volume Slide effect
 					//
-					if (EnableVolumeSlide)
+					if (volumeSlideEnabled)
 					{
 						//Check the state of Volume Slide Effect
-						if (currentVolumeSlideSamples > VolumeSlideSampleInterval)
+						if (volumeSlideCurrentSamples > volumeSlideSampleInterval)
 						{
 							//Reset and roll the counter
-							currentVolumeSlideSamples %= VolumeSlideSampleInterval;
+							volumeSlideCurrentSamples %= volumeSlideSampleInterval;
 
 							//Apply the slide
-							Volume += VolumeSlideRate;
+							Volume += volumeSlideRate;
 
 							//Check to make sure it did not exit normal ranges
 							//Short circuit logic
 							(Volume < 0.0f) && (Volume = 0.0f);
 							(Volume > 1.0f) && (Volume = 1.0f);
 						}
-						currentVolumeSlideSamples++;
+						volumeSlideCurrentSamples++;
 					}
 
 					//
@@ -192,9 +192,10 @@ namespace SGE
 			}
 		}
 
-
+		//
 		//
 		// Sound Sample Buffer Defintions
+		//
 		//
 
 		//

@@ -319,18 +319,18 @@ namespace SGE
 								//
 
 								//Turn off Arpeggio
-								channelMap[c]->EnableArpeggio = false;
+								channelMap[c]->arpeggioEnabled = false;
 
 								//Turn off Volume Slide
-								channelMap[c]->EnableVolumeSlide = false;
+								channelMap[c]->volumeSlideEnabled = false;
 
 								//Turn off Vibrato
-								channelMap[c]->EnableVibrato = false;
+								channelMap[c]->vibratoEnabled = false;
 
 								//Check to see if we need to retrigger vibrato
-								if (channelMap[c]->RetriggerVibrato)
+								if (channelMap[c]->vibratoRetriggers)
 								{
-									channelMap[c]->currentVibratoWaveformPosition = 0;
+									channelMap[c]->vibratoCurrentWaveformPosition = 0;
 								}
 
 
@@ -346,18 +346,18 @@ namespace SGE
 										//Configure Arpeggio or Effect 0 / 0x0
 									case 0x0:
 										//Set rate the arpeggio effect will change states
-										channelMap[c]->ArpeggioSampleInterval = DEFAULT_SAMPLES_TICK;
+										channelMap[c]->arpeggioSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//Set the semitones arpeggio will alternate between
 										channelMap[c]->arpeggioSemitoneX = effectXOnChannel[c];
 										channelMap[c]->arpeggioSemitoneY = effectYOnChannel[c];
 
 										//Reset the state variables for the effect
-										channelMap[c]->currentArpeggioSamples = 0;
+										channelMap[c]->arpeggioCurrentSamples = 0;
 										channelMap[c]->arpeggioState = 0;
 
 										//Enable it and signal the sound system to start rendering it
-										channelMap[c]->EnableArpeggio = true;
+										channelMap[c]->arpeggioEnabled = true;
 
 										//Found our effect.  Moving on!
 										break;
@@ -368,18 +368,18 @@ namespace SGE
 										//If 0, use previous settings
 										if (effectYOnChannel[c] != 0)
 										{
-											channelMap[c]->VibratoAmplitude = effectYOnChannel[c] / 16.0f;
+											channelMap[c]->vibratoAmplitude = effectYOnChannel[c] / 16.0f;
 										}
 
 										//Set the cycle rate for the Vibrato so that (X * Ticks) / 64 cyckes occur in the division
 										//If 0, use previous settings
 										if (effectXOnChannel[c] != 0)
 										{
-											channelMap[c]->VibratoCycles = (effectXOnChannel[c] * ticksADivision) / 64.0f;
+											channelMap[c]->vibratoCycles = (effectXOnChannel[c] * ticksADivision) / 64.0f;
 										}
 
 										//Enable Vibrato
-										channelMap[c]->EnableVibrato = true;
+										channelMap[c]->vibratoEnabled = true;
 
 										//Found our effect.  Moving on!
 										break;
@@ -387,23 +387,23 @@ namespace SGE
 										//Configure Volume Slide or Effect 10 / 0xA
 									case 0xA:
 										//Set the number of samples that progress for each tick in the effect.
-										channelMap[c]->VolumeSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+										channelMap[c]->volumeSlideSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//Check to see the rate we have to slide the volume up
 										if (effectXOnChannel[c] != 0)
 										{
-											channelMap[c]->VolumeSlideRate = effectXOnChannel[c] / 64.0f;
+											channelMap[c]->volumeSlideRate = effectXOnChannel[c] / 64.0f;
 										}
 
 										//Check to see the rate we have to slide the volume down
 										//Y is only paid attention if X is zero and is therefor assumed to be zero
 										else if (effectYOnChannel[c] != 0)
 										{
-											channelMap[c]->VolumeSlideRate = -effectYOnChannel[c] / 64.0f;
+											channelMap[c]->volumeSlideRate = -effectYOnChannel[c] / 64.0f;
 										}
 
 										//Enable Volume Slide
-										channelMap[c]->EnableVolumeSlide = true;
+										channelMap[c]->volumeSlideEnabled = true;
 
 										//Found our effect.  Moving on!
 										break;
@@ -442,50 +442,50 @@ namespace SGE
 											{
 												//If Y is 0, Sine waveform with Retrigger.
 											case 0x0:
-												channelMap[c]->VibratoWaveform = SGE::Sound::Waveforms::Sine;
-												channelMap[c]->RetriggerVibrato = true;
+												channelMap[c]->vibratoWaveform = SGE::Sound::Waveforms::Sine;
+												channelMap[c]->vibratoRetriggers = true;
 												break;
 
 												//If Y is 1, Ramp Down waveform with Retrigger.
 											case 0x1:
-												channelMap[c]->VibratoWaveform = SGE::Sound::Waveforms::RampDown;
-												channelMap[c]->RetriggerVibrato = true;
+												channelMap[c]->vibratoWaveform = SGE::Sound::Waveforms::RampDown;
+												channelMap[c]->vibratoRetriggers = true;
 												break;
 
 												//If Y is 2, Square waveform with Retrigger.
 											case 0x2:
-												channelMap[c]->VibratoWaveform = SGE::Sound::Waveforms::Square;
-												channelMap[c]->RetriggerVibrato = true;
+												channelMap[c]->vibratoWaveform = SGE::Sound::Waveforms::Square;
+												channelMap[c]->vibratoRetriggers = true;
 												break;
 
 												//If Y is 3, Random choice with Retrigger
 											case 0x3:
 
-												channelMap[c]->RetriggerVibrato = true;
+												channelMap[c]->vibratoRetriggers = true;
 												break;
 
 												//If Y is 4, Sine waveform without Retrigger
 											case 0x4:
-												channelMap[c]->VibratoWaveform = SGE::Sound::Waveforms::Sine;
-												channelMap[c]->RetriggerVibrato = false;
+												channelMap[c]->vibratoWaveform = SGE::Sound::Waveforms::Sine;
+												channelMap[c]->vibratoRetriggers = false;
 												break;
 
 												//If Y is 5, Ramp Down waveform without Retrigger
 											case 0x5:
-												channelMap[c]->VibratoWaveform = SGE::Sound::Waveforms::RampDown;
-												channelMap[c]->RetriggerVibrato = false;
+												channelMap[c]->vibratoWaveform = SGE::Sound::Waveforms::RampDown;
+												channelMap[c]->vibratoRetriggers = false;
 												break;
 
 												//If Y is 6, Square waveform without Retrigger
 											case 0x6:
-												channelMap[c]->VibratoWaveform = SGE::Sound::Waveforms::Square;
-												channelMap[c]->RetriggerVibrato = false;
+												channelMap[c]->vibratoWaveform = SGE::Sound::Waveforms::Square;
+												channelMap[c]->vibratoRetriggers = false;
 												break;
 
 												//If Y is 7, random choice without Retrigger
 											case 0x7:
 
-												channelMap[c]->RetriggerVibrato = false;
+												channelMap[c]->vibratoRetriggers = false;
 												break;
 											}
 

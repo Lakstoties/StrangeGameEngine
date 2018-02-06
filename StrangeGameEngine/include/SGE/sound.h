@@ -335,10 +335,11 @@ namespace SGE
 
 
 		//
-		//  Sound Channel Structure
+		//  Sound Channel Class
 		//
-		struct Channel
+		class Channel
 		{
+		public:
 			//
 			//  Sample offset
 			//
@@ -358,12 +359,12 @@ namespace SGE
 			//  Current Sound Sample Buffer in use
 			//  Set to the maximum buffers, to indicate one hasn't been selected.
 			//
-			SampleBuffer* currentSampleBuffer = nullptr;
+			SampleBuffer* currentSampleBuffer = NULL;
 			
 			//
 			//  Render function
 			//
-			void Render(unsigned int numerOfSamples, int* sampleBuffer);
+			void Render(unsigned int numerOfSamples, int* outputBuffer);
 			
 			//
 			//  Basic functions
@@ -397,37 +398,37 @@ namespace SGE
 			//
 			//  Arpeggio effect, Effect 0
 			//
-			bool EnableArpeggio = false;
-			unsigned int ArpeggioSampleInterval = 0;
-			unsigned int currentArpeggioSamples = 0;
-			unsigned int arpeggioState = 0;
-			unsigned int arpeggioSemitoneX = 0;
-			unsigned int arpeggioSemitoneY = 0;
-			float arpeggioOffsetIncrement = 0.0f;
+			bool			arpeggioEnabled = false;
+			unsigned int	arpeggioSampleInterval = 0;
+			unsigned int	arpeggioCurrentSamples = 0;
+			unsigned int	arpeggioState = 0;
+			unsigned int	arpeggioSemitoneX = 0;
+			unsigned int	arpeggioSemitoneY = 0;
+			float			arpeggioOffsetIncrement = 0.0f;
 
 			//
 			//  Volume Slide, Effect 10
 			//
-			bool EnableVolumeSlide = false;
-			unsigned int VolumeSlideSampleInterval = 0;
-			unsigned int currentVolumeSlideSamples = 0;
-			float currentVolumeSlide = 0.0f;
-			float VolumeSlideRate = 0.0f;
+			bool			volumeSlideEnabled = false;
+			unsigned int	volumeSlideSampleInterval = 0;
+			unsigned int	volumeSlideCurrentSamples = 0;
+			float			volumeSlideCurrentVolume = 0.0f;
+			float			volumeSlideRate = 0.0f;
 
 			//
 			//  Vibrato, Effect 4 
 			//
-			bool EnableVibrato = false;
-			unsigned int currentVibratoWaveformPosition = 0;
-			float VibratoAmplitude = 0;
-			float VibratoCycles = 0;
-			float vibratoOffsetIncrement = 0;
+			bool			vibratoEnabled = false;
+			unsigned int	vibratoCurrentWaveformPosition = 0;
+			float			vibratoAmplitude = 0;
+			float			vibratoCycles = 0;
+			float			vibratoOffsetIncrement = 0;
 
 			//
 			//  Vibrato with Effect 14 - 4 settings
 			//
-			float* VibratoWaveform = Waveforms::Sine;
-			bool RetriggerVibrato = false;
+			float*			vibratoWaveform = Waveforms::Sine;
+			bool			vibratoRetriggers = false;
 
 			//
 			//  Statistics Stuff
@@ -452,7 +453,7 @@ namespace SGE
 		//
 		//  All the sound samples in the system
 		//
-		extern SampleBuffer SampleBuffers[Sound::MAX_SAMPLE_BUFFERS];
+		extern SampleBuffer SampleBuffers[MAX_SAMPLE_BUFFERS];
 
 		//
 		//  All the system's sound channels

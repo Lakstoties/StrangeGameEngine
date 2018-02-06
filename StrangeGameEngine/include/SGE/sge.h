@@ -16,7 +16,7 @@ namespace SGE
 	//
 	//  Function is used to launch all parts of the game
 	//
-	void Launch(int displayX, int displayY, const char* gameTitle, int resolutionX, int resolutionY, void(*gameLogic)(bool &keepAliveFlag), bool &keepAliveFlag);
+	void Launch(int displayX, int displayY, const char* gameTitle, int resolutionX, int resolutionY, void(*gameLogic)(bool &keepAlive), bool &keepAliveFlag);
 
 
 	//

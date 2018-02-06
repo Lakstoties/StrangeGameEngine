@@ -117,15 +117,15 @@ void DrawChannelMonitor(int xCornerPosition, int yCornerPosition, unsigned int c
 
 	//Is Arpeggio On?
 	SGE::Render::DrawString((char*)"AR", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + 3, yCornerPosition + 118, 
-		SGE::Sound::Channels[channelNumber].EnableArpeggio ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
+		SGE::Sound::Channels[channelNumber].arpeggioEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
 
 	//Is Vibrato On?
 	SGE::Render::DrawString((char*)"VB", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + 3, yCornerPosition + 128, 
-		SGE::Sound::Channels[channelNumber].EnableVibrato ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
+		SGE::Sound::Channels[channelNumber].vibratoEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
 
 	//Is Volume Slide On?
 	SGE::Render::DrawString((char*)"VS", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + 3, yCornerPosition + 138, 
-		SGE::Sound::Channels[channelNumber].EnableVolumeSlide ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
+		SGE::Sound::Channels[channelNumber].volumeSlideEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
 }
 
 void DrawAudioChannelStatusBox(int xCornerPosition, int yCornerPosition)
