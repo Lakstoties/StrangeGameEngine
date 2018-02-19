@@ -416,10 +416,22 @@ namespace SGE
 										//Found our effect.  Moving on!
 										break;
 
-										//Configure the Volume or Effect 12 / 0xC
+										//
+										//  Configure the Volume or Effect 12 / 0xC
+										//
 									case 0xC:
-										//Set the volume for the channel
+										//
+										//  Set the volume for the channel
+										//
 										channelMap[c]->Volume = (effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 64.0f;
+
+										//
+										//  If for some reason the channel volume is higher than 1.0f, set it back down.
+										//
+										if (channelMap[c]->Volume > 1.0f)
+										{
+											channelMap[c]->Volume = 1.0f;
+										}
 
 										//Found our effect.  Moving on!
 										break;

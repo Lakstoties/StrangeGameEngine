@@ -568,20 +568,35 @@ namespace SGE
 				mixingFrameBufferLeft[i]  = int (mixingFrameBufferLeft[i]  * MasterVolume);
 				mixingFrameBufferRight[i] = int (mixingFrameBufferRight[i] * MasterVolume);
 
-				//Check for things hitting the upper and lower ends of the range
-				//For the left channel
-				outputBufferLeft[i] = (-SAMPLE_MAX_AMPLITUDE <= mixingFrameBufferLeft[i] && mixingFrameBufferLeft[i] <= SAMPLE_MAX_AMPLITUDE) ?		//Check to see if the sample value is within valid range
-					mixingFrameBufferLeft[i] :																										//If so, use that value
-					(mixingFrameBufferLeft[i] > 0) ?																								//Otherwise use a max range value, check to see if positive
-					SAMPLE_MAX_AMPLITUDE :																											//Use positive value
-					-SAMPLE_MAX_AMPLITUDE;																											//Use negative value
+				//
+				//  Check for things hitting the upper and lower ends of the range
+				//
 
-				//For the right channel
-				outputBufferRight[i] = (-SAMPLE_MAX_AMPLITUDE <= mixingFrameBufferRight[i] && mixingFrameBufferRight[i] <= SAMPLE_MAX_AMPLITUDE) ?	//Check to see if the sample value is within valid range
-					mixingFrameBufferRight[i] :																										//If so, use that value
-					(mixingFrameBufferRight[i] > 0) ?																								//Otherwise use a max range value, check to see if positive
-					SAMPLE_MAX_AMPLITUDE :																											//Use positive value
-					-SAMPLE_MAX_AMPLITUDE;																											//Use negative value
+				//
+				//  For the left channel
+				//
+				outputBufferLeft[i] = mixingFrameBufferLeft[i];
+
+				//
+				//  If the mixing buffer doesn't equal the output buffer, then some overflow has occurred.
+				//
+				if (mixingFrameBufferLeft[i] != outputBufferLeft[i])
+				{
+					outputBufferLeft[i] = mixingFrameBufferLeft[i] > SAMPLE_MAX_AMPLITUDE ? SAMPLE_MAX_AMPLITUDE : -SAMPLE_MAX_AMPLITUDE;
+				}
+
+				//
+				//  For the right channel
+				//
+				outputBufferRight[i] = mixingFrameBufferRight[i];
+
+				//
+				//  If the mixing buffer doesn't equal the output buffer, then some overflow has occurred.
+				//
+				if (mixingFrameBufferRight[i] != outputBufferRight[i])
+				{
+					outputBufferRight[i] = mixingFrameBufferRight[i] > SAMPLE_MAX_AMPLITUDE ? SAMPLE_MAX_AMPLITUDE : -SAMPLE_MAX_AMPLITUDE;
+				}
 
 				//Sum up the levels
 				//Negate negative values since we are interested in overall amplitude and not phasing
@@ -646,7 +661,7 @@ namespace SGE
 				&outputParameters,
 				SAMPLE_RATE,
 				paFramesPerBufferUnspecified,
-				paClipOff,
+				NULL,
 				&PortAudioCallback,
 				NULL);
 
