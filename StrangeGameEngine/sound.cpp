@@ -23,19 +23,29 @@ namespace SGE
 		//
 		//
 
-		//Given arguments, render a number of samples asked and return a pointer to the buffer.
+		//
+		//  Given arguments, render a number of samples asked and return a pointer to the buffer.
+		//
 		void Channel::Render(unsigned int numberOfSamples, int* sampleBuffer)
 		{
+			//
+			//  For statistical reasons
+			//
 			unsigned int currentSampleAverage = 0;
 
-			//Starting at the offset, copy over samples to the buffer.
+			//
+			//  Starting at the offset, copy over samples to the buffer.
+			//
 			for (unsigned int i = 0; i < numberOfSamples; i++)
 			{
-				//If we are currently not playing
-				//And there's actually something to play.
+				//
+				//  If we are currently not playing and there's actually something to play.
+				//
 				if (!Playing || currentSampleBuffer->size == 0 || currentSampleBuffer->data == NULL)
 				{
-					//Nothing playing, 0 out the samples
+					//
+					//  Nothing playing, 0 out the samples
+					//
 					sampleBuffer[i] = 0;
 				}
 				else
@@ -44,12 +54,16 @@ namespace SGE
 					//  Grab the sample for the offset
 					//
 
-					//Copy the sample from the source buffer to the target buffer and adjusted the volume.
-					//If the volume effect is in use, use that volume value.
+					//
+					//  Copy the sample from the source buffer to the target buffer and adjusted the volume.
+					//  If the volume effect is in use, use that volume value.
+					//
 					sampleBuffer[i] = int(currentSampleBuffer->data[(unsigned int)offset] *  Volume);
 
-					//Add to the acculumator for the average
-					//Negate negatives since we are only interested in overall amplitude
+					//
+					//  Add to the acculumator for the average
+					//  Negate negatives since we are only interested in overall amplitude
+					//
 					currentSampleAverage += abs(sampleBuffer[i]);
 
 					//
@@ -61,32 +75,53 @@ namespace SGE
 					//
 					if (arpeggioEnabled)
 					{
-						//Check the state of the Arpeggio effect
+						//
+						//  Check the state of the Arpeggio effect
+						//
 						if (arpeggioCurrentSamples > arpeggioSampleInterval)
 						{
-							//Reset and roll the counter
+							//
+							//  Reset and roll the counter
+							//
 							arpeggioCurrentSamples %= arpeggioSampleInterval;
 
-							//Transition the state
-							//Increment and then modulus to the states around.
+							//
+							//  Transition the state
+							//  Increment and then modulus to the states around.
+							//
 							++arpeggioState %= 3;
-
-							//Based on that state alter the argpeggio offset increment
-
-							//If at the base state
-							if (arpeggioState != 0)
+							
+							//
+							//  Based on that state alter the argpeggio offset increment
+							//
+							switch (arpeggioState)
 							{
-								//Caclulate the semitone using the current offset
-								//Check to see if state 1 or 2 and use X and Y values accordingly
-								currentOffsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, arpeggioState == 1 ? arpeggioSemitoneX : arpeggioSemitoneY));
-							}
-							else
-							{
+								//
+								//  If at default state, just use the regular offsetIncrement
+								//
+							case 0:
 								currentOffsetIncrement = offsetIncrement;
+								break;
+
+								//
+								//  If at state 1, calculate the increment for X semitones
+								//
+							case 1:
+								currentOffsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, arpeggioSemitoneX));
+								break;
+
+								//
+								//  If at state 2, calculate the increment for X semitones
+								//
+							case 2:
+								currentOffsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, arpeggioSemitoneY));
+								break;
 							}
 						}
 
-						//Advance the number of samples
+						//
+						//  Advance the number of samples
+						//
 						arpeggioCurrentSamples++;
 					}
 					else
