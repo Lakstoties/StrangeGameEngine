@@ -148,6 +148,7 @@ namespace SGE
 				unsigned char CurrentPattern = 0;
 				unsigned char CurrentDivision = 0;
 				unsigned char CurrentChannelSamples[4] = { 0 };
+				unsigned int CurrentChannelPeriods[4] = { 0 };
 
 				unsigned int beatsPerMinute = 125;
 				unsigned char ticksADivision = 6;

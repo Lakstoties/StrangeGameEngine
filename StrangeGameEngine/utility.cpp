@@ -79,6 +79,17 @@ namespace SGE
 			//
 			//
 
+			float PeriodToOffsetIncrement(unsigned int period)
+			{
+				return  NTSC_TUNING / (float)(period * SGE::Sound::SAMPLE_RATE * 2);
+			}
+
+			unsigned int OffsetIncrementToPeriod(float offsetIncrement)
+			{
+				return (offsetIncrement * NTSC_TUNING) / (SGE::Sound::SAMPLE_RATE * 2);
+			}
+
+
 			bool ModulePlayer::Load(char * filename)
 			{
 				//Make sure we have a new module file
@@ -294,10 +305,12 @@ namespace SGE
 									//Changing periods, so stop the current stuff
 									channelMap[c]->Stop();
 
+									//Save the period
+									CurrentChannelPeriods[c] = modFile.patterns[CurrentPattern].division[i].channels[c].period;
+
 									//Convert the period to offset timing interval in relation to system sampling rate
 									//Using NTSC sampling
-									channelMap[c]->offsetIncrement = NTSC_TUNING /
-										(float)(modFile.patterns[CurrentPattern].division[i].channels[c].period * SGE::Sound::SAMPLE_RATE * 2);
+									channelMap[c]->offsetIncrement = PeriodToOffsetIncrement(modFile.patterns[CurrentPattern].division[i].channels[c].period);
 
 									//Channel plays
 									channelPlays[c] = true;
@@ -327,6 +340,9 @@ namespace SGE
 								//Turn off Vibrato
 								channelMap[c]->vibratoEnabled = false;
 
+								//Turn off Period Slide
+								channelMap[c]->periodSlidEnabled = false;
+
 								//Check to see if we need to retrigger vibrato
 								if (channelMap[c]->vibratoRetriggers)
 								{
@@ -343,7 +359,9 @@ namespace SGE
 
 									switch (effectTypeOnChannel[c])
 									{
-										//Configure Arpeggio or Effect 0 / 0x0
+										//
+										//  Configure Arpeggio or Effect 0 / 0x0
+										//
 									case 0x0:
 										//Set rate the arpeggio effect will change states
 										channelMap[c]->arpeggioSampleInterval = DEFAULT_SAMPLES_TICK;
@@ -361,6 +379,56 @@ namespace SGE
 
 										//Found our effect.  Moving on!
 										break;
+
+										//
+										//  Configure Slide Up or Effect 1 / 0x1
+										//
+									case 0x1:
+
+										//
+										//  Set the number of samples for the period slide
+										//
+										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+
+										//
+										//  Calculate the total delta
+										//
+										channelMap[c]->periodSlideDelta = PeriodToOffsetIncrement(CurrentChannelPeriods[c] - (effectXOnChannel[c] * 16 + effectYOnChannel[c])) - PeriodToOffsetIncrement(CurrentChannelPeriods[c]);
+
+										//
+										//  Reset the state variables for the effect
+										//
+										channelMap[c]->periodSlideCurrentSamples = 0;
+
+										//
+										//  Enable the period slide
+										//
+										channelMap[c]->periodSlidEnabled = true;
+										break;
+
+										//
+										//  Configure Slide Down or Effect 2 / 0x2
+										//
+									case 0x2:
+										//
+										//  Set the number of samples for the period slide
+										//
+										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+
+										//
+										//  Calculate the total delta
+										//
+										channelMap[c]->periodSlideDelta = PeriodToOffsetIncrement(CurrentChannelPeriods[c] + (effectXOnChannel[c] * 16 + effectYOnChannel[c])) - PeriodToOffsetIncrement(CurrentChannelPeriods[c]);
+
+										//
+										//  Reset the state variables for the effect
+										//
+										channelMap[c]->periodSlideCurrentSamples = 0;
+
+										//
+										//  Enable the period slide
+										//
+										channelMap[c]->periodSlidEnabled = true;
 
 										//Configure the Vibrato Effect or Effect 4 / 0x4
 									case 0x4:

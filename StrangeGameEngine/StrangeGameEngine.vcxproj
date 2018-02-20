@@ -96,6 +96,7 @@
     </Lib>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="debug.cpp" />
     <ClCompile Include="display.cpp" />
     <ClCompile Include="fileformats.cpp" />
     <ClCompile Include="gui.cpp" />
@@ -107,6 +108,7 @@
     <ClCompile Include="utility.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="include\SGE\debug.h" />
     <ClInclude Include="include\SGE\fileformats.h" />
     <ClInclude Include="include\SGE\system.h" />
     <ClInclude Include="include\SGE\utility.h" />

@@ -130,6 +130,24 @@ namespace SGE
 					}
 
 					//
+					//  Check for period slide effect
+					//
+					if (periodSlidEnabled)
+					{
+						//
+						//  Calculate the current amount of slide to the offset increment
+						//
+						currentOffsetIncrement += (periodSlideDelta * ((float)periodSlideCurrentSamples / (float)periodSlideSampleInterval));
+
+						//
+						//  Increment the counter
+						//
+						periodSlideCurrentSamples++;
+					}
+
+
+
+					//
 					//  Check for Vibrato Effect
 					//
 					if (vibratoEnabled)

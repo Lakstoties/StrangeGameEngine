@@ -7,6 +7,7 @@
 #include "fileformats.h"
 #include "utility.h"
 #include "system.h"
+#include "debug.h"
 
 //
 //  Strange Game Engine Main Namespace

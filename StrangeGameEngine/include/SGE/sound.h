@@ -405,6 +405,14 @@ namespace SGE
 			float			arpeggioOffsetIncrement = 0.0f;
 
 			//
+			//  Period Slide, Effect 1 and 2
+			//
+			bool			periodSlidEnabled = false;
+			unsigned int	periodSlideSampleInterval = 0;
+			unsigned int	periodSlideCurrentSamples = 0;
+			float			periodSlideDelta = 0.0f;
+
+			//
 			//  Volume Slide, Effect 10
 			//
 			bool			volumeSlideEnabled = false;
