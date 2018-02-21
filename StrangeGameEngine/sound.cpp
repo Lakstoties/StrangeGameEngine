@@ -71,6 +71,27 @@ namespace SGE
 					//
 
 					//
+					//  Check for period slide effect
+					//
+					if (periodSlidEnabled)
+					{
+						//
+						//  Calculate the current amount of slide to the offset increment
+						//
+						offsetIncrement += periodSlideDelta / (float)periodSlideSampleInterval;
+
+						//
+						//  Increment the counter
+						//
+						periodSlideCurrentSamples++;
+					}
+
+
+
+
+
+
+					//
 					//  Check to see if the Arpeggio Effect is in effect
 					//
 					if (arpeggioEnabled)
@@ -129,21 +150,7 @@ namespace SGE
 						currentOffsetIncrement = offsetIncrement;
 					}
 
-					//
-					//  Check for period slide effect
-					//
-					if (periodSlidEnabled)
-					{
-						//
-						//  Calculate the current amount of slide to the offset increment
-						//
-						currentOffsetIncrement += (periodSlideDelta * ((float)periodSlideCurrentSamples / (float)periodSlideSampleInterval));
 
-						//
-						//  Increment the counter
-						//
-						periodSlideCurrentSamples++;
-					}
 
 
 
