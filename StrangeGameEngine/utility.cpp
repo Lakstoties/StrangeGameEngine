@@ -270,14 +270,14 @@ namespace SGE
 								i = postDivisionJumpTargetDivision;
 
 								//
-								//  Set the Pattern
-								//
-								CurrentPattern = postDivisionJumpTargetPattern;
-
-								//
 								//  Update Current Position reported
 								//
 								CurrentPosition = j;
+
+								//
+								//  Set the Pattern
+								//
+								CurrentPattern = modFile.patternTable[j];
 
 								//
 								//  Reset Jump flag
@@ -754,17 +754,13 @@ namespace SGE
 										//
 										//  Set target position
 										//
-										postDivisionJumpTargetPosition = j;
+										postDivisionJumpTargetPosition = j + 1;
 
 										//
 										//  Set target division
 										//
 										postDivisionJumpTargetDivision = (effectXOnChannel[c] * 10 + effectYOnChannel[c]);
 
-										//
-										//  Set pattern
-										//
-										postDivisionJumpTargetPattern = CurrentPattern + 1;
 										break;
 
 										//Configure an effect under this category.  There's a few of them shove under Effect 14 or 0xE
