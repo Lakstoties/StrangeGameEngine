@@ -412,7 +412,7 @@ namespace SGE
 										//
 										//  Calculate the total delta
 										//
-										channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+										channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
 
 										//
 										//  Reset the state variables for the effect
@@ -442,7 +442,7 @@ namespace SGE
 										//
 										//  Calculate the delta
 										//
-										channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+										channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
 
 										//
 										//  Reset the state variables for the effect
@@ -481,11 +481,11 @@ namespace SGE
 
 											if (channelMap[c]->periodTarget > SystemPeriodToAmigaPeriod(1 / channelMap[c]->offsetIncrement))
 											{
-												channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+												channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
 											}
 											else
 											{
-												channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+												channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
 											}
 										}
 
