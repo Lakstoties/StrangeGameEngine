@@ -218,7 +218,10 @@ namespace SGE
 				unsigned char effectTypeOnChannel[4] = { 0 };
 				unsigned char effectXOnChannel[4] = { 0 };
 				unsigned char effectYOnChannel[4] = { 0 };
-				int positionToJumpAfterDivision = -1;
+				unsigned int postDivisionJumpTargetPosition = 0;
+				unsigned int postDivisionJumpTargetDivision = 0;
+				unsigned int postDivisionJumpTargetPattern = 0;
+				bool postDivisionJump = false;
 
 				//
 				bool channelPlays[4] = { false };
@@ -250,6 +253,39 @@ namespace SGE
 						{
 							//Save the timer to help time the processing time for this division
 							startTime = std::chrono::steady_clock::now();
+
+							//
+							//  Check for a post division jump
+							//
+							if (postDivisionJump)
+							{
+								//
+								//  Set Position
+								//
+								j = postDivisionJumpTargetPosition;
+
+								//
+								//  Set Division
+								//
+								i = postDivisionJumpTargetDivision;
+
+								//
+								//  Set the Pattern
+								//
+								CurrentPattern = postDivisionJumpTargetPattern;
+
+								//
+								//  Update Current Position reported
+								//
+								CurrentPosition = j;
+
+								//
+								//  Reset Jump flag
+								//
+								postDivisionJump = false;
+							}
+
+
 
 							//Set the current division
 							CurrentDivision = i;
@@ -326,7 +362,10 @@ namespace SGE
 									//Save the period
 									CurrentChannelPeriods[c] = modFile.patterns[CurrentPattern].division[i].channels[c].period;
 
-									if (effectTypeOnChannel[c] != 0x3)
+									//
+									//   Period Slides don't actually play the note, but use the period as a value for the effect
+									//
+									if (effectTypeOnChannel[c] != 0x3 && effectTypeOnChannel[c] != 0x5)
 									{
 										//If non-zero, change the period used
 										//Changing periods, so stop the current stuff
@@ -526,6 +565,117 @@ namespace SGE
 										//Found our effect.  Moving on!
 										break;
 
+										//
+										//  Configure - Continue Slide to note, but do Volume Slide
+										//
+									case 0x5:
+
+										//
+										//  Update the Slide to Note
+										//
+									
+
+										//
+										//  Set the target period
+										//
+										channelMap[c]->periodTarget = AmigaPeriodToSystemPeriod(CurrentChannelPeriods[c]);
+
+										//
+										//  Set the number of sampls for the period slide
+										//
+										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+
+										//
+										//  Calculate the delta
+										//
+
+										//
+										//  If both X and Y are 0, then use previous slide stuff
+										//
+										if (effectXOnChannel[c] != 0 || effectYOnChannel[c] != 0)
+										{
+											//Check to see which direction to move the period
+
+											if (channelMap[c]->periodTarget > SystemPeriodToAmigaPeriod(1 / channelMap[c]->offsetIncrement))
+											{
+												channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+											}
+											else
+											{
+												channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+											}
+										}
+
+										//
+										//  Configure the volume slide
+										//
+
+										//Set the number of samples that progress for each tick in the effect.
+										channelMap[c]->volumeSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+
+										//Check to see the rate we have to slide the volume up
+										if (effectXOnChannel[c] != 0)
+										{
+											channelMap[c]->volumeSlideRate = effectXOnChannel[c] / 64.0f;
+										}
+
+										//Check to see the rate we have to slide the volume down
+										//Y is only paid attention if X is zero and is therefor assumed to be zero
+										else if (effectYOnChannel[c] != 0)
+										{
+											channelMap[c]->volumeSlideRate = -effectYOnChannel[c] / 64.0f;
+										}
+
+										//
+										//  Continue the period slide
+										//
+										channelMap[c]->periodSlidEnabled = true;
+
+										//
+										//  Enable Volume Slide
+										//
+										channelMap[c]->volumeSlideEnabled = true;
+
+										break;
+
+										//
+										//  Configure - Continue Vibrato, but do Volume Slide
+										//
+									case 0x06:
+										//
+										//  Set the number of samples that progress for each tick in the effect.
+										//
+										channelMap[c]->volumeSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+
+										//
+										//  Check to see the rate we have to slide the volume up
+										//
+										if (effectXOnChannel[c] != 0)
+										{
+											channelMap[c]->volumeSlideRate = effectXOnChannel[c] / 64.0f;
+										}
+
+										//
+										//  Check to see the rate we have to slide the volume down
+										//  Y is only paid attention if X is zero and is therefor assumed to be zero
+										//
+										else if (effectYOnChannel[c] != 0)
+										{
+											channelMap[c]->volumeSlideRate = -effectYOnChannel[c] / 64.0f;
+										}
+
+										//
+										//  Continue Vibrato
+										//
+										channelMap[c]->vibratoEnabled = true;
+
+										//
+										//  Enable Volume Slide
+										//
+										channelMap[c]->volumeSlideEnabled = true;
+
+										break;
+
 										//Configure Volume Slide or Effect 10 / 0xA
 									case 0xA:
 										//Set the number of samples that progress for each tick in the effect.
@@ -550,10 +700,24 @@ namespace SGE
 										//Found our effect.  Moving on!
 										break;
 
-										//Configure for Jump position after this division or Effect 11 / 0xB
+										//
+										//  Configure for Jump position after this division or Effect 11 / 0xB
+										//
 									case 0xB:
-										//Set the Jump after this division
-										positionToJumpAfterDivision = (effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+										//
+										//  Flag a jump after this division
+										//
+										postDivisionJump = true;
+
+										//
+										//  Set target position
+										//
+										postDivisionJumpTargetPosition = (effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+
+										//
+										//  Set target division
+										//
+										postDivisionJumpTargetDivision = 0;
 
 										//Found our effect.  Moving on!
 										break;
@@ -576,6 +740,31 @@ namespace SGE
 										}
 
 										//Found our effect.  Moving on!
+										break;
+
+										//
+										//  Configure pattern break or Effect 13 / 0xD
+										//
+									case 0xD:
+										//
+										//  Flag a jump after this division
+										//
+										postDivisionJump = true;
+
+										//
+										//  Set target position
+										//
+										postDivisionJumpTargetPosition = j;
+
+										//
+										//  Set target division
+										//
+										postDivisionJumpTargetDivision = (effectXOnChannel[c] * 10 + effectYOnChannel[c]);
+
+										//
+										//  Set pattern
+										//
+										postDivisionJumpTargetPattern = CurrentPattern + 1;
 										break;
 
 										//Configure an effect under this category.  There's a few of them shove under Effect 14 or 0xE
@@ -691,21 +880,6 @@ namespace SGE
 
 							//Wait for the next division
 							std::this_thread::sleep_for(std::chrono::nanoseconds(ticksADivision * DEFAULT_TICK_TIMING_NANO));
-
-							//Post division checks
-
-							//Check for a jump
-							if (positionToJumpAfterDivision != -1)
-							{
-								//Set Position
-								j = positionToJumpAfterDivision;
-
-								//Reset Division
-								i = 0;
-
-								//Reset Jump flag
-								positionToJumpAfterDivision = -1;
-							}
 
 							//Calculate the delta time
 							deltaTime = std::chrono::steady_clock::now() - startTime;
