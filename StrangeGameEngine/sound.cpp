@@ -76,13 +76,48 @@ namespace SGE
 					if (periodSlidEnabled)
 					{
 						//
-						//  Calculate the current amount of slide to the offset increment
+						//  Once enough samples have been processed
 						//
-						offsetIncrement += periodSlideDelta / (float)periodSlideSampleInterval;
+						if (periodSlideCurrentSamples >= periodSlideSampleInterval)
+						{
+							//
+							//  Convert the offset increment to a period in relationship to 1 second
+							//
+							float offsetPeriod = 1 / offsetIncrement;
 
-						//
-						//  Increment the counter
-						//
+							//
+							//  Add the period delta
+							//
+							offsetPeriod += periodSlideDelta;
+
+							//
+							//  Do we have a target period
+							//
+							if (periodTarget != 0)
+							{
+								//
+								// Check to see if offsetPeriod is past target
+								//
+
+								if ((periodSlideDelta < 0 && offsetPeriod < periodTarget) ||
+									(periodSlideDelta > 0 && offsetPeriod > periodTarget))
+								{
+									offsetPeriod = periodTarget;
+									periodSlidEnabled = false;
+								}
+							}
+
+							//
+							//  Flip it back to an offset increment
+							//
+							offsetIncrement = 1 / offsetPeriod;
+
+							//
+							//  Reset the counter
+							//
+							periodSlideCurrentSamples %= periodSlideSampleInterval;
+						}
+
 						periodSlideCurrentSamples++;
 					}
 

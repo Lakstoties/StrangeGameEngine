@@ -89,6 +89,16 @@ namespace SGE
 				return (offsetIncrement * NTSC_TUNING) / (SGE::Sound::SAMPLE_RATE * 2);
 			}
 
+			float AmigaPeriodToSystemPeriod(float amigaPeriod)
+			{
+				return (float)((amigaPeriod * 2 * SGE::Sound::SAMPLE_RATE) / NTSC_TUNING);
+			}
+
+			float SystemPeriodToAmigaPeriod(float systemPeriod)
+			{
+				return (float)(systemPeriod * NTSC_TUNING) / (SGE::Sound::SAMPLE_RATE * 2);
+			}
+
 
 			bool ModulePlayer::Load(char * filename)
 			{
@@ -292,31 +302,6 @@ namespace SGE
 									}
 								}
 
-
-								//
-								//  Check for period changes on each channel
-								//
-
-								//Check to see if period not zero
-								//If it is zero don't change the period used in this channel
-								if (modFile.patterns[CurrentPattern].division[i].channels[c].period > 0)
-								{
-									//If non-zero, change the period used
-									//Changing periods, so stop the current stuff
-									channelMap[c]->Stop();
-
-									//Save the period
-									CurrentChannelPeriods[c] = modFile.patterns[CurrentPattern].division[i].channels[c].period;
-
-									//Convert the period to offset timing interval in relation to system sampling rate
-									//Using NTSC sampling
-									channelMap[c]->offsetIncrement = PeriodToOffsetIncrement(modFile.patterns[CurrentPattern].division[i].channels[c].period);
-
-									//Channel plays
-									channelPlays[c] = true;
-								}
-
-
 								//
 								//  Check for any effect chanages on the channel.
 								//
@@ -325,6 +310,36 @@ namespace SGE
 								effectTypeOnChannel[c] = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x0F00) >> 8;
 								effectXOnChannel[c] = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x00F0) >> 4;
 								effectYOnChannel[c] = (modFile.patterns[CurrentPattern].division[i].channels[c].effect & 0x000F);
+								
+
+								//
+								//  Check for period changes on each channel
+								//
+
+								//
+								//  Check to see if period not zero
+								//  If it is zero don't change the period used in this channel
+								//  NOTE:  Effect 3 does some weird stuff, the period is target note to shift to but it does NOT trigger a play effect
+
+								if (modFile.patterns[CurrentPattern].division[i].channels[c].period > 0)
+								{
+									//Save the period
+									CurrentChannelPeriods[c] = modFile.patterns[CurrentPattern].division[i].channels[c].period;
+
+									if (effectTypeOnChannel[c] != 0x3)
+									{
+										//If non-zero, change the period used
+										//Changing periods, so stop the current stuff
+										channelMap[c]->Stop();
+
+										//Convert the period to offset timing interval in relation to system sampling rate
+										//Using NTSC sampling
+										channelMap[c]->offsetIncrement = PeriodToOffsetIncrement(modFile.patterns[CurrentPattern].division[i].channels[c].period);
+
+										//Channel plays
+										channelPlays[c] = true;
+									}
+								}
 
 								//
 								//Turn off any channel based rendering effects for now
@@ -384,6 +399,10 @@ namespace SGE
 										//  Configure Slide Up or Effect 1 / 0x1
 										//
 									case 0x1:
+										//
+										//  Set the target period
+										//
+										channelMap[c]->periodTarget = 0;
 
 										//
 										//  Set the number of samples for the period slide
@@ -393,7 +412,7 @@ namespace SGE
 										//
 										//  Calculate the total delta
 										//
-										channelMap[c]->periodSlideDelta = PeriodToOffsetIncrement(CurrentChannelPeriods[c] - (effectXOnChannel[c] * 16 + effectYOnChannel[c])) - PeriodToOffsetIncrement(CurrentChannelPeriods[c]);
+										channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]);
 
 										//
 										//  Reset the state variables for the effect
@@ -411,14 +430,19 @@ namespace SGE
 										//
 									case 0x2:
 										//
+										//  Set the target period
+										//
+										channelMap[c]->periodTarget = 0;
+
+										//
 										//  Set the number of samples for the period slide
 										//
 										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//
-										//  Calculate the total delta
+										//  Calculate the delta
 										//
-										channelMap[c]->periodSlideDelta = PeriodToOffsetIncrement(CurrentChannelPeriods[c] + (effectXOnChannel[c] * 16 + effectYOnChannel[c])) - PeriodToOffsetIncrement(CurrentChannelPeriods[c]);
+										channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]);
 
 										//
 										//  Reset the state variables for the effect
@@ -430,7 +454,57 @@ namespace SGE
 										//
 										channelMap[c]->periodSlidEnabled = true;
 
-										//Configure the Vibrato Effect or Effect 4 / 0x4
+										//
+										//  Configure the Slide to Note of Effect 3 / 0x3
+										//
+									case 0x3:
+										//
+										//  Set the target period
+										//
+										channelMap[c]->periodTarget = AmigaPeriodToSystemPeriod(CurrentChannelPeriods[c]);
+
+										//
+										//  Set the number of sampls for the period slide
+										//
+										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+
+										//
+										//  Calculate the delta
+										//
+
+										//
+										//  If both X and Y are 0, then use previous slide stuff
+										//
+										if (effectXOnChannel[c] != 0 || effectYOnChannel[c] != 0)
+										{
+											//Check to see which direction to move the period
+
+											if (channelMap[c]->periodTarget > SystemPeriodToAmigaPeriod(1 / channelMap[c]->offsetIncrement))
+											{
+												channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+											}
+											else
+											{
+												channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+											}
+										}
+
+										//
+										//  Reset the state variables for the effect
+										//
+										channelMap[c]->periodSlideCurrentSamples = 0;
+
+										//
+										//  Enable the period slide
+										//
+										channelMap[c]->periodSlidEnabled = true;
+
+										break;
+
+
+										//
+										//  Configure the Vibrato Effect or Effect 4 / 0x4
+										//
 									case 0x4:
 										//Set the Amplitude for the frequency shift y/16 semitones.
 										//If 0, use previous settings

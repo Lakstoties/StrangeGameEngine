@@ -411,6 +411,7 @@ namespace SGE
 			unsigned int	periodSlideSampleInterval = 0;
 			unsigned int	periodSlideCurrentSamples = 0;
 			float			periodSlideDelta = 0.0f;
+			float			periodTarget = 0.0f;
 
 			//
 			//  Volume Slide, Effect 10
