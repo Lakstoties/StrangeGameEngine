@@ -8,3 +8,7 @@
 *.db-shm
 *.opendb
 *.log
+*.exe
+*.ilk
+*.pdb
+*.lib
