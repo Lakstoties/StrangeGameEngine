@@ -99,5 +99,15 @@ namespace SGE
 		//  Change game resolution
 		//
 		void ChangeGameResolution(int width, int height);
+
+		//
+		//  Hide the mouse cursor from the OS
+		//
+		void HideOSMouseCursor();
+
+		//
+		//  Show the mouse cursor from the OS
+		//
+		void ShowOSMouseCursor();
 	};
 }

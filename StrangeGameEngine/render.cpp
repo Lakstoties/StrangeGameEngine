@@ -1,4 +1,5 @@
 ﻿#include "include\SGE\render.h"
+#include "include\SGE\controls.h"
 #include <cstring>
 
 //
@@ -8,7 +9,57 @@ namespace SGE
 {
 	namespace Render
 	{
-		//Draws a string of characters
+		//
+		//  Draw Simple Mouse Cursor
+		//
+		void DrawMouseSimpleCursor(unsigned int cursorRadius, SGE::Display::Video::pixel cursorColor)
+		{
+			//
+			//  Check to make sure the cursor can even be drawn.
+			//
+			if ((SGE::Controls::Mouse::PositionX <= (int)-cursorRadius) ||
+				(SGE::Controls::Mouse::PositionY <= (int)-cursorRadius) ||
+				(SGE::Controls::Mouse::PositionX >= SGE::Display::Video::ResolutionX + cursorRadius) ||
+				(SGE::Controls::Mouse::PositionY >= SGE::Display::Video::ResolutionY + cursorRadius))
+			{
+				//This can't be draw, too far off the drawable area.
+				return;
+			}
+
+			//
+			//  Set the start and end points for drawing the cursor box
+			//
+			int startX = SGE::Controls::Mouse::PositionX - cursorRadius;
+			int startY = SGE::Controls::Mouse::PositionY - cursorRadius;
+			int endX = SGE::Controls::Mouse::PositionX + cursorRadius;
+			int endY = SGE::Controls::Mouse::PositionY + cursorRadius;
+
+			//
+			//  Prune down to a valid drawing area.
+			//
+			if (startX < 0) { startX = 0; }
+			if (startY < 0) { startY = 0; }
+			if (endX >= SGE::Display::Video::ResolutionX) { endX = SGE::Display::Video::ResolutionX; }
+			if (endY >= SGE::Display::Video::ResolutionY) { endY = SGE::Display::Video::ResolutionY; }
+
+			//
+			//  Draw the cursor
+			//
+			for (int drawY = startY; drawY < endY; drawY++)
+			{
+				for (int drawX = startX; drawX < endX; drawX++)
+				{
+					SGE::Display::Video::RAM[drawY * SGE::Display::Video::ResolutionX + drawX] = cursorColor;
+				}
+			}
+
+		}
+
+
+
+		//
+		//  Draws a string of characters
+		//
 		void DrawString(
 			char* characters,							//Char pointer to a null terminated character byte string
 			const unsigned long long characterROM[],	//64-bit Character ROM array to map characters against
@@ -31,7 +82,9 @@ namespace SGE
 			}
 		}
 
-		//Draw a single character
+		//
+		//  Draw a single character
+		//
 		void Draw8x8Character(
 			char character,								//Character to draw
 			const unsigned long long characterROM[],	//64-bit Character ROM array to map characters against

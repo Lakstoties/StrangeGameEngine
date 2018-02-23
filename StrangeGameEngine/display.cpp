@@ -695,5 +695,22 @@ namespace SGE
 			//
 			glfwSetWindowSize(OSWindow, width, height);
 		}
+
+
+		//
+		//  Hide the mouse cursor from the OS
+		//
+		void HideOSMouseCursor()
+		{
+			glfwSetInputMode(SGE::OSWindow, GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+		}
+
+		//
+		//  Show the mouse cursor from the OS
+		//
+		void ShowOSMouseCursor()
+		{
+			glfwSetInputMode(SGE::OSWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
 	}
 }

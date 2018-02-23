@@ -421,7 +421,11 @@ void InputTest(bool& testInputRunning)
 
 	float spinningDegree = 0;
 
+	//
+	//  Hide the OS cursor
+	//
 
+	SGE::Display::HideOSMouseCursor();
 
 	while (testInputRunning)
 	{
@@ -522,6 +526,12 @@ void InputTest(bool& testInputRunning)
 		SGE::Utility::Math::RotatePointAroundPoint(spinningVertexO1.x, spinningVertexO1.y, 0, 0, spinningVertex1.x, spinningVertex1.y, spinningDegree);
 		SGE::Utility::Math::RotatePointAroundPoint(spinningVertexO2.x, spinningVertexO2.y, 0, 0, spinningVertex2.x, spinningVertex2.y, spinningDegree);
 		SGE::Utility::Math::RotatePointAroundPoint(spinningVertexO3.x, spinningVertexO3.y, 0, 0, spinningVertex3.x, spinningVertex3.y, spinningDegree);
+
+
+		//
+		//  Draw Mouse Cursor
+		//
+		SGE::Render::DrawMouseSimpleCursor(5, SGE::Render::Colors::Named::BrightWhite);
 		
 		
 

@@ -469,6 +469,11 @@ namespace SGE
 		};
 
 		//
+		//  Draw Simple Mouse Cursor
+		//
+		void DrawMouseSimpleCursor(unsigned int cursorRadius, SGE::Display::Video::pixel cursorColor);
+
+		//
 		//  Draw a character to the screen
 		//
 		void Draw8x8Character(char character, const unsigned long long characterROM[], int targetX, int targetY, SGE::Display::Video::pixel color);
