@@ -54,8 +54,7 @@ namespace SGE
 			}
 
 		}
-
-
+		
 
 		//
 		//  Draws a string of characters

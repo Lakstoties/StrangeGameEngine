@@ -58,7 +58,7 @@ void DrawFrequencyMeter(int xCornerPosition, int yCornerPosition, float channelF
 void DrawChannelMonitor(int xCornerPosition, int yCornerPosition, unsigned int channelNumber)
 {
 	const int CHANNEL_MONITOR_WIDTH = 20;
-	const int CHANNEL_MONITOR_HEIGHT = 145;
+	const int CHANNEL_MONITOR_HEIGHT = 155;
 	const int CHANNEL_BAR_WIDTH = 8;
 	const int CHANNEL_BAR_SPACING = (CHANNEL_MONITOR_WIDTH - CHANNEL_BAR_WIDTH) / 2;
 	const int CHANNEL_VOLUME_SPACING = 2;
@@ -126,6 +126,10 @@ void DrawChannelMonitor(int xCornerPosition, int yCornerPosition, unsigned int c
 	//Is Volume Slide On?
 	SGE::Render::DrawString((char*)"VS", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + 3, yCornerPosition + 138, 
 		SGE::Sound::Channels[channelNumber].volumeSlideEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
+
+	//Is Period Slide On?
+	SGE::Render::DrawString((char*)"PS", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + 3, yCornerPosition + 148,
+		SGE::Sound::Channels[channelNumber].periodSlidEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
 }
 
 void DrawAudioChannelStatusBox(int xCornerPosition, int yCornerPosition)
