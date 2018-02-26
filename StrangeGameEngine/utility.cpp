@@ -226,11 +226,22 @@ namespace SGE
 				bool channelPlays[4] = { false };
 
 
-				//Default for most mods, can be changed.
+				//
+				//  Default for most mods, can be changed.
+				//
 				ticksADivision = DEFAULT_TICKS_A_DIVISION;
 
+				//
+				//  Statistics information for tick rate
+				//
 				std::chrono::time_point<std::chrono::steady_clock> startTime;
 				std::chrono::nanoseconds deltaTime = std::chrono::nanoseconds(0);
+
+				//
+				//  Dynamic Tick Rate Adjustment to factor in processing time.
+				//
+
+				std::chrono::nanoseconds deltaTimeAdjustment = std::chrono::nanoseconds(0);
 
 				//
 				//  Start playback processing
@@ -818,11 +829,21 @@ namespace SGE
 								}
 							}
 
+							//
 							//  Wait for the next division
-							std::this_thread::sleep_for(std::chrono::nanoseconds(ticksADivision * DEFAULT_TICK_TIMING_NANO));
+							//
+							std::this_thread::sleep_for(std::chrono::nanoseconds(ticksADivision * DEFAULT_TICK_TIMING_NANO) + deltaTimeAdjustment);
 
+							//
 							//  Calculate the delta time
+							//
 							deltaTime = std::chrono::steady_clock::now() - startTime;
+
+							//
+							//  Tweak adjustment time delta to tune it closer to ideal
+							//
+							deltaTimeAdjustment += (std::chrono::nanoseconds(ticksADivision * DEFAULT_TICK_TIMING_NANO) - deltaTime) / 10;
+
 						}
 					}
 				}

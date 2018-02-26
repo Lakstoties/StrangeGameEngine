@@ -72,33 +72,55 @@ namespace SGE
 		//
 		bool FrameBufferChanged = false;
 
-		//The viewpoint window (within the framebuffer window) vertical resolution
+		//
+		//  The viewpoint window (within the framebuffer window) vertical resolution
+		//
 		int ViewPortWindowX = 0;
 
-		//The viewpoint window (within the framebuffer window) horizontal resolution
+		//
+		//  The viewpoint window (within the framebuffer window) horizontal resolution
+		//
 		int ViewPortWindowY = 0;
-
-		//The viewpoint window (within the framebuffer window) X offset
+		
+		//
+		//  The viewpoint window (within the framebuffer window) X offset
+		//
 		int ViewPortWindowOffsetX = 0;
 
-		//The viewpoint window (within the framebuffer window) Y offset
+		//
+		//  The viewpoint window (within the framebuffer window) Y offset
+		//
 		int ViewPortWindowOffsetY = 0;
 
-		//Internal flag to signal if a game display is presently open
+		//
+		//  Internal flag to signal if a game display is presently open
+		//
 		bool GameDisplayOpen = false;
 
-		//Flag to indicate the game resolution has changed
-		//Start as true to set up the initial texture
+		//
+		//  Flag to indicate the game resolution has changed
+		//  Start as true to set up the initial texture
+		//
 		bool GameResolutionChanged = true;
 
-		//C++ thread pointer to keep track of the spawned drawing thread.
+		//
+		//  C++ thread pointer to keep track of the spawned drawing thread.
+		//
 		std::thread* drawingThread = nullptr;
 
-		//Boolean used to control whether the draw thread keeps on running or not.
+		//
+		//  Boolean used to control whether the draw thread keeps on running or not.
+		//
 		bool continueDrawing = true;
 
+		//
+		//  Frame Rate aimed for
+		//
+		long long FrameDrawWaitMilliseconds = DEFAULT_FRAME_WAIT_MILLISECONDS;
 
-		//Recalculate View Port Dimensions
+		//
+		//  Recalculate View Port Dimensions
+		//
 		void RecalculateViewport()
 		{
 			//
@@ -127,6 +149,9 @@ namespace SGE
 			SGE::Display::ViewPortWindowY = frameBufferY - (SGE::Display::ViewPortWindowOffsetY << 1);
 		}
 
+		//
+		//  Compatibility Drawing Function for OpenGL 2.0 and later
+		//
 		void OpenGL20DrawFunction()
 		{
 			//Initialize for drawing
@@ -243,6 +268,9 @@ namespace SGE
 			}
 		}
 
+		//
+		//  Optimized Drawing Function for OpenGL 4.4 and later
+		//
 		void OpenGL44DrawFunction()
 		{
 			//Initialize for drawing
@@ -345,7 +373,6 @@ namespace SGE
 				//Done Drawing that
 				glEnd();
 
-
 				//Check to see if we have a valid place to update to
 				//Or if the window should be closed.
 				if (!glfwWindowShouldClose(SGE::OSWindow))
@@ -367,10 +394,13 @@ namespace SGE
 
 				//Frame Rate Limiter Section
 				//This is simple millisecond sleep timer to wait until making another drawing attempt
-				std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_FRAME_WAIT_MILLISECONDS));
+				std::this_thread::sleep_for(std::chrono::milliseconds(FrameDrawWaitMilliseconds));
 			}
 		}
 
+		//
+		//  Fail safe Drawing function for OpenGL 1.0
+		//
 		void FailSafeDrawFunction()
 		{
 			//Initialize for drawing
