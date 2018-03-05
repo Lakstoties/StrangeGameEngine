@@ -119,6 +119,42 @@ namespace SGE
 		std::chrono::milliseconds FrameDrawDelay(DEFAULT_FRAME_WAIT_MILLISECONDS);
 
 		//
+		//  Frames rendered count
+		//
+		unsigned int FrameCount = 0;
+
+		//
+		//  Frame Render Times
+		//
+
+		//  Start Time
+		std::chrono::time_point<std::chrono::steady_clock> FrameStartTime;
+
+		//  End Time
+		std::chrono::time_point<std::chrono::steady_clock> FrameEndTime;
+
+		//  Dleay
+		int FrameDelay;
+
+		//
+		//  Render Delay
+		//
+
+		//  Start Time
+		std::chrono::time_point<std::chrono::steady_clock> DelayStartTime;
+
+		//  End Time
+		std::chrono::time_point<std::chrono::steady_clock> DelayEndTime;
+
+		//  Delay
+		int RenderDelay;
+
+		//
+		//  Draw List for the single QUAD
+		//
+		GLuint quadDrawList;
+
+		//
 		//  Recalculate View Port Dimensions
 		//
 		void RecalculateViewport()
@@ -262,6 +298,12 @@ namespace SGE
 					return;
 				}
 
+				//
+				//  Count the frame
+				//
+				FrameCount++;
+
+
 				//Frame Rate Limiter Section
 				//This is simple millisecond sleep timer to wait until making another drawing attempt
 				std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_FRAME_WAIT_MILLISECONDS));
@@ -288,10 +330,14 @@ namespace SGE
 			//Create a pointer to map to the memory OpenGL will grant us
 			char* pixelBufferMapping = nullptr;
 
-
 			//Do some drawing.
 			while (continueDrawing)
 			{
+				//
+				//  Capture Start Time
+				//
+				FrameStartTime = std::chrono::steady_clock::now();
+
 				//
 				//  OpenGL Window sizing, scaling, and centering!
 				//
@@ -359,7 +405,7 @@ namespace SGE
 				//  Start drawing the textured quad
 				//
 
-				//Clear the color buffers
+				//  Clear the color buffers
 				glClear(GL_COLOR_BUFFER_BIT);
 
 				//Draw a quad
@@ -377,8 +423,20 @@ namespace SGE
 				//Or if the window should be closed.
 				if (!glfwWindowShouldClose(SGE::OSWindow))
 				{
+					//
+					//  Capture Delay Start
+					//
+					DelayStartTime = std::chrono::steady_clock::now();
+
 					//Display the new shit after we are done drawing it
 					glfwSwapBuffers(SGE::OSWindow);
+
+					//
+					//  Capture Delay End Time
+					//
+					DelayEndTime = std::chrono::steady_clock::now();
+
+					RenderDelay = std::chrono::duration_cast<std::chrono::milliseconds>(DelayEndTime - DelayStartTime).count();
 				}
 
 				//We don't have a window to swap buffers to
@@ -392,9 +450,22 @@ namespace SGE
 					return;
 				}
 
+				//
+				//  Count the frame
+				//
+				FrameCount++;
+
+				//
+				//  Capture frame end time
+				//
+				FrameEndTime = std::chrono::steady_clock::now();
+
+				FrameDelay = std::chrono::duration_cast<std::chrono::milliseconds>(FrameEndTime - FrameStartTime).count();
+
+
 				//Frame Rate Limiter Section
 				//This is simple millisecond sleep timer to wait until making another drawing attempt
-				std::this_thread::sleep_for(FrameDrawDelay);
+				std::this_thread::sleep_for(FrameDrawDelay - (FrameEndTime - FrameStartTime));
 			}
 		}
 
@@ -495,6 +566,11 @@ namespace SGE
 					//We're out!
 					return;
 				}
+
+				//
+				//  Count the frame
+				//
+				FrameCount++;
 
 				//Frame Rate Limiter Section
 				//This is simple millisecond sleep timer to wait until making another drawing attempt

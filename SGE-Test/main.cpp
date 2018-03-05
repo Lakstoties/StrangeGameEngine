@@ -406,14 +406,17 @@ void InputTest(bool& testInputRunning)
 	int testingOffsetY = 10;
 
 	//Color Buffer for wave
-	unsigned int redWaveBuffer[8] = { 0x000000FF,	0x000000FF,	0x00000E0,	0x000000D0, 0x00000080, 0x00000040, 0x00000020, 0x00000010 };
-	unsigned int blueWaveBuffer[8] = { 0x0000FF00,	0x0000FF00,	0x000E000,	0x0000D000, 0x00008000, 0x00004000, 0x00002000, 0x00001000 };
+	unsigned int redWaveBuffer[8] =   { 0x000000FF,	0x000000FF,	0x000000E0,	0x000000D0, 0x00000080, 0x00000040, 0x00000020, 0x00000010 };
+	unsigned int greenWaveBuffer[8] = { 0x0000FF00,	0x0000FF00,	0x0000E000,	0x0000D000, 0x00008000, 0x00004000, 0x00002000, 0x00001000 };
+	unsigned int blueWaveBuffer[8] =  { 0x00FF0000,	0x00FF0000,	0x00E00000,	0x00D00000, 0x00008000, 0x00400000, 0x00200000, 0x00100000 };
 
-	int currentWaveX = -8;
+	int currentWaveXRed = -8;
 
-	float currentWaveX2 = -8;
+	float currentWaveXGreen = -8;
 
-	SGE::Utility::Timer::TimerDelta blueWaveDelta;
+	int currentWaveXBlue = -8;
+
+	SGE::Utility::Timer::TimerDelta greenWaveDelta;
 
 
 	//
@@ -441,8 +444,23 @@ void InputTest(bool& testInputRunning)
 	//
 	SGE::GUI::TextBox terminal(25, 80, 500, 250);
 
+	//
+	//  Times
+	//
+
+	//  Start
+	std::chrono::time_point<std::chrono::steady_clock> ProcessingLoopStartTime;
+
+	//  End
+	std::chrono::time_point<std::chrono::steady_clock> ProcessingLoopEndTime;
+
 	while (testInputRunning)
 	{
+		//
+		//  Capture Start Time
+		//
+		ProcessingLoopStartTime = std::chrono::steady_clock::now();
+
 		//
 		//  Lock the display refresh
 		//
@@ -456,28 +474,40 @@ void InputTest(bool& testInputRunning)
 		//Copy over background image
 		//SGE::Render::DrawDataBlock(targetDisplay, 0, 0, testBitmap.image.width, testBitmap.image.height, testBitmap.image.imageData);
 
-		//Background Wave
-		DrawBufferedRow(redWaveBuffer, 8, currentWaveX);
 
-		currentWaveX2 += blueWaveDelta.Stop();
+		currentWaveXGreen += greenWaveDelta.Stop();
 
-		DrawBufferedRow(blueWaveBuffer, 8, currentWaveX2);
+		//
+		//  Background Waves
+		//
+
+		//  Based on Processing Loop
+		DrawBufferedRow(redWaveBuffer, 8, currentWaveXRed);
+
+		//  Based on time delta
+		DrawBufferedRow(greenWaveBuffer, 8, currentWaveXGreen);
+
+		//  Base on number of frames rendered
+		DrawBufferedRow(blueWaveBuffer, 8, currentWaveXBlue);
+
+		//  Advance green wave
+		greenWaveDelta.Start(100);
 
 		//  Advance blue wave
-		blueWaveDelta.Start(100);
+		currentWaveXBlue = (SGE::Display::FrameCount % (SGE::Display::Video::ResolutionX + 8)) - 8;
 
 		
-		currentWaveX++;
+		currentWaveXRed++;
 
-		if (currentWaveX2 > SGE::Display::Video::ResolutionX + 8)
+		if (currentWaveXGreen > SGE::Display::Video::ResolutionX + 8)
 		{
-			currentWaveX2 = -8;
+			currentWaveXGreen = -8;
 		}
 
 
-		if (currentWaveX > SGE::Display::Video::ResolutionX + 8)
+		if (currentWaveXRed > SGE::Display::Video::ResolutionX + 8)
 		{
-			currentWaveX = -8;
+			currentWaveXRed = -8;
 		}
 
 
@@ -594,6 +624,17 @@ void InputTest(bool& testInputRunning)
 		SGE::Render::DrawMouseSimpleCursor(5, SGE::Render::Colors::Named::BrightWhite);
 
 		
+		char tempStuff[100];
+
+		sprintf(tempStuff, "Render Delay: %i", SGE::Display::RenderDelay);
+
+		SGE::Render::DrawString(tempStuff, SGE::Render::CHARACTER_8x8_ROM, 7, 0, 710, SGE::Render::Colors::Named::White);
+
+		sprintf(tempStuff, "Frame Delay: %i", SGE::Display::FrameDelay);
+
+		SGE::Render::DrawString(tempStuff, SGE::Render::CHARACTER_8x8_ROM, 7, 0, 700, SGE::Render::Colors::Named::White);
+
+
 		//
 		//Unlock the display refresh
 		//
@@ -688,8 +729,15 @@ void InputTest(bool& testInputRunning)
 		//Capture keyboard state
 		SGE::Controls::Keyboard::SaveStatus(lastKeyboardState);
 
-		//Wait a little after each iteration
-		std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		//
+		//  Capture End Time
+		//
+		ProcessingLoopEndTime = std::chrono::steady_clock::now();
+
+		//
+		//  Wait a little after each iteration
+		//
+		std::this_thread::sleep_for(std::chrono::milliseconds(9) - (ProcessingLoopEndTime - ProcessingLoopStartTime));
 	}
 }
 
