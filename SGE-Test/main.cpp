@@ -542,9 +542,37 @@ void InputTest(bool& testInputRunning)
 		terminal.Draw();
 
 		//
+		//  Determine a new random thing to put in the TextBox
+		//
+
+		int targetTerminalRow = rand() % 25;
+		int targetTerminalColumn = rand() % 80;
+		
+		int targetTerminalBackgroundColor = rand() % 256;
+		int targetTerminalForegroundColor = rand() % 256;
+
+		int targetTerminalCharacter = rand() % 256;
+
+
+		//
+		//  Put new random  thing into TextBox
+		//
+		
+		//  Set Background Color
+		terminal.BackgroundColorArray[targetTerminalRow * terminal.columns + targetTerminalColumn] = SGE::Render::Colors::ColorMode8Bit[targetTerminalBackgroundColor];
+
+		//  Set Foreground Color
+		terminal.ForegroundColorArray[targetTerminalRow * terminal.columns + targetTerminalColumn] = SGE::Render::Colors::ColorMode8Bit[targetTerminalForegroundColor];
+
+		//  Set Character
+		terminal.CharacterArray[targetTerminalRow * terminal.columns + targetTerminalColumn] = targetTerminalCharacter;
+
+		//
 		//  Draw Mouse Cursor
 		//
 		SGE::Render::DrawMouseSimpleCursor(5, SGE::Render::Colors::Named::BrightWhite);
+
+		
 		
 		
 
