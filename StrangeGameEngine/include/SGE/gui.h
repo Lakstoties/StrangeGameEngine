@@ -10,37 +10,40 @@ namespace SGE
 	{
 		class TextBox
 		{
-		private:
+
+		public:
 			//The number of rows in the text box
 			unsigned int rows = 0;
 
 			//The number of columns in the text box
 			unsigned int columns = 0;
 
-		public:
-
 			//The spacing between characters between columns
-			unsigned int ColumnSpacing = 0;
+			unsigned int ColumnSpacing = 8;
 
 			//The spacing between character between rows
-			unsigned int RowSpacing = 0;
+			unsigned int RowSpacing = 8;
 
 			//Buffers to store characters
-			char* CharacterRowBuffers = nullptr;
+			char* CharacterArray = NULL;
 
 			//Color Array for Foreground
-			SGE::Display::Video::pixel* ForegroundColorArray = nullptr;
+			SGE::Display::Video::pixel* ForegroundColorArray = NULL;
 			
 			//Color Array for Background
-			SGE::Display::Video::pixel* BackgroundColorArray = nullptr;
+			SGE::Display::Video::pixel* BackgroundColorArray = NULL;
 
 			//Upper Left corner to align to
 			int XPosition = 0;
 			int YPosition = 0;
 
+			TextBox(unsigned int numberOfRows, unsigned int numberOfColumns, int xPosition, int yPosition);
+			~TextBox();
 
 			void Draw();
-			void ResetBuffers(unsigned int newRows, unsigned int newColumns);
+			void DeleteBuffers();
+			void CreateBuffers(unsigned int newRows, unsigned int newColumns);
+			void ResetBuffers();
 		};
 	}
 

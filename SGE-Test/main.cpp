@@ -431,6 +431,11 @@ void InputTest(bool& testInputRunning)
 
 	SGE::Display::HideOSMouseCursor();
 
+	//
+	//  Create a TextBox
+	//
+	SGE::GUI::TextBox terminal(25, 80, 500, 250);
+
 	while (testInputRunning)
 	{
 		//
@@ -516,21 +521,25 @@ void InputTest(bool& testInputRunning)
 		//  Draw spinning Triangle 
 		//
 
-		//Draw the current triangle
+		//  Draw the current triangle
 		SGE::Render::DrawFilledTriangleFast(spinningVertexCX, spinningVertexCY, spinningVertex1, spinningVertex2, spinningVertex3, SGE::Render::Colors::Named::BrightWhite);
 
-		//Increment the degree
+		//  Increment the degree
 		spinningDegree += 0.1;
 		if (spinningDegree > 360)
 		{
 			spinningDegree -= 360;
 		}
 
-		//Rotate the points
+		//  Rotate the points
 		SGE::Utility::Math::RotatePointAroundPoint(spinningVertexO1.x, spinningVertexO1.y, 0, 0, spinningVertex1.x, spinningVertex1.y, spinningDegree);
 		SGE::Utility::Math::RotatePointAroundPoint(spinningVertexO2.x, spinningVertexO2.y, 0, 0, spinningVertex2.x, spinningVertex2.y, spinningDegree);
 		SGE::Utility::Math::RotatePointAroundPoint(spinningVertexO3.x, spinningVertexO3.y, 0, 0, spinningVertex3.x, spinningVertex3.y, spinningDegree);
 
+		//
+		//  Draw TextBox
+		//
+		terminal.Draw();
 
 		//
 		//  Draw Mouse Cursor

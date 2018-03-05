@@ -42,86 +42,174 @@ namespace SGE
 
 			}
 
-			//Draw the background
+			//
+			//  Draw the background
+			//
+
+			SGE::Render::DrawBox(XPosition, YPosition, columns * ColumnSpacing, rows * RowSpacing, SGE::Render::Colors::Named::Black);
+
+
+			//
+			//  Draw the character background colors
+			//
 			for (int i = startRow; i < endRow; i++)
 			{
 				for (int j = startColumn; j < endColumn; j++)
 				{
 					//If there's something other than pure black in the background
-					if (BackgroundColorArray[i*j] != 0)
+					if (BackgroundColorArray[i * columns + j] != SGE::Render::Colors::Named::Black)
 					{
-
+						SGE::Render::DrawBox(XPosition + j * RowSpacing, YPosition + i * ColumnSpacing, RowSpacing, ColumnSpacing, BackgroundColorArray[i * columns + j]);
 					}
 				}
 			}
 
 			//Draw the characters
+			for (int i = startRow; i < endRow; i++)
+			{
+				for (int j = startColumn; j < endColumn; j++)
+				{
+					//Draw the characters upon the screen
+					SGE::Render::Draw8x8Character(CharacterArray[i * columns + j], SGE::Render::CHARACTER_8x8_ROM, XPosition + j * ColumnSpacing, YPosition + i * RowSpacing, ForegroundColorArray[i * columns + j]);
+				}
+			}
 		}
 
-		//Reset the buffers used to store characters.
-		void TextBox::ResetBuffers(unsigned int newRows, unsigned int newColumns)
+		//
+		//  Delete all buffers
+		//
+		void TextBox::DeleteBuffers()
 		{
-			//Check for any invalid row and colums sizes
+			//
+			//Delete any old stuff
+			//
+
+			//  Characters
+			//  Delete the buffer array
+			delete CharacterArray;
+
+			//  Foreground Color
+			//  Delete the buffer array
+			delete ForegroundColorArray;
+
+			//  Background Color
+			//  Delete the buffer array
+			delete BackgroundColorArray;
+
+			//  Assign a NULL to tidy up
+			CharacterArray = NULL;
+
+			//  Assign a NULL to tidy up
+			ForegroundColorArray = NULL;
+
+			//  Assign a NULL to tidy up
+			BackgroundColorArray = NULL;
+
+			//
+			//  Assign lengths to 0
+			//
+			rows = 0;
+			columns = 0;
+		}
+
+		//
+		//  Create new buffers based on new rows and column amounts
+		//
+		void TextBox::CreateBuffers(unsigned int newRows, unsigned int newColumns)
+		{
+			//
+			//  Check for any invalid row and colums sizes
+			//
 			if (newRows == 0 || newColumns == 0)
 			{
 				return;
 			}
 
 			//
-			//Delete any old stuff
+			//  Purge an old ones
 			//
-
-			//Characters
-			//Delete the buffer array
-			delete CharacterRowBuffers;
-
-			//Foreground Color
-			//Delete the buffer array
-			delete ForegroundColorArray;
-
-			//Background Color
-			//Delete the buffer array
-			delete BackgroundColorArray;
+			DeleteBuffers();
 
 			//
-			//Assign new rows and colums sizes
+			//  Assign new rows and colums sizes
 			//
 
 			columns = newColumns;
 			rows = newRows;
 
 			//
-			//Create the new stuff
+			//  Create new buffers
 			//
-			
-			//
-			//Characters
-			//
-			//Create the buffer array
-			CharacterRowBuffers = new char[rows * columns];
-
-			//Zero out the array
-			std::memset(CharacterRowBuffers, 0, rows * columns);
 
 			//
-			//Foreground Color
+			//  Characters
 			//
-			//Create the buffer array
+			//  Create the buffer array
+			CharacterArray = new char[rows * columns];
+
+			//
+			//  Foreground Color
+			//
+			//  Create the buffer array
 			ForegroundColorArray = new unsigned int[rows * columns];
 
-			//Zero out the array
-			std::memset(ForegroundColorArray, 0, rows * columns);
-
 			//
-			//Background Color
+			//  Background Color
 			//
-			//Create the buffer array
+			//  Create the buffer array
 			BackgroundColorArray = new unsigned int[rows * columns];
 
-			//Zero out the array
-			std::memset(BackgroundColorArray, 0, rows * columns);
-
+			//
+			//  Reset all the new buffers
+			//
+			ResetBuffers();
 		}
+
+
+		//Reset the buffers used to store characters.
+		void TextBox::ResetBuffers()
+		{
+			//
+			//  Zero out the character array
+			//
+			std::memset(CharacterArray, 0, rows * columns);
+
+			//
+			//  Zero out the array
+			//
+			std::memset(ForegroundColorArray, 0, rows * columns * sizeof(SGE::Display::Video::pixel));
+
+			//
+			//  Zero out the array
+			//
+			std::memset(BackgroundColorArray, 0, rows * columns * sizeof(SGE::Display::Video::pixel));
+		}
+
+		//
+		//  Default constructor
+		//
+		TextBox::TextBox(unsigned int numberOfRows, unsigned int numberOfColumns, int xPosition, int yPosition)
+		{
+			//  Create the buffers
+			CreateBuffers(numberOfRows, numberOfColumns);
+
+			//  Set the positions
+			XPosition = xPosition;
+			YPosition = yPosition;
+		}
+
+		//
+		//  Destructor
+		//
+		TextBox::~TextBox()
+		{
+			//
+			//  Delete the buffers
+			//
+
+			DeleteBuffers();
+		}
+
 	}
 
 	Menu::Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, int targetNumberOfSelections, char** targetMenuItems)
