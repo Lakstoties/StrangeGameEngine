@@ -67,6 +67,54 @@ namespace SGE
 
 
 
+		namespace Timer
+		{
+
+			void TimerDelta::Start(float rateOfChange)
+			{
+				//
+				//  Save the rate
+				//
+				Rate = rateOfChange;
+
+				//
+				//  Capture the start time
+				//
+				StartTime = std::chrono::steady_clock::now();
+
+				//
+				//  Flag the timer has started
+				//
+				started = true;
+			}
+
+			float TimerDelta::Stop()
+			{
+				if (started)
+				{
+					//
+					//  Capture the stop time
+					//
+					EndTime = std::chrono::steady_clock::now();
+
+					//
+					//  Flag the timer has stopped
+					//
+					started = false;
+
+					//
+					//  Return the delta
+					//
+					return Rate * std::chrono::duration<float>(EndTime - StartTime).count();
+				}
+				else
+				{
+					return 0.0f;
+				}
+			}
+		}
+
+
 
 		//
 		//  Tracker Music Module components

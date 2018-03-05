@@ -406,9 +406,14 @@ void InputTest(bool& testInputRunning)
 	int testingOffsetY = 10;
 
 	//Color Buffer for wave
-	unsigned int colorWaveBuffer[8] = { 0x000000FF,	0x000000FF,	0x00000E0,	0x000000D0, 0x00000080, 0x00000040, 0x00000020, 0x00000010 };
+	unsigned int redWaveBuffer[8] = { 0x000000FF,	0x000000FF,	0x00000E0,	0x000000D0, 0x00000080, 0x00000040, 0x00000020, 0x00000010 };
+	unsigned int blueWaveBuffer[8] = { 0x0000FF00,	0x0000FF00,	0x000E000,	0x0000D000, 0x00008000, 0x00004000, 0x00002000, 0x00001000 };
 
 	int currentWaveX = -8;
+
+	float currentWaveX2 = -8;
+
+	SGE::Utility::Timer::TimerDelta blueWaveDelta;
 
 
 	//
@@ -439,20 +444,36 @@ void InputTest(bool& testInputRunning)
 	while (testInputRunning)
 	{
 		//
-		//Lock the display refresh
+		//  Lock the display refresh
 		//
 		SGE::Display::BlockRefresh();
 
-		//Blank the virtual display RAM
+		//
+		//  Blank the virtual display RAM
+		//
 		SGE::Render::ZBlank();
 		
 		//Copy over background image
 		//SGE::Render::DrawDataBlock(targetDisplay, 0, 0, testBitmap.image.width, testBitmap.image.height, testBitmap.image.imageData);
 
 		//Background Wave
-		DrawBufferedRow(colorWaveBuffer, 8, currentWaveX);
+		DrawBufferedRow(redWaveBuffer, 8, currentWaveX);
+
+		currentWaveX2 += blueWaveDelta.Stop();
+
+		DrawBufferedRow(blueWaveBuffer, 8, currentWaveX2);
+
+		//  Advance blue wave
+		blueWaveDelta.Start(100);
+
 		
 		currentWaveX++;
+
+		if (currentWaveX2 > SGE::Display::Video::ResolutionX + 8)
+		{
+			currentWaveX2 = -8;
+		}
+
 
 		if (currentWaveX > SGE::Display::Video::ResolutionX + 8)
 		{
@@ -573,10 +594,6 @@ void InputTest(bool& testInputRunning)
 		SGE::Render::DrawMouseSimpleCursor(5, SGE::Render::Colors::Named::BrightWhite);
 
 		
-		
-		
-
-
 		//
 		//Unlock the display refresh
 		//

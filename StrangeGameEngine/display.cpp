@@ -114,9 +114,9 @@ namespace SGE
 		bool continueDrawing = true;
 
 		//
-		//  Frame Rate aimed for
+		//  Frame Draw Delay
 		//
-		long long FrameDrawWaitMilliseconds = DEFAULT_FRAME_WAIT_MILLISECONDS;
+		std::chrono::milliseconds FrameDrawDelay(DEFAULT_FRAME_WAIT_MILLISECONDS);
 
 		//
 		//  Recalculate View Port Dimensions
@@ -394,7 +394,7 @@ namespace SGE
 
 				//Frame Rate Limiter Section
 				//This is simple millisecond sleep timer to wait until making another drawing attempt
-				std::this_thread::sleep_for(std::chrono::milliseconds(FrameDrawWaitMilliseconds));
+				std::this_thread::sleep_for(FrameDrawDelay);
 			}
 		}
 

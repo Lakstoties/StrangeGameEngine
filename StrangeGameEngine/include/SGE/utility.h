@@ -2,6 +2,7 @@
 #include "sound.h"
 #include "fileformats.h"
 #include <thread>
+#include <chrono>
 
 //
 //  Strange Game Engine Main Namespace
@@ -174,6 +175,24 @@ namespace SGE
 				//Constructor Stuff
 				ModulePlayer();
 				~ModulePlayer();
+
+			};
+		}
+
+		namespace Timer
+		{
+			class TimerDelta
+			{
+			private:
+				bool started = false;
+
+			public:
+				float Rate = 0.0f;
+				void Start(float rateOfChange);
+				float Stop();
+
+				std::chrono::time_point<std::chrono::steady_clock> StartTime;
+				std::chrono::time_point<std::chrono::steady_clock> EndTime;
 
 			};
 		}
