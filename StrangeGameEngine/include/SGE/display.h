@@ -5,16 +5,6 @@
 namespace SGE
 {
 	//
-	//  Default frame rate for the frame rate limiter
-	//
-	const int DEFAULT_FRAME_RATE_LIMIT = 150;
-
-	//
-	//  Calculated delay in milliseconds to roughly meet frame rate limit
-	//
-	const int DEFAULT_FRAME_WAIT_MILLISECONDS = 1000 / DEFAULT_FRAME_RATE_LIMIT;
-	
-	//
 	//  The Virtual Display class to simulate the display component of the Strange Game Engine
 	//
 	namespace Display
@@ -64,16 +54,6 @@ namespace SGE
 		//  Count of frames rendered
 		//
 		extern unsigned int FrameCount;
-
-		//
-		//  Rendering Delay
-		//
-		extern int RenderDelay;
-
-		//
-		//  Frame Delay
-		//
-		extern int FrameDelay;
 
 		//
 		//  Block display refresh.  Useful for preventing screen tearing from draw operations happening in the middle of a display refresh

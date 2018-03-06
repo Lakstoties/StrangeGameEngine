@@ -29,4 +29,13 @@ namespace SGE
 	//  Performs shutdown and termination operations
 	//
 	void Shutdown();
+
+	//
+	//  Universal Global constants for the system
+	//
+
+	//
+	//  Universal Globals for the System
+	//
+	
 }

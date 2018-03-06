@@ -4,6 +4,11 @@
 #include "GL\glew.h"
 
 //
+//  Enable VULKAN in GLFW!
+//
+//#define GLFW_INCLUDE_VULKAN  // Not quite yet...  Still really tempting.
+
+//
 //  Include GLFW to handle windowing
 //
 #include <GLFW\glfw3.h>
@@ -114,45 +119,9 @@ namespace SGE
 		bool continueDrawing = true;
 
 		//
-		//  Frame Draw Delay
-		//
-		std::chrono::milliseconds FrameDrawDelay(DEFAULT_FRAME_WAIT_MILLISECONDS);
-
-		//
 		//  Frames rendered count
 		//
 		unsigned int FrameCount = 0;
-
-		//
-		//  Frame Render Times
-		//
-
-		//  Start Time
-		std::chrono::time_point<std::chrono::steady_clock> FrameStartTime;
-
-		//  End Time
-		std::chrono::time_point<std::chrono::steady_clock> FrameEndTime;
-
-		//  Dleay
-		int FrameDelay;
-
-		//
-		//  Render Delay
-		//
-
-		//  Start Time
-		std::chrono::time_point<std::chrono::steady_clock> DelayStartTime;
-
-		//  End Time
-		std::chrono::time_point<std::chrono::steady_clock> DelayEndTime;
-
-		//  Delay
-		int RenderDelay;
-
-		//
-		//  Draw List for the single QUAD
-		//
-		GLuint quadDrawList;
 
 		//
 		//  Recalculate View Port Dimensions
@@ -302,11 +271,6 @@ namespace SGE
 				//  Count the frame
 				//
 				FrameCount++;
-
-
-				//Frame Rate Limiter Section
-				//This is simple millisecond sleep timer to wait until making another drawing attempt
-				std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_FRAME_WAIT_MILLISECONDS));
 			}
 		}
 
@@ -333,11 +297,6 @@ namespace SGE
 			//Do some drawing.
 			while (continueDrawing)
 			{
-				//
-				//  Capture Start Time
-				//
-				FrameStartTime = std::chrono::steady_clock::now();
-
 				//
 				//  OpenGL Window sizing, scaling, and centering!
 				//
@@ -423,20 +382,8 @@ namespace SGE
 				//Or if the window should be closed.
 				if (!glfwWindowShouldClose(SGE::OSWindow))
 				{
-					//
-					//  Capture Delay Start
-					//
-					DelayStartTime = std::chrono::steady_clock::now();
-
 					//Display the new shit after we are done drawing it
 					glfwSwapBuffers(SGE::OSWindow);
-
-					//
-					//  Capture Delay End Time
-					//
-					DelayEndTime = std::chrono::steady_clock::now();
-
-					RenderDelay = std::chrono::duration_cast<std::chrono::milliseconds>(DelayEndTime - DelayStartTime).count();
 				}
 
 				//We don't have a window to swap buffers to
@@ -454,18 +401,6 @@ namespace SGE
 				//  Count the frame
 				//
 				FrameCount++;
-
-				//
-				//  Capture frame end time
-				//
-				FrameEndTime = std::chrono::steady_clock::now();
-
-				FrameDelay = std::chrono::duration_cast<std::chrono::milliseconds>(FrameEndTime - FrameStartTime).count();
-
-
-				//Frame Rate Limiter Section
-				//This is simple millisecond sleep timer to wait until making another drawing attempt
-				std::this_thread::sleep_for(FrameDrawDelay - (FrameEndTime - FrameStartTime));
 			}
 		}
 
@@ -571,10 +506,6 @@ namespace SGE
 				//  Count the frame
 				//
 				FrameCount++;
-
-				//Frame Rate Limiter Section
-				//This is simple millisecond sleep timer to wait until making another drawing attempt
-				std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_FRAME_WAIT_MILLISECONDS));
 			}
 		}
 

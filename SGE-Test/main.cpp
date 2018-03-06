@@ -444,23 +444,8 @@ void InputTest(bool& testInputRunning)
 	//
 	SGE::GUI::TextBox terminal(25, 80, 500, 250);
 
-	//
-	//  Times
-	//
-
-	//  Start
-	std::chrono::time_point<std::chrono::steady_clock> ProcessingLoopStartTime;
-
-	//  End
-	std::chrono::time_point<std::chrono::steady_clock> ProcessingLoopEndTime;
-
 	while (testInputRunning)
 	{
-		//
-		//  Capture Start Time
-		//
-		ProcessingLoopStartTime = std::chrono::steady_clock::now();
-
 		//
 		//  Lock the display refresh
 		//
@@ -475,7 +460,11 @@ void InputTest(bool& testInputRunning)
 		//SGE::Render::DrawDataBlock(targetDisplay, 0, 0, testBitmap.image.width, testBitmap.image.height, testBitmap.image.imageData);
 
 
+		//  Stop to advanced the green wave
 		currentWaveXGreen += greenWaveDelta.Stop();
+
+		//  Start back up again
+		greenWaveDelta.Start(60);
 
 		//
 		//  Background Waves
@@ -490,8 +479,7 @@ void InputTest(bool& testInputRunning)
 		//  Base on number of frames rendered
 		DrawBufferedRow(blueWaveBuffer, 8, currentWaveXBlue);
 
-		//  Advance green wave
-		greenWaveDelta.Start(100);
+
 
 		//  Advance blue wave
 		currentWaveXBlue = (SGE::Display::FrameCount % (SGE::Display::Video::ResolutionX + 8)) - 8;
@@ -623,18 +611,6 @@ void InputTest(bool& testInputRunning)
 		//
 		SGE::Render::DrawMouseSimpleCursor(5, SGE::Render::Colors::Named::BrightWhite);
 
-		
-		char tempStuff[100];
-
-		sprintf(tempStuff, "Render Delay: %i", SGE::Display::RenderDelay);
-
-		SGE::Render::DrawString(tempStuff, SGE::Render::CHARACTER_8x8_ROM, 7, 0, 710, SGE::Render::Colors::Named::White);
-
-		sprintf(tempStuff, "Frame Delay: %i", SGE::Display::FrameDelay);
-
-		SGE::Render::DrawString(tempStuff, SGE::Render::CHARACTER_8x8_ROM, 7, 0, 700, SGE::Render::Colors::Named::White);
-
-
 		//
 		//Unlock the display refresh
 		//
@@ -730,14 +706,9 @@ void InputTest(bool& testInputRunning)
 		SGE::Controls::Keyboard::SaveStatus(lastKeyboardState);
 
 		//
-		//  Capture End Time
-		//
-		ProcessingLoopEndTime = std::chrono::steady_clock::now();
-
-		//
 		//  Wait a little after each iteration
 		//
-		std::this_thread::sleep_for(std::chrono::milliseconds(9) - (ProcessingLoopEndTime - ProcessingLoopStartTime));
+		std::this_thread::sleep_for(std::chrono::milliseconds(15));
 	}
 }
 
