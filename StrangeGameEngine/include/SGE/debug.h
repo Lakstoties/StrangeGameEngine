@@ -1,4 +1,5 @@
 #pragma once
+#include "utility.h"
 
 namespace SGE
 {
@@ -23,5 +24,20 @@ namespace SGE
 		//  Debug function that draws a box with the status elements for the mouse
 		//
 		void DrawMouseStatusBox(int xCornerPosition, int yCornerPosition);
+
+		//
+		//  Debug function that shows the current status of the module player
+		//
+		void DrawPlayerStatusBox(SGE::Utility::ModuleTrackerMusic::ModulePlayer* modulePlayerToUse, int xCornerPosition, int yCornerPosition);
+
+		//
+		//  Debug function that shows the currenrt status of all audio channels
+		//
+		void DrawAudioChannelStatusBox(int xCornerPosition, int yCornerPosition);
+
+		//
+		//  Debug function to show audio levels
+		//
+		void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, unsigned int sampleLevel, float channelVolume);
 	}
 }

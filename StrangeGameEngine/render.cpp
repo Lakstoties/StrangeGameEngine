@@ -81,6 +81,59 @@ namespace SGE
 			}
 		}
 
+
+
+		//
+		//  Helper Function for Draw8x8 Character
+		//
+		inline void DrawCharacterRow(unsigned char &rowData, SGE::Display::Video::pixel* targetRAM, SGE::Display::Video::pixel &targetColor, int &offset)
+		{
+			//
+			//  If the character is getting drawn near one of the edges, go to the switch cases that matches
+			//
+			switch (offset)
+			{
+				//Reverse
+			case -1:
+				if (rowData & 0x02) { targetRAM[1] = targetColor; }
+			case -2:
+				if (rowData & 0x04) { targetRAM[2] = targetColor; }
+			case -3:
+				if (rowData & 0x08) { targetRAM[3] = targetColor; }
+			case -4:
+				if (rowData & 0x10) { targetRAM[4] = targetColor; }
+			case -5:
+				if (rowData & 0x20) { targetRAM[5] = targetColor; }
+			case -6:
+				if (rowData & 0x40) { targetRAM[6] = targetColor; }
+			case -7:
+				if (rowData & 0x80) { targetRAM[7] = targetColor; }
+				break;
+				//Forward
+			case 0:
+				if (rowData & 0x80) { targetRAM[7] = targetColor; }
+			case 1:
+				if (rowData & 0x40) { targetRAM[6] = targetColor; }
+			case 2:
+				if (rowData & 0x20) { targetRAM[5] = targetColor; }
+			case 3:
+				if (rowData & 0x10) { targetRAM[4] = targetColor; }
+			case 4:
+				if (rowData & 0x08) { targetRAM[3] = targetColor; }
+			case 5:
+				if (rowData & 0x04) { targetRAM[2] = targetColor; }
+			case 6:
+				if (rowData & 0x02) { targetRAM[1] = targetColor; }
+			case 7:
+				if (rowData & 0x01) { targetRAM[1] = targetColor; }
+
+			default:
+				break;
+			}
+		}
+
+
+
 		//
 		//  Draw a single character
 		//
@@ -98,29 +151,69 @@ namespace SGE
 			//Get the RAM position to start writing to in Video RAM
 			SGE::Display::Video::pixel* currentRAMPointer = &SGE::Display::Video::RAM[targetX + (targetY * SGE::Display::Video::ResolutionX)];
 
+			//Figure out the startX
+
+			int startX = 0;
+
+			if (targetX < 0)
+			{
+				startX = targetX;
+			}
+			else if ((targetX + 8) >= SGE::Display::Video::ResolutionX)
+			{
+				startX = (targetX + 8) - SGE::Display::Video::ResolutionX;
+			}
+		
 			//Check the whole character to see if there's anything to draw at all...
 			//Or if the thing is blank
 			if (characterROM[(unsigned char)character])
 			{
-				//For each of the 8 rows for a character
-				for (int i = 0; i < 8; i++)
+				//  Row 0
+				if (characterToDraw[0])
 				{
-					//IF there's actually anything to draw in the row
-					if (characterToDraw[i])
-					{
-						//Row of pixels
-						if (characterToDraw[i] & 0x01) { currentRAMPointer[0] = targetColor; }
-						if (characterToDraw[i] & 0x02) { currentRAMPointer[1] = targetColor; }
-						if (characterToDraw[i] & 0x04) { currentRAMPointer[2] = targetColor; }
-						if (characterToDraw[i] & 0x08) { currentRAMPointer[3] = targetColor; }
-						if (characterToDraw[i] & 0x10) { currentRAMPointer[4] = targetColor; }
-						if (characterToDraw[i] & 0x20) { currentRAMPointer[5] = targetColor; }
-						if (characterToDraw[i] & 0x40) { currentRAMPointer[6] = targetColor; }
-						if (characterToDraw[i] & 0x80) { currentRAMPointer[7] = targetColor; }
-					}
+					DrawCharacterRow(characterToDraw[0], &currentRAMPointer[0], targetColor, startX);
+				}
 
-					//Hop to the next row in RAM from the start of the current row
-					currentRAMPointer += SGE::Display::Video::ResolutionX;
+				//  Row 1
+				if (characterToDraw[1])
+				{
+					DrawCharacterRow(characterToDraw[1], &currentRAMPointer[SGE::Display::Video::ResolutionX], targetColor, startX);
+				}
+
+				//  Row 2
+				if (characterToDraw[2])
+				{
+					DrawCharacterRow(characterToDraw[2], &currentRAMPointer[SGE::Display::Video::ResolutionX * 2], targetColor, startX);
+				}
+
+				//  Row 3
+				if (characterToDraw[3])
+				{
+					DrawCharacterRow(characterToDraw[3], &currentRAMPointer[SGE::Display::Video::ResolutionX * 3], targetColor, startX);
+				}
+
+				//  Row 4
+				if (characterToDraw[4])
+				{
+					DrawCharacterRow(characterToDraw[4], &currentRAMPointer[SGE::Display::Video::ResolutionX * 4], targetColor, startX);
+				}
+
+				//  Row 5
+				if (characterToDraw[5])
+				{
+					DrawCharacterRow(characterToDraw[5], &currentRAMPointer[SGE::Display::Video::ResolutionX * 5], targetColor, startX);
+				}
+
+				//  Row 6
+				if (characterToDraw[6])
+				{
+					DrawCharacterRow(characterToDraw[6], &currentRAMPointer[SGE::Display::Video::ResolutionX * 6], targetColor, startX);
+				}
+
+				//  Row 7
+				if (characterToDraw[7])
+				{
+					DrawCharacterRow(characterToDraw[7], &currentRAMPointer[SGE::Display::Video::ResolutionX * 7], targetColor, startX);
 				}
 			}
 		}
