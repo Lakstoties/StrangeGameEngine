@@ -91,26 +91,30 @@ namespace SGE
 			int targetY,								//Target Y location to start drawing from (Upper Left Corner)
 			SGE::Display::Video::pixel targetColor)		//Target pixel data for the color
 		{
+			//
+			//  Check to see if we can even draw this.
+			//
+			if (targetX >= SGE::Display::Video::ResolutionX ||
+				targetX <= -8 ||
+				targetY >= SGE::Display::Video::ResolutionY ||
+				targetY <= -8)
+			{
+				//
+				//  Can't draw this.
+				//
+				return;
+			}
+
 			//Get a pointer to what we are interested in.
 			//Cast down to an unsigned char so to work with 8-bit at a time of the 64-bit
 			unsigned char* characterToDraw = (unsigned char*)&characterROM[(unsigned char)character];
 
-			//Get the RAM position to start writing to in Video RAM
-			SGE::Display::Video::pixel* currentRAMPointer = &SGE::Display::Video::RAM[targetX + (targetY * SGE::Display::Video::ResolutionX)];
-
 			//Figure out the startX
+			int startX = (targetX <= 0) ? targetX : ((targetX + 8) % SGE::Display::Video::ResolutionX) * ((targetX + 8) / SGE::Display::Video::ResolutionX);
 
-			int startX = 0;
-
-			if (targetX < 0)
-			{
-				startX = targetX;
-			}
-			else if ((targetX + 8) >= SGE::Display::Video::ResolutionX)
-			{
-				startX = (targetX + 8) - SGE::Display::Video::ResolutionX;
-			}
-		
+			//  Precalculate memory offsets
+			SGE::Display::Video::pixel* startRAMPointer = &SGE::Display::Video::RAM[targetX + (targetY * SGE::Display::Video::ResolutionX)];
+					
 			//Check the whole character to see if there's anything to draw at all...
 			//Or if the thing is blank
 			if (characterROM[(unsigned char)character])
@@ -121,24 +125,24 @@ namespace SGE
 					switch (startX)
 					{
 						//Reverse
-					case -1:	if (characterToDraw[0] & 0x02) { currentRAMPointer[1] = targetColor; }
-					case -2:	if (characterToDraw[0] & 0x04) { currentRAMPointer[2] = targetColor; }
-					case -3:	if (characterToDraw[0] & 0x08) { currentRAMPointer[3] = targetColor; }
-					case -4:	if (characterToDraw[0] & 0x10) { currentRAMPointer[4] = targetColor; }
-					case -5:	if (characterToDraw[0] & 0x20) { currentRAMPointer[5] = targetColor; }
-					case -6:	if (characterToDraw[0] & 0x40) { currentRAMPointer[6] = targetColor; }
-					case -7:	if (characterToDraw[0] & 0x80) { currentRAMPointer[7] = targetColor; }
+					case -1:	if (characterToDraw[0] & 0x02) { startRAMPointer[1] = targetColor; }
+					case -2:	if (characterToDraw[0] & 0x04) { startRAMPointer[2] = targetColor; }
+					case -3:	if (characterToDraw[0] & 0x08) { startRAMPointer[3] = targetColor; }
+					case -4:	if (characterToDraw[0] & 0x10) { startRAMPointer[4] = targetColor; }
+					case -5:	if (characterToDraw[0] & 0x20) { startRAMPointer[5] = targetColor; }
+					case -6:	if (characterToDraw[0] & 0x40) { startRAMPointer[6] = targetColor; }
+					case -7:	if (characterToDraw[0] & 0x80) { startRAMPointer[7] = targetColor; }
 							break;
 							//Forward
-					case 0:		if (characterToDraw[0] & 0x80) { currentRAMPointer[7] = targetColor; }
-					case 1:		if (characterToDraw[0] & 0x40) { currentRAMPointer[6] = targetColor; }
-					case 2:		if (characterToDraw[0] & 0x20) { currentRAMPointer[5] = targetColor; }
-					case 3:		if (characterToDraw[0] & 0x10) { currentRAMPointer[4] = targetColor; }
-					case 4:		if (characterToDraw[0] & 0x08) { currentRAMPointer[3] = targetColor; }
-					case 5:		if (characterToDraw[0] & 0x04) { currentRAMPointer[2] = targetColor; }
-					case 6:		if (characterToDraw[0] & 0x02) { currentRAMPointer[1] = targetColor; }
-					case 7:		if (characterToDraw[0] & 0x01) { currentRAMPointer[0] = targetColor; }
 					default:
+					case 0:		if (characterToDraw[0] & 0x80) { startRAMPointer[7] = targetColor; }
+					case 1:		if (characterToDraw[0] & 0x40) { startRAMPointer[6] = targetColor; }
+					case 2:		if (characterToDraw[0] & 0x20) { startRAMPointer[5] = targetColor; }
+					case 3:		if (characterToDraw[0] & 0x10) { startRAMPointer[4] = targetColor; }
+					case 4:		if (characterToDraw[0] & 0x08) { startRAMPointer[3] = targetColor; }
+					case 5:		if (characterToDraw[0] & 0x04) { startRAMPointer[2] = targetColor; }
+					case 6:		if (characterToDraw[0] & 0x02) { startRAMPointer[1] = targetColor; }
+					case 7:		if (characterToDraw[0] & 0x01) { startRAMPointer[0] = targetColor; }
 						break;
 					}
 				}
@@ -149,24 +153,24 @@ namespace SGE
 					switch (startX)
 					{
 						//Reverse
-					case -1:	if (characterToDraw[1] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case -2:	if (characterToDraw[1] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case -3:	if (characterToDraw[1] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case -4:	if (characterToDraw[1] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case -5:	if (characterToDraw[1] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case -6:	if (characterToDraw[1] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case -7:	if (characterToDraw[1] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case -1:	if (characterToDraw[1] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case -2:	if (characterToDraw[1] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case -3:	if (characterToDraw[1] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case -4:	if (characterToDraw[1] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case -5:	if (characterToDraw[1] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case -6:	if (characterToDraw[1] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case -7:	if (characterToDraw[1] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX] = targetColor; }
 								break;
-								//Forward
-					case 0:		if (characterToDraw[1] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case 1:		if (characterToDraw[1] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case 2:		if (characterToDraw[1] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case 3:		if (characterToDraw[1] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case 4:		if (characterToDraw[1] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case 5:		if (characterToDraw[1] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case 6:		if (characterToDraw[1] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX] = targetColor; }
-					case 7:		if (characterToDraw[1] & 0x01) { currentRAMPointer[0 + SGE::Display::Video::ResolutionX] = targetColor; }
+						//Forward
 					default:
+					case 0:		if (characterToDraw[1] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case 1:		if (characterToDraw[1] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case 2:		if (characterToDraw[1] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case 3:		if (characterToDraw[1] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case 4:		if (characterToDraw[1] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case 5:		if (characterToDraw[1] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case 6:		if (characterToDraw[1] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX] = targetColor; }
+					case 7:		if (characterToDraw[1] & 0x01) { startRAMPointer[0 + SGE::Display::Video::ResolutionX] = targetColor; }
 						break;
 					}
 				}
@@ -177,24 +181,24 @@ namespace SGE
 					switch (startX)
 					{
 						//Reverse
-					case -1:	if (characterToDraw[2] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case -2:	if (characterToDraw[2] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case -3:	if (characterToDraw[2] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case -4:	if (characterToDraw[2] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case -5:	if (characterToDraw[2] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case -6:	if (characterToDraw[2] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case -7:	if (characterToDraw[2] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case -1:	if (characterToDraw[2] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case -2:	if (characterToDraw[2] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case -3:	if (characterToDraw[2] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case -4:	if (characterToDraw[2] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case -5:	if (characterToDraw[2] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case -6:	if (characterToDraw[2] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case -7:	if (characterToDraw[2] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
 						break;
 						//Forward
-					case 0:		if (characterToDraw[2] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case 1:		if (characterToDraw[2] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case 2:		if (characterToDraw[2] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case 3:		if (characterToDraw[2] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case 4:		if (characterToDraw[2] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case 5:		if (characterToDraw[2] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case 6:		if (characterToDraw[2] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
-					case 7:		if (characterToDraw[2] & 0x01) { currentRAMPointer[0 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
 					default:
+					case 0:		if (characterToDraw[2] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case 1:		if (characterToDraw[2] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case 2:		if (characterToDraw[2] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case 3:		if (characterToDraw[2] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case 4:		if (characterToDraw[2] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case 5:		if (characterToDraw[2] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case 6:		if (characterToDraw[2] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
+					case 7:		if (characterToDraw[2] & 0x01) { startRAMPointer[0 + SGE::Display::Video::ResolutionX * 2] = targetColor; }
 						break;
 					}
 				}
@@ -205,24 +209,24 @@ namespace SGE
 					switch (startX)
 					{
 						//Reverse
-					case -1:	if (characterToDraw[3] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case -2:	if (characterToDraw[3] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case -3:	if (characterToDraw[3] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case -4:	if (characterToDraw[3] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case -5:	if (characterToDraw[3] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case -6:	if (characterToDraw[3] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case -7:	if (characterToDraw[3] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-								break;
-								//Forward
-					case 0:		if (characterToDraw[3] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case 1:		if (characterToDraw[3] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case 2:		if (characterToDraw[3] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case 3:		if (characterToDraw[3] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case 4:		if (characterToDraw[3] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case 5:		if (characterToDraw[3] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case 6:		if (characterToDraw[3] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
-					case 7:		if (characterToDraw[3] & 0x01) { currentRAMPointer[0 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case -1:	if (characterToDraw[3] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case -2:	if (characterToDraw[3] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case -3:	if (characterToDraw[3] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case -4:	if (characterToDraw[3] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case -5:	if (characterToDraw[3] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case -6:	if (characterToDraw[3] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case -7:	if (characterToDraw[3] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+						break;
+						//Forward
 					default:
+					case 0:		if (characterToDraw[3] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case 1:		if (characterToDraw[3] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case 2:		if (characterToDraw[3] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case 3:		if (characterToDraw[3] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case 4:		if (characterToDraw[3] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case 5:		if (characterToDraw[3] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case 6:		if (characterToDraw[3] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
+					case 7:		if (characterToDraw[3] & 0x01) { startRAMPointer[0 + SGE::Display::Video::ResolutionX * 3] = targetColor; }
 						break;
 					}
 				}
@@ -233,24 +237,24 @@ namespace SGE
 					switch (startX)
 					{
 						//Reverse
-					case -1:	if (characterToDraw[4] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case -2:	if (characterToDraw[4] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case -3:	if (characterToDraw[4] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case -4:	if (characterToDraw[4] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case -5:	if (characterToDraw[4] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case -6:	if (characterToDraw[4] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case -7:	if (characterToDraw[4] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-								break;
-								//Forward
-					case 0:		if (characterToDraw[4] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case 1:		if (characterToDraw[4] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case 2:		if (characterToDraw[4] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case 3:		if (characterToDraw[4] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case 4:		if (characterToDraw[4] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case 5:		if (characterToDraw[4] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case 6:		if (characterToDraw[4] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
-					case 7:		if (characterToDraw[4] & 0x01) { currentRAMPointer[0 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case -1:	if (characterToDraw[4] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case -2:	if (characterToDraw[4] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case -3:	if (characterToDraw[4] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case -4:	if (characterToDraw[4] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case -5:	if (characterToDraw[4] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case -6:	if (characterToDraw[4] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case -7:	if (characterToDraw[4] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+							break;
+							//Forward
 					default:
+					case 0:		if (characterToDraw[4] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case 1:		if (characterToDraw[4] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case 2:		if (characterToDraw[4] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case 3:		if (characterToDraw[4] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case 4:		if (characterToDraw[4] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case 5:		if (characterToDraw[4] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case 6:		if (characterToDraw[4] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
+					case 7:		if (characterToDraw[4] & 0x01) { startRAMPointer[0 + SGE::Display::Video::ResolutionX * 4] = targetColor; }
 						break;
 					}
 				}
@@ -261,24 +265,24 @@ namespace SGE
 					switch (startX)
 					{
 						//Reverse
-					case -1:	if (characterToDraw[5] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case -2:	if (characterToDraw[5] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case -3:	if (characterToDraw[5] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case -4:	if (characterToDraw[5] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case -5:	if (characterToDraw[5] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case -6:	if (characterToDraw[5] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case -7:	if (characterToDraw[5] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-								break;
-								//Forward
-					case 0:		if (characterToDraw[5] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case 1:		if (characterToDraw[5] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case 2:		if (characterToDraw[5] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case 3:		if (characterToDraw[5] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case 4:		if (characterToDraw[5] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case 5:		if (characterToDraw[5] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case 6:		if (characterToDraw[5] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
-					case 7:		if (characterToDraw[5] & 0x01) { currentRAMPointer[0 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case -1:	if (characterToDraw[5] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case -2:	if (characterToDraw[5] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case -3:	if (characterToDraw[5] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case -4:	if (characterToDraw[5] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case -5:	if (characterToDraw[5] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case -6:	if (characterToDraw[5] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case -7:	if (characterToDraw[5] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+							break;
+							//Forward
 					default:
+					case 0:		if (characterToDraw[5] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case 1:		if (characterToDraw[5] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case 2:		if (characterToDraw[5] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case 3:		if (characterToDraw[5] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case 4:		if (characterToDraw[5] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case 5:		if (characterToDraw[5] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case 6:		if (characterToDraw[5] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
+					case 7:		if (characterToDraw[5] & 0x01) { startRAMPointer[0 + SGE::Display::Video::ResolutionX * 5] = targetColor; }
 						break;
 					}
 				}
@@ -289,24 +293,24 @@ namespace SGE
 					switch (startX)
 					{
 						//Reverse
-					case -1:	if (characterToDraw[6] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case -2:	if (characterToDraw[6] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case -3:	if (characterToDraw[6] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case -4:	if (characterToDraw[6] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case -5:	if (characterToDraw[6] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case -6:	if (characterToDraw[6] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case -7:	if (characterToDraw[6] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-								break;
-								//Forward
-					case 0:		if (characterToDraw[6] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case 1:		if (characterToDraw[6] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case 2:		if (characterToDraw[6] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case 3:		if (characterToDraw[6] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case 4:		if (characterToDraw[6] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case 5:		if (characterToDraw[6] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case 6:		if (characterToDraw[6] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
-					case 7:		if (characterToDraw[6] & 0x01) { currentRAMPointer[0 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case -1:	if (characterToDraw[6] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case -2:	if (characterToDraw[6] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case -3:	if (characterToDraw[6] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case -4:	if (characterToDraw[6] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case -5:	if (characterToDraw[6] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case -6:	if (characterToDraw[6] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case -7:	if (characterToDraw[6] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+							break;
+							//Forward
 					default:
+					case 0:		if (characterToDraw[6] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case 1:		if (characterToDraw[6] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case 2:		if (characterToDraw[6] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case 3:		if (characterToDraw[6] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case 4:		if (characterToDraw[6] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case 5:		if (characterToDraw[6] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case 6:		if (characterToDraw[6] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
+					case 7:		if (characterToDraw[6] & 0x01) { startRAMPointer[0 + SGE::Display::Video::ResolutionX * 6] = targetColor; }
 						break;
 					}
 				}
@@ -317,24 +321,24 @@ namespace SGE
 					switch (startX)
 					{
 						//Reverse
-					case -1:	if (characterToDraw[7] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case -2:	if (characterToDraw[7] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case -3:	if (characterToDraw[7] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case -4:	if (characterToDraw[7] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case -5:	if (characterToDraw[7] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case -6:	if (characterToDraw[7] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case -7:	if (characterToDraw[7] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-								break;
-								//Forward
-					case 0:		if (characterToDraw[7] & 0x80) { currentRAMPointer[7 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case 1:		if (characterToDraw[7] & 0x40) { currentRAMPointer[6 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case 2:		if (characterToDraw[7] & 0x20) { currentRAMPointer[5 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case 3:		if (characterToDraw[7] & 0x10) { currentRAMPointer[4 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case 4:		if (characterToDraw[7] & 0x08) { currentRAMPointer[3 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case 5:		if (characterToDraw[7] & 0x04) { currentRAMPointer[2 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case 6:		if (characterToDraw[7] & 0x02) { currentRAMPointer[1 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
-					case 7:		if (characterToDraw[7] & 0x01) { currentRAMPointer[0 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case -1:	if (characterToDraw[7] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case -2:	if (characterToDraw[7] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case -3:	if (characterToDraw[7] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case -4:	if (characterToDraw[7] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case -5:	if (characterToDraw[7] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case -6:	if (characterToDraw[7] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case -7:	if (characterToDraw[7] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+						break;
+						//Forward
 					default:
+					case 0:		if (characterToDraw[7] & 0x80) { startRAMPointer[7 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case 1:		if (characterToDraw[7] & 0x40) { startRAMPointer[6 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case 2:		if (characterToDraw[7] & 0x20) { startRAMPointer[5 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case 3:		if (characterToDraw[7] & 0x10) { startRAMPointer[4 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case 4:		if (characterToDraw[7] & 0x08) { startRAMPointer[3 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case 5:		if (characterToDraw[7] & 0x04) { startRAMPointer[2 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case 6:		if (characterToDraw[7] & 0x02) { startRAMPointer[1 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
+					case 7:		if (characterToDraw[7] & 0x01) { startRAMPointer[0 + SGE::Display::Video::ResolutionX * 7] = targetColor; }
 						break;
 					}
 				}
