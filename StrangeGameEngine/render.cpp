@@ -74,7 +74,7 @@ namespace SGE
 			while (characters[stringPosition] != 0)
 			{
 				//Call the Draw the 8x8 character
-				Draw8x8Character(characters[stringPosition], characterROM, targetX + stringPosition*characterSpacing, targetY, targetColor);
+				Draw8x8Character(characterROM[characters[stringPosition]], targetX + stringPosition*characterSpacing, targetY, targetColor);
 
 				//Move to the next position in the string
 				stringPosition++;
@@ -85,20 +85,19 @@ namespace SGE
 		//  Draw a single character
 		//
 		void Draw8x8Character(
-			char character,								//Character to draw
-			const unsigned long long characterROM[],	//64-bit Character ROM array to map characters against
+			const unsigned long long &character,		//64-bit Character ROM array to map characters against
 			int targetX,								//Target X location to start drawing from (Upper Left Corner)
 			int targetY,								//Target Y location to start drawing from (Upper Left Corner)
-			SGE::Display::Video::pixel targetColor)		//Target pixel data for the color
+			const SGE::Display::Video::pixel &targetColor)	//Target pixel data for the color
 		{
 			//Get a pointer to what we are interested in.
 			//Cast down to an unsigned char so to work with 8-bit at a time of the 64-bit
-			unsigned char* characterToDraw = (unsigned char*)&characterROM[(unsigned char)character];
+			const unsigned char* characterToDraw = (unsigned char*)&character;
 
 			//
 			//  Is there even a character to draw?
 			//
-			if (!characterROM[(unsigned char)character])
+			if (!character)
 			{
 				//
 				//  No character to draw.
@@ -123,7 +122,7 @@ namespace SGE
 
 
 			//  Figure out the drawing Offset
-			int drawOffset = ((targetX < 0) ? targetX : 0) + (((targetX + 8) >= SGE::Display::Video::ResolutionX) ? (SGE::Display::Video::ResolutionX - targetX) : 0);
+			const int drawOffset = ((targetX < 0) ? targetX : 0) + (((targetX + 8) >= SGE::Display::Video::ResolutionX) ? (SGE::Display::Video::ResolutionX - targetX) : 0);
 
 			//  Precalculate memory offsets
 			SGE::Display::Video::pixel* startRAMPointer = &SGE::Display::Video::RAM[targetX + (targetY * SGE::Display::Video::ResolutionX)];

@@ -169,69 +169,69 @@ namespace SGE
 			//Draw Song Status Row
 			//Song Position
 			//"Pos"
-			SGE::Render::Draw8x8Character('P', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 05, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
-			SGE::Render::Draw8x8Character('o', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 11, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
-			SGE::Render::Draw8x8Character('s', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 17, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['P'], xCornerPosition + 05, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['o'], xCornerPosition + 11, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['s'], xCornerPosition + 17, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
 
 			//Position Box
 			SGE::Render::DrawBox(xCornerPosition + 25, yCornerPosition + 4, 16, 10, SGE::Render::Colors::ColorMode8Bit[235]);
 
 			//Position Number
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentPosition / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 26, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentPosition % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 32, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentPosition / 10) + 0x30], xCornerPosition + 26, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentPosition % 10) + 0x30], xCornerPosition + 32, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
 
 			//Pattern In Use
 			//"Pat"
-			SGE::Render::Draw8x8Character('P', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 44, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
-			SGE::Render::Draw8x8Character('a', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 50, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
-			SGE::Render::Draw8x8Character('t', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 56, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['P'], xCornerPosition + 44, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['a'], xCornerPosition + 50, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['t'], xCornerPosition + 56, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
 
 			//Pattern Box
 			SGE::Render::DrawBox(xCornerPosition + 64, yCornerPosition + 4, 16, 10, SGE::Render::Colors::ColorMode8Bit[235]);
 
 			//Pattern Number
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentPattern / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 65, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentPattern % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 71, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentPattern / 10) + 0x30], xCornerPosition + 65, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentPattern % 10) + 0x30], xCornerPosition + 71, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
 
 			//Division we are in Pattern
 			//"Div"
-			SGE::Render::Draw8x8Character('D', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 83, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
-			SGE::Render::Draw8x8Character('i', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 89, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
-			SGE::Render::Draw8x8Character('v', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 95, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['D'], xCornerPosition + 83, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['i'], xCornerPosition + 89, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['v'], xCornerPosition + 95, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
 
 			//Division Box
 			SGE::Render::DrawBox(xCornerPosition + 103, yCornerPosition + 4, 16, 10, SGE::Render::Colors::ColorMode8Bit[235]);
 
 			//Division Number
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentDivision / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 104, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentDivision % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 110, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentDivision / 10) + 0x30], xCornerPosition + 104, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentDivision % 10) + 0x30], xCornerPosition + 110, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
 
 			//Sample Block
 			//"Smp"
-			SGE::Render::Draw8x8Character('S', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 125, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
-			SGE::Render::Draw8x8Character('m', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 132, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
-			SGE::Render::Draw8x8Character('p', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 137, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['S'], xCornerPosition + 125, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['m'], xCornerPosition + 132, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['p'], xCornerPosition + 137, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[157]);
 
 			//Sample Boxes
 			//Channel 1 Sample Box
 			SGE::Render::DrawBox(xCornerPosition + 127, yCornerPosition + 15, 16, 10, SGE::Render::Colors::ColorMode8Bit[235]);
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[0] / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 128, yCornerPosition + 16, SGE::Render::Colors::ColorMode8Bit[40]);
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[0] % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 135, yCornerPosition + 16, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentChannelSamples[0] / 10) + 0x30], xCornerPosition + 128, yCornerPosition + 16, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentChannelSamples[0] % 10) + 0x30], xCornerPosition + 135, yCornerPosition + 16, SGE::Render::Colors::ColorMode8Bit[40]);
 
 			//Channel 2 Sample Box
 			SGE::Render::DrawBox(xCornerPosition + 127, yCornerPosition + 26, 16, 10, SGE::Render::Colors::ColorMode8Bit[235]);
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[1] / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 128, yCornerPosition + 27, SGE::Render::Colors::ColorMode8Bit[40]);
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[1] % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 135, yCornerPosition + 27, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentChannelSamples[1] / 10) + 0x30], xCornerPosition + 128, yCornerPosition + 27, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentChannelSamples[1] % 10) + 0x30], xCornerPosition + 135, yCornerPosition + 27, SGE::Render::Colors::ColorMode8Bit[40]);
 
 			//Channel 3 Sample Box
 			SGE::Render::DrawBox(xCornerPosition + 127, yCornerPosition + 37, 16, 10, SGE::Render::Colors::ColorMode8Bit[235]);
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[2] / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 128, yCornerPosition + 38, SGE::Render::Colors::ColorMode8Bit[40]);
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[2] % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 135, yCornerPosition + 38, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentChannelSamples[2] / 10) + 0x30], xCornerPosition + 128, yCornerPosition + 38, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentChannelSamples[2] % 10) + 0x30], xCornerPosition + 135, yCornerPosition + 38, SGE::Render::Colors::ColorMode8Bit[40]);
 
 			//Channel 4 Sample Box
 			SGE::Render::DrawBox(xCornerPosition + 127, yCornerPosition + 48, 16, 10, SGE::Render::Colors::ColorMode8Bit[235]);
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[3] / 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 128, yCornerPosition + 49, SGE::Render::Colors::ColorMode8Bit[40]);
-			SGE::Render::Draw8x8Character((modulePlayerToUse->CurrentChannelSamples[3] % 10) + 0x30, SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 135, yCornerPosition + 49, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentChannelSamples[3] / 10) + 0x30], xCornerPosition + 128, yCornerPosition + 49, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentChannelSamples[3] % 10) + 0x30], xCornerPosition + 135, yCornerPosition + 49, SGE::Render::Colors::ColorMode8Bit[40]);
 
 			//Draw Channel Meters
 			DrawLevelMeter((char*)"CH1", xCornerPosition + 5, yCornerPosition + 16, modulePlayerToUse->channelMap[0]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[0]->Volume);
@@ -294,7 +294,7 @@ namespace SGE
 			//
 
 			//Draw Label
-			SGE::Render::Draw8x8Character('L', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 5, yCornerPosition + 45, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['L'], xCornerPosition + 5, yCornerPosition + 45, SGE::Render::Colors::ColorMode8Bit[157]);
 
 			//Draw Light
 			SGE::Render::DrawBox(
@@ -309,7 +309,7 @@ namespace SGE
 																																		//
 
 																																		//Draw Label
-			SGE::Render::Draw8x8Character('R', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 25, yCornerPosition + 45, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['R'], xCornerPosition + 25, yCornerPosition + 45, SGE::Render::Colors::ColorMode8Bit[157]);
 
 			//Draw Light
 			SGE::Render::DrawBox(
@@ -324,7 +324,7 @@ namespace SGE
 																																		//
 
 																																		//Draw Label
-			SGE::Render::Draw8x8Character('M', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 45, yCornerPosition + 45, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['M'], xCornerPosition + 45, yCornerPosition + 45, SGE::Render::Colors::ColorMode8Bit[157]);
 
 			//Draw Light
 			SGE::Render::DrawBox(
@@ -339,7 +339,7 @@ namespace SGE
 																																		//
 
 																																		//Draw Label
-			SGE::Render::Draw8x8Character('A', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 65, yCornerPosition + 45, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['A'], xCornerPosition + 65, yCornerPosition + 45, SGE::Render::Colors::ColorMode8Bit[157]);
 
 			//Draw Light
 			SGE::Render::DrawBox(
@@ -354,7 +354,7 @@ namespace SGE
 																																		//
 
 																																		//Draw Label
-			SGE::Render::Draw8x8Character('B', SGE::Render::CHARACTER_8x8_ROM, xCornerPosition + 85, yCornerPosition + 45, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM['B'], xCornerPosition + 85, yCornerPosition + 45, SGE::Render::Colors::ColorMode8Bit[157]);
 
 			//Draw Light
 			SGE::Render::DrawBox(

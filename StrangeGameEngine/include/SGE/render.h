@@ -476,7 +476,7 @@ namespace SGE
 		//
 		//  Draw a character to the screen
 		//
-		void Draw8x8Character(char character, const unsigned long long characterROM[], int targetX, int targetY, SGE::Display::Video::pixel color);
+		void Draw8x8Character(const unsigned long long &character, int targetX, int targetY, const SGE::Display::Video::pixel &color);
 
 		//
 		//  Draw a string of characters to the screen, from a null terminated string
