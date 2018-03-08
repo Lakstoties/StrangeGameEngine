@@ -86,8 +86,8 @@ namespace SGE
 		//
 		void Draw8x8Character(
 			const unsigned long long &character,		//64-bit Character ROM array to map characters against
-			int targetX,								//Target X location to start drawing from (Upper Left Corner)
-			int targetY,								//Target Y location to start drawing from (Upper Left Corner)
+			const int targetX,								//Target X location to start drawing from (Upper Left Corner)
+			const int targetY,								//Target Y location to start drawing from (Upper Left Corner)
 			const SGE::Display::Video::pixel &targetColor)	//Target pixel data for the color
 		{
 			//Get a pointer to what we are interested in.
@@ -119,213 +119,212 @@ namespace SGE
 				return;
 			}
 
-
-
 			//  Figure out the drawing Offset
 			const int drawOffset = ((targetX < 0) ? targetX : 0) + (((targetX + 8) >= SGE::Display::Video::ResolutionX) ? (SGE::Display::Video::ResolutionX - targetX) : 0);
 
-			//  Precalculate memory offsets
-			const int row0RAMOffset = targetX + (targetY * SGE::Display::Video::ResolutionX);
-					
+			//  
+			//  Row offset in Video RAM
+			//
+			int rowOffset;
 
 			//  Row 0
 			if (characterToDraw[0])	
 			{ 
+				rowOffset = targetX + ((0 + targetY) * SGE::Display::Video::ResolutionX);
 				switch (drawOffset)
 				{
-				case 7:		if (characterToDraw[0] & 0x40) { SGE::Display::Video::RAM[6 + row0RAMOffset] = targetColor; }
-				case 6:		if (characterToDraw[0] & 0x20) { SGE::Display::Video::RAM[5 + row0RAMOffset] = targetColor; }
-				case 5:		if (characterToDraw[0] & 0x10) { SGE::Display::Video::RAM[4 + row0RAMOffset] = targetColor; }
-				case 4:		if (characterToDraw[0] & 0x08) { SGE::Display::Video::RAM[3 + row0RAMOffset] = targetColor; }
-				case 3:		if (characterToDraw[0] & 0x04) { SGE::Display::Video::RAM[2 + row0RAMOffset] = targetColor; }
-				case 2:		if (characterToDraw[0] & 0x02) { SGE::Display::Video::RAM[1 + row0RAMOffset] = targetColor; }
-				case 1:		if (characterToDraw[0] & 0x01) { SGE::Display::Video::RAM[0 + row0RAMOffset] = targetColor; }
+				case 7:		if (characterToDraw[0] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case 6:		if (characterToDraw[0] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case 5:		if (characterToDraw[0] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case 4:		if (characterToDraw[0] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case 3:		if (characterToDraw[0] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case 2:		if (characterToDraw[0] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case 1:		if (characterToDraw[0] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
 							break;
-				case 0:		if (characterToDraw[0] & 0x01) { SGE::Display::Video::RAM[0 + row0RAMOffset] = targetColor; }
-				case -1:	if (characterToDraw[0] & 0x02) { SGE::Display::Video::RAM[1 + row0RAMOffset] = targetColor; }
-				case -2:	if (characterToDraw[0] & 0x04) { SGE::Display::Video::RAM[2 + row0RAMOffset] = targetColor; }
-				case -3:	if (characterToDraw[0] & 0x08) { SGE::Display::Video::RAM[3 + row0RAMOffset] = targetColor; }
-				case -4:	if (characterToDraw[0] & 0x10) { SGE::Display::Video::RAM[4 + row0RAMOffset] = targetColor; }
-				case -5:	if (characterToDraw[0] & 0x20) { SGE::Display::Video::RAM[5 + row0RAMOffset] = targetColor; }
-				case -6:	if (characterToDraw[0] & 0x40) { SGE::Display::Video::RAM[6 + row0RAMOffset] = targetColor; }
-				case -7:	if (characterToDraw[0] & 0x80) { SGE::Display::Video::RAM[7 + row0RAMOffset] = targetColor; }
+				case 0:		if (characterToDraw[0] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
+				case -1:	if (characterToDraw[0] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case -2:	if (characterToDraw[0] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case -3:	if (characterToDraw[0] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case -4:	if (characterToDraw[0] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case -5:	if (characterToDraw[0] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case -6:	if (characterToDraw[0] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case -7:	if (characterToDraw[0] & 0x80) { SGE::Display::Video::RAM[7 + rowOffset] = targetColor; }
 				}
 			}
 
 			//  Row 1
 			if (characterToDraw[1])	
 			{
-				const int row1RAMOffset = row0RAMOffset + SGE::Display::Video::ResolutionX;
-
+				rowOffset = targetX + ((1 + targetY) * SGE::Display::Video::ResolutionX);
 				switch (drawOffset)
 				{
 					
-				case 7:		if (characterToDraw[1] & 0x40) { SGE::Display::Video::RAM[6 + row1RAMOffset] = targetColor; }
-				case 6:		if (characterToDraw[1] & 0x20) { SGE::Display::Video::RAM[5 + row1RAMOffset] = targetColor; }
-				case 5:		if (characterToDraw[1] & 0x10) { SGE::Display::Video::RAM[4 + row1RAMOffset] = targetColor; }
-				case 4:		if (characterToDraw[1] & 0x08) { SGE::Display::Video::RAM[3 + row1RAMOffset] = targetColor; }
-				case 3:		if (characterToDraw[1] & 0x04) { SGE::Display::Video::RAM[2 + row1RAMOffset] = targetColor; }
-				case 2:		if (characterToDraw[1] & 0x02) { SGE::Display::Video::RAM[1 + row1RAMOffset] = targetColor; }
-				case 1:		if (characterToDraw[1] & 0x01) { SGE::Display::Video::RAM[0 + row1RAMOffset] = targetColor; }
+				case 7:		if (characterToDraw[1] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case 6:		if (characterToDraw[1] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case 5:		if (characterToDraw[1] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case 4:		if (characterToDraw[1] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case 3:		if (characterToDraw[1] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case 2:		if (characterToDraw[1] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case 1:		if (characterToDraw[1] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
 							break;
-				case 0:		if (characterToDraw[1] & 0x01) { SGE::Display::Video::RAM[0 + row1RAMOffset] = targetColor; }
-				case -1:	if (characterToDraw[1] & 0x02) { SGE::Display::Video::RAM[1 + row1RAMOffset] = targetColor; }
-				case -2:	if (characterToDraw[1] & 0x04) { SGE::Display::Video::RAM[2 + row1RAMOffset] = targetColor; }
-				case -3:	if (characterToDraw[1] & 0x08) { SGE::Display::Video::RAM[3 + row1RAMOffset] = targetColor; }
-				case -4:	if (characterToDraw[1] & 0x10) { SGE::Display::Video::RAM[4 + row1RAMOffset] = targetColor; }
-				case -5:	if (characterToDraw[1] & 0x20) { SGE::Display::Video::RAM[5 + row1RAMOffset] = targetColor; }
-				case -6:	if (characterToDraw[1] & 0x40) { SGE::Display::Video::RAM[6 + row1RAMOffset] = targetColor; }
-				case -7:	if (characterToDraw[1] & 0x80) { SGE::Display::Video::RAM[7 + row1RAMOffset] = targetColor; }
+				case 0:		if (characterToDraw[1] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
+				case -1:	if (characterToDraw[1] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case -2:	if (characterToDraw[1] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case -3:	if (characterToDraw[1] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case -4:	if (characterToDraw[1] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case -5:	if (characterToDraw[1] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case -6:	if (characterToDraw[1] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case -7:	if (characterToDraw[1] & 0x80) { SGE::Display::Video::RAM[7 + rowOffset] = targetColor; }
 				}
 			}
 
 			//  Row 2
 			if (characterToDraw[2])	
 			{
-				const int row2RAMOffset = row0RAMOffset + SGE::Display::Video::ResolutionX * 2;
+				rowOffset = targetX + ((2 + targetY) * SGE::Display::Video::ResolutionX);
 				switch (drawOffset)
 				{
-				case 7:		if (characterToDraw[2] & 0x40) { SGE::Display::Video::RAM[6 + row2RAMOffset] = targetColor; }
-				case 6:		if (characterToDraw[2] & 0x20) { SGE::Display::Video::RAM[5 + row2RAMOffset] = targetColor; }
-				case 5:		if (characterToDraw[2] & 0x10) { SGE::Display::Video::RAM[4 + row2RAMOffset] = targetColor; }
-				case 4:		if (characterToDraw[2] & 0x08) { SGE::Display::Video::RAM[3 + row2RAMOffset] = targetColor; }
-				case 3:		if (characterToDraw[2] & 0x04) { SGE::Display::Video::RAM[2 + row2RAMOffset] = targetColor; }
-				case 2:		if (characterToDraw[2] & 0x02) { SGE::Display::Video::RAM[1 + row2RAMOffset] = targetColor; }
-				case 1:		if (characterToDraw[2] & 0x01) { SGE::Display::Video::RAM[0 + row2RAMOffset] = targetColor; }
+				case 7:		if (characterToDraw[2] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case 6:		if (characterToDraw[2] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case 5:		if (characterToDraw[2] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case 4:		if (characterToDraw[2] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case 3:		if (characterToDraw[2] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case 2:		if (characterToDraw[2] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case 1:		if (characterToDraw[2] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
 							break;
-				case 0:		if (characterToDraw[2] & 0x01) { SGE::Display::Video::RAM[0 + row2RAMOffset] = targetColor; }
-				case -1:	if (characterToDraw[2] & 0x02) { SGE::Display::Video::RAM[1 + row2RAMOffset] = targetColor; }
-				case -2:	if (characterToDraw[2] & 0x04) { SGE::Display::Video::RAM[2 + row2RAMOffset] = targetColor; }
-				case -3:	if (characterToDraw[2] & 0x08) { SGE::Display::Video::RAM[3 + row2RAMOffset] = targetColor; }
-				case -4:	if (characterToDraw[2] & 0x10) { SGE::Display::Video::RAM[4 + row2RAMOffset] = targetColor; }
-				case -5:	if (characterToDraw[2] & 0x20) { SGE::Display::Video::RAM[5 + row2RAMOffset] = targetColor; }
-				case -6:	if (characterToDraw[2] & 0x40) { SGE::Display::Video::RAM[6 + row2RAMOffset] = targetColor; }
-				case -7:	if (characterToDraw[2] & 0x80) { SGE::Display::Video::RAM[7 + row2RAMOffset] = targetColor; }
+				case 0:		if (characterToDraw[2] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
+				case -1:	if (characterToDraw[2] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case -2:	if (characterToDraw[2] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case -3:	if (characterToDraw[2] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case -4:	if (characterToDraw[2] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case -5:	if (characterToDraw[2] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case -6:	if (characterToDraw[2] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case -7:	if (characterToDraw[2] & 0x80) { SGE::Display::Video::RAM[7 + rowOffset] = targetColor; }
 				}
 			}
 
 			//  Row 3
 			if (characterToDraw[3])	
 			{
-				const int row3RAMOffset = row0RAMOffset + SGE::Display::Video::ResolutionX * 3;
+				rowOffset = targetX + ((3 + targetY) * SGE::Display::Video::ResolutionX);
 				switch (drawOffset)
 				{
-				case 7:		if (characterToDraw[3] & 0x40) { SGE::Display::Video::RAM[6 + row3RAMOffset] = targetColor; }
-				case 6:		if (characterToDraw[3] & 0x20) { SGE::Display::Video::RAM[5 + row3RAMOffset] = targetColor; }
-				case 5:		if (characterToDraw[3] & 0x10) { SGE::Display::Video::RAM[4 + row3RAMOffset] = targetColor; }
-				case 4:		if (characterToDraw[3] & 0x08) { SGE::Display::Video::RAM[3 + row3RAMOffset] = targetColor; }
-				case 3:		if (characterToDraw[3] & 0x04) { SGE::Display::Video::RAM[2 + row3RAMOffset] = targetColor; }
-				case 2:		if (characterToDraw[3] & 0x02) { SGE::Display::Video::RAM[1 + row3RAMOffset] = targetColor; }
-				case 1:		if (characterToDraw[3] & 0x01) { SGE::Display::Video::RAM[0 + row3RAMOffset] = targetColor; }
+				case 7:		if (characterToDraw[3] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case 6:		if (characterToDraw[3] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case 5:		if (characterToDraw[3] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case 4:		if (characterToDraw[3] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case 3:		if (characterToDraw[3] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case 2:		if (characterToDraw[3] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case 1:		if (characterToDraw[3] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
 							break;
-				case 0:		if (characterToDraw[3] & 0x01) { SGE::Display::Video::RAM[0 + row3RAMOffset] = targetColor; }
-				case -1:	if (characterToDraw[3] & 0x02) { SGE::Display::Video::RAM[1 + row3RAMOffset] = targetColor; }
-				case -2:	if (characterToDraw[3] & 0x04) { SGE::Display::Video::RAM[2 + row3RAMOffset] = targetColor; }
-				case -3:	if (characterToDraw[3] & 0x08) { SGE::Display::Video::RAM[3 + row3RAMOffset] = targetColor; }
-				case -4:	if (characterToDraw[3] & 0x10) { SGE::Display::Video::RAM[4 + row3RAMOffset] = targetColor; }
-				case -5:	if (characterToDraw[3] & 0x20) { SGE::Display::Video::RAM[5 + row3RAMOffset] = targetColor; }
-				case -6:	if (characterToDraw[3] & 0x40) { SGE::Display::Video::RAM[6 + row3RAMOffset] = targetColor; }
-				case -7:	if (characterToDraw[3] & 0x80) { SGE::Display::Video::RAM[7 + row3RAMOffset] = targetColor; }
+				case 0:		if (characterToDraw[3] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
+				case -1:	if (characterToDraw[3] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case -2:	if (characterToDraw[3] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case -3:	if (characterToDraw[3] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case -4:	if (characterToDraw[3] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case -5:	if (characterToDraw[3] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case -6:	if (characterToDraw[3] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case -7:	if (characterToDraw[3] & 0x80) { SGE::Display::Video::RAM[7 + rowOffset] = targetColor; }
 				}
 			}
 
 			//  Row 4
 			if (characterToDraw[4])	
 			{
-				const int row4RAMOffset = row0RAMOffset + SGE::Display::Video::ResolutionX * 4;
+				rowOffset = targetX + ((4 + targetY) * SGE::Display::Video::ResolutionX);
 				switch (drawOffset)
 				{
-				case 7:		if (characterToDraw[4] & 0x40) { SGE::Display::Video::RAM[6 + row4RAMOffset] = targetColor; }
-				case 6:		if (characterToDraw[4] & 0x20) { SGE::Display::Video::RAM[5 + row4RAMOffset] = targetColor; }
-				case 5:		if (characterToDraw[4] & 0x10) { SGE::Display::Video::RAM[4 + row4RAMOffset] = targetColor; }
-				case 4:		if (characterToDraw[4] & 0x08) { SGE::Display::Video::RAM[3 + row4RAMOffset] = targetColor; }
-				case 3:		if (characterToDraw[4] & 0x04) { SGE::Display::Video::RAM[2 + row4RAMOffset] = targetColor; }
-				case 2:		if (characterToDraw[4] & 0x02) { SGE::Display::Video::RAM[1 + row4RAMOffset] = targetColor; }
-				case 1:		if (characterToDraw[4] & 0x01) { SGE::Display::Video::RAM[0 + row4RAMOffset] = targetColor; }
+				case 7:		if (characterToDraw[4] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case 6:		if (characterToDraw[4] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case 5:		if (characterToDraw[4] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case 4:		if (characterToDraw[4] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case 3:		if (characterToDraw[4] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case 2:		if (characterToDraw[4] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case 1:		if (characterToDraw[4] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
 							break;
-				case 0:		if (characterToDraw[4] & 0x01) { SGE::Display::Video::RAM[0 + row4RAMOffset] = targetColor; }
-				case -1:	if (characterToDraw[4] & 0x02) { SGE::Display::Video::RAM[1 + row4RAMOffset] = targetColor; }
-				case -2:	if (characterToDraw[4] & 0x04) { SGE::Display::Video::RAM[2 + row4RAMOffset] = targetColor; }
-				case -3:	if (characterToDraw[4] & 0x08) { SGE::Display::Video::RAM[3 + row4RAMOffset] = targetColor; }
-				case -4:	if (characterToDraw[4] & 0x10) { SGE::Display::Video::RAM[4 + row4RAMOffset] = targetColor; }
-				case -5:	if (characterToDraw[4] & 0x20) { SGE::Display::Video::RAM[5 + row4RAMOffset] = targetColor; }
-				case -6:	if (characterToDraw[4] & 0x40) { SGE::Display::Video::RAM[6 + row4RAMOffset] = targetColor; }
-				case -7:	if (characterToDraw[4] & 0x80) { SGE::Display::Video::RAM[7 + row4RAMOffset] = targetColor; }
+				case 0:		if (characterToDraw[4] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
+				case -1:	if (characterToDraw[4] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case -2:	if (characterToDraw[4] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case -3:	if (characterToDraw[4] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case -4:	if (characterToDraw[4] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case -5:	if (characterToDraw[4] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case -6:	if (characterToDraw[4] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case -7:	if (characterToDraw[4] & 0x80) { SGE::Display::Video::RAM[7 + rowOffset] = targetColor; }
 				}
 			}
 
 			//  Row 5
 			if (characterToDraw[5])	
 			{
-				const int row5RAMOffset = row0RAMOffset + SGE::Display::Video::ResolutionX * 5;
+				rowOffset = targetX + ((5 + targetY) * SGE::Display::Video::ResolutionX);
 				switch (drawOffset)
 				{
-				case 7:		if (characterToDraw[5] & 0x40) { SGE::Display::Video::RAM[6 + row5RAMOffset] = targetColor; }
-				case 6:		if (characterToDraw[5] & 0x20) { SGE::Display::Video::RAM[5 + row5RAMOffset] = targetColor; }
-				case 5:		if (characterToDraw[5] & 0x10) { SGE::Display::Video::RAM[4 + row5RAMOffset] = targetColor; }
-				case 4:		if (characterToDraw[5] & 0x08) { SGE::Display::Video::RAM[3 + row5RAMOffset] = targetColor; }
-				case 3:		if (characterToDraw[5] & 0x04) { SGE::Display::Video::RAM[2 + row5RAMOffset] = targetColor; }
-				case 2:		if (characterToDraw[5] & 0x02) { SGE::Display::Video::RAM[1 + row5RAMOffset] = targetColor; }
-				case 1:		if (characterToDraw[5] & 0x01) { SGE::Display::Video::RAM[0 + row5RAMOffset] = targetColor; }
+				case 7:		if (characterToDraw[5] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case 6:		if (characterToDraw[5] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case 5:		if (characterToDraw[5] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case 4:		if (characterToDraw[5] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case 3:		if (characterToDraw[5] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case 2:		if (characterToDraw[5] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case 1:		if (characterToDraw[5] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
 							break;
-				case 0:		if (characterToDraw[5] & 0x01) { SGE::Display::Video::RAM[0 + row5RAMOffset] = targetColor; }
-				case -1:	if (characterToDraw[5] & 0x02) { SGE::Display::Video::RAM[1 + row5RAMOffset] = targetColor; }
-				case -2:	if (characterToDraw[5] & 0x04) { SGE::Display::Video::RAM[2 + row5RAMOffset] = targetColor; }
-				case -3:	if (characterToDraw[5] & 0x08) { SGE::Display::Video::RAM[3 + row5RAMOffset] = targetColor; }
-				case -4:	if (characterToDraw[5] & 0x10) { SGE::Display::Video::RAM[4 + row5RAMOffset] = targetColor; }
-				case -5:	if (characterToDraw[5] & 0x20) { SGE::Display::Video::RAM[5 + row5RAMOffset] = targetColor; }
-				case -6:	if (characterToDraw[5] & 0x40) { SGE::Display::Video::RAM[6 + row5RAMOffset] = targetColor; }
-				case -7:	if (characterToDraw[5] & 0x80) { SGE::Display::Video::RAM[7 + row5RAMOffset] = targetColor; }
+				case 0:		if (characterToDraw[5] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
+				case -1:	if (characterToDraw[5] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case -2:	if (characterToDraw[5] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case -3:	if (characterToDraw[5] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case -4:	if (characterToDraw[5] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case -5:	if (characterToDraw[5] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case -6:	if (characterToDraw[5] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case -7:	if (characterToDraw[5] & 0x80) { SGE::Display::Video::RAM[7 + rowOffset] = targetColor; }
 				}
 			}
 
 			//  Row 6
 			if (characterToDraw[6]) 
 			{
-				const int row6RAMOffset = row0RAMOffset + SGE::Display::Video::ResolutionX * 6;
+				rowOffset = targetX + ((6 + targetY) * SGE::Display::Video::ResolutionX);
 				switch (drawOffset)
 				{
-				case 7:		if (characterToDraw[6] & 0x40) { SGE::Display::Video::RAM[6 + row6RAMOffset] = targetColor; }
-				case 6:		if (characterToDraw[6] & 0x20) { SGE::Display::Video::RAM[5 + row6RAMOffset] = targetColor; }
-				case 5:		if (characterToDraw[6] & 0x10) { SGE::Display::Video::RAM[4 + row6RAMOffset] = targetColor; }
-				case 4:		if (characterToDraw[6] & 0x08) { SGE::Display::Video::RAM[3 + row6RAMOffset] = targetColor; }
-				case 3:		if (characterToDraw[6] & 0x04) { SGE::Display::Video::RAM[2 + row6RAMOffset] = targetColor; }
-				case 2:		if (characterToDraw[6] & 0x02) { SGE::Display::Video::RAM[1 + row6RAMOffset] = targetColor; }
-				case 1:		if (characterToDraw[6] & 0x01) { SGE::Display::Video::RAM[0 + row6RAMOffset] = targetColor; }
+				case 7:		if (characterToDraw[6] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case 6:		if (characterToDraw[6] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case 5:		if (characterToDraw[6] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case 4:		if (characterToDraw[6] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case 3:		if (characterToDraw[6] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case 2:		if (characterToDraw[6] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case 1:		if (characterToDraw[6] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
 							break;
-				case 0:		if (characterToDraw[6] & 0x01) { SGE::Display::Video::RAM[0 + row6RAMOffset] = targetColor; }
-				case -1:	if (characterToDraw[6] & 0x02) { SGE::Display::Video::RAM[1 + row6RAMOffset] = targetColor; }
-				case -2:	if (characterToDraw[6] & 0x04) { SGE::Display::Video::RAM[2 + row6RAMOffset] = targetColor; }
-				case -3:	if (characterToDraw[6] & 0x08) { SGE::Display::Video::RAM[3 + row6RAMOffset] = targetColor; }
-				case -4:	if (characterToDraw[6] & 0x10) { SGE::Display::Video::RAM[4 + row6RAMOffset] = targetColor; }
-				case -5:	if (characterToDraw[6] & 0x20) { SGE::Display::Video::RAM[5 + row6RAMOffset] = targetColor; }
-				case -6:	if (characterToDraw[6] & 0x40) { SGE::Display::Video::RAM[6 + row6RAMOffset] = targetColor; }
-				case -7:	if (characterToDraw[6] & 0x80) { SGE::Display::Video::RAM[7 + row6RAMOffset] = targetColor; }
+				case 0:		if (characterToDraw[6] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
+				case -1:	if (characterToDraw[6] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case -2:	if (characterToDraw[6] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case -3:	if (characterToDraw[6] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case -4:	if (characterToDraw[6] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case -5:	if (characterToDraw[6] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case -6:	if (characterToDraw[6] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case -7:	if (characterToDraw[6] & 0x80) { SGE::Display::Video::RAM[7 + rowOffset] = targetColor; }
 				}
 			}
 
 			//  Row 7
 			if (characterToDraw[7]) 
 			{
-				const int row7RAMOffset = row0RAMOffset + SGE::Display::Video::ResolutionX * 7;
+				rowOffset = targetX + ((7 + targetY) * SGE::Display::Video::ResolutionX);
 				switch (drawOffset)
 				{
-				case 7:		if (characterToDraw[7] & 0x40) { SGE::Display::Video::RAM[6 + row7RAMOffset] = targetColor; }
-				case 6:		if (characterToDraw[7] & 0x20) { SGE::Display::Video::RAM[5 + row7RAMOffset] = targetColor; }
-				case 5:		if (characterToDraw[7] & 0x10) { SGE::Display::Video::RAM[4 + row7RAMOffset] = targetColor; }
-				case 4:		if (characterToDraw[7] & 0x08) { SGE::Display::Video::RAM[3 + row7RAMOffset] = targetColor; }
-				case 3:		if (characterToDraw[7] & 0x04) { SGE::Display::Video::RAM[2 + row7RAMOffset] = targetColor; }
-				case 2:		if (characterToDraw[7] & 0x02) { SGE::Display::Video::RAM[1 + row7RAMOffset] = targetColor; }
-				case 1:		if (characterToDraw[7] & 0x01) { SGE::Display::Video::RAM[0 + row7RAMOffset] = targetColor; }
+				case 7:		if (characterToDraw[7] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case 6:		if (characterToDraw[7] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case 5:		if (characterToDraw[7] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case 4:		if (characterToDraw[7] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case 3:		if (characterToDraw[7] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case 2:		if (characterToDraw[7] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case 1:		if (characterToDraw[7] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
 							break;
-				case 0:		if (characterToDraw[7] & 0x01) { SGE::Display::Video::RAM[0 + row7RAMOffset] = targetColor; }
-				case -1:	if (characterToDraw[7] & 0x02) { SGE::Display::Video::RAM[1 + row7RAMOffset] = targetColor; }
-				case -2:	if (characterToDraw[7] & 0x04) { SGE::Display::Video::RAM[2 + row7RAMOffset] = targetColor; }
-				case -3:	if (characterToDraw[7] & 0x08) { SGE::Display::Video::RAM[3 + row7RAMOffset] = targetColor; }
-				case -4:	if (characterToDraw[7] & 0x10) { SGE::Display::Video::RAM[4 + row7RAMOffset] = targetColor; }
-				case -5:	if (characterToDraw[7] & 0x20) { SGE::Display::Video::RAM[5 + row7RAMOffset] = targetColor; }
-				case -6:	if (characterToDraw[7] & 0x40) { SGE::Display::Video::RAM[6 + row7RAMOffset] = targetColor; }
-				case -7:	if (characterToDraw[7] & 0x80) { SGE::Display::Video::RAM[7 + row7RAMOffset] = targetColor; }
+				case 0:		if (characterToDraw[7] & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
+				case -1:	if (characterToDraw[7] & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+				case -2:	if (characterToDraw[7] & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+				case -3:	if (characterToDraw[7] & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
+				case -4:	if (characterToDraw[7] & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+				case -5:	if (characterToDraw[7] & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+				case -6:	if (characterToDraw[7] & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+				case -7:	if (characterToDraw[7] & 0x80) { SGE::Display::Video::RAM[7 + rowOffset] = targetColor; }
 				}
 			}
 		}
