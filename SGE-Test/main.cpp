@@ -18,19 +18,29 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 	if (xPosition < 0)
 	{
 		copyStart = -xPosition;
-		copyLength = bufferSize + xPosition;
+		copyLength = bufferSize - copyStart;
 		xPosition = 0;
 	}
+
+	SGE::Display::Video::pixel *targetRAM = SGE::Display::Video::RAM + xPosition;
 
 	//Prune the amount of the buffer we are going to copy
 	if (xPosition + bufferSize >= (unsigned int)SGE::Display::Video::ResolutionX)
 	{
-		copyLength = SGE::Display::Video::ResolutionX - xPosition - 1;
+		copyLength = (SGE::Display::Video::ResolutionX - xPosition - 1) ;
 	}
 
-	for (int i = 0; i < SGE::Display::Video::ResolutionY; i++)
+	//
+	//  Copy first row over
+	//
+	std::memcpy(targetRAM, buffer + copyStart, copyLength * sizeof(SGE::Display::Video::pixel));
+
+	//
+	//
+	//
+	for (int i = SGE::Display::Video::ResolutionX; i < SGE::Display::Video::ResolutionY * SGE::Display::Video::ResolutionX; i += SGE::Display::Video::ResolutionX)
 	{
-		std::memcpy(&SGE::Display::Video::RAM[xPosition + i * SGE::Display::Video::ResolutionX], &buffer[copyStart], copyLength);
+		std::memcpy(&targetRAM[i], targetRAM, copyLength * sizeof(SGE::Display::Video::pixel));
 	}
 }
 
@@ -210,7 +220,7 @@ void InputTest(bool& testInputRunning)
 	//
 	//  Create a TextBox
 	//
-	SGE::GUI::TextBox terminal(25, 80, 645, 500);
+	SGE::GUI::TextBox terminal(25, 80, 645, 525);
 
 	while (testInputRunning)
 	{

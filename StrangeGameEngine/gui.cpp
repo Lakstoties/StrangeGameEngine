@@ -70,7 +70,7 @@ namespace SGE
 				for (int j = startColumn; j < endColumn; j++)
 				{
 					//Draw the characters upon the screen
-					SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[CharacterArray[i * columns + j]], XPosition + j * ColumnSpacing, YPosition + i * RowSpacing, ForegroundColorArray[i * columns + j]);
+					SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(unsigned char)CharacterArray[i * columns + j]], XPosition + j * ColumnSpacing, YPosition + i * RowSpacing, ForegroundColorArray[i * columns + j]);
 				}
 			}
 		}
@@ -285,7 +285,7 @@ namespace SGE
 					//Draw the text box for the cursor
 					SGE::Render::DrawBox(menuXMargin + textBoxMargin + 8 * rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, 8, 8, highlightTextColor);
 					//Draw the selected character
-					SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[menuItemText[i][rowTextCursorLocation]], menuXMargin + textBoxMargin + 8 * rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, highlightColor);
+					SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(unsigned char)menuItemText[i][rowTextCursorLocation]], menuXMargin + textBoxMargin + 8 * rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, highlightColor);
 				}
 			}
 		}

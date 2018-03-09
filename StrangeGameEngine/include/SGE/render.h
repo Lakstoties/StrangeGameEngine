@@ -481,7 +481,7 @@ namespace SGE
 		//
 		//  Draw a string of characters to the screen, from a null terminated string
 		//
-		void DrawString(char* characters, const unsigned long long characterROM[], int characterSpacing, int targetX, int targetY, SGE::Display::Video::pixel color);
+		void DrawString(const char* characters, const unsigned long long characterROM[], const int characterSpacing, const int targetX, const int targetY, const SGE::Display::Video::pixel &color);
 
 		//
 		//  Draw a block of data from a source to target video ram
