@@ -184,9 +184,9 @@ void InputTest(bool& testInputRunning)
 	int testingOffsetY = 10;
 
 	//Color Buffer for wave
-	unsigned int redWaveBuffer[8] =   { 0x000000FF,	0x000000FF,	0x000000E0,	0x000000D0, 0x00000080, 0x00000040, 0x00000020, 0x00000010 };
-	unsigned int greenWaveBuffer[8] = { 0x0000FF00,	0x0000FF00,	0x0000E000,	0x0000D000, 0x00008000, 0x00004000, 0x00002000, 0x00001000 };
-	unsigned int blueWaveBuffer[8] =  { 0x00FF0000,	0x00FF0000,	0x00E00000,	0x00D00000, 0x00008000, 0x00400000, 0x00200000, 0x00100000 };
+	unsigned int redWaveBuffer[8] =		{ 0x00000011, 0x00000022, 0x00000044, 0x00000088, 0x000000DD, 0x000000EE, 0x000000FF, 0x000000FF };
+	unsigned int greenWaveBuffer[8] =	{ 0x00001100, 0x00002200, 0x00004400, 0x00008800, 0x0000DD00, 0x0000EE00, 0x0000FF00, 0x0000FF00 };
+	unsigned int blueWaveBuffer[8] =	{ 0x00110000, 0x00220000, 0x00440000, 0x00880000, 0x00DD0000, 0x00EE0000, 0x00FF0000, 0x00FF0000 };
 
 	int currentWaveXRed = -8;
 

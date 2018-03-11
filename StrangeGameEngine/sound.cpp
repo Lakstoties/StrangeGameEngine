@@ -602,8 +602,8 @@ namespace SGE
 
 			//Initialize the mixing buffers
 			//Depending on the platform, possibly not needed, but some platforms don't promise zeroed memory upon allocation.
-			std::memset(mixingFrameBufferLeft,  0, sizeof(int) * frameBufferSize);
-			std::memset(mixingFrameBufferRight, 0, sizeof(int) * frameBufferSize);
+			//std::memset(mixingFrameBufferLeft,  0, sizeof(int) * frameBufferSize);
+			//std::memset(mixingFrameBufferRight, 0, sizeof(int) * frameBufferSize);
 
 			//Go through each channel and render samples
 			for (int i = 0; i < MAX_CHANNELS; i++)
@@ -617,14 +617,27 @@ namespace SGE
 			//Well... people...  Don't fry your damn audio.
 			for (unsigned int i = 0; i < frameCount; i++)
 			{
-				//Down mix all the samples from all the channels
-				for (unsigned int j = 0; j < MAX_CHANNELS; j++)
+				//
+				//  Down mix all the samples from all the channels
+				//
+
+				//
+				//  Channel 0 always initializes the first value in the buffer
+				//  This saves us from having to memset the buffers
+				//
+				mixingFrameBufferLeft[i] =	int(renderedChannelBuffers[0][i] * (0.5f + Channels[0].Pan));
+				mixingFrameBufferRight[i] =	int(renderedChannelBuffers[0][i] * (0.5f - Channels[0].Pan));
+
+				//
+				//  Starts at channel 1 and goes from there.
+				//
+				for (unsigned int j = 1; j < MAX_CHANNELS; j++)
 				{
 					mixingFrameBufferLeft[i]  += int(renderedChannelBuffers[j][i] * (0.5f + Channels[j].Pan));
 					mixingFrameBufferRight[i] += int(renderedChannelBuffers[j][i] * (0.5f - Channels[j].Pan));
 				}
 
-				//Apply master volume to the mixing frame buffers
+				//  Apply master volume to the mixing frame buffers
 				mixingFrameBufferLeft[i]  = int (mixingFrameBufferLeft[i]  * MasterVolume);
 				mixingFrameBufferRight[i] = int (mixingFrameBufferRight[i] * MasterVolume);
 
@@ -633,30 +646,16 @@ namespace SGE
 				//
 
 				//
+				//  Note about the calculation:  Integer divide the sample in the mixing frame buffer by the maximum allowable sample amount.
+				//  If it's anything other than zero, check to see if it is negative for not, and write the proper max sample limit
+				//  Otherwise, just write the sample over.
+				//
+
 				//  For the left channel
-				//
-				outputBufferLeft[i] = mixingFrameBufferLeft[i];
+				outputBufferLeft[i] = (mixingFrameBufferLeft[i] / SAMPLE_MAX_AMPLITUDE) ? ( mixingFrameBufferLeft[i] > 0 ? SAMPLE_MAX_AMPLITUDE : -SAMPLE_MAX_AMPLITUDE): mixingFrameBufferLeft[i];
 
-				//
-				//  If the mixing buffer doesn't equal the output buffer, then some overflow has occurred.
-				//
-				if (mixingFrameBufferLeft[i] != outputBufferLeft[i])
-				{
-					outputBufferLeft[i] = mixingFrameBufferLeft[i] > SAMPLE_MAX_AMPLITUDE ? SAMPLE_MAX_AMPLITUDE : -SAMPLE_MAX_AMPLITUDE;
-				}
-
-				//
 				//  For the right channel
-				//
-				outputBufferRight[i] = mixingFrameBufferRight[i];
-
-				//
-				//  If the mixing buffer doesn't equal the output buffer, then some overflow has occurred.
-				//
-				if (mixingFrameBufferRight[i] != outputBufferRight[i])
-				{
-					outputBufferRight[i] = mixingFrameBufferRight[i] > SAMPLE_MAX_AMPLITUDE ? SAMPLE_MAX_AMPLITUDE : -SAMPLE_MAX_AMPLITUDE;
-				}
+				outputBufferRight[i] = (mixingFrameBufferRight[i] / SAMPLE_MAX_AMPLITUDE) ? (mixingFrameBufferRight[i] > 0 ? SAMPLE_MAX_AMPLITUDE : -SAMPLE_MAX_AMPLITUDE) : mixingFrameBufferRight[i];
 
 				//Sum up the levels
 				//Negate negative values since we are interested in overall amplitude and not phasing
