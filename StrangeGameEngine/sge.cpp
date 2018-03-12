@@ -71,26 +71,46 @@ namespace SGE
 		//
 		void Keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
 		{
-			//Check to make sure we are dealing with the GLFW_UNKNOWN key bit.
-			//Fuck that unkwown key bullshit.
-			//Ain't having it.
-			//Nope...
+			//
+			//  Check to make sure we aren't dealing with the GLFW_UNKNOWN key.
+			//  If so just ignore it.
+			//
 			if (key >= 0)
 			{
-				//Update the key array for the state of the key
+				//  If pressed down
 				if (action == GLFW_PRESS)
 				{
+					//
+					//  Update the status array
+					//
 					SGE::Controls::Keyboard::Status[key] = true;
 
-					//Add key to the buffer
-					SGE::Controls::Keyboard::InputBuffer[SGE::Controls::Keyboard::CurrentBufferPosition] = key;
+					//
+					//  Increment Input Buffer position
+					//
+					SGE::Controls::Keyboard::BufferCurrentPosition = (SGE::Controls::Keyboard::BufferCurrentPosition + 1) % SGE::Controls::Keyboard::INPUT_BUFFER_SIZE;
 
-					//Increment Input Buffer position
-					++SGE::Controls::Keyboard::CurrentBufferPosition %= SGE::Controls::Keyboard::INPUT_BUFFER_SIZE;
+					//
+					//  Add key to the buffer
+					//
+					SGE::Controls::Keyboard::InputBuffer[SGE::Controls::Keyboard::BufferCurrentPosition] = key;
+
+					//
+					//  Check to see if the buffer position has wrapped around the start position
+					//
+					if (SGE::Controls::Keyboard::BufferCurrentPosition == SGE::Controls::Keyboard::BufferStartPosition)
+					{
+						//  IF so, move the start position up.
+						SGE::Controls::Keyboard::BufferStartPosition = (SGE::Controls::Keyboard::BufferStartPosition + 1) % SGE::Controls::Keyboard::INPUT_BUFFER_SIZE;
+					}
 				}
 
+				// If released
 				else if (action == GLFW_RELEASE)
 				{
+					//
+					//  Update the status array
+					//
 					SGE::Controls::Keyboard::Status[key] = false;
 				}
 			}

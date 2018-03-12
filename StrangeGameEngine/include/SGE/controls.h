@@ -69,9 +69,14 @@ namespace SGE
 			extern int InputBuffer[INPUT_BUFFER_SIZE];
 
 			//
-			//  Extern to declare the buffer positions
+			//  Extern to declare the buffer start position
 			//
-			extern int CurrentBufferPosition;
+			extern int BufferStartPosition;
+
+			//
+			//  Extern to declare the buffer current position
+			//
+			extern int BufferCurrentPosition;
 
 			//
 			//  Function to clear out the input buffer

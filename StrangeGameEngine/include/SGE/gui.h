@@ -12,16 +12,16 @@ namespace SGE
 		{
 
 		public:
-			//The number of rows in the text box
+			//  The number of rows in the text box
 			unsigned int rows = 0;
 
-			//The number of columns in the text box
+			//  The number of columns in the text box
 			unsigned int columns = 0;
 
-			//The spacing between characters between columns
+			//  The spacing between characters between columns
 			unsigned int ColumnSpacing = 8;
 
-			//The spacing between character between rows
+			//  The spacing between character between rows
 			unsigned int RowSpacing = 8;
 
 			//Buffers to store characters

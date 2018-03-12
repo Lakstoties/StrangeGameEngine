@@ -63,9 +63,19 @@ namespace SGE
 			int InputBuffer[INPUT_BUFFER_SIZE] = { 0 };
 
 			//
-			//  Current buffer positions
+			//  Buffer start position
 			//
-			int CurrentBufferPosition = 0;
+			int BufferStartPosition = 0;
+
+			//
+			//  Buffer current position
+			//
+			int BufferCurrentPosition = 0;
+
+			//
+			//  Copy current 
+			//
+
 
 			//
 			//  Clear and reset the buffer.
@@ -73,9 +83,14 @@ namespace SGE
 			void ResetInputBuffer()
 			{
 				//
-				//  Reset position
+				//  Reset current position
 				//
-				CurrentBufferPosition = 0;
+				BufferCurrentPosition = 0;
+
+				//
+				//  Reset start position
+				//
+				BufferStartPosition = 0;
 
 				//
 				//  Clear out all the data in the buffer
