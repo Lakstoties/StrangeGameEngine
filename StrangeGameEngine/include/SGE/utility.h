@@ -1,6 +1,7 @@
 #pragma once
 #include "sound.h"
 #include "fileformats.h"
+#include "gui.h"
 #include <thread>
 #include <chrono>
 
@@ -11,6 +12,91 @@ namespace SGE
 {
 	namespace Utility
 	{
+		namespace Terminal
+		{
+			//
+			//  Default terminal polling rate
+			//
+			const int DEFAULT_POLLING_RATE_MILLISECONDS = 10;
+
+			//
+			//  ANSI compatible terminal
+			//
+			class TerminalWindow
+			{
+			private:
+				//
+				//  Terminal Window position information
+				//
+				int windowPositionX = 0;
+				int windowPositionY = 0;
+
+				//
+				//  Text box information
+				//
+				unsigned int textBoxRows = 0;
+				unsigned int textBoxColumns = 0;
+
+				//
+				//  Thread to run processing logic
+				//
+				std::thread processingThread;
+
+				//
+				//  Processing thread function
+				//
+				void processingThreadFunction();
+
+				//
+				//  Processing thread status flag
+				//
+				bool continueProcessing = false;
+
+				//
+				//  Text Box for Terminal
+				//
+				SGE::GUI::TextBox *terminalTextBox;
+
+			public:
+				//
+				//
+				//
+				const int BorderWidth = 5;
+
+				//
+				//  Processing mode flag
+				//  Control whether to process input from keyboard buffer or default to status current status array.
+				//
+				bool PollKeyboardBuffer = false;
+
+				//
+				//  Constructor
+				//
+				TerminalWindow(int xPosition, int yPosition, unsigned int numberOfrows, unsigned int numberOfColumns);
+
+				//
+				//  Destructor
+				//
+				~TerminalWindow();
+
+				//
+				//  Start polling input
+				//
+				void StartPolling();
+
+				//
+				//  Stop polling input
+				//
+				void StopPolling();
+
+				//
+				//  Draw terminal window to screen
+				//
+				void Draw();
+
+			};
+		}
+
 		namespace Math
 		{
 			//

@@ -15,6 +15,91 @@ namespace SGE
 {
 	namespace Utility
 	{
+		namespace Terminal
+		{
+			//
+			//  ANSI compatible terminal methods
+			//
+
+			//
+			//  Processing thread function
+			//
+			void TerminalWindow::processingThreadFunction()
+			{
+
+			}
+
+			//
+			//  Constructor
+			//
+			TerminalWindow::TerminalWindow(int xPosition, int yPosition, unsigned int numberOfrows, unsigned int numberOfColumns)
+			{
+				terminalTextBox = new SGE::GUI::TextBox(numberOfrows, numberOfColumns, xPosition + BorderWidth, yPosition + BorderWidth);
+			}
+
+			//
+			//  Destructor
+			//
+			TerminalWindow::~TerminalWindow()
+			{
+				delete terminalTextBox;
+				StopPolling();
+			}
+
+			//
+			//  Start polling input
+			//
+			void TerminalWindow::StartPolling()
+			{
+				//
+				//  Set the flag to allow continued processing
+				//
+				continueProcessing = true;
+
+				//
+				//  Spawn off the processing thread
+				//
+				processingThread = std::thread(&TerminalWindow::processingThreadFunction, this);
+
+			}
+
+			//
+			//  Stop polling input
+			//
+			void TerminalWindow::StopPolling()
+			{
+				//
+				//  Signal stop
+				//
+				continueProcessing = false;
+
+				//
+				//  Wait for the thread to come back home and join us
+				//
+				if (processingThread.joinable())
+				{
+					processingThread.join();
+				}
+			}
+
+			//
+			//  Draw terminal window to screen
+			//
+			void TerminalWindow::Draw()
+			{
+				//
+				//  Draw Borders
+				//
+
+				//
+				//  Draw text box
+				//
+			}
+		}
+
+
+
+
 		namespace Math
 		{
 			//
