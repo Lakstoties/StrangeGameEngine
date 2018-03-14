@@ -43,24 +43,13 @@ namespace SGE
 			}
 
 			//
-			//  Draw the background
-			//
-
-			SGE::Render::DrawBox(XPosition, YPosition, columns * ColumnSpacing, rows * RowSpacing, SGE::Render::Colors::Named::Black);
-
-
-			//
 			//  Draw the character background colors
 			//
 			for (int i = startRow; i < endRow; i++)
 			{
 				for (int j = startColumn; j < endColumn; j++)
 				{
-					//If there's something other than pure black in the background
-					if (BackgroundColorArray[i * columns + j] != SGE::Render::Colors::Named::Black)
-					{
-						SGE::Render::DrawBox(XPosition + j * RowSpacing, YPosition + i * ColumnSpacing, RowSpacing, ColumnSpacing, BackgroundColorArray[i * columns + j]);
-					}
+					SGE::Render::DrawBox(XPosition + j * RowSpacing, YPosition + i * ColumnSpacing, RowSpacing, ColumnSpacing, BackgroundColorArray[i * columns + j]);
 				}
 			}
 
