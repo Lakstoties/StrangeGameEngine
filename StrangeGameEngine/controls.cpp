@@ -73,6 +73,11 @@ namespace SGE
 				//
 				//  Scan through array for keys that map to ASCII characters
 				//
+
+				//  Check status of modifier keys
+				bool altPressed = false;
+				bool controlPressed = false;
+				bool shiftPressed = false;
 				
 				//  Check letter keys
 			

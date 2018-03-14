@@ -439,9 +439,9 @@ namespace SGE
 		//
 		//  Helper function to draw keyboard keys for the Keyboard Status function
 		//
-		void DrawKeyboardKey(int xCornerPosition, int yCornerPosition, char* label, const int key)
+		void DrawKeyboardKey(const int xCornerPosition, const int yCornerPosition, const char* label, const int key, const int keyWidth, const int keyHeight)
 		{
-			SGE::Render::DrawBox(xCornerPosition, yCornerPosition, 19, 19, SGE::Controls::Keyboard::Status[key] ? SGE::Render::Colors::Named::White : SGE::Render::Colors::Named::Black);
+			SGE::Render::DrawBox(xCornerPosition, yCornerPosition, keyWidth, keyHeight, SGE::Controls::Keyboard::Status[key] ? SGE::Render::Colors::Named::White : SGE::Render::Colors::Named::Black);
 			SGE::Render::DrawString(label, SGE::Render::CHARACTER_8x8_ROM, 5, xCornerPosition + 1, yCornerPosition + 5, SGE::Controls::Keyboard::Status[key] ? SGE::Render::Colors::Named::Black : SGE::Render::Colors::Named::BrightWhite);
 		}
 
@@ -450,10 +450,13 @@ namespace SGE
 		//
 		void DrawKeyboardStatus(int xCornerPosition, int yCornerPosition)
 		{
-			//Draw background box
+			const int DEFAULT_KEY_WIDTH = 19;
+			const int DEFAULT_KEY_HEIGHT = 19;
+
+			//  Draw background box
 			SGE::Render::DrawBox(xCornerPosition, yCornerPosition, 500, 150, SGE::Render::Colors::Named::BrightBlack);
 
-			//Draw background border
+			//  Draw background border
 			SGE::Render::DrawRectangle(xCornerPosition, yCornerPosition, 500, 150, SGE::Render::Colors::Named::White);
 
 			//
@@ -464,98 +467,268 @@ namespace SGE
 			//  First Row - Esc, F1, F2, F3, F4, F5, F6, F7, F8, F9, F10, F11, F12,   PntScr, ScrLck,  Pause
 			//
 
-			//Escape
-			DrawKeyboardKey(xCornerPosition + 5, yCornerPosition + 5, (char *)"Esc", SGE::Controls::Keymap::KEY_ESCAPE);
+			//  Escape
+			DrawKeyboardKey(xCornerPosition + 5, yCornerPosition + 5, (char *)"Esc", SGE::Controls::Keymap::KEY_ESCAPE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 
-			//F1
-			DrawKeyboardKey(xCornerPosition + 30, yCornerPosition + 5, (char *)"F1", SGE::Controls::Keymap::KEY_F1);
+			//  F1
+			DrawKeyboardKey(xCornerPosition + 30, yCornerPosition + 5, (char *)"F1", SGE::Controls::Keymap::KEY_F1, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//F2
-			DrawKeyboardKey(xCornerPosition + 50, yCornerPosition + 5, (char *)"F2", SGE::Controls::Keymap::KEY_F2);
+			//  F2
+			DrawKeyboardKey(xCornerPosition + 50, yCornerPosition + 5, (char *)"F2", SGE::Controls::Keymap::KEY_F2, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//F3
-			DrawKeyboardKey(xCornerPosition + 70, yCornerPosition + 5, (char *)"F3", SGE::Controls::Keymap::KEY_F3);
+			//  F3
+			DrawKeyboardKey(xCornerPosition + 70, yCornerPosition + 5, (char *)"F3", SGE::Controls::Keymap::KEY_F3, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//F4
-			DrawKeyboardKey(xCornerPosition + 90, yCornerPosition + 5, (char *)"F4", SGE::Controls::Keymap::KEY_F4);
-
-
-			//F5
-			DrawKeyboardKey(xCornerPosition + 115, yCornerPosition + 5, (char *)"F5", SGE::Controls::Keymap::KEY_F5);
-
-			//F6
-			DrawKeyboardKey(xCornerPosition + 135, yCornerPosition + 5, (char *)"F6", SGE::Controls::Keymap::KEY_F6);
-
-			//F7
-			DrawKeyboardKey(xCornerPosition + 155, yCornerPosition + 5, (char *)"F7", SGE::Controls::Keymap::KEY_F7);
-
-			//F8
-			DrawKeyboardKey(xCornerPosition + 175, yCornerPosition + 5, (char *)"F8", SGE::Controls::Keymap::KEY_F8);
+			//  F4
+			DrawKeyboardKey(xCornerPosition + 90, yCornerPosition + 5, (char *)"F4", SGE::Controls::Keymap::KEY_F4, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 
-			//F9
-			DrawKeyboardKey(xCornerPosition + 200, yCornerPosition + 5, (char *)"F9", SGE::Controls::Keymap::KEY_F9);
+			//  F5
+			DrawKeyboardKey(xCornerPosition + 115, yCornerPosition + 5, (char *)"F5", SGE::Controls::Keymap::KEY_F5, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//F10
-			DrawKeyboardKey(xCornerPosition + 220, yCornerPosition + 5, (char *)"F10", SGE::Controls::Keymap::KEY_F10);
+			//  F6
+			DrawKeyboardKey(xCornerPosition + 135, yCornerPosition + 5, (char *)"F6", SGE::Controls::Keymap::KEY_F6, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//F11
-			DrawKeyboardKey(xCornerPosition + 240, yCornerPosition + 5, (char *)"F11", SGE::Controls::Keymap::KEY_F11);
+			//  F7
+			DrawKeyboardKey(xCornerPosition + 155, yCornerPosition + 5, (char *)"F7", SGE::Controls::Keymap::KEY_F7, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//F12
-			DrawKeyboardKey(xCornerPosition + 260, yCornerPosition + 5, (char *)"F12", SGE::Controls::Keymap::KEY_F12);
+			//  F8
+			DrawKeyboardKey(xCornerPosition + 175, yCornerPosition + 5, (char *)"F8", SGE::Controls::Keymap::KEY_F8, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+
+
+			//  F9
+			DrawKeyboardKey(xCornerPosition + 200, yCornerPosition + 5, (char *)"F9", SGE::Controls::Keymap::KEY_F9, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+
+			//  F10
+			DrawKeyboardKey(xCornerPosition + 220, yCornerPosition + 5, (char *)"F10", SGE::Controls::Keymap::KEY_F10, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+
+			//  F11
+			DrawKeyboardKey(xCornerPosition + 240, yCornerPosition + 5, (char *)"F11", SGE::Controls::Keymap::KEY_F11, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+
+			//  F12
+			DrawKeyboardKey(xCornerPosition + 260, yCornerPosition + 5, (char *)"F12", SGE::Controls::Keymap::KEY_F12, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 
 			//
 			//  Second Row - `, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, -, =, BckSpc, Ins, Hom, PgUp, NumLck, /, *, -
 			//
 
-			// `
+			//  `
+			DrawKeyboardKey(xCornerPosition + 5, yCornerPosition + 25, (char *)"~ `", SGE::Controls::Keymap::KEY_GRAVE_ACCENT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//1
+			//  1
+			DrawKeyboardKey(xCornerPosition + 25, yCornerPosition + 25, (char *)"1 !", SGE::Controls::Keymap::KEY_1, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//2
+			//  2
+			DrawKeyboardKey(xCornerPosition + 45, yCornerPosition + 25, (char *)"2 @", SGE::Controls::Keymap::KEY_2, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//3
+			//  3
+			DrawKeyboardKey(xCornerPosition + 65, yCornerPosition + 25, (char *)"3 #", SGE::Controls::Keymap::KEY_3, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//4
+			//  4
+			DrawKeyboardKey(xCornerPosition + 85, yCornerPosition + 25, (char *)"4 $", SGE::Controls::Keymap::KEY_4, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//5
+			//  5
+			DrawKeyboardKey(xCornerPosition + 105, yCornerPosition + 25, (char *)"5 %", SGE::Controls::Keymap::KEY_5, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//6
+			//  6
+			DrawKeyboardKey(xCornerPosition + 125, yCornerPosition + 25, (char *)"6 ^", SGE::Controls::Keymap::KEY_6, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//7
+			//  7
+			DrawKeyboardKey(xCornerPosition + 145, yCornerPosition + 25, (char *)"7 &", SGE::Controls::Keymap::KEY_7, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//8
+			//  8
+			DrawKeyboardKey(xCornerPosition + 165, yCornerPosition + 25, (char *)"8 *", SGE::Controls::Keymap::KEY_8, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//9
+			//  9
+			DrawKeyboardKey(xCornerPosition + 185, yCornerPosition + 25, (char *)"9 (", SGE::Controls::Keymap::KEY_9, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//0
+			//  0
+			DrawKeyboardKey(xCornerPosition + 205, yCornerPosition + 25, (char *)"0 )", SGE::Controls::Keymap::KEY_0, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//-
+			//  -
+			DrawKeyboardKey(xCornerPosition + 225, yCornerPosition + 25, (char *)"- _", SGE::Controls::Keymap::KEY_MINUS, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//=
+			//  =
+			DrawKeyboardKey(xCornerPosition + 245, yCornerPosition + 25, (char *)"+ =", SGE::Controls::Keymap::KEY_EQUAL, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//BkS  (Backspace)
+			//  BkS  (Backspace) Part 1
+			DrawKeyboardKey(xCornerPosition + 266, yCornerPosition + 25, (char *)"Bck Spc", SGE::Controls::Keymap::KEY_BACKSPACE, 39, DEFAULT_KEY_HEIGHT);
 
-			//Ins
+			//  Ins
+			DrawKeyboardKey(xCornerPosition + 310, yCornerPosition + 25, (char *)"Ins", SGE::Controls::Keymap::KEY_INSERT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//Hom
+			//  Hom
+			DrawKeyboardKey(xCornerPosition + 330, yCornerPosition + 25, (char *)"Hom", SGE::Controls::Keymap::KEY_HOME, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//PgU
+			//  PgU
+			DrawKeyboardKey(xCornerPosition + 350, yCornerPosition + 25, (char *)"PgU", SGE::Controls::Keymap::KEY_PAGE_UP, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//NmL
+			//  NmL  (Keypad)
+			DrawKeyboardKey(xCornerPosition + 375, yCornerPosition + 25, (char *)"NmL", SGE::Controls::Keymap::KEY_NUM_LOCK, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			// /
+			//  /  (Keypad)
+			DrawKeyboardKey(xCornerPosition + 395, yCornerPosition + 25, (char *)"/", SGE::Controls::Keymap::KEY_KP_DIVIDE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//*
+			//  *  (Keypad)
+			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + 25, (char *)"*", SGE::Controls::Keymap::KEY_KP_MULTIPLY, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//Nm-
+			//  -  (Keypad)
+			DrawKeyboardKey(xCornerPosition + 435, yCornerPosition + 25, (char *)"-", SGE::Controls::Keymap::KEY_KP_SUBTRACT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//
 			//  Third Row
 			//
+
+			//  Tab
+
+			//  Q
+
+			//  W
+
+			//  E
+
+			//  R
+
+			//  T
+
+			//  Y
+
+			//  U
+
+			//  I
+
+			//  O
+
+			//  P
+
+			//  [
+
+			//  ]
+
+			//  \
+
+			//  Del
+
+			//  End
+
+			//  PgD
+
+			//  7  (Keypad)
+
+			//  8  (Keypad)
+
+			//  9  (Keypad)
+
+			//  +  (Keypad)
+
+			//
+			//  Fourth Row
+			//
+
+			//  Cap Lck
+
+			//  A
+
+			//  S
+
+			//  D
+
+			//  F
+
+			//  G
+
+			//  H
+
+			//  J
+
+			//  K
+
+			//  L
+
+			//  ;
+
+			//  '
+
+			//  Enter
+
+			//  4  (Keypad)
+
+			//  5  (Keypad)
+
+			//  6  (Keypad)
+
+			//
+			//  Fifth Row
+			//
+
+			//  Shift  (Left)
+
+			//  Z
+
+			//  X
+
+			//  C
+
+			//  V
+
+			//  B
+
+			//  N
+
+			//  M
+
+			//  ,
+
+			//  .
+
+			//  /
+
+			//  Shift  (Right)
+
+			//  Up
+
+			//  1  (Keypad)
+
+			//  2  (Keypad)
+
+			//  3  (Keypad)
+
+			//  Enter  (Keypad)
+
+			//
+			//  Sixth Row
+			//
+
+			//  Ctrl  (Left)
+
+			//  Win  (Left)
+
+			//  Alt  (Left)
+
+			//  Space
+
+			//  Alt  (Right)
+
+			//  Win  (Right)
+
+			//  Menu
+		
+			//  Ctrl  (Right)
+
+			//  Left
+
+			//  Down
+
+			//  Right
+
+			//  0  (Keypad)
+
+			//  .  (Keypad)
+
+
+			
 		}
 
 	}
