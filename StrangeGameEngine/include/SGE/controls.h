@@ -54,34 +54,9 @@ namespace SGE
 			const int NUMBER_OF_KEYS = 512;
 
 			//
-			//Keyboard input buffer size
-			//
-			const int INPUT_BUFFER_SIZE = 512;
-
-			//
 			//  Extern to declare the keyboard key state array
 			//
 			extern bool Status[NUMBER_OF_KEYS];
-
-			//
-			//  Extern to declare the keyboard input buffer
-			//
-			extern int InputBuffer[INPUT_BUFFER_SIZE];
-
-			//
-			//  Extern to declare the buffer start position
-			//
-			extern int BufferStartPosition;
-
-			//
-			//  Extern to declare the buffer current position
-			//
-			extern int BufferCurrentPosition;
-
-			//
-			//  Function to clear out the input buffer
-			//
-			void ResetInputBuffer();
 
 			//
 			//  Function to save the current keyboard status array to another array

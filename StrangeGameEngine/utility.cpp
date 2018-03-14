@@ -4,9 +4,15 @@
 #include "include\SGE\utility.h"
 
 //
+//  Include the Controls header
+//
+#include "include\SGE\controls.h"
+
+//
 //  Include the System header
 //
 #include "include\SGE\system.h"
+
 
 //
 //  Strange Game Engine Main Namespace
@@ -32,28 +38,14 @@ namespace SGE
 				while (continueProcessing)
 				{
 					//
-					//  If we are polling the keyboard buffer for new information
+					//  Scan keyboard array for all active keys
 					//
-					if (PollKeyboardBuffer)
+					for (int i = 0; i < SGE::Controls::Keyboard::NUMBER_OF_KEYS; i++)
 					{
 						//
-						//  Grab data from the keyboard buffer
+						//  Send keypresses to terminal
 						//
 					}
-
-					//
-					//  Else we are polling the keyboard status array
-					//
-					else
-					{
-						//
-						//  Scan keyboard array for all active keys
-						//
-					}
-
-					//
-					//  If there's new data send it to the terminal
-					//
 
 					//
 					//  Wait for the polling time

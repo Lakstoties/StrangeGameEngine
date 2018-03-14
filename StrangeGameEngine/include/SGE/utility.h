@@ -66,15 +66,9 @@ namespace SGE
 
 			public:
 				//
-				//
+				//  Constants
 				//
 				const int BorderWidth = 5;
-
-				//
-				//  Processing mode flag
-				//  Control whether to process input from keyboard buffer or default to status current status array.
-				//
-				bool PollKeyboardBuffer = false;
 
 				//
 				//  Constructor

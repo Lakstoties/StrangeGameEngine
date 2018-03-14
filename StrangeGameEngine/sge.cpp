@@ -84,25 +84,6 @@ namespace SGE
 					//  Update the status array
 					//
 					SGE::Controls::Keyboard::Status[key] = true;
-
-					//
-					//  Increment Input Buffer position
-					//
-					SGE::Controls::Keyboard::BufferCurrentPosition = (SGE::Controls::Keyboard::BufferCurrentPosition + 1) % SGE::Controls::Keyboard::INPUT_BUFFER_SIZE;
-
-					//
-					//  Add key to the buffer
-					//
-					SGE::Controls::Keyboard::InputBuffer[SGE::Controls::Keyboard::BufferCurrentPosition] = key;
-
-					//
-					//  Check to see if the buffer position has wrapped around the start position
-					//
-					if (SGE::Controls::Keyboard::BufferCurrentPosition == SGE::Controls::Keyboard::BufferStartPosition)
-					{
-						//  IF so, move the start position up.
-						SGE::Controls::Keyboard::BufferStartPosition = (SGE::Controls::Keyboard::BufferStartPosition + 1) % SGE::Controls::Keyboard::INPUT_BUFFER_SIZE;
-					}
 				}
 
 				// If released

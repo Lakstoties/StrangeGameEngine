@@ -58,47 +58,6 @@ namespace SGE
 			bool Status[NUMBER_OF_KEYS] = { false };
 
 			//
-			//  Current keyboard input buffer
-			//
-			int InputBuffer[INPUT_BUFFER_SIZE] = { 0 };
-
-			//
-			//  Buffer start position
-			//
-			int BufferStartPosition = 0;
-
-			//
-			//  Buffer current position
-			//
-			int BufferCurrentPosition = 0;
-
-			//
-			//  Copy current 
-			//
-
-
-			//
-			//  Clear and reset the buffer.
-			//
-			void ResetInputBuffer()
-			{
-				//
-				//  Reset current position
-				//
-				BufferCurrentPosition = 0;
-
-				//
-				//  Reset start position
-				//
-				BufferStartPosition = 0;
-
-				//
-				//  Clear out all the data in the buffer
-				//
-				std::memset(InputBuffer, 0, sizeof(InputBuffer));
-			}
-
-			//
 			//  Copy current keyboard state to another array
 			//
 			void SaveStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS])
