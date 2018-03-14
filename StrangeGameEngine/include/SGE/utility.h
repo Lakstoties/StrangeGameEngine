@@ -38,6 +38,13 @@ namespace SGE
 				unsigned int textBoxColumns = 0;
 
 				//
+				//  Cursor positioning
+				//
+				unsigned int cursorPositionX = 0;
+				unsigned int cursorPositionY = 0;
+				bool cursorVisible = false;
+
+				//
 				//  Thread to run processing logic
 				//
 				std::thread processingThread;
@@ -94,6 +101,10 @@ namespace SGE
 				//
 				void Draw();
 
+				//
+				//  Write data to the terminal to be interpretted
+				//
+				void WriteToTerminal(char* inputBuffer, int bufferLength);
 			};
 		}
 

@@ -26,6 +26,44 @@ namespace SGE
 			//
 			void TerminalWindow::processingThreadFunction()
 			{
+				//
+				//  While we are still processing input to put into the text box
+				//
+				while (continueProcessing)
+				{
+					//
+					//  If we are polling the keyboard buffer for new information
+					//
+					if (PollKeyboardBuffer)
+					{
+						//
+						//  Grab data from the keyboard buffer
+						//
+					}
+
+					//
+					//  Else we are polling the keyboard status array
+					//
+					else
+					{
+						//
+						//  Scan keyboard array for all active keys
+						//
+					}
+
+					//
+					//  If there's new data send it to the terminal
+					//
+
+					//
+					//  Wait for the polling time
+					//
+					std::this_thread::sleep_for(std::chrono::milliseconds(DEFAULT_POLLING_RATE_MILLISECONDS));
+				}
+			}
+
+			void TerminalWindow::WriteToTerminal(char* inputBuffer, int bufferLength)
+			{
 
 			}
 
