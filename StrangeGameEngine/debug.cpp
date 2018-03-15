@@ -582,46 +582,67 @@ namespace SGE
 			//
 
 			//  Tab
+			DrawKeyboardKey(xCornerPosition + 5, yCornerPosition + 45, (char *)"Tab", SGE::Controls::Keymap::KEY_TAB, DEFAULT_KEY_WIDTH + 10, DEFAULT_KEY_HEIGHT);
 
 			//  Q
+			DrawKeyboardKey(xCornerPosition + 35, yCornerPosition + 45, (char *)"Q", SGE::Controls::Keymap::KEY_Q, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  W
+			DrawKeyboardKey(xCornerPosition + 55, yCornerPosition + 45, (char *)"W", SGE::Controls::Keymap::KEY_W, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  E
+			DrawKeyboardKey(xCornerPosition + 75, yCornerPosition + 45, (char *)"E", SGE::Controls::Keymap::KEY_E, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  R
+			DrawKeyboardKey(xCornerPosition + 95, yCornerPosition + 45, (char *)"R", SGE::Controls::Keymap::KEY_R, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  T
+			DrawKeyboardKey(xCornerPosition + 115, yCornerPosition + 45, (char *)"T", SGE::Controls::Keymap::KEY_T, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  Y
+			DrawKeyboardKey(xCornerPosition + 135, yCornerPosition + 45, (char *)"Y", SGE::Controls::Keymap::KEY_Y, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  U
+			DrawKeyboardKey(xCornerPosition + 155, yCornerPosition + 45, (char *)"U", SGE::Controls::Keymap::KEY_U, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  I
+			DrawKeyboardKey(xCornerPosition + 175, yCornerPosition + 45, (char *)"I", SGE::Controls::Keymap::KEY_I, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  O
+			DrawKeyboardKey(xCornerPosition + 195, yCornerPosition + 45, (char *)"O", SGE::Controls::Keymap::KEY_O, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  P
+			DrawKeyboardKey(xCornerPosition + 215, yCornerPosition + 45, (char *)"P", SGE::Controls::Keymap::KEY_P, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  [
+			DrawKeyboardKey(xCornerPosition + 235, yCornerPosition + 45, (char *)"[", SGE::Controls::Keymap::KEY_LEFT_BRACKET, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  ]
+			DrawKeyboardKey(xCornerPosition + 255, yCornerPosition + 45, (char *)"]", SGE::Controls::Keymap::KEY_RIGHT_BRACKET, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
-			//  \
+			//  "\"
+			DrawKeyboardKey(xCornerPosition + 275, yCornerPosition + 45, (char *)"\\", SGE::Controls::Keymap::KEY_BACKSLASH, DEFAULT_KEY_WIDTH + 10, DEFAULT_KEY_HEIGHT);
 
 			//  Del
+			DrawKeyboardKey(xCornerPosition + 310, yCornerPosition + 45, (char *)"Del", SGE::Controls::Keymap::KEY_DELETE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  End
+			DrawKeyboardKey(xCornerPosition + 330, yCornerPosition + 45, (char *)"End", SGE::Controls::Keymap::KEY_END, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  PgD
+			DrawKeyboardKey(xCornerPosition + 350, yCornerPosition + 45, (char *)"PgD", SGE::Controls::Keymap::KEY_PAGE_DOWN, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  7  (Keypad)
+			DrawKeyboardKey(xCornerPosition + 375, yCornerPosition + 45, (char *)"7", SGE::Controls::Keymap::KEY_KP_7, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  8  (Keypad)
+			DrawKeyboardKey(xCornerPosition + 395, yCornerPosition + 45, (char *)"8", SGE::Controls::Keymap::KEY_KP_8, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  9  (Keypad)
+			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + 45, (char *)"9", SGE::Controls::Keymap::KEY_KP_9, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  +  (Keypad)
+			DrawKeyboardKey(xCornerPosition + 435, yCornerPosition + 45, (char *)"+", SGE::Controls::Keymap::KEY_KP_ADD, DEFAULT_KEY_WIDTH, 2 * DEFAULT_KEY_HEIGHT);
 
 			//
 			//  Fourth Row
