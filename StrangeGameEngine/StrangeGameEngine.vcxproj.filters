@@ -27,9 +27,6 @@
     <ClCompile Include="render.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="controls.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="sge.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -45,11 +42,11 @@
     <ClCompile Include="debug.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="inputs.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\SGE\controls.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\SGE\display.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -75,6 +72,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\SGE\debug.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SGE\inputs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

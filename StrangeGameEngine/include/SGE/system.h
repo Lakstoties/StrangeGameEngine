@@ -10,6 +10,12 @@ namespace SGE
 	//
 	namespace System
 	{
+		namespace Callbacks
+		{
+			void Register();
+		}
+
+
 		//
 		//  Message system to logging and output system messages
 		//
@@ -43,7 +49,7 @@ namespace SGE
 			namespace Sources
 			{
 				const char System[] = "SGE::System";
-				const char Controls[] = "SGE::Controls";
+				const char Inputs[] = "SGE::Inputs";
 				const char FileFormats[] = "SGE::FileFormats";
 				const char Render[] = "SGE::Render";
 				const char Sound[] = "SGE::Sound";

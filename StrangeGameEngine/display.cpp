@@ -45,6 +45,35 @@ namespace SGE
 	namespace Display
 	{
 		//
+		//  Callbacks namespace for callbacks related to Display
+		//
+		namespace Callbacks
+		{
+			//
+			//  Window Resize Context callback for GLFW
+			//
+			void WindowResize(GLFWwindow* window, int width, int height)
+			{
+				//
+				//  Flag that the framebuffer window size has changed for the rest of the system
+				//
+				SGE::Display::FrameBufferChanged = true;
+			}
+
+			//
+			//  Function to register callbacks
+			//
+			void Register()
+			{
+				//
+				//  Window Resize callback
+				//
+				glfwSetWindowSizeCallback(SGE::OSWindow, SGE::Display::Callbacks::WindowResize);
+			}
+		}
+
+
+		//
 		//  Video namespace contains anything relating directly to video output onto the main game window
 		//
 		namespace Video

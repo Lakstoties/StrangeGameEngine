@@ -5,10 +5,21 @@
 namespace SGE
 {
 	//
-	//  Controls namespace that handles input from keyboards, mice, and other controllers
+	//  Inputs namespace that handles input from keyboards, mice, and other controllers
 	//
-	namespace Controls
+	namespace Inputs
 	{
+		//
+		//  Callbacks namespace for callbacks related to Inputs
+		//
+		namespace  Callbacks
+		{
+			//
+			//  Function to register callbacks for Input related functions
+			//
+			void Register();
+		}
+
 		//
 		//  Mouse namespace that presents globals to maintain current position and button status of the mouse
 		//

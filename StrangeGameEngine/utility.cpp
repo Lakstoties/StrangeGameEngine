@@ -4,9 +4,9 @@
 #include "include\SGE\utility.h"
 
 //
-//  Include the Controls header
+//  Include the Inputs header
 //
-#include "include\SGE\controls.h"
+#include "include\SGE\inputs.h"
 
 //
 //  Include the System header
@@ -40,7 +40,7 @@ namespace SGE
 					//
 					//  Scan keyboard array for all active keys
 					//
-					for (int i = 0; i < SGE::Controls::Keyboard::NUMBER_OF_KEYS; i++)
+					for (int i = 0; i < SGE::Inputs::Keyboard::NUMBER_OF_KEYS; i++)
 					{
 						//
 						//  Send keypresses to terminal

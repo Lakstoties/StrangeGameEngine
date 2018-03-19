@@ -1,5 +1,5 @@
 ﻿#include "include\SGE\render.h"
-#include "include\SGE\controls.h"
+#include "include\SGE\inputs.h"
 #include <cstring>
 
 //
@@ -17,10 +17,10 @@ namespace SGE
 			//
 			//  Check to make sure the cursor can even be drawn.
 			//
-			if ((SGE::Controls::Mouse::PositionX <= (int)-cursorRadius) ||
-				(SGE::Controls::Mouse::PositionY <= (int)-cursorRadius) ||
-				(SGE::Controls::Mouse::PositionX >= SGE::Display::Video::ResolutionX + cursorRadius) ||
-				(SGE::Controls::Mouse::PositionY >= SGE::Display::Video::ResolutionY + cursorRadius))
+			if ((SGE::Inputs::Mouse::PositionX <= (int)-cursorRadius) ||
+				(SGE::Inputs::Mouse::PositionY <= (int)-cursorRadius) ||
+				(SGE::Inputs::Mouse::PositionX >= SGE::Display::Video::ResolutionX + cursorRadius) ||
+				(SGE::Inputs::Mouse::PositionY >= SGE::Display::Video::ResolutionY + cursorRadius))
 			{
 				//This can't be draw, too far off the drawable area.
 				return;
@@ -29,10 +29,10 @@ namespace SGE
 			//
 			//  Set the start and end points for drawing the cursor box
 			//
-			int startX = SGE::Controls::Mouse::PositionX - cursorRadius;
-			int startY = SGE::Controls::Mouse::PositionY - cursorRadius;
-			int endX = SGE::Controls::Mouse::PositionX + cursorRadius;
-			int endY = SGE::Controls::Mouse::PositionY + cursorRadius;
+			int startX = SGE::Inputs::Mouse::PositionX - cursorRadius;
+			int startY = SGE::Inputs::Mouse::PositionY - cursorRadius;
+			int endX = SGE::Inputs::Mouse::PositionX + cursorRadius;
+			int endY = SGE::Inputs::Mouse::PositionY + cursorRadius;
 
 			//
 			//  Prune down to a valid drawing area.

@@ -100,7 +100,7 @@
     <ClCompile Include="display.cpp" />
     <ClCompile Include="fileformats.cpp" />
     <ClCompile Include="gui.cpp" />
-    <ClCompile Include="controls.cpp" />
+    <ClCompile Include="inputs.cpp" />
     <ClCompile Include="render.cpp" />
     <ClCompile Include="sound.cpp" />
     <ClCompile Include="sge.cpp" />
@@ -112,7 +112,7 @@
     <ClInclude Include="include\SGE\fileformats.h" />
     <ClInclude Include="include\SGE\system.h" />
     <ClInclude Include="include\SGE\utility.h" />
-    <ClInclude Include="include\SGE\controls.h" />
+    <ClInclude Include="include\SGE\inputs.h" />
     <ClInclude Include="include\SGE\display.h" />
     <ClInclude Include="include\SGE\gui.h" />
     <ClInclude Include="include\SGE\render.h" />

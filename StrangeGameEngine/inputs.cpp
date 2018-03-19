@@ -1,4 +1,5 @@
-#include "include\SGE\controls.h"
+#include "include\SGE\inputs.h"
+#include "include\SGE\display.h"
 #include <GLFW\glfw3.h>
 #include <thread>
 #include <algorithm>
@@ -14,10 +15,141 @@ namespace SGE
 	extern GLFWwindow* OSWindow;
 
 	//
-	//  Controls namespace that handles input from keyboards, mice, and other controllers
+	//  Inputs namespace that handles input from keyboards, mice, and other controllers
 	//
-	namespace Controls
+	namespace Inputs
 	{
+		//
+		//  Namespace for Callbacks related to inputs
+		//
+		namespace Callbacks
+		{
+			//
+			//  Mouse Scrool Wheel callback for GLFW
+			//
+			void ScrollWheel(GLFWwindow* window, double xOffset, double yOffset)
+			{
+				SGE::Inputs::Mouse::ScrollX += xOffset;
+				SGE::Inputs::Mouse::ScrollY += yOffset;
+			}
+
+			//
+			//  Mouse Button callback for GLFW
+			//
+			void MouseButton(GLFWwindow* window, int button, int action, int mods)
+			{
+				switch (action)
+				{
+				case GLFW_PRESS:
+					SGE::Inputs::Mouse::Buttons[button] = true;
+					break;
+
+				case GLFW_RELEASE:
+					SGE::Inputs::Mouse::Buttons[button] = false;
+					break;
+				}
+			}
+
+			//
+			//  Keyboard callback for GLFW
+			//
+			void Keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
+			{
+				//
+				//  Check to make sure we aren't dealing with the GLFW_UNKNOWN key.
+				//  If so just ignore it.
+				//
+				if (key >= 0)
+				{
+					//  If pressed down
+					if (action == GLFW_PRESS)
+					{
+						//
+						//  Update the status array
+						//
+						SGE::Inputs::Keyboard::Status[key] = true;
+					}
+
+					// If released
+					else if (action == GLFW_RELEASE)
+					{
+						//
+						//  Update the status array
+						//
+						SGE::Inputs::Keyboard::Status[key] = false;
+					}
+				}
+			}
+
+			//
+			//  Mouse Cursor callback for GLFW
+			//
+			void Cursor(GLFWwindow* window, double xPosition, double yPosition)
+			{
+				int currentFrameBufferX = 0;
+				int currentFrameBufferY = 0;
+
+				int currentFrameBufferXOffset = 0;
+				int currentFrameBufferYOffset = 0;
+
+				//
+				//  Get the current Frame buffer data
+				//
+				glfwGetFramebufferSize(OSWindow, &currentFrameBufferX, &currentFrameBufferY);
+
+				//
+				//  Calculate offsets
+				//
+				currentFrameBufferXOffset = (currentFrameBufferX - (currentFrameBufferY * SGE::Display::Video::ResolutionX) / SGE::Display::Video::ResolutionY) / 2;
+				currentFrameBufferYOffset = (currentFrameBufferY - (currentFrameBufferX * SGE::Display::Video::ResolutionY) / SGE::Display::Video::ResolutionX) / 2;
+
+				//
+				//If the Offset goes negative it needs to be hard capped or it throws off calculations.
+				//
+				if (currentFrameBufferXOffset < 0) { (currentFrameBufferXOffset = 0); }
+				if (currentFrameBufferYOffset < 0) { (currentFrameBufferYOffset = 0); }
+
+				//
+				//Raw Numbers
+				//
+				SGE::Inputs::Mouse::PositionRawX = (int)xPosition;
+				SGE::Inputs::Mouse::PositionRawY = (int)yPosition;
+
+				//
+				//Scaled
+				//
+				SGE::Inputs::Mouse::PositionX = ((SGE::Inputs::Mouse::PositionRawX - currentFrameBufferXOffset) * SGE::Display::Video::ResolutionX) / (currentFrameBufferX - currentFrameBufferXOffset * 2);
+				SGE::Inputs::Mouse::PositionY = ((SGE::Inputs::Mouse::PositionRawY - currentFrameBufferYOffset) * SGE::Display::Video::ResolutionY) / (currentFrameBufferY - currentFrameBufferYOffset * 2);
+			}
+
+			//
+			//  Function to register callbacks for Input related functions
+			//
+			void Register()
+			{
+				//
+				//  Mouse scrool wheel callback
+				//
+				glfwSetScrollCallback(SGE::OSWindow, SGE::Inputs::Callbacks::ScrollWheel);
+
+				//
+				//  Mouse button callback
+				//
+				glfwSetMouseButtonCallback(SGE::OSWindow, SGE::Inputs::Callbacks::MouseButton);
+
+				//
+				//  Mouse cursor callback
+				//
+				glfwSetCursorPosCallback(SGE::OSWindow, SGE::Inputs::Callbacks::Cursor);
+
+				//
+				//  Keyboard callback
+				//
+				glfwSetKeyCallback(SGE::OSWindow, SGE::Inputs::Callbacks::Keyboard);
+			}
+		}
+
+
 		//
 		//  Mouse namespace that contains global variables containing mouse positioning data.
 		//
@@ -75,12 +207,9 @@ namespace SGE
 				//
 
 				//  Check status of modifier keys
-				bool altPressed = false;
-				bool controlPressed = false;
-				bool shiftPressed = false;
 				
 				//  Check letter keys
-			
+	
 
 				//  Check nubmer keys
 				

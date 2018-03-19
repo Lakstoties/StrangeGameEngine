@@ -1,4 +1,5 @@
 #include "include\SGE\system.h"
+#include "GLFW\glfw3.h"
 #include <chrono>
 #include <ctime>
 #include <mutex>
@@ -21,6 +22,34 @@ namespace SGE
 {
 	namespace System
 	{
+		//
+		//  Callbacks namespace for handling any callbacks related to System
+		//
+		namespace Callbacks
+		{
+			//
+			//  Callback to handle any error reporting from GLFW
+			//
+			void GLFWError(int error, const char* description)
+			{
+				//
+				//  Report the error through the SGE message system
+				//
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::SGE, "GLFW Error: %s\n", description);
+			}
+
+
+			void Register()
+			{
+				//
+				//  Set the GLFW Error Callback
+				//
+				glfwSetErrorCallback(SGE::System::Callbacks::GLFWError);
+			}
+		}
+
+
+
 		namespace Message
 		{
 			//

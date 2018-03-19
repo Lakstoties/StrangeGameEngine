@@ -18,125 +18,7 @@ namespace SGE
 	//
 	namespace Callbacks
 	{
-		//
-		//  Callback to handle any error reporting from GLFW
-		//
-		void GLFWError(int error, const char* description)
-		{
-			//
-			//  Report the error through the SGE message system
-			//
-			SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::SGE, "GLFW Error: %s\n", description);
-		}
 
-		//
-		//  Window Resize Context callback for GLFW
-		//
-		void WindowResize(GLFWwindow* window, int width, int height)
-		{
-			//
-			//  Flag that the framebuffer window size has changed for the rest of the system
-			//
-			SGE::Display::FrameBufferChanged = true;
-		}
-
-		//
-		//  Mouse Scrool Wheel callback for GLFW
-		//
-		void ScrollWheel(GLFWwindow* window, double xOffset, double yOffset)
-		{
-			SGE::Controls::Mouse::ScrollX += xOffset;
-			SGE::Controls::Mouse::ScrollY += yOffset;
-		}
-
-		//
-		//  Mouse Button callback for GLFW
-		//
-		void MouseButton(GLFWwindow* window, int button, int action, int mods)
-		{
-			switch (action)
-			{
-			case GLFW_PRESS:
-				SGE::Controls::Mouse::Buttons[button] = true;
-				break;
-
-			case GLFW_RELEASE:
-				SGE::Controls::Mouse::Buttons[button] = false;
-				break;
-			}
-		}
-
-		//
-		//  Keyboard callback for GLFW
-		//
-		void Keyboard(GLFWwindow* window, int key, int scancode, int action, int mods)
-		{
-			//
-			//  Check to make sure we aren't dealing with the GLFW_UNKNOWN key.
-			//  If so just ignore it.
-			//
-			if (key >= 0)
-			{
-				//  If pressed down
-				if (action == GLFW_PRESS)
-				{
-					//
-					//  Update the status array
-					//
-					SGE::Controls::Keyboard::Status[key] = true;
-				}
-
-				// If released
-				else if (action == GLFW_RELEASE)
-				{
-					//
-					//  Update the status array
-					//
-					SGE::Controls::Keyboard::Status[key] = false;
-				}
-			}
-		}
-
-		//
-		//  Mouse Cursor callback for GLFW
-		//
-		void Cursor(GLFWwindow* window, double xPosition, double yPosition)
-		{
-			int currentFrameBufferX = 0;
-			int currentFrameBufferY = 0;
-
-			int currentFrameBufferXOffset = 0;
-			int currentFrameBufferYOffset = 0;
-
-			//
-			//  Get the current Frame buffer data
-			//
-			glfwGetFramebufferSize(OSWindow, &currentFrameBufferX, &currentFrameBufferY);
-
-			//
-			//  Calculate offsets
-			//
-			currentFrameBufferXOffset = (currentFrameBufferX - (currentFrameBufferY * SGE::Display::Video::ResolutionX) / SGE::Display::Video::ResolutionY) / 2;
-			currentFrameBufferYOffset = (currentFrameBufferY - (currentFrameBufferX * SGE::Display::Video::ResolutionY) / SGE::Display::Video::ResolutionX) / 2;
-
-			//
-			//If the Offset goes negative it needs to be hard capped or it throws off calculations.
-			//
-			if (currentFrameBufferXOffset < 0) { (currentFrameBufferXOffset = 0); }
-			if (currentFrameBufferYOffset < 0) { (currentFrameBufferYOffset = 0); }
-
-			//
-			//Raw Numbers
-			//
-			SGE::Controls::Mouse::PositionRawX = (int)xPosition;
-			SGE::Controls::Mouse::PositionRawY = (int)yPosition;
-
-			//
-			//Scaled
-			//
-			SGE::Controls::Mouse::PositionX = ((SGE::Controls::Mouse::PositionRawX - currentFrameBufferXOffset) * SGE::Display::Video::ResolutionX) / (currentFrameBufferX - currentFrameBufferXOffset * 2);
-			SGE::Controls::Mouse::PositionY = ((SGE::Controls::Mouse::PositionRawY - currentFrameBufferYOffset) * SGE::Display::Video::ResolutionY) / (currentFrameBufferY - currentFrameBufferYOffset * 2);
-		}
 	}
 
 
@@ -163,9 +45,10 @@ namespace SGE
 		}
 
 		//
-		//  Set the GLFW Error Callback
+		//  Register any System callbacks
 		//
-		glfwSetErrorCallback(SGE::Callbacks::GLFWError);
+		SGE::System::Callbacks::Register();
+
 
 		//
 		//  Start up the sound system
@@ -195,33 +78,17 @@ namespace SGE
 		}
 
 		//
-		//Register all the major callbacks for SGE system
+		//  Register all the major callbacks for SGE system
 		//
 
-		//
-		//  Window Resize callback
-		//
-		glfwSetWindowSizeCallback(SGE::OSWindow, SGE::Callbacks::WindowResize);
+		//  Register Display Callbacks
+		SGE::Display::Callbacks::Register();
 
-		//
-		//  Mouse scrool wheel callback
-		//
-		glfwSetScrollCallback(SGE::OSWindow, SGE::Callbacks::ScrollWheel);
+		//  Register Inputs Callbacks
+		SGE::Inputs::Callbacks::Register();
 
-		//
-		//  Mouse button callback
-		//
-		glfwSetMouseButtonCallback(SGE::OSWindow, SGE::Callbacks::MouseButton);
 
-		//
-		//  Mouse cursor callback
-		//
-		glfwSetCursorPosCallback(SGE::OSWindow, SGE::Callbacks::Cursor);
 
-		//
-		//  Keyboard callback
-		//
-		glfwSetKeyCallback(SGE::OSWindow, SGE::Callbacks::Keyboard);
 
 		//
 		//  Fire up utility and other bits
@@ -293,7 +160,7 @@ namespace SGE
 		//  Handle some events
 		//  Event handling has to be run from the main thread, hence why we are spawning the game logic off on it's own thread
 		//  And we are running the event handler on the main thread, Mac OS sends events to the main thread.
-		Controls::HandleEvents();
+		Inputs::HandleEvents();
 
 		//
 		//  Interface handling over, window is closed stop the drawing loop if it already hasn't

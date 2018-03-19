@@ -10,6 +10,17 @@ namespace SGE
 	namespace Display
 	{
 		//
+		//  Callbacks namespace for callbacks related to Display
+		//
+		namespace Callbacks
+		{
+			//
+			//  Function to register callbacks
+			//
+			void Register();
+		}
+
+		//
 		//  Video namespace contain elements for virtual display used direct by the game
 		//
 		namespace Video

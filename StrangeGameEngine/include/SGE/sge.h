@@ -1,7 +1,7 @@
 #pragma once
 #include "display.h"
 #include "render.h"
-#include "controls.h"
+#include "inputs.h"
 #include "sound.h"
 #include "gui.h"
 #include "fileformats.h"
