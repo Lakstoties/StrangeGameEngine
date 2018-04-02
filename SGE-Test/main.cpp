@@ -60,10 +60,10 @@ void InputTest(bool& testInputRunning)
 	{
 		(char*)"Play: Hyper.mod",
 		(char*)"Play: Yehat.mod",
-		(char*)"Play: Stardstm.mod",
+		(char*)"Play: Marucmbt.mod",
 		(char*)"Stop: Hyper.mod",
 		(char*)"Stop: Yehat.mod",
-		(char*)"Stop: Stardstm.mod",
+		(char*)"Stop: Marucmbt.mod",
 		(char*)"Exit Demo",		
 	};
 
@@ -96,7 +96,7 @@ void InputTest(bool& testInputRunning)
 	//Load up the module files
 	modulePlayerTest.Load((char*)"hyper.mod");
 	modulePlayerTest2.Load((char*)"yehat.mod");
-	modulePlayerTest3.Load((char*)"stardstm.mod");
+	modulePlayerTest3.Load((char*)"marucmbt.mod");
 
 	//Connect up to the sound system
 	modulePlayerTest.Connect(12, 64);

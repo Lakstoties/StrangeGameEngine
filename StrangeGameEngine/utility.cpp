@@ -959,8 +959,16 @@ namespace SGE
 										//  Configure Ticks Per Division or Effect 15 / 0xF
 										//
 									case 0xF:
-										//  Set change the ticks per division
-										ticksADivision = effectXOnChannel[c] * 16 + effectYOnChannel[c];
+										//  If the value is 32 or below, consider it Ticks Per Division setting
+										if (effectXOnChannel[c] * 16 + effectYOnChannel[c] <= 32)
+										{
+											ticksADivision = effectXOnChannel[c] * 16 + effectYOnChannel[c];
+										}
+										//  If the value is above 32, consider it setting the beats per minute
+										else
+										{
+
+										}
 
 										//  Effect found, move on.
 										break;
