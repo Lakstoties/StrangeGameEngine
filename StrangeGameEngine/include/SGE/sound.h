@@ -413,6 +413,7 @@ namespace SGE
 			float			periodSlideDelta = 0.0f;
 			float			periodTarget = 0.0f;
 
+
 			//
 			//  Volume Slide, Effect 10
 			//
@@ -436,6 +437,28 @@ namespace SGE
 			//
 			float*			vibratoWaveform = Waveforms::Sine;
 			bool			vibratoRetriggers = false;
+
+			//
+			//  Retrigger, Effect 14 - 9 settings
+			//
+			bool		 retriggerSampleEnabled = false;
+			unsigned int retriggerSampleInterval = 0;
+			unsigned int retriggerCurrentSamples = 0;
+			unsigned int retriggerSampleDestination = 0;
+
+			//
+			//  Cut,  Effect 14-12 settings
+			//
+			bool		 cutSampleEnabled = false;
+			unsigned int cutSampleInterval = 0;
+			unsigned int cutCurrentSamples = 0;
+
+			//
+			//  Delay, Effect 14-13 settings
+			//
+			bool		 delaySampleEnabled = false;
+			unsigned int delaySampleInterval = 0;
+			unsigned int delayCurrentSamples = 0;
 
 			//
 			//  Statistics Stuff

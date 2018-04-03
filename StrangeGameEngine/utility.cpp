@@ -562,6 +562,9 @@ namespace SGE
 								//Turn off Period Slide
 								channelMap[c]->periodSlidEnabled = false;
 
+								//Turn off Retrigger Sample
+								channelMap[c]->retriggerSampleEnabled = false;
+
 								//Check to see if we need to retrigger vibrato
 								if (channelMap[c]->vibratoRetriggers)
 								{
@@ -800,6 +803,19 @@ namespace SGE
 										break;
 
 										//
+										//  Set sample offset
+										//
+									case 0x09:
+
+										//  Set offset of sample to...
+										channelMap[c]->offset = effectXOnChannel[c] * 4096 + effectYOnChannel[c] * 256;
+
+
+										//  Effect found, move on.
+										break;
+
+
+										//
 										//  Configure Volume Slide or Effect 10 / 0xA
 										//
 									case 0xA:
@@ -942,6 +958,68 @@ namespace SGE
 
 											//  Effect found, move on.
 											break;
+
+
+											//  Case 9,  Retrigger sample
+										case 0x9:
+											channelMap[c]->retriggerSampleDestination = 0;
+											channelMap[c]->retriggerCurrentSamples = 0;
+											channelMap[c]->retriggerSampleInterval = effectYOnChannel[c] * DEFAULT_SAMPLES_TICK;
+											channelMap[c]->retriggerSampleEnabled = true;
+
+											break;
+
+
+											//  Case A, 10, Fine volume slide up
+										case 0xA:
+											//  Increment current volume by y
+											channelMap[c]->Volume += (effectYOnChannel[c]) / 64.0f;
+
+											//  Check to make sure the volume doesn't go over 1.0
+											if (channelMap[c]->Volume > 1.0f)
+											{
+												channelMap[c]->Volume = 1.0f;
+											}
+
+											//  Effect found, move on.
+											break;
+
+											//  Case B, 11, Fine volume slide down
+										case 0xB:
+											//  Increment current volume by y
+											channelMap[c]->Volume -= (effectYOnChannel[c]) / 64.0f;
+
+											//  Check to make sure the volume doesn't go over 1.0
+											if (channelMap[c]->Volume < 0.0f)
+											{
+												channelMap[c]->Volume = 0.0f;
+											}
+
+											//  Effect found, move on.
+											break;
+
+											// Case C, 12, Cut sample
+										case 0xC:
+											channelMap[c]->cutCurrentSamples = 0;
+											channelMap[c]->cutSampleInterval = effectYOnChannel[c] * DEFAULT_SAMPLES_TICK;
+											channelMap[c]->cutSampleEnabled = true;
+
+											//  Effect found, move on.
+											break;
+
+											// Case D, 13, Delay sample
+										case 0xD:
+											channelMap[c]->delayCurrentSamples = 0;
+											channelMap[c]->delaySampleInterval = effectYOnChannel[c] * DEFAULT_SAMPLES_TICK;
+											channelMap[c]->delaySampleEnabled = true;
+
+
+											//  Effect found, move on.
+											break;
+
+
+
+
 
 											//
 											//  Not implemented effect

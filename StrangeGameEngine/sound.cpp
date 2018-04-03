@@ -49,207 +49,276 @@ namespace SGE
 					sampleBuffer[i] = 0;
 				}
 				else
-				{
+				{	//
+					//  Check to see if we are getting delayed
 					//
-					//  Grab the sample for the offset
-					//
-
-					//
-					//  Copy the sample from the source buffer to the target buffer and adjusted the volume.
-					//  If the volume effect is in use, use that volume value.
-					//
-					sampleBuffer[i] = int(currentSampleBuffer->data[(unsigned int)offset] *  Volume);
-
-					//
-					//  Add to the acculumator for the average
-					//  Negate negatives since we are only interested in overall amplitude
-					//
-					currentSampleAverage += abs(sampleBuffer[i]);
-
-					//
-					//  Calculate the next offset based on the appropriate increment
-					//
-
-					//
-					//  Check for period slide effect
-					//
-					if (periodSlidEnabled)
+					if (delaySampleEnabled)
 					{
 						//
-						//  Once enough samples have been processed
+						//  Check to see if we've delayed enough
 						//
-						if (periodSlideCurrentSamples >= periodSlideSampleInterval)
+						if (delayCurrentSamples >= delaySampleInterval)
 						{
 							//
-							//  Convert the offset increment to a period in relationship to 1 second
+							//  We're done!
 							//
-							float offsetPeriod = 1 / offsetIncrement;
+							delaySampleEnabled = false;
+						}
 
-							//
-							//  Add the period delta
-							//
-							offsetPeriod += periodSlideDelta;
+						//
+						//  Increment the delay
+						//
+						delayCurrentSamples++;
+					}
 
+					//
+					//  Continue life as normal
+					//
+					else
+					{
+
+						//
+						//  Grab the sample for the offset
+						//
+
+						//
+						//  Copy the sample from the source buffer to the target buffer and adjusted the volume.
+						//  If the volume effect is in use, use that volume value.
+						//
+						sampleBuffer[i] = int(currentSampleBuffer->data[(unsigned int)offset] * Volume);
+
+						//
+						//  Add to the acculumator for the average
+						//  Negate negatives since we are only interested in overall amplitude
+						//
+						currentSampleAverage += abs(sampleBuffer[i]);
+
+						//
+						//  Calculate the next offset based on the appropriate increment
+						//
+
+						//
+						//  Check to see if we need to trigger the sample
+						//
+						if (retriggerSampleEnabled)
+						{
 							//
-							//  Do we have a target period
+							//  Once enough samples have been processed
 							//
-							if (periodTarget != 0)
+							if (retriggerCurrentSamples >= retriggerSampleInterval)
 							{
 								//
-								// Check to see if offsetPeriod is past target
+								//  Set the sample offset back to the designated destination
 								//
+								offset = retriggerSampleDestination;
 
-								if ((periodSlideDelta < 0 && offsetPeriod < periodTarget) ||
-									(periodSlideDelta > 0 && offsetPeriod > periodTarget))
+								//
+								//  Reset the counter
+								//
+								retriggerCurrentSamples %= retriggerSampleInterval;
+							}
+
+							//
+							//  Increment to the next sample
+							//
+							retriggerCurrentSamples++;
+						}
+
+						//
+						//  Check to see if we need to cut the sample.
+						//
+						if (cutSampleEnabled)
+						{
+							//
+							//  Once enough samples have been processed
+							//
+							if (cutCurrentSamples >= cutSampleInterval)
+							{
+								//  Zero out volume
+								Volume = 0.0f;
+
+								//  No need to check anymore
+								cutSampleEnabled = false;
+							}
+
+							cutCurrentSamples++;
+						}
+
+
+
+						//
+						//  Check for period slide effect
+						//
+						if (periodSlidEnabled)
+						{
+							//
+							//  Once enough samples have been processed
+							//
+							if (periodSlideCurrentSamples >= periodSlideSampleInterval)
+							{
+								//
+								//  Convert the offset increment to a period in relationship to 1 second
+								//
+								float offsetPeriod = 1 / offsetIncrement;
+
+								//
+								//  Add the period delta
+								//
+								offsetPeriod += periodSlideDelta;
+
+								//
+								//  Do we have a target period
+								//
+								if (periodTarget != 0)
 								{
-									offsetPeriod = periodTarget;
-									periodSlidEnabled = false;
+									//
+									// Check to see if offsetPeriod is past target
+									//
+
+									if ((periodSlideDelta < 0 && offsetPeriod < periodTarget) ||
+										(periodSlideDelta > 0 && offsetPeriod > periodTarget))
+									{
+										offsetPeriod = periodTarget;
+										periodSlidEnabled = false;
+									}
+								}
+
+								//
+								//  Flip it back to an offset increment
+								//
+								offsetIncrement = 1 / offsetPeriod;
+
+								//
+								//  Reset the counter
+								//
+								periodSlideCurrentSamples %= periodSlideSampleInterval;
+							}
+
+							periodSlideCurrentSamples++;
+						}
+
+
+						//
+						//  Check to see if the Arpeggio Effect is in effect
+						//
+						if (arpeggioEnabled)
+						{
+							//
+							//  Check the state of the Arpeggio effect
+							//
+							if (arpeggioCurrentSamples > arpeggioSampleInterval)
+							{
+								//
+								//  Reset and roll the counter
+								//
+								arpeggioCurrentSamples %= arpeggioSampleInterval;
+
+								//
+								//  Transition the state
+								//  Increment and then modulus to the states around.
+								//
+								++arpeggioState %= 3;
+
+								//
+								//  Based on that state alter the argpeggio offset increment
+								//
+								switch (arpeggioState)
+								{
+									//
+									//  If at default state, just use the regular offsetIncrement
+									//
+								case 0:
+									currentOffsetIncrement = offsetIncrement;
+									break;
+
+									//
+									//  If at state 1, calculate the increment for X semitones
+									//
+								case 1:
+									currentOffsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, arpeggioSemitoneX));
+									break;
+
+									//
+									//  If at state 2, calculate the increment for X semitones
+									//
+								case 2:
+									currentOffsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, arpeggioSemitoneY));
+									break;
 								}
 							}
 
 							//
-							//  Flip it back to an offset increment
+							//  Advance the number of samples
 							//
-							offsetIncrement = 1 / offsetPeriod;
-
-							//
-							//  Reset the counter
-							//
-							periodSlideCurrentSamples %= periodSlideSampleInterval;
+							arpeggioCurrentSamples++;
+						}
+						else
+						{
+							currentOffsetIncrement = offsetIncrement;
 						}
 
-						periodSlideCurrentSamples++;
-					}
-
-
-
-
-
-
-					//
-					//  Check to see if the Arpeggio Effect is in effect
-					//
-					if (arpeggioEnabled)
-					{
 						//
-						//  Check the state of the Arpeggio effect
+						//  Check for Vibrato Effect
 						//
-						if (arpeggioCurrentSamples > arpeggioSampleInterval)
+						if (vibratoEnabled)
 						{
-							//
-							//  Reset and roll the counter
-							//
-							arpeggioCurrentSamples %= arpeggioSampleInterval;
+							//Calculate the offset
+							currentOffsetIncrement = currentOffsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, vibratoAmplitude * vibratoWaveform[vibratoCurrentWaveformPosition]);
 
-							//
-							//  Transition the state
-							//  Increment and then modulus to the states around.
-							//
-							++arpeggioState %= 3;
-							
-							//
-							//  Based on that state alter the argpeggio offset increment
-							//
-							switch (arpeggioState)
+							//Increment the vibrato waveform position
+							vibratoCurrentWaveformPosition = (int)(vibratoCurrentWaveformPosition + vibratoCycles) % SAMPLE_RATE;
+						}
+
+						//
+						//  Check for the Volume Slide effect
+						//
+						if (volumeSlideEnabled)
+						{
+							//Check the state of Volume Slide Effect
+							if (volumeSlideCurrentSamples > volumeSlideSampleInterval)
 							{
-								//
-								//  If at default state, just use the regular offsetIncrement
-								//
-							case 0:
-								currentOffsetIncrement = offsetIncrement;
-								break;
+								//Reset and roll the counter
+								volumeSlideCurrentSamples %= volumeSlideSampleInterval;
 
-								//
-								//  If at state 1, calculate the increment for X semitones
-								//
-							case 1:
-								currentOffsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, arpeggioSemitoneX));
-								break;
+								//Apply the slide
+								Volume += volumeSlideRate;
 
-								//
-								//  If at state 2, calculate the increment for X semitones
-								//
-							case 2:
-								currentOffsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, arpeggioSemitoneY));
-								break;
+								//Check to make sure it did not exit normal ranges
+								//Short circuit logic
+								(Volume < 0.0f) && (Volume = 0.0f);
+								(Volume > 1.0f) && (Volume = 1.0f);
 							}
+							volumeSlideCurrentSamples++;
 						}
 
 						//
-						//  Advance the number of samples
+						//  Increment Offset  Appropriately
 						//
-						arpeggioCurrentSamples++;
-					}
-					else
-					{
-						currentOffsetIncrement = offsetIncrement;
-					}
 
+						//For the Arpeggio Effect
+						offset += currentOffsetIncrement;
 
+						//
+						//  Check for repeating loops
+						//
 
-
-
-					//
-					//  Check for Vibrato Effect
-					//
-					if (vibratoEnabled)
-					{
-						//Calculate the offset
-						currentOffsetIncrement = currentOffsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, vibratoAmplitude * vibratoWaveform[vibratoCurrentWaveformPosition]);
-
-						//Increment the vibrato waveform position
-						vibratoCurrentWaveformPosition = (int)(vibratoCurrentWaveformPosition + vibratoCycles) % SAMPLE_RATE;
-					}
-
-					//
-					//  Check for the Volume Slide effect
-					//
-					if (volumeSlideEnabled)
-					{
-						//Check the state of Volume Slide Effect
-						if (volumeSlideCurrentSamples > volumeSlideSampleInterval)
+						//Check to see if this same is suppose to repeat and is set to do so... correctly
+						if ((currentSampleBuffer->repeatDuration > 0) && ((unsigned int)offset >= (currentSampleBuffer->repeatOffset + currentSampleBuffer->repeatDuration)))
 						{
-							//Reset and roll the counter
-							volumeSlideCurrentSamples %= volumeSlideSampleInterval;
-
-							//Apply the slide
-							Volume += volumeSlideRate;
-
-							//Check to make sure it did not exit normal ranges
-							//Short circuit logic
-							(Volume < 0.0f) && (Volume = 0.0f);
-							(Volume > 1.0f) && (Volume = 1.0f);
+							//Rewind back by the repeatDuration.
+							offset -= currentSampleBuffer->repeatDuration;
 						}
-						volumeSlideCurrentSamples++;
-					}
 
-					//
-					//  Increment Offset  Appropriately
-					//
+						//
+						//  Check to see if it's gone pass the valid bufferSize
+						//
 
-					//For the Arpeggio Effect
-					offset += currentOffsetIncrement;
-
-					//
-					//  Check for repeating loops
-					//
-
-					//Check to see if this same is suppose to repeat and is set to do so... correctly
-					if ((currentSampleBuffer->repeatDuration > 0) && ((unsigned int)offset >= (currentSampleBuffer->repeatOffset + currentSampleBuffer->repeatDuration)))
-					{
-						//Rewind back by the repeatDuration.
-						offset -= currentSampleBuffer->repeatDuration; 
-					}
-
-					//
-					//  Check to see if it's gone pass the valid bufferSize
-					//
-
-					//If not repeatable and the offset has gone past the end of the buffer
-					if ((unsigned int)offset >= currentSampleBuffer->size)
-					{
-						//Fuck this shit we're out!
-						Stop();
+						//If not repeatable and the offset has gone past the end of the buffer
+						if ((unsigned int)offset >= currentSampleBuffer->size)
+						{
+							//Fuck this shit we're out!
+							Stop();
+						}
 					}
 				}
 			}
