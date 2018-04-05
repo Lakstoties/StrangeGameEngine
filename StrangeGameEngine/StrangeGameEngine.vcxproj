@@ -59,7 +59,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\lib;..\GLEW\lib\Debug\Win32;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>portaudio.lib;glfw3.lib;glew32sd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>portaudio.lib;glfw3dll.lib;glew32sd.lib;opengl32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <Lib>
       <AdditionalDependencies>portaudio.lib;glfw3.lib;opengl32.lib;glew32sd.lib</AdditionalDependencies>
