@@ -1,4 +1,5 @@
 #pragma once
+#include "api.h"
 //
 //  Strange Game Engine Main Namespace
 //
@@ -17,7 +18,7 @@ namespace SGE
 			//
 			//  Function to register callbacks
 			//
-			void Register();
+			void SGEAPI Register();
 		}
 
 		//
@@ -33,87 +34,87 @@ namespace SGE
 			//
 			//  The virtual video RAM.  Public accessible to allow other components to write to it directly.
 			//
-			extern pixel* RAM;
+			extern SGEAPI pixel* RAM;
 
 			//
 			//  The virtual Video RAM size.
 			//
-			extern unsigned int RAMSize;
+			extern SGEAPI unsigned int RAMSize;
 
 			//
 			//  The virtual video horizontal resolution
 			//
-			extern int ResolutionX;
+			extern SGEAPI int ResolutionX;
 
 			//
 			//  The virtual video vertical resolution
 			//
-			extern int ResolutionY;
+			extern SGEAPI int ResolutionY;
 		}
 
 		//
 		//  Flag to indicate the framebuffer window size has changed
 		//
-		extern bool FrameBufferChanged;
+		extern SGEAPI bool FrameBufferChanged;
 
 		//
 		//  Flag to indicate the game resolution has changed
 		//
-		extern bool GameResolutionChanged;
+		extern SGEAPI bool GameResolutionChanged;
 
 		//
 		//  Count of frames rendered
 		//
-		extern unsigned int FrameCount;
+		extern SGEAPI unsigned int FrameCount;
 
 		//
 		//  Block display refresh.  Useful for preventing screen tearing from draw operations happening in the middle of a display refresh
 		//
-		void BlockRefresh();
+		void SGEAPI BlockRefresh();
 
 		//
 		//  Allow the virtual display fresh to allow drawing to continue.
 		//
-		void AllowRefresh();
+		void SGEAPI AllowRefresh();
 
 		//
 		//  Start the Display
 		//
-		void Open(int newVideoX, int newVideoY);
+		void SGEAPI Open(int newVideoX, int newVideoY);
 
 		//
 		//  Stop the Display
 		//
-		void Close();
+		void SGEAPI Close();
 
 		//
 		//  Starts the thread to grab data from the virtual video RAM and dumping it to the virtual display
 		//
-		void StartDrawing();
+		void SGEAPI StartDrawing();
 
 		//
 		//  Stops that thread, and waits for it to join back up.
 		//
-		void StopDrawing();
+		void SGEAPI StopDrawing();
 
 		//
 		//  Set framebuffer window size
 		//
-		void SetWindowSize(int width, int height);
+		void SGEAPI SetWindowSize(int width, int height);
 
 		//
 		//  Change game resolution
 		//
-		void ChangeGameResolution(int width, int height);
+		void SGEAPI ChangeGameResolution(int width, int height);
 
 		//
 		//  Hide the mouse cursor from the OS
 		//
-		void HideOSMouseCursor();
+		void SGEAPI HideOSMouseCursor();
 
 		//
 		//  Show the mouse cursor from the OS
 		//
-		void ShowOSMouseCursor();
+		void SGEAPI ShowOSMouseCursor();
 	};
 }

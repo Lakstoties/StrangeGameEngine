@@ -1,5 +1,5 @@
 #pragma once
-
+#include "api.h"
 #include <thread>
 #include <mutex>
 
@@ -472,13 +472,13 @@ namespace SGE
 		//
 		//  Master volume for the system
 		//
-		extern float MasterVolume;
+		extern SGEAPI float MasterVolume;
 
 		//
 		//  Statistics
 		//
-		extern unsigned int MasterVolumeAverageLeftLevel;
-		extern unsigned int MasterVolumeAverageRightLevel;
+		extern SGEAPI unsigned int MasterVolumeAverageLeftLevel;
+		extern SGEAPI unsigned int MasterVolumeAverageRightLevel;
 
 		//
 		//  All the sound samples in the system

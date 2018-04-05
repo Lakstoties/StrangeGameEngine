@@ -1,4 +1,5 @@
 #pragma once
+#include "api.h"
 #include "sound.h"
 #include "fileformats.h"
 #include "gui.h"
@@ -130,7 +131,7 @@ namespace SGE
 
 			void InitializeMath();
 
-			void RotatePointAroundPoint(int originalPointX, int originalPointY, int centerPointX, int centerPointY, int &rotatedPointX, int &rotatedPointY, float degrees);
+			void SGEAPI RotatePointAroundPoint(int originalPointX, int originalPointY, int centerPointX, int centerPointY, int &rotatedPointX, int &rotatedPointY, float degrees);
 		}
 
 		namespace ModuleTrackerMusic
@@ -233,7 +234,7 @@ namespace SGE
 			const unsigned int DEFAULT_SAMPLES_TICK = SGE::Sound::SAMPLE_RATE * DEFAULT_TICK_TIMING_MILLISECONDS / 1000;
 			
 			//Player for module files
-			class ModulePlayer
+			class SGEAPI ModulePlayer
 			{
 			public:
 				unsigned char CurrentPosition = 0;
@@ -272,7 +273,7 @@ namespace SGE
 
 		namespace Timer
 		{
-			class TimerDelta
+			class SGEAPI TimerDelta
 			{
 			private:
 				bool started = false;

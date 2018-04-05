@@ -1,5 +1,5 @@
 #pragma once
-
+#include "api.h"
 //
 //  Strange Game Engine Main Namespace
 //
@@ -30,7 +30,7 @@ namespace SGE
 			//  Handles output to the console and changes output format and color slightly based on severity
 			//  Severety levels:   -1 = ERROR, 0 = INFORMATION, 1 = WARNING, 2 = DEBUG
 			//
-			void Output(int messageLevel, const char* source, const char* message, ...);
+			void SGEAPI Output(int messageLevel, const char* source, const char* message, ...);
 
 			//
 			//  Level of messages for the message system

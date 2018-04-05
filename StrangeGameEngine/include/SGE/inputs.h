@@ -1,4 +1,5 @@
 #pragma once
+#include "api.h"
 //
 //  Strange Game Engine Main Namespace
 //
@@ -67,12 +68,12 @@ namespace SGE
 			//
 			//  Extern to declare the keyboard key state array
 			//
-			extern bool Status[NUMBER_OF_KEYS];
+			extern bool SGEAPI Status[NUMBER_OF_KEYS];
 
 			//
 			//  Function to save the current keyboard status array to another array
 			//
-			void SaveStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS]);
+			void SGEAPI SaveStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS]);
 
 			//
 			//  Function to convert a keyboard status to ASCII characters
@@ -83,7 +84,7 @@ namespace SGE
 		//
 		//  Flag to indicate if the input handling system should keep on going.
 		//
-		extern bool ContinueToHandleEvents;
+		extern bool SGEAPI ContinueToHandleEvents;
 
 		//Start Handling Events through Main Interface
 		//This has to handled by the same thread that spawned the GUI window
@@ -138,9 +139,9 @@ namespace SGE
 			extern const int KEY_U;				// u/U
 			extern const int KEY_V;				// v/V
 			extern const int KEY_W;				// w/W
-			extern const int KEY_X;				// x/X
+			extern const SGEAPI int KEY_X;				// x/X
 			extern const int KEY_Y;				// y/Y
-			extern const int KEY_Z;				// z/Z
+			extern const SGEAPI int KEY_Z;				// z/Z
 			extern const int KEY_LEFT_BRACKET;	// [ 
 			extern const int KEY_BACKSLASH;		// "\" 
 			extern const int KEY_RIGHT_BRACKET;	// ] 
@@ -150,17 +151,17 @@ namespace SGE
 
 			// Function keys
 			extern const int KEY_ESCAPE;		// Esc
-			extern const int KEY_ENTER;			// Enter
+			extern const SGEAPI int KEY_ENTER;			// Enter
 			extern const int KEY_TAB;			// Tab
 			extern const int KEY_BACKSPACE;		// Backspace
 			extern const int KEY_INSERT;		// Insert
 			extern const int KEY_DELETE;		// Delete
-			extern const int KEY_RIGHT;			// ->
-			extern const int KEY_LEFT;			// <-
-			extern const int KEY_DOWN;			// v
-			extern const int KEY_UP;			// ^
-			extern const int KEY_PAGE_UP;		// Page Up
-			extern const int KEY_PAGE_DOWN;		// Page Down
+			extern const SGEAPI int KEY_RIGHT;			// ->
+			extern const SGEAPI int KEY_LEFT;			// <-
+			extern const SGEAPI int KEY_DOWN;			// v
+			extern const SGEAPI int KEY_UP;			// ^
+			extern const SGEAPI int KEY_PAGE_UP;		// Page Up
+			extern const SGEAPI int KEY_PAGE_DOWN;		// Page Down
 			extern const int KEY_HOME;			// Home
 			extern const int KEY_END;			// End
 			extern const int KEY_CAPS_LOCK;		// Caps Lock

@@ -77,5 +77,8 @@
     <ClInclude Include="include\SGE\inputs.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="include\SGE\api.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

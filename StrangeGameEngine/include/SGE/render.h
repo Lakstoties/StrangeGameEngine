@@ -1,4 +1,5 @@
 ﻿#pragma once
+#include "api.h"
 #include "display.h"
 #include <fstream>
 #include <chrono>
@@ -471,22 +472,22 @@ namespace SGE
 		//
 		//  Draw Simple Mouse Cursor
 		//
-		void DrawMouseSimpleCursor(unsigned int cursorRadius, SGE::Display::Video::pixel cursorColor);
+		void SGEAPI DrawMouseSimpleCursor(unsigned int cursorRadius, SGE::Display::Video::pixel cursorColor);
 
 		//
 		//  Draw a character to the screen
 		//
-		void Draw8x8Character(const unsigned long long &character, const int targetX, const int targetY, const SGE::Display::Video::pixel &color);
+		void SGEAPI Draw8x8Character(const unsigned long long &character, const int targetX, const int targetY, const SGE::Display::Video::pixel &color);
 
 		//
 		//  Draw a string of characters to the screen, from a null terminated string
 		//
-		void DrawString(const char* characters, const unsigned long long characterROM[], const int characterSpacing, const int targetX, const int targetY, const SGE::Display::Video::pixel &color);
+		void SGEAPI DrawString(const char* characters, const unsigned long long characterROM[], const int characterSpacing, const int targetX, const int targetY, const SGE::Display::Video::pixel &color);
 
 		//
 		//  Draw a block of data from a source to target video ram
 		//
-		void DrawDataBlock(int targetX, int targetY, int sourceWidth, int sourceHeight, unsigned int* sourceDataBlock);
+		void SGEAPI DrawDataBlock(int targetX, int targetY, int sourceWidth, int sourceHeight, unsigned int* sourceDataBlock);
 
 		//
 		//  Function that prunes a line represented by two points to within the viewable area of the game screen
@@ -496,47 +497,47 @@ namespace SGE
 		//
 		//  Draw a line from one point to another
 		//
-		void DrawLine(int startX, int startY, int endX, int endY, SGE::Display::Video::pixel color);
+		void SGEAPI DrawLine(int startX, int startY, int endX, int endY, SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a rectangle
 		//
-		void DrawRectangle(int startX, int startY, int width, int height, SGE::Display::Video::pixel color);
+		void SGEAPI DrawRectangle(int startX, int startY, int width, int height, SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a filled box
 		//
-		void DrawBox(int startX, int startY, int width, int height, SGE::Display::Video::pixel color);
+		void SGEAPI DrawBox(int startX, int startY, int width, int height, SGE::Display::Video::pixel color);
 
 		//
 		//  Blank the video ram with zero alpha black.  Or the blackest of blacks... it's like you can't get any blacker.
 		//
-		void ZBlank();
+		void SGEAPI ZBlank();
 
 		//
 		//  Pack the byte colors in to a 4 byte pixel to use.
 		//
-		SGE::Display::Video::pixel PackColors(unsigned char redValue, unsigned char greenValue, unsigned char blueValue);
+		SGE::Display::Video::pixel SGEAPI PackColors(unsigned char redValue, unsigned char greenValue, unsigned char blueValue);
 
 		//
 		//  Arbitrary Vector Shape drawing
 		//
-		void DrawVectorShape(int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], SGE::Display::Video::pixel color);
+		void SGEAPI DrawVectorShape(int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a filled triangle
 		//
-		void DrawFilledTriangleTrue(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color);
+		void SGEAPI DrawFilledTriangleTrue(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a filled triangle (New method)
 		//
-		void DrawFilledTriangleFast(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color);
+		void SGEAPI DrawFilledTriangleFast(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a list of triangles
 		//
-		void DrawFilledTriangles(int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, SGE::Display::Video::pixel color);
+		void SGEAPI DrawFilledTriangles(int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, SGE::Display::Video::pixel color);
 
 		//
 		//  Character ROM for an 8x8 character set

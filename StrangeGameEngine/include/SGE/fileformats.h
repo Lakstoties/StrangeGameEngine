@@ -1,4 +1,5 @@
 #pragma once
+#include "api.h"
 #include "sound.h"
 #include "display.h"
 
@@ -10,7 +11,7 @@ namespace SGE
 	namespace FileFormats
 	{
 		//Struct that contains converted bitmap data from a file
-		struct Bitmap
+		struct SGEAPI Bitmap
 		{
 			//File Header
 			char idField[2];				//ID Field,  should be "BM" for Bitmap.
@@ -41,7 +42,7 @@ namespace SGE
 		};
 
 		//Struct that contains converted wave data from a file
-		struct Wave
+		struct SGEAPI Wave
 		{
 			//
 			//  Wave File Header  (RIFF Chunk)
@@ -76,7 +77,7 @@ namespace SGE
 		};
 
 		//Class for a module tracker file (FastTracker format)
-		class ModuleFile
+		class SGEAPI ModuleFile
 		{
 			///
 			///  Specific Module File Structures

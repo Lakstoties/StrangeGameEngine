@@ -50,7 +50,7 @@
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\StrangeGameEngine</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
-      <PreprocessorDefinitions>_MBCS; _SCL_SECURE_NO_WARNINGS; %(PreprocessorDefinitions);</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SGE_USE_DLL;_MBCS; _SCL_SECURE_NO_WARNINGS; %(PreprocessorDefinitions);</PreprocessorDefinitions>
       <CLanguageStandard>gnu11</CLanguageStandard>
       <CppLanguageStandard>gnu++1y</CppLanguageStandard>
     </ClCompile>

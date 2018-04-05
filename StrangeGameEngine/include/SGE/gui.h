@@ -1,4 +1,5 @@
 #pragma once
+#include "api.h"
 #include "render.h"
 
 //
@@ -8,7 +9,7 @@ namespace SGE
 {
 	namespace GUI
 	{
-		class TextBox
+		class SGEAPI TextBox
 		{
 
 		public:
@@ -47,7 +48,7 @@ namespace SGE
 		};
 	}
 
-	class Menu
+	class SGEAPI Menu
 	{
 	private:
 		int menuX;
