@@ -96,7 +96,6 @@ namespace SGE
 				//
 				//  Drawing cases for starting partial off the left side of the screen
 				//
-			default:
 			case 0:		if (characterRowToDraw & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
 			case -1:	if (characterRowToDraw & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
 			case -2:	if (characterRowToDraw & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
@@ -109,14 +108,19 @@ namespace SGE
 				//
 				//  Drawing case for stopping before running off the right side of the screen
 				//
-			case 7:		if (characterRowToDraw & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
-			case 6:		if (characterRowToDraw & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
-			case 5:		if (characterRowToDraw & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
+			case 1:		if (characterRowToDraw & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
+			case 2:		if (characterRowToDraw & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
+			case 3:		if (characterRowToDraw & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
 			case 4:		if (characterRowToDraw & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
-			case 3:		if (characterRowToDraw & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
-			case 2:		if (characterRowToDraw & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
-			case 1:		if (characterRowToDraw & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
-				break;
+			case 5:		if (characterRowToDraw & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
+			case 6:		if (characterRowToDraw & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
+			case 7:		if (characterRowToDraw & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
+
+				//
+				//  If the drawOffset isn't within (-7) - (7), then it is out of our spec
+				//
+			default:
+						break;
 
 			}
 		}
@@ -138,11 +142,8 @@ namespace SGE
 			//
 			//  Is there even a character to draw?
 			//
-			if (!character ||									//  Nothing to draw
-				targetX >= SGE::Display::Video::ResolutionX ||	//  Too far to the right
-				targetX <= -8 ||								//  Too far to the left
-				targetY >= SGE::Display::Video::ResolutionY ||	//  Too far to the bottom
-				targetY <= -8)									//  Too far to the top
+			if (character == 0)									//  Nothing to draw
+
 			{
 				//
 				//  Not drawable
@@ -150,10 +151,79 @@ namespace SGE
 				return;
 			}
 
-			//  Figure out the drawing Offsets
-			const int drawOffsetX = (targetX + 8) > SGE::Display::Video::ResolutionX ? (targetX + 8) % SGE::Display::Video::ResolutionX : targetX;
+			int drawOffsetX;
 
-			switch ((targetY + 8) > SGE::Display::Video::ResolutionY ? (targetY + 8) % SGE::Display::Video::ResolutionY : targetY)
+			//
+			//  For Normal Conditions
+			//
+			if (targetX >= 0 && (targetX + 7) < SGE::Display::Video::ResolutionX)
+			{
+				drawOffsetX = 0;
+			}
+
+			//
+			//  Check outside of bounds
+			//
+			else if (	targetX >= SGE::Display::Video::ResolutionX ||  //  Too far to the right
+						targetX <= -8)									//  Too far to the left
+			{
+				//
+				//  Not drawable
+				// 
+				return;
+			}
+
+			//
+			//  Check to see which edge cases
+			//
+			else if (targetX < 0)
+			{
+				drawOffsetX = targetX;
+			}
+			else
+			{
+				drawOffsetX = (targetX + 8) % SGE::Display::Video::ResolutionX;
+			}
+
+
+			int drawOffsetY;
+
+			//
+			//  Check for normal conditions
+			//
+			if (targetY >= 0 && (targetY + 7) < SGE::Display::Video::ResolutionY)
+			{
+				drawOffsetY = 0;
+			}
+
+			//
+			//  Check for out of drawable boundaries
+			//
+			else if (	targetY >= SGE::Display::Video::ResolutionY ||	//  Too far to the bottom
+						targetY <= -8)									//  Too far to the top
+			{
+				//
+				//  Cannot draw this
+				//
+
+				return;
+			}
+
+			//
+			//  Check to see which edge case
+			//
+			else if (targetY < 0)
+			{
+				drawOffsetY = targetY;
+			}
+			else
+			{
+				drawOffsetY = (targetY + 8) % SGE::Display::Video::ResolutionY;
+			}
+
+			
+
+			switch (drawOffsetY)
 			{
 
 				//
