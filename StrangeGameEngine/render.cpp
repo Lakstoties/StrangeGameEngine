@@ -81,58 +81,49 @@ namespace SGE
 			}
 		}
 
-		//
-		//  Helper function for drawing 8 wide character rows
-		//
-		void inline Draw8x8CharacterRow(const unsigned char characterRowToDraw, const int rowOffset, const int drawOffsetX, const SGE::Display::Video::pixel targetColor)
+
+		void inline Draw8x8CharacterRowXY(const unsigned char &characterRowToDraw, const int &targetX, const int &targetY, const SGE::Display::Video::pixel &targetColor)
 		{
-			//
-			//  If an optimized version is not available...
-			//
+			SGE::Display::Video::pixel* targetRAM = SGE::Display::Video::RAM + targetX + targetY * SGE::Display::Video::ResolutionX;
 
-			switch (drawOffsetX)
+			//
+			//  If Normal Conditions
+			//
+			if (targetX + 0 >= 0 && (targetX + 7) < SGE::Display::Video::ResolutionX)
 			{
+				if (characterRowToDraw & 0x01) { targetRAM[0] = targetColor; }
+				if (characterRowToDraw & 0x02) { targetRAM[1] = targetColor; }
+				if (characterRowToDraw & 0x04) { targetRAM[2] = targetColor; }
+				if (characterRowToDraw & 0x08) { targetRAM[3] = targetColor; }
+				if (characterRowToDraw & 0x10) { targetRAM[4] = targetColor; }
+				if (characterRowToDraw & 0x20) { targetRAM[5] = targetColor; }
+				if (characterRowToDraw & 0x40) { targetRAM[6] = targetColor; }
+				if (characterRowToDraw & 0x80) { targetRAM[7] = targetColor; }
+			}
 
-				//
-				//  Drawing cases for starting partial off the left side of the screen
-				//
-			case 0:		if (characterRowToDraw & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
-			case -1:	if (characterRowToDraw & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
-			case -2:	if (characterRowToDraw & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
-			case -3:	if (characterRowToDraw & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
-			case -4:	if (characterRowToDraw & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
-			case -5:	if (characterRowToDraw & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
-			case -6:	if (characterRowToDraw & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
-			case -7:	if (characterRowToDraw & 0x80) { SGE::Display::Video::RAM[7 + rowOffset] = targetColor; }
-						break;
-				//
-				//  Drawing case for stopping before running off the right side of the screen
-				//
-			case 1:		if (characterRowToDraw & 0x40) { SGE::Display::Video::RAM[6 + rowOffset] = targetColor; }
-			case 2:		if (characterRowToDraw & 0x20) { SGE::Display::Video::RAM[5 + rowOffset] = targetColor; }
-			case 3:		if (characterRowToDraw & 0x10) { SGE::Display::Video::RAM[4 + rowOffset] = targetColor; }
-			case 4:		if (characterRowToDraw & 0x08) { SGE::Display::Video::RAM[3 + rowOffset] = targetColor; }
-			case 5:		if (characterRowToDraw & 0x04) { SGE::Display::Video::RAM[2 + rowOffset] = targetColor; }
-			case 6:		if (characterRowToDraw & 0x02) { SGE::Display::Video::RAM[1 + rowOffset] = targetColor; }
-			case 7:		if (characterRowToDraw & 0x01) { SGE::Display::Video::RAM[0 + rowOffset] = targetColor; }
-
-				//
-				//  If the drawOffset isn't within (-7) - (7), then it is out of our spec
-				//
-			default:
-						break;
-
+			//
+			//  Else Edge Case
+			//
+			else
+			{
+				if (characterRowToDraw & 0x01 && (targetX + 0 >= 0 && (targetX + 0) < SGE::Display::Video::ResolutionX)) { targetRAM[0] = targetColor; }
+				if (characterRowToDraw & 0x02 && (targetX + 1 >= 0 && (targetX + 1) < SGE::Display::Video::ResolutionX)) { targetRAM[1] = targetColor; }
+				if (characterRowToDraw & 0x04 && (targetX + 2 >= 0 && (targetX + 2) < SGE::Display::Video::ResolutionX)) { targetRAM[2] = targetColor; }
+				if (characterRowToDraw & 0x08 && (targetX + 3 >= 0 && (targetX + 3) < SGE::Display::Video::ResolutionX)) { targetRAM[3] = targetColor; }
+				if (characterRowToDraw & 0x10 && (targetX + 4 >= 0 && (targetX + 4) < SGE::Display::Video::ResolutionX)) { targetRAM[4] = targetColor; }
+				if (characterRowToDraw & 0x20 && (targetX + 5 >= 0 && (targetX + 5) < SGE::Display::Video::ResolutionX)) { targetRAM[5] = targetColor; }
+				if (characterRowToDraw & 0x40 && (targetX + 6 >= 0 && (targetX + 6) < SGE::Display::Video::ResolutionX)) { targetRAM[6] = targetColor; }
+				if (characterRowToDraw & 0x80 && (targetX + 7 >= 0 && (targetX + 7) < SGE::Display::Video::ResolutionX)) { targetRAM[7] = targetColor; }
 			}
 		}
-
 
 		//
 		//  Draw a single character
 		//
 		void Draw8x8Character(
 			const unsigned long long &character,			//64-bit Character ROM array to map characters against
-			const int targetX,								//Target X location to start drawing from (Upper Left Corner)
-			const int targetY,								//Target Y location to start drawing from (Upper Left Corner)
+			const int &targetX,								//Target X location to start drawing from (Upper Left Corner)
+			const int &targetY,								//Target Y location to start drawing from (Upper Left Corner)
 			const SGE::Display::Video::pixel &targetColor)	//Target pixel data for the color
 		{
 			//Get a pointer to what we are interested in.
@@ -151,124 +142,34 @@ namespace SGE
 				return;
 			}
 
-			int drawOffsetX;
-
 			//
-			//  For Normal Conditions
+			//  Normal drawing conditions
 			//
-			if (targetX >= 0 && (targetX + 7) < SGE::Display::Video::ResolutionX)
+			else if (targetY >= 0 && (targetY + 7) < SGE::Display::Video::ResolutionY)
 			{
-				drawOffsetX = 0;
+				if (characterToDraw[0]) { Draw8x8CharacterRowXY(characterToDraw[0], targetX, targetY + 0, targetColor); }
+				if (characterToDraw[1]) { Draw8x8CharacterRowXY(characterToDraw[1], targetX, targetY + 1, targetColor); }
+				if (characterToDraw[2]) { Draw8x8CharacterRowXY(characterToDraw[2], targetX, targetY + 2, targetColor); }
+				if (characterToDraw[3]) { Draw8x8CharacterRowXY(characterToDraw[3], targetX, targetY + 3, targetColor); }
+				if (characterToDraw[4]) { Draw8x8CharacterRowXY(characterToDraw[4], targetX, targetY + 4, targetColor); }
+				if (characterToDraw[5]) { Draw8x8CharacterRowXY(characterToDraw[5], targetX, targetY + 5, targetColor); }
+				if (characterToDraw[6]) { Draw8x8CharacterRowXY(characterToDraw[6], targetX, targetY + 6, targetColor); }
+				if (characterToDraw[7]) { Draw8x8CharacterRowXY(characterToDraw[7], targetX, targetY + 7, targetColor); }
 			}
 
 			//
-			//  Check outside of bounds
+			//  Edge case drawing conditions
 			//
-			else if (	targetX >= SGE::Display::Video::ResolutionX ||  //  Too far to the right
-						targetX <= -8)									//  Too far to the left
-			{
-				//
-				//  Not drawable
-				// 
-				return;
-			}
-
-			//
-			//  Check to see which edge cases
-			//
-			else if (targetX < 0)
-			{
-				drawOffsetX = targetX;
-			}
 			else
 			{
-				drawOffsetX = (targetX + 8) % SGE::Display::Video::ResolutionX;
-			}
-
-
-			int drawOffsetY;
-
-			//
-			//  Check for normal conditions
-			//
-			if (targetY >= 0 && (targetY + 7) < SGE::Display::Video::ResolutionY)
-			{
-				drawOffsetY = 0;
-			}
-
-			//
-			//  Check for out of drawable boundaries
-			//
-			else if (	targetY >= SGE::Display::Video::ResolutionY ||	//  Too far to the bottom
-						targetY <= -8)									//  Too far to the top
-			{
-				//
-				//  Cannot draw this
-				//
-
-				return;
-			}
-
-			//
-			//  Check to see which edge case
-			//
-			else if (targetY < 0)
-			{
-				drawOffsetY = targetY;
-			}
-			else
-			{
-				drawOffsetY = (targetY + 8) % SGE::Display::Video::ResolutionY;
-			}
-
-			
-
-			switch (drawOffsetY)
-			{
-
-				//
-				//  Drawing cases for starting partial off the top side of the screen
-				//
-
-				//For all cases that aren't partial cases
-			default:
-			//  Row 0
-			case 0:	 if (characterToDraw[0]) { Draw8x8CharacterRow(characterToDraw[0], targetX + ((0 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 1
-			case -1: if (characterToDraw[1]) { Draw8x8CharacterRow(characterToDraw[1], targetX + ((1 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 2
-			case -2: if (characterToDraw[2]) { Draw8x8CharacterRow(characterToDraw[2], targetX + ((2 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 3
-			case -3: if (characterToDraw[3]) { Draw8x8CharacterRow(characterToDraw[3], targetX + ((3 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 4
-			case -4: if (characterToDraw[4]) { Draw8x8CharacterRow(characterToDraw[4], targetX + ((4 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 5
-			case -5: if (characterToDraw[5]) { Draw8x8CharacterRow(characterToDraw[5], targetX + ((5 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 6
-			case -6: if (characterToDraw[6]) { Draw8x8CharacterRow(characterToDraw[6], targetX + ((6 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 7
-			case -7: if (characterToDraw[7]) { Draw8x8CharacterRow(characterToDraw[7], targetX + ((7 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-				break;
-
-				//
-				//  Drawing case for stopping before running off the bottom side of the screen
-				//
-
-			//  Row 6
-			case 1:	if (characterToDraw[6])	{ Draw8x8CharacterRow(characterToDraw[6], targetX + ((6 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 5
-			case 2:	if (characterToDraw[5]) { Draw8x8CharacterRow(characterToDraw[5], targetX + ((5 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 4
-			case 3:	if (characterToDraw[4]) { Draw8x8CharacterRow(characterToDraw[4], targetX + ((4 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 3
-			case 4:	if (characterToDraw[3]) { Draw8x8CharacterRow(characterToDraw[3], targetX + ((3 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 2
-			case 5:	if (characterToDraw[2]) { Draw8x8CharacterRow(characterToDraw[2], targetX + ((2 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 1
-			case 6:	if (characterToDraw[1]) { Draw8x8CharacterRow(characterToDraw[1], targetX + ((1 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-			//  Row 0
-			case 7:	if (characterToDraw[0]) { Draw8x8CharacterRow(characterToDraw[0], targetX + ((0 + targetY) * SGE::Display::Video::ResolutionX), drawOffsetX, targetColor); }
-				break;
+				if (characterToDraw[0] && (targetY + 0 >= 0 && (targetY + 0) < SGE::Display::Video::ResolutionY)) { Draw8x8CharacterRowXY(characterToDraw[0], targetX, targetY + 0, targetColor); }
+				if (characterToDraw[1] && (targetY + 1 >= 0 && (targetY + 1) < SGE::Display::Video::ResolutionY)) { Draw8x8CharacterRowXY(characterToDraw[1], targetX, targetY + 1, targetColor); }
+				if (characterToDraw[2] && (targetY + 2 >= 0 && (targetY + 2) < SGE::Display::Video::ResolutionY)) { Draw8x8CharacterRowXY(characterToDraw[2], targetX, targetY + 2, targetColor); }
+				if (characterToDraw[3] && (targetY + 3 >= 0 && (targetY + 3) < SGE::Display::Video::ResolutionY)) { Draw8x8CharacterRowXY(characterToDraw[3], targetX, targetY + 3, targetColor); }
+				if (characterToDraw[4] && (targetY + 4 >= 0 && (targetY + 4) < SGE::Display::Video::ResolutionY)) { Draw8x8CharacterRowXY(characterToDraw[4], targetX, targetY + 4, targetColor); }
+				if (characterToDraw[5] && (targetY + 5 >= 0 && (targetY + 5) < SGE::Display::Video::ResolutionY)) { Draw8x8CharacterRowXY(characterToDraw[5], targetX, targetY + 5, targetColor); }
+				if (characterToDraw[6] && (targetY + 6 >= 0 && (targetY + 6) < SGE::Display::Video::ResolutionY)) { Draw8x8CharacterRowXY(characterToDraw[6], targetX, targetY + 6, targetColor); }
+				if (characterToDraw[7] && (targetY + 7 >= 0 && (targetY + 7) < SGE::Display::Video::ResolutionY)) { Draw8x8CharacterRowXY(characterToDraw[7], targetX, targetY + 7, targetColor); }
 			}
 		}
 
