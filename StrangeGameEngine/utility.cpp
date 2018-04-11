@@ -808,7 +808,7 @@ namespace SGE
 									case 0x09:
 
 										//  Set offset of sample to...
-										channelMap[c]->offset = effectXOnChannel[c] * 4096 + effectYOnChannel[c] * 256;
+										channelMap[c]->offset = (effectXOnChannel[c] * 4096 + effectYOnChannel[c] * 256) * 2;
 
 
 										//  Effect found, move on.
