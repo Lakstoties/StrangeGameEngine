@@ -45,18 +45,18 @@ namespace SGE
 			//
 			//  Draw the character background colors
 			//
-			for (int i = startRow; i < endRow; i++)
+			for (int i = (int)startRow; i < (int)endRow; i++)
 			{
-				for (int j = startColumn; j < endColumn; j++)
+				for (int j = (int)startColumn; j < (int)endColumn; j++)
 				{
 					SGE::Render::DrawBox(XPosition + j * RowSpacing, YPosition + i * ColumnSpacing, RowSpacing, ColumnSpacing, BackgroundColorArray[i * columns + j]);
 				}
 			}
 
 			//Draw the characters
-			for (int i = startRow; i < endRow; i++)
+			for (int i = (int)startRow; i < (int)endRow; i++)
 			{
-				for (int j = startColumn; j < endColumn; j++)
+				for (int j = (int)startColumn; j < (int)endColumn; j++)
 				{
 					//Draw the characters upon the screen
 					SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(unsigned char)CharacterArray[i * columns + j]], XPosition + j * ColumnSpacing, YPosition + i * RowSpacing, ForegroundColorArray[i * columns + j]);

@@ -17,10 +17,10 @@ namespace SGE
 			//
 			//  Check to make sure the cursor can even be drawn.
 			//
-			if ((SGE::Inputs::Mouse::PositionX <= (int)-cursorRadius) ||
-				(SGE::Inputs::Mouse::PositionY <= (int)-cursorRadius) ||
-				(SGE::Inputs::Mouse::PositionX >= SGE::Display::Video::ResolutionX + cursorRadius) ||
-				(SGE::Inputs::Mouse::PositionY >= SGE::Display::Video::ResolutionY + cursorRadius))
+			if ((SGE::Inputs::Mouse::PositionX <= -(int)cursorRadius) ||
+				(SGE::Inputs::Mouse::PositionY <= -(int)cursorRadius) ||
+				(SGE::Inputs::Mouse::PositionX >= SGE::Display::Video::ResolutionX + (int)cursorRadius) ||
+				(SGE::Inputs::Mouse::PositionY >= SGE::Display::Video::ResolutionY + (int)cursorRadius))
 			{
 				//This can't be draw, too far off the drawable area.
 				return;
@@ -613,7 +613,7 @@ namespace SGE
 			//
 			//  Create a temporary array to store scaled vertexes and leave the original ones alone
 			//
-			VertexPoint tempScaledVertexes[numberOfVertexes];
+			VertexPoint* tempScaledVertexes = new VertexPoint[numberOfVertexes];
 
 			//
 			//  Figure out how many full triangle we have
@@ -624,7 +624,7 @@ namespace SGE
 			//
 			//  Scale the vertexes and shift them over in reference to the start point
 			//
-			for (int i = 0; i < numberOfVertexes; i++)
+			for (int i = 0; i < (int)numberOfVertexes; i++)
 			{
 				tempScaledVertexes[i].x = int(vertexArray[i].x * scalingFactor);
 				tempScaledVertexes[i].y = int(vertexArray[i].y * scalingFactor);
@@ -638,6 +638,11 @@ namespace SGE
 			{
 				DrawFilledTriangleFast(startX, startY, tempScaledVertexes[i], tempScaledVertexes[i + 1], tempScaledVertexes[i + 2], color);
 			}
+
+			//
+			//  Delete Temp Vertex Array
+			//
+			delete tempScaledVertexes;
 		}
 
 		//Uses a variant of the Bresenham algorithm to calculate the two X points along the X-axis for each Y
@@ -852,7 +857,7 @@ namespace SGE
 				//  Figure out Top-To-Middle line point
 				//
 
-				int currentTopToMiddleX = topVertex.x + ((currentScreenY - topVertex.y) * topToMiddleLineDelta);
+				int currentTopToMiddleX = topVertex.x + (int)((currentScreenY - topVertex.y) * topToMiddleLineDelta);
 				
 				//Check for any out of bounds issues and correct
 				if (currentTopToMiddleX < 0) { currentTopToMiddleX = 0; }																		//Check to see if currentTopToBottomX is negative
@@ -862,7 +867,7 @@ namespace SGE
 				//  Figure out Top-To-Bottom line point
 				//
 
-				int currentTopToBottomX = topVertex.x + ((currentScreenY - topVertex.y) * topToBottomLineDelta);
+				int currentTopToBottomX = topVertex.x + (int)((currentScreenY - topVertex.y) * topToBottomLineDelta);
 
 				//Check for any out of bounds issues and correct
 				if (currentTopToBottomX < 0) { currentTopToBottomX = 0; }																		//Check to see if currentTopToBottomX is negative
@@ -914,7 +919,7 @@ namespace SGE
 				//  Figure out Top-To-Middle line point
 				//
 
-				int currentMiddleToBottom = middleVertex.x + ((currentScreenY - middleVertex.y) * middleToBottomLineDelta);
+				int currentMiddleToBottom = middleVertex.x + (int)((currentScreenY - middleVertex.y) * middleToBottomLineDelta);
 
 				//Check for any out of bounds issues and correct
 				if (currentMiddleToBottom < 0) { currentMiddleToBottom = 0; }																		//Check to see if currentTopToBottomX is negative
@@ -924,7 +929,7 @@ namespace SGE
 				//  Figure out Top-To-Bottom line point
 				//
 
-				int currentTopToBottomX = topVertex.x + ((currentScreenY - topVertex.y) * topToBottomLineDelta);
+				int currentTopToBottomX = topVertex.x + (int)((currentScreenY - topVertex.y) * topToBottomLineDelta);
 
 				//Check for any out of bounds issues and correct
 				if (currentTopToBottomX < 0) { currentTopToBottomX = 0; }																			//Check to see if currentTopToBottomX is negative

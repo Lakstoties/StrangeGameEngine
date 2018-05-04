@@ -110,7 +110,7 @@ namespace SGE
 								//
 								//  Set the sample offset back to the designated destination
 								//
-								offset = retriggerSampleDestination;
+								offset = (float)retriggerSampleDestination;
 
 								//
 								//  Reset the counter

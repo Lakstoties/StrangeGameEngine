@@ -252,7 +252,7 @@ void InputTest(bool& testInputRunning)
 		DrawBufferedRow(redWaveBuffer, 8, currentWaveXRed);
 
 		//  Based on time delta
-		DrawBufferedRow(greenWaveBuffer, 8, currentWaveXGreen);
+		DrawBufferedRow(greenWaveBuffer, 8, (int)currentWaveXGreen);
 
 		//  Base on number of frames rendered
 		DrawBufferedRow(blueWaveBuffer, 8, currentWaveXBlue);
@@ -342,7 +342,7 @@ void InputTest(bool& testInputRunning)
 		SGE::Render::DrawFilledTriangleFast(spinningVertexCX, spinningVertexCY, spinningVertex1, spinningVertex2, spinningVertex3, SGE::Render::Colors::Named::BrightWhite);
 
 		//  Increment the degree
-		spinningDegree += 0.1;
+		spinningDegree += (float)0.1;
 		if (spinningDegree > 360)
 		{
 			spinningDegree -= 360;

@@ -4,7 +4,7 @@
 #include "fileformats.h"
 #include "gui.h"
 #include <thread>
-#include <chrono>
+#include <ctime>
 
 //
 //  Strange Game Engine Main Namespace
@@ -252,7 +252,7 @@ namespace SGE
 				//
 				SGE::FileFormats::ModuleFile modFile = SGE::FileFormats::ModuleFile();
 				bool PlayerThreadActive = false;
-				std::thread playerThread;
+				std::thread* playerThread = NULL;
 
 
 				//Main functions
@@ -283,9 +283,8 @@ namespace SGE
 				void Start(float rateOfChange);
 				float Stop();
 
-				std::chrono::time_point<std::chrono::steady_clock> StartTime;
-				std::chrono::time_point<std::chrono::steady_clock> EndTime;
-
+				std::clock_t StartTime;
+				std::clock_t EndTime;
 			};
 		}
 	}

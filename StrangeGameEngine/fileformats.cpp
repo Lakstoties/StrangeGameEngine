@@ -230,7 +230,7 @@ namespace SGE
 			for (int j = (height - 1) * width; j >= 0; j = j - width)
 			{
 				//Go through the row data and process it to the corrected format
-				for (int i = 0; i < width; i++)
+				for (int i = 0; i < (int)width; i++)
 				{
 					//Pull the pixel bytes
 					//Currently works for 24 bits per pixel RGB BMPs

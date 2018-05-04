@@ -195,7 +195,7 @@ namespace SGE
 				//
 				//  Capture the start time
 				//
-				StartTime = std::chrono::steady_clock::now();
+				StartTime = std::clock();
 
 				//
 				//  Flag the timer has started
@@ -210,7 +210,7 @@ namespace SGE
 					//
 					//  Capture the stop time
 					//
-					EndTime = std::chrono::steady_clock::now();
+					EndTime = std::clock();
 
 					//
 					//  Flag the timer has stopped
@@ -220,7 +220,7 @@ namespace SGE
 					//
 					//  Return the delta
 					//
-					return Rate * std::chrono::duration<float>(EndTime - StartTime).count();
+					return Rate * (EndTime - StartTime) / CLOCKS_PER_SEC;
 				}
 				else
 				{
@@ -249,7 +249,7 @@ namespace SGE
 
 			unsigned int OffsetIncrementToPeriod(float offsetIncrement)
 			{
-				return (offsetIncrement * NTSC_TUNING) / (SGE::Sound::SAMPLE_RATE * 2);
+				return (unsigned int)(offsetIncrement * NTSC_TUNING) / (SGE::Sound::SAMPLE_RATE * 2);
 			}
 
 			float AmigaPeriodToSystemPeriod(float amigaPeriod)
@@ -355,7 +355,10 @@ namespace SGE
 				PlayerThreadActive = true;
 
 				//Launch the player thread
-				playerThread = std::thread(&ModulePlayer::PlayThread, this);
+				if (playerThread == NULL)
+				{
+					playerThread = new std::thread(&ModulePlayer::PlayThread, this);
+				}
 
 				//If we get here, stuff is okay.
 				return true;
@@ -363,14 +366,34 @@ namespace SGE
 
 			bool ModulePlayer::Stop()
 			{
+				//
+				//  Check to see if the player thread has already been terminated.
+				//
+				if (playerThread == NULL)
+				{
+					//
+					//  Thread already taken care of, nothing should be player.
+					//
+					return true;
+				}
+
+
 				//Set the player thread to be inactive
 				PlayerThreadActive = false;
 
 				//Wait for the player thread to join
-				if (playerThread.joinable())
+				if (playerThread->joinable())
 				{
-					playerThread.join();
+					playerThread->join();
 				}
+
+				//
+				//  Delete the old thread
+				//
+
+				delete playerThread;
+
+				playerThread = NULL;
 
 				//If we get here, stuff is okay.
 				return true;
@@ -615,7 +638,7 @@ namespace SGE
 										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//  Calculate the total delta
-										channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+										channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod((float) effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
 
 										//  Reset the state variables for the effect
 										channelMap[c]->periodSlideCurrentSamples = 0;
@@ -637,7 +660,7 @@ namespace SGE
 										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//  Calculate the delta
-										channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+										channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod((float) effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
 
 										//  Reset the state variables for the effect
 										channelMap[c]->periodSlideCurrentSamples = 0;
@@ -653,7 +676,7 @@ namespace SGE
 										//
 									case 0x3:
 										//  Set the target period
-										channelMap[c]->periodTarget = AmigaPeriodToSystemPeriod(CurrentChannelPeriods[c]);
+										channelMap[c]->periodTarget = AmigaPeriodToSystemPeriod((float) CurrentChannelPeriods[c]);
 
 										//  Set the number of sampls for the period slide
 										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
@@ -668,11 +691,11 @@ namespace SGE
 											//Check to see which direction to move the period
 											if (channelMap[c]->periodTarget > SystemPeriodToAmigaPeriod(1 / channelMap[c]->offsetIncrement))
 											{
-												channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+												channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod((float) effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
 											}
 											else
 											{
-												channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+												channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod((float) effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
 											}
 										}
 
@@ -720,7 +743,7 @@ namespace SGE
 										//
 									
 										//  Set the target period
-										channelMap[c]->periodTarget = AmigaPeriodToSystemPeriod(CurrentChannelPeriods[c]);
+										channelMap[c]->periodTarget = AmigaPeriodToSystemPeriod((float) CurrentChannelPeriods[c]);
 
 										//  Set the number of sampls for the period slide
 										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
@@ -736,11 +759,11 @@ namespace SGE
 
 											if (channelMap[c]->periodTarget > SystemPeriodToAmigaPeriod(1 / channelMap[c]->offsetIncrement))
 											{
-												channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+												channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod((float) effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
 											}
 											else
 											{
-												channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod(effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+												channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod((float) effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
 											}
 										}
 
@@ -808,7 +831,7 @@ namespace SGE
 									case 0x09:
 
 										//  Set offset of sample to...
-										channelMap[c]->offset = (effectXOnChannel[c] * 4096 + effectYOnChannel[c] * 256) * 2;
+										channelMap[c]->offset = (float) (effectXOnChannel[c] * 4096 + effectYOnChannel[c] * 256) * 2;
 
 
 										//  Effect found, move on.

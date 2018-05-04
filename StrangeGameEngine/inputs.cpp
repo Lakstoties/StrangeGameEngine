@@ -29,8 +29,8 @@ namespace SGE
 			//
 			void ScrollWheel(GLFWwindow* window, double xOffset, double yOffset)
 			{
-				SGE::Inputs::Mouse::ScrollX += xOffset;
-				SGE::Inputs::Mouse::ScrollY += yOffset;
+				SGE::Inputs::Mouse::ScrollX += (int)xOffset;
+				SGE::Inputs::Mouse::ScrollY += (int)yOffset;
 			}
 
 			//
