@@ -642,7 +642,7 @@ namespace SGE
 			//
 			//  Delete Temp Vertex Array
 			//
-			delete tempScaledVertexes;
+			delete[] tempScaledVertexes;
 		}
 
 		//Uses a variant of the Bresenham algorithm to calculate the two X points along the X-axis for each Y

@@ -14,3 +14,9 @@
 *.lib
 *.exp
 *.idb
+*.aux
+SGE-Test/My Amplifier Results - SGE-Test/r000hs/data.0/2064-13316.0-7892.0.th
+*.cs
+*.th
+*.cfg
+*.xml

@@ -4,11 +4,6 @@
 #include "GL\glew.h"
 
 //
-//  Enable VULKAN in GLFW!
-//
-//#define GLFW_INCLUDE_VULKAN  // Not quite yet...  Still really tempting.
-
-//
 //  Include GLFW to handle windowing
 //
 #include <GLFW\glfw3.h>
