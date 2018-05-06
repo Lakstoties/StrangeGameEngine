@@ -221,16 +221,19 @@ namespace SGE
 					SGE::Display::FrameBufferChanged = false;
 				}
 
-				//Lock the refresh mutex
-				//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
-				refreshHold.lock();
-
 				//Upload the data for the texture to the actual video card.
 				//If the game resolution has changed, then a new texture is needed, since the texture dimensions could have changed.
 				if (GameResolutionChanged)
 				{
+					//Lock the refresh mutex
+					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
+					refreshHold.lock();
+
 					//Recreate the Buffer storage for the new video ram size
 					glBufferData(GL_PIXEL_UNPACK_BUFFER, Video::RAMSize * sizeof(Video::pixel), Video::RAM, GL_DYNAMIC_DRAW);
+
+					//Unlock the refresh mutex
+					refreshHold.unlock();
 
 					//Move load up the texture data from the buffer
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::ResolutionX, Video::ResolutionY, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -244,14 +247,20 @@ namespace SGE
 				//Otherwise just update it
 				else
 				{
+					//Lock the refresh mutex
+					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
+					refreshHold.lock();
+
 					glBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, Video::RAMSize * sizeof(Video::pixel), Video::RAM);
+
+					//Unlock the refresh mutex
+					refreshHold.unlock();
 
 					//Move the data to the texture from the buffer
 					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::ResolutionX, Video::ResolutionY, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 				}
 
-				//Unlock the refresh mutex
-				refreshHold.unlock();
+
 
 				//
 				//  Start drawing the textured quad
@@ -345,10 +354,6 @@ namespace SGE
 					SGE::Display::FrameBufferChanged = false;
 				}
 
-				//Lock the refresh mutex
-				//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
-				refreshHold.lock();
-
 				//Upload the data for the texture to the actual video card.
 				//If the game resolution has changed, then a new texture is needed, since the texture dimensions could have changed.
 				if (GameResolutionChanged)
@@ -359,8 +364,16 @@ namespace SGE
 					//Grab the pinter to the mapped buffer range
 					pixelBufferMapping = (char*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, Video::RAMSize * sizeof(Video::pixel), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 
+
+					//Lock the refresh mutex
+					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
+					refreshHold.lock();
+
 					//Copy our data to it
 					std::memcpy(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(Video::pixel));
+
+					//Unlock the refresh mutex
+					refreshHold.unlock();
 
 					//Move load up the texture data from the buffer
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::ResolutionX, Video::ResolutionY, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -374,15 +387,21 @@ namespace SGE
 				//Otherwise just update it
 				else
 				{
+					//Lock the refresh mutex
+					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
+					refreshHold.lock();
+
 					//Update the data
 					std::memcpy(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(Video::pixel));
+
+					//Unlock the refresh mutex
+					refreshHold.unlock();
 
 					//Move the data to the texture from the buffer
 					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::ResolutionX, Video::ResolutionY, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 				}
 
-				//Unlock the refresh mutex
-				refreshHold.unlock();
+
 
 				//
 				//  Start drawing the textured quad
@@ -462,16 +481,19 @@ namespace SGE
 					SGE::Display::FrameBufferChanged = false;
 				}
 
-				//Lock the refresh mutex
-				//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
-				refreshHold.lock();
-
 				//Upload the data for the texture to the actual video card.
 				//If the game resolution has changed, then a new texture is needed, since the texture dimensions could have changed.
 				if (GameResolutionChanged)
 				{
+					//Lock the refresh mutex
+					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
+					refreshHold.lock();
+
 					//Slow method
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::ResolutionX, Video::ResolutionY, 0, GL_RGBA, GL_UNSIGNED_BYTE, Video::RAM);
+
+					//Unlock the refresh mutex
+					refreshHold.unlock();
 
 					//Set the flag back to normal
 					GameResolutionChanged = false;
@@ -482,11 +504,17 @@ namespace SGE
 				//Otherwise just update it
 				else
 				{
+					//Lock the refresh mutex
+					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
+					refreshHold.lock();
+
 					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::ResolutionX, Video::ResolutionY, GL_RGBA, GL_UNSIGNED_BYTE, Video::RAM);
+
+					//Unlock the refresh mutex
+					refreshHold.unlock();
 				}
 
-				//Unlock the refresh mutex
-				refreshHold.unlock();
+
 
 				//
 				//  Start drawing the textured quad
