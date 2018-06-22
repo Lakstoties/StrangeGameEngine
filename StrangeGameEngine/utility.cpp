@@ -220,7 +220,7 @@ namespace SGE
 					//
 					//  Return the delta
 					//
-					return Rate * (EndTime - StartTime) / CLOCKS_PER_SEC;
+					return Rate * (EndTime - StartTime) / (float) CLOCKS_PER_SEC;
 				}
 				else
 				{

@@ -33,6 +33,17 @@ namespace SGE
 			void SGEAPI Output(int messageLevel, const char* source, const char* message, ...);
 
 			//
+			//  Starts Message System Thread to asynchronously contend with messages from the system  
+			//
+			void SGEAPI StartMessageSystem();
+
+			//
+			//  Stops Message System Thread
+			//
+			void SGEAPI StopMessageSystem();
+
+
+			//
 			//  Level of messages for the message system
 			//
 			namespace Levels

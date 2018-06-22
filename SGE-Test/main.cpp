@@ -233,7 +233,7 @@ void InputTest(bool& testInputRunning)
 		//  Blank the virtual display RAM
 		//
 		SGE::Render::ZBlank();
-		
+
 		//Copy over background image
 		//SGE::Render::DrawDataBlock(targetDisplay, 0, 0, testBitmap.image.width, testBitmap.image.height, testBitmap.image.imageData);
 
@@ -262,7 +262,7 @@ void InputTest(bool& testInputRunning)
 		//  Advance blue wave
 		currentWaveXBlue = (SGE::Display::FrameCount % (SGE::Display::Video::ResolutionX + 8)) - 8;
 
-		
+
 		currentWaveXRed++;
 
 		if (currentWaveXGreen > SGE::Display::Video::ResolutionX + 8)
@@ -294,7 +294,7 @@ void InputTest(bool& testInputRunning)
 
 		SGE::Debug::DrawMouseStatusBox(0, 270);
 
-	
+
 		//Draw Menu
 		testMenu.Draw();
 
@@ -364,7 +364,7 @@ void InputTest(bool& testInputRunning)
 
 		int targetTerminalRow = rand() % 25;
 		int targetTerminalColumn = rand() % 80;
-		
+
 		int targetTerminalBackgroundColor = rand() % 256;
 		int targetTerminalForegroundColor = rand() % 256;
 
@@ -374,7 +374,7 @@ void InputTest(bool& testInputRunning)
 		//
 		//  Put new random  thing into TextBox
 		//
-		
+
 		//  Set Background Color
 		terminal.BackgroundColorArray[targetTerminalRow * terminal.columns + targetTerminalColumn] = SGE::Render::Colors::ColorMode8Bit[targetTerminalBackgroundColor];
 
@@ -401,7 +401,7 @@ void InputTest(bool& testInputRunning)
 			if (!lastKeyboardState[SGE::Inputs::Keymap::KEY_ENTER])
 			{
 				//Check to see where the cursor is and perform the action
-				
+
 				switch (testMenu.selection)
 				{
 				case 0:
@@ -450,7 +450,7 @@ void InputTest(bool& testInputRunning)
 			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Sound, "Master Volume: %f\n", SGE::Sound::MasterVolume);
 		}
 
-	
+
 		//Select box stuff
 		//If the Down key state has changed and it wasn't pressed previously
 		if (lastKeyboardState[SGE::Inputs::Keymap::KEY_DOWN] != SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::KEY_DOWN] &&
@@ -482,6 +482,7 @@ void InputTest(bool& testInputRunning)
 
 		//Capture keyboard state
 		SGE::Inputs::Keyboard::SaveStatus(lastKeyboardState);
+
 
 		//
 		//  Wait a little after each iteration
