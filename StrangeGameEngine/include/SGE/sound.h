@@ -332,6 +332,58 @@ namespace SGE
 		};
 
 
+		namespace FMSynth
+		{
+			const int OPERATORS_PER_CHANNEL = 4;
+
+
+			class Operator
+			{
+			private:
+
+			public:
+
+				//Float array to use for the waveform
+				float* WaveformArray = NULL;
+
+				//Current location in waveform array  
+				float currentArrayIndex = 0.0f;
+
+				//How much to increment the array per sample gotten
+				float increment = 0.0f;
+
+				float Generate(float modulationAmount);
+
+
+				Operator();
+			};
+
+
+			class Channel
+			{
+			private:
+
+			public:
+				//
+
+
+
+
+				//Operator array
+				Operator Operators[OPERATORS_PER_CHANNEL];
+
+				//Function to use generating sound
+				int functionMode = 0;
+
+				//Generate a sample
+				sampleType Generate();
+
+				Channel();
+			};
+		}
+
+
+
 		//
 		//  Sound Channel Class
 		//

@@ -985,10 +985,13 @@ namespace SGE
 
 											//  Case 9,  Retrigger sample
 										case 0x9:
-											channelMap[c]->retriggerSampleDestination = 0;
-											channelMap[c]->retriggerCurrentSamples = 0;
-											channelMap[c]->retriggerSampleInterval = effectYOnChannel[c] * DEFAULT_SAMPLES_TICK;
-											channelMap[c]->retriggerSampleEnabled = true;
+											if (effectYOnChannel != 0)
+											{
+												channelMap[c]->retriggerSampleDestination = 0;
+												channelMap[c]->retriggerCurrentSamples = 0;
+												channelMap[c]->retriggerSampleInterval = effectYOnChannel[c] * DEFAULT_SAMPLES_TICK;
+												channelMap[c]->retriggerSampleEnabled = true;
+											}
 
 											break;
 
