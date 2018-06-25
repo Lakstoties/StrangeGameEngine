@@ -21,6 +21,96 @@ namespace SGE
 {
 	namespace Utility
 	{
+		namespace Compensator
+		{
+			void CompensatorCalculator::AddSample(float sample)
+			{
+				//
+				//  Drop the sample off into sample set
+				//
+				sampleSet[currentIndex] = sample;
+
+				//
+				//  Increment the index to the next spot
+				//
+				currentIndex = (currentIndex++) % MAX_SAMPLE_SET_SIZE;
+
+				if (currentSampleSetSize < MAX_SAMPLE_SET_SIZE)
+				{
+					currentSampleSetSize++;
+				}
+			}
+
+			void CompensatorCalculator::ClearSampleSet()
+			{
+				//
+				//  Reset Index
+				//
+				currentIndex = 0;
+
+				//
+				//  Reset Sample Set Size
+				//
+				currentSampleSetSize = 0;
+
+				//
+				//  Reset sample set
+				//
+				for (int i = 0; i < MAX_SAMPLE_SET_SIZE; i++)
+				{
+					sampleSet[i] = 0.0f;
+				}
+			}
+
+			float CompensatorCalculator::GenerateCompensation()
+			{
+				if (currentSampleSetSize == 0)
+				{
+					return 0.0f;
+				}
+
+				float sum = 0.0f;
+
+				if (currentSampleSetSize < MAX_SAMPLE_SET_SIZE)
+				{
+					for (int i = 0; i < currentIndex; i++)
+					{
+						sum += sampleSet[i];
+					}
+
+					sum /= currentSampleSetSize;
+				}
+				else
+				{
+					for (int i = 0; i < MAX_SAMPLE_SET_SIZE; i++)
+					{
+						sum += sampleSet[i];
+					}
+
+					sum /= MAX_SAMPLE_SET_SIZE;
+				}
+
+				return targetNumber - sum;
+			}
+
+			void CompensatorCalculator::SetTarget(float target)
+			{
+				targetNumber = target;
+				ClearSampleSet();
+			}
+
+			CompensatorCalculator::CompensatorCalculator()
+			{
+				
+			}
+			CompensatorCalculator::CompensatorCalculator(float target)
+			{
+				targetNumber = target;
+			}
+		}
+
+
+
 		namespace Terminal
 		{
 			//
@@ -411,7 +501,6 @@ namespace SGE
 				//
 				bool channelPlays[4] = { false };
 
-
 				//
 				//  Default for most mods, can be changed.
 				//
@@ -421,13 +510,7 @@ namespace SGE
 				//  Statistics information for tick rate
 				//
 				std::chrono::time_point<std::chrono::steady_clock> startTime;
-				std::chrono::nanoseconds deltaTime = std::chrono::nanoseconds(0);
-
-				//
-				//  Dynamic Tick Rate Adjustment to factor in processing time.
-				//
-
-				std::chrono::nanoseconds deltaTimeAdjustment = std::chrono::nanoseconds(0);
+				std::chrono::nanoseconds deltaTime = std::chrono::nanoseconds(DEFAULT_TICK_TIMING_NANO);
 
 				//
 				//  Start playback processing
@@ -477,7 +560,8 @@ namespace SGE
 							//
 							//  Set up the channels
 							//
-							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count());
+							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld - Desired Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count(), ((long long)ticksADivision * DEFAULT_TICK_TIMING_NANO));
+							//SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d\n", modFile.title, CurrentPosition, CurrentDivision);
 
 							//
 							//  Check all the channels for any changes
@@ -1103,22 +1187,26 @@ namespace SGE
 									channelMap[c]->Play();
 								}
 							}
+							//
+							//  Calculate the delta time, pre- sleep
+							//
+							//deltaTime = std::chrono::steady_clock::now() - startTime;
+
+
+							//Save the timer to help time the processing time for this division
+							//startTime = std::chrono::steady_clock::now();
 
 							//
 							//  Wait for the next division
 							//
-							std::this_thread::sleep_for(std::chrono::nanoseconds(ticksADivision * DEFAULT_TICK_TIMING_NANO) + deltaTimeAdjustment);
+							//std::this_thread::sleep_for(std::chrono::nanoseconds((ticksADivision * DEFAULT_TICK_TIMING_NANO) - deltaTime.count()));
+							//std::this_thread::sleep_for(std::chrono::nanoseconds(ticksADivision * DEFAULT_TICK_TIMING_NANO));
+							std::this_thread::sleep_until(std::chrono::steady_clock::now() + std::chrono::nanoseconds(ticksADivision * DEFAULT_TICK_TIMING_NANO));
 
 							//
-							//  Calculate the delta time
+							//  Calculate the delta time, post sleep
 							//
 							deltaTime = std::chrono::steady_clock::now() - startTime;
-
-							//
-							//  Tweak adjustment time delta to tune it closer to ideal
-							//
-							deltaTimeAdjustment += (std::chrono::nanoseconds(ticksADivision * DEFAULT_TICK_TIMING_NANO) - deltaTime) / 10;
-
 						}
 					}
 				}

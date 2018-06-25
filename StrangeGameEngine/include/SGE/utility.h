@@ -287,5 +287,28 @@ namespace SGE
 				std::clock_t EndTime;
 			};
 		}
+
+		namespace Compensator
+		{
+			class SGEAPI CompensatorCalculator
+			{
+			private:
+				static const int MAX_SAMPLE_SET_SIZE = 100;
+				float targetNumber = 0.0f;
+				float sampleSet[MAX_SAMPLE_SET_SIZE] = {};
+				int currentIndex = 0;
+				int currentSampleSetSize = 0;
+
+			public:
+				void AddSample(float sample);
+				void ClearSampleSet();
+				void SetTarget(float target);
+				float GenerateCompensation();
+
+				CompensatorCalculator();
+				CompensatorCalculator(float target);
+				
+			};
+		}
 	}
 }
