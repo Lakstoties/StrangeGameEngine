@@ -138,6 +138,11 @@ namespace SGE
 	void Launch(int displayX, int displayY, const char* gameTitle, int resolutionX, int resolutionY, void(*gameLogic)(bool &keepAlive), bool &keepAliveFlag)
 	{
 		//
+		//  Start the message system
+		//
+		SGE::System::Message::StartMessageSystem();
+
+		//
 		//  Start the Strange Game Engine
 		//
 		Startup(displayX, displayY, "Test Title");
@@ -181,5 +186,10 @@ namespace SGE
 		//  Shutdown the Strange Game Engine
 		//
 		Shutdown();
+
+		//
+		//  Stop the Message System
+		//
+		SGE::System::Message::StopMessageSystem();
 	}
 }

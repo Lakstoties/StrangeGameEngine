@@ -3,6 +3,7 @@
 #include <chrono>
 #include <ctime>
 #include <mutex>
+#include <condition_variable>
 
 //
 //  Because of certain weirdness with Windows and the terminal emulator, we have to check and do some weirdness to get colored text
@@ -74,7 +75,7 @@ namespace SGE
 			//  Messge System Thread
 			//  This thread operated the messaging system and allows message outputs to be non-blocking
 			//
-			std::thread messageSystemThread;
+			std::thread* messageSystemThread = NULL;
 
 			//
 			//  Message System Data Structure
@@ -103,6 +104,11 @@ namespace SGE
 			MessageEntry queuedMessages[MESSAGE_QUEUE_SIZE];
 			int queueHead = 0;
 			int queueEnd = 0;
+			int currentIndex = 0;
+
+			bool MessageThreadKeepAlive = false;
+
+			std::condition_variable messageProcessingHold;
 
 			const int MESSAGE_MAX_SIZE = 10000;
 
@@ -132,12 +138,11 @@ namespace SGE
 				queuedMessages[index].message = NULL;
 			}
 
-
 			//
 			//  Add Message Function
 			//  Adds a message to the system message queue
 			//
-			void AddMessage(int messageLevel, const char* source, const char* message, ...)
+			void SGEAPI Output(int messageLevel, const char* source, const char* message, ...)
 			{
 
 				//
@@ -193,7 +198,7 @@ namespace SGE
 				//  Form the message into a static char array
 				//
 
-				char temp[MESSAGE_MAX_SIZE];
+				char temp[MESSAGE_MAX_SIZE + 1];
 				int tempStringSize = 0;
 
 				tempStringSize = vsprintf(temp, message, messageArguments);
@@ -233,7 +238,7 @@ namespace SGE
 				queuedMessages[queueEnd].time = std::time(NULL);
 
 				//Create new message memory
-				queuedMessages[queueEnd].message = new char[tempStringSize];
+				queuedMessages[queueEnd].message = new char[tempStringSize + 1];
 
 				//Copy the temp message into the target
 				strcpy(queuedMessages[queueEnd].message, temp);
@@ -247,8 +252,19 @@ namespace SGE
 				//  Unlock the Message Queue Mutex
 				//
 				messageQueueMutex.unlock();
+
+				//
+				//  Poke the Message Processing Thread
+				//
+				if (messageSystemThread != NULL)
+				{
+					messageProcessingHold.notify_all();
+				}
 			}
 
+			//
+			//  Print Message Function
+			//
 			void PrintMessage(int index)
 			{
 				//
@@ -412,189 +428,69 @@ namespace SGE
 			}
 
 
-
-			//
-			//  Message Output Function to output message to the system/OS level console
-			//
-			void Output(int messageLevel, const char* source, const char* message, ...)
+			void MessageProcessorThread()
 			{
 				//
-				//  Get the va_list for the variable argument list, which should the argumented used with the message format text.
+				//  Set up a mutex tied to the conditional variable
 				//
 
-				//Delcare a va_list
-				va_list messageArguments;
+				std::mutex processingMutex;
+				std::unique_lock<std::mutex> processingLock(processingMutex);
 
-				//Set the start point for the variable argument list to be a pointer right after the message pointer.
-				va_start(messageArguments, message);
-
-				//
-				//  If running on Windows...
-				//
-				#ifdef _WIN32
-
-				//
-				//  These are the Windows OS Handles for the stdout and stderr pipes.
-				//
-				static HANDLE windowsSTDOUTHandle = NULL;
-				static HANDLE windowsSTDERRHandle = NULL;
-
-				//
-				//  If we haven't already, grab the Windows OS handles for the stdout and stderr pipes.
-				//
-				if (windowsSTDOUTHandle == NULL || windowsSTDERRHandle == NULL)
+				while (MessageThreadKeepAlive)
 				{
 					//
-					//  Get the stdout and stderr handles
+					//  Check for a new message
 					//
-					windowsSTDOUTHandle = GetStdHandle(STD_OUTPUT_HANDLE);
-					windowsSTDERRHandle = GetStdHandle(STD_ERROR_HANDLE);
+					if (queuedMessages[currentIndex].message != NULL)
+					{
+						//
+						//  Print that message out
+						//
+						PrintMessage(currentIndex);
 
-					//
-					//  Check for Windows 10 or higher, since it is the only current Window OS that have a terminal emulator that can possibly understand ANSI
-					//
-					#if (_WIN32_WINNT >= 0xA00)
-					//
-					//  Attempt to turn on ANSI capabilities for the console window
-					//
-					SetConsoleMode(windowsSTDOUTHandle, ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-					SetConsoleMode(windowsSTDERRHandle, ENABLE_PROCESSED_OUTPUT | ENABLE_VIRTUAL_TERMINAL_PROCESSING);
-					#endif
+						//
+						//  Delete that message
+						//
+						DeleteMessage(currentIndex);
+
+						//
+						//  Move to the next index
+						//
+						currentIndex = (currentIndex++) % MESSAGE_QUEUE_SIZE;
+					}
+					else
+					{
+						//
+						//  Go to sleep
+						//
+						//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+						messageProcessingHold.wait(processingLock);
+					}
 				}
-				#endif
 
-				char timestamp[100];
+				return;
+			}
 
-				//
-				//  Check to see if we even bother outputting this message
-				//
-				if (messageLevel > CurrentOutputLevel)
+			void SGEAPI StartMessageSystem()
+			{
+				MessageThreadKeepAlive = true;
+
+				messageSystemThread = new std::thread(MessageProcessorThread);
+			}
+
+			void SGEAPI StopMessageSystem()
+			{
+				MessageThreadKeepAlive = false;
+
+				if (messageSystemThread->joinable())
 				{
-					//Nope...  Return
-					return;
+					messageProcessingHold.notify_all();
+					messageSystemThread->join();
 				}
 
-				//
-				//  Generate the timestamp to use
-				//
-
-				//Grab the current time and store it as a time_t after converting it
-				std::time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-
-				std::strftime(timestamp, 100, "%Y-%m-%e %H:%M:%S", std::localtime(&currentTime));
-
-
-				//
-				//  Depending on the message level output it in the right format
-				//
-
-				//
-				//  MUTEX LOCK Start
-				//
-				consoleOutputMutex.lock();
-
-				switch (messageLevel)
-				{
-					//If it's an Error message
-				case Message::Levels::Error:
-
-					//
-					//  Output straight to stderr and bypass stdout's buffering to get the message out.
-					//
-
-					#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
-					//
-					//  If Windows 10 or a non-Windows OS (that will probably have a proper terminal emulator), then send the ANSI escape codes for a color change
-					//
-
-					fprintf(stderr, ANSIEscapeColorCodes::Red);
-
-					#else
-					//
-					//  If Windows, but not Windows 10, use the Windows API to change the console color
-					//
-					SetConsoleTextAttribute(windowsSTDERRHandle, FOREGROUND_RED);
-					#endif
-
-					fprintf(stderr, "%s ---ERROR---(%s) ", timestamp, source);
-					vfprintf(stderr, message, messageArguments);
-
-					break;
-
-					//If it's an Information message
-				case Message::Levels::Information:
-					//
-					//  Output the message to the stdout, since it's not and emergency
-					//
-
-					#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
-					//
-					//  If Windows 10 or a non-Windows OS (that will probably have a proper terminal emulator), then send the ANSI escape codes for a color change
-					//
-
-					printf(ANSIEscapeColorCodes::BrightWhite);
-
-					#else
-					//
-					//  If Windows, but not Windows 10, use the Windows API to change the console color
-					//
-					SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_INTENSITY | FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
-
-					#endif
-
-					printf("%s INFORMATION(%s) ", timestamp, source);
-					vprintf(message, messageArguments);
-
-					break;
-
-					//If it's a Warning message
-				case Message::Levels::Warning:
-					#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
-					printf(ANSIEscapeColorCodes::BrightYellow);
-					#else
-					SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN);
-					#endif
-
-					printf("%s --WARNING--(%s) ", timestamp, source);
-					vprintf(message, messageArguments);
-
-					break;
-
-					//If it's a Debug message
-				case Message::Levels::Debug:
-					#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
-					printf(ANSIEscapeColorCodes::Green);
-					#else	
-					SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_GREEN);
-					#endif
-
-					printf("%s ---DEBUG---(%s) ", timestamp, source);
-					vprintf(message, messageArguments);
-
-					break;
-				}
-
-				//
-				//  Reset the console colors
-				//
-
-				#if (_WIN32_WINNT >= 0x0A00 || !_WIN32)
-				//
-				//  Send the ANSI Reset code
-				//
-				fprintf(stderr, ANSIEscapeColorCodes::Reset);
-
-				#else	
-				//
-				//  Set the Console Text back to how it was 
-				//
-				SetConsoleTextAttribute(windowsSTDERRHandle, FOREGROUND_BLUE | FOREGROUND_GREEN | FOREGROUND_RED);
-				#endif
-
-				//
-				//  MUTEX UNLOCK
-				//
-				consoleOutputMutex.unlock();
+				delete messageSystemThread;
+				messageSystemThread = NULL;
 			}
 		}
 	}
