@@ -274,6 +274,46 @@ namespace SGE
 
 		namespace Timer
 		{
+			std::thread* SleepResolutionCheckerThread = NULL;
+			bool SleepResolutionCheckerAlive = false;
+
+
+			std::chrono::microseconds SleepResolutionMicroseconds = std::chrono::microseconds(0);
+
+			void SleepResolutionCheckerFunction()
+			{
+				std::chrono::time_point<std::chrono::steady_clock> sleepStartTime;
+
+				while (SleepResolutionCheckerAlive)
+				{
+					sleepStartTime = std::chrono::steady_clock::now();
+
+					std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+					SleepResolutionMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>((std::chrono::steady_clock::now() - sleepStartTime) - std::chrono::milliseconds(1)) + std::chrono::milliseconds(1);
+				}
+			}
+
+			void StartSleepResolutionChecker()
+			{
+				SleepResolutionCheckerAlive = true;
+
+				SleepResolutionCheckerThread = new std::thread(SleepResolutionCheckerFunction);
+			}
+
+			void StopSleepResolutionChecker()
+			{
+				SleepResolutionCheckerAlive = false;
+
+				if (SleepResolutionCheckerThread != NULL)
+				{
+					if (SleepResolutionCheckerThread->joinable())
+					{
+						SleepResolutionCheckerThread->join();
+					}
+				}
+			}
+
 
 			void TimerDelta::Start(float rateOfChange)
 			{
@@ -510,7 +550,7 @@ namespace SGE
 				//  Statistics information for tick rate
 				//
 				std::chrono::time_point<std::chrono::steady_clock> startTime;
-				std::chrono::nanoseconds deltaTime = std::chrono::nanoseconds(DEFAULT_TICK_TIMING_NANO);
+				std::chrono::microseconds deltaTime = std::chrono::microseconds(DEFAULT_TICK_TIMING_MICRO);
 
 				//
 				//  Start playback processing
@@ -529,6 +569,7 @@ namespace SGE
 						for (CurrentDivision = 0; CurrentDivision < 64 && PlayerThreadActive; CurrentDivision++)
 						{
 							//Save the timer to help time the processing time for this division
+							//startTime = std::chrono::steady_clock::now();
 							startTime = std::chrono::steady_clock::now();
 
 							//
@@ -560,7 +601,8 @@ namespace SGE
 							//
 							//  Set up the channels
 							//
-							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld - Desired Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count(), ((long long)ticksADivision * DEFAULT_TICK_TIMING_NANO));
+							//SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld - Desired Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count(), ((long long)ticksADivision * DEFAULT_TICK_TIMING_NANO));
+							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld - Desired Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count(), (long long)SGE::Utility::Timer::SleepResolutionMicroseconds.count());
 							//SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d\n", modFile.title, CurrentPosition, CurrentDivision);
 
 							//
@@ -1194,19 +1236,20 @@ namespace SGE
 
 
 							//Save the timer to help time the processing time for this division
-							//startTime = std::chrono::steady_clock::now();
+							startTime = std::chrono::steady_clock::now();
 
 							//
 							//  Wait for the next division
 							//
 							//std::this_thread::sleep_for(std::chrono::nanoseconds((ticksADivision * DEFAULT_TICK_TIMING_NANO) - deltaTime.count()));
 							//std::this_thread::sleep_for(std::chrono::nanoseconds(ticksADivision * DEFAULT_TICK_TIMING_NANO));
-							std::this_thread::sleep_until(std::chrono::steady_clock::now() + std::chrono::nanoseconds(ticksADivision * DEFAULT_TICK_TIMING_NANO));
+
+							std::this_thread::sleep_for(std::chrono::microseconds(ticksADivision * DEFAULT_TICK_TIMING_MICRO));
 
 							//
 							//  Calculate the delta time, post sleep
 							//
-							deltaTime = std::chrono::steady_clock::now() - startTime;
+							deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - startTime);
 						}
 					}
 				}

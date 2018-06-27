@@ -222,16 +222,19 @@ namespace SGE
 			const float PAL_TUNING = 7093789.2f;
 
 			//Typical old school tick timing was around 20 milliseconds
-			const unsigned int DEFAULT_TICK_TIMING_MILLISECONDS = 20;
+			const unsigned int DEFAULT_TICK_TIMING_MILLI = 20;
+		
+			const unsigned int DEFAULT_TICK_TIMING_MICRO = DEFAULT_TICK_TIMING_MILLI * 1000;
 			
-			//Typical old school tick timing was around 20 milliseconds.
-			const unsigned int DEFAULT_TICK_TIMING_NANO = DEFAULT_TICK_TIMING_MILLISECONDS * 1000000;
+			const unsigned int DEFAULT_TICK_TIMING_NANO = DEFAULT_TICK_TIMING_MILLI * 1000000;
+
+			
 
 			//Default Ticks a Division
 			const unsigned int DEFAULT_TICKS_A_DIVISION = 6;
 
 			//  Number of samples sent per tick based on sample rate and typical tick rate
-			const unsigned int DEFAULT_SAMPLES_TICK = SGE::Sound::SAMPLE_RATE * DEFAULT_TICK_TIMING_MILLISECONDS / 1000;
+			const unsigned int DEFAULT_SAMPLES_TICK = SGE::Sound::SAMPLE_RATE * DEFAULT_TICK_TIMING_MILLI / 1000;
 			
 			//Player for module files
 			class SGEAPI ModulePlayer
@@ -273,6 +276,12 @@ namespace SGE
 
 		namespace Timer
 		{
+			extern SGEAPI std::chrono::microseconds SleepResolutionMicroseconds;
+
+			void SGEAPI StartSleepResolutionChecker();
+
+			void SGEAPI StopSleepResolutionChecker();
+
 			class SGEAPI TimerDelta
 			{
 			private:
