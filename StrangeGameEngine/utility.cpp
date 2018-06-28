@@ -290,7 +290,7 @@ namespace SGE
 
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-					SleepLagMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>((std::chrono::steady_clock::now() - sleepStartTime) - std::chrono::milliseconds(1));
+					SleepLagMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>((std::chrono::steady_clock::now() - sleepStartTime));
 				}
 			}
 
@@ -552,6 +552,7 @@ namespace SGE
 				std::chrono::time_point<std::chrono::steady_clock> startTime;
 				std::chrono::microseconds deltaTime = std::chrono::microseconds(DEFAULT_TICK_TIMING_MICRO);
 
+
 				//
 				//  Start playback processing
 				//
@@ -603,6 +604,7 @@ namespace SGE
 							//
 							//SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld - Desired Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count(), ((long long)ticksADivision * DEFAULT_TICK_TIMING_NANO));
 							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld - Desired Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count(), (long long)SGE::Utility::Timer::SleepLagMicroseconds.count());
+							
 							//SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d\n", modFile.title, CurrentPosition, CurrentDivision);
 
 							//
@@ -1148,9 +1150,9 @@ namespace SGE
 											}
 
 											//  Effect found, move on.
-											break;
+break;
 
-											// Case C, 12, Cut sample
+// Case C, 12, Cut sample
 										case 0xC:
 											channelMap[c]->cutCurrentSamples = 0;
 											channelMap[c]->cutSampleInterval = effectYOnChannel[c] * DEFAULT_SAMPLES_TICK;
@@ -1236,15 +1238,37 @@ namespace SGE
 
 
 							//Save the timer to help time the processing time for this division
-							startTime = std::chrono::steady_clock::now();
+							//startTime = std::chrono::steady_clock::now();
 
 							//
 							//  Wait for the next division
 							//
-							//std::this_thread::sleep_for(std::chrono::nanoseconds((ticksADivision * DEFAULT_TICK_TIMING_NANO) - deltaTime.count()));
-							//std::this_thread::sleep_for(std::chrono::nanoseconds(ticksADivision * DEFAULT_TICK_TIMING_NANO));
+							//std::this_thread::sleep_for(std::chrono::microseconds(ticksADivision * DEFAULT_TICK_TIMING_MICRO) - SGE::Utility::Timer::SleepLagMicroseconds);
+							//std::this_thread::sleep_for(std::chrono::microseconds(ticksADivision * DEFAULT_TICK_TIMING_MICRO));
 
-							std::this_thread::sleep_for(std::chrono::microseconds(ticksADivision * DEFAULT_TICK_TIMING_MICRO) - SGE::Utility::Timer::SleepLagMicroseconds);
+
+
+							//
+							//  Figure out the destinated target time to sleep to
+							//
+							std::chrono::time_point<std::chrono::steady_clock> whenToContinue = std::chrono::steady_clock::now() + std::chrono::milliseconds(ticksADivision * DEFAULT_TICK_TIMING_MILLI);
+
+
+							//
+							//  Figure out how much to full sleep given the current thread time slice quantum
+							//
+							int sleepLagMilliseconds = SGE::Utility::Timer::SleepLagMicroseconds.count() / 1000;
+							int multiplesOfQuantumToSleep = (ticksADivision * DEFAULT_TICK_TIMING_MILLI) / sleepLagMilliseconds;
+
+							std::this_thread::sleep_for(std::chrono::milliseconds((multiplesOfQuantumToSleep - 1) * sleepLagMilliseconds));
+
+							//
+							//  Figure out if we are short of the goal and busy wait to it
+							//
+							while (std::chrono::steady_clock::now() < whenToContinue)
+							{
+								std::this_thread::yield();
+							}
 
 							//
 							//  Calculate the delta time, post sleep
