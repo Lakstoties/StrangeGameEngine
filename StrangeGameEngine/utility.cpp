@@ -278,7 +278,7 @@ namespace SGE
 			bool SleepResolutionCheckerAlive = false;
 
 
-			std::chrono::microseconds SleepResolutionMicroseconds = std::chrono::microseconds(0);
+			std::chrono::microseconds SleepLagMicroseconds = std::chrono::microseconds(0);
 
 			void SleepResolutionCheckerFunction()
 			{
@@ -290,7 +290,7 @@ namespace SGE
 
 					std::this_thread::sleep_for(std::chrono::milliseconds(1));
 
-					SleepResolutionMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>((std::chrono::steady_clock::now() - sleepStartTime) - std::chrono::milliseconds(1)) + std::chrono::milliseconds(1);
+					SleepLagMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>((std::chrono::steady_clock::now() - sleepStartTime) - std::chrono::milliseconds(1));
 				}
 			}
 
@@ -602,7 +602,7 @@ namespace SGE
 							//  Set up the channels
 							//
 							//SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld - Desired Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count(), ((long long)ticksADivision * DEFAULT_TICK_TIMING_NANO));
-							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld - Desired Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count(), (long long)SGE::Utility::Timer::SleepResolutionMicroseconds.count());
+							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld - Desired Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count(), (long long)SGE::Utility::Timer::SleepLagMicroseconds.count());
 							//SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d\n", modFile.title, CurrentPosition, CurrentDivision);
 
 							//
@@ -1244,7 +1244,7 @@ namespace SGE
 							//std::this_thread::sleep_for(std::chrono::nanoseconds((ticksADivision * DEFAULT_TICK_TIMING_NANO) - deltaTime.count()));
 							//std::this_thread::sleep_for(std::chrono::nanoseconds(ticksADivision * DEFAULT_TICK_TIMING_NANO));
 
-							std::this_thread::sleep_for(std::chrono::microseconds(ticksADivision * DEFAULT_TICK_TIMING_MICRO));
+							std::this_thread::sleep_for(std::chrono::microseconds(ticksADivision * DEFAULT_TICK_TIMING_MICRO) - SGE::Utility::Timer::SleepLagMicroseconds);
 
 							//
 							//  Calculate the delta time, post sleep

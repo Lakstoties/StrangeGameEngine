@@ -276,7 +276,7 @@ namespace SGE
 
 		namespace Timer
 		{
-			extern SGEAPI std::chrono::microseconds SleepResolutionMicroseconds;
+			extern SGEAPI std::chrono::microseconds SleepLagMicroseconds;
 
 			void SGEAPI StartSleepResolutionChecker();
 
