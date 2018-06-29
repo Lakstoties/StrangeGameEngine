@@ -1246,8 +1246,6 @@ break;
 							//std::this_thread::sleep_for(std::chrono::microseconds(ticksADivision * DEFAULT_TICK_TIMING_MICRO) - SGE::Utility::Timer::SleepLagMicroseconds);
 							//std::this_thread::sleep_for(std::chrono::microseconds(ticksADivision * DEFAULT_TICK_TIMING_MICRO));
 
-
-
 							//
 							//  Figure out the destinated target time to sleep to
 							//
@@ -1255,12 +1253,34 @@ break;
 
 
 							//
-							//  Figure out how much to full sleep given the current thread time slice quantum
+							//  Sleep towards the desired wake time, by attempt millisecond sleeps
 							//
-							int sleepLagMilliseconds = SGE::Utility::Timer::SleepLagMicroseconds.count() / 1000;
-							int multiplesOfQuantumToSleep = (ticksADivision * DEFAULT_TICK_TIMING_MILLI) / sleepLagMilliseconds;
 
-							std::this_thread::sleep_for(std::chrono::milliseconds((multiplesOfQuantumToSleep - 1) * sleepLagMilliseconds));
+							//
+							//  Test the sleep waters
+							//
+							std::chrono::time_point<std::chrono::steady_clock> timeSleepStart = std::chrono::steady_clock::now();
+
+							//
+							//  Check the thread sleep quantum
+							//
+							std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+							//
+							//  How long did we actually sleep
+							//
+							std::chrono::microseconds timeSlept = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timeSleepStart);
+
+							//
+							//  Sleep a multiple 
+							//
+							int multiplesOfQuantumToSleep = std::chrono::milliseconds(ticksADivision * DEFAULT_TICK_TIMING_MILLI) / timeSlept;
+
+							std::this_thread::sleep_for(std::chrono::microseconds((multiplesOfQuantumToSleep - 2) * timeSlept));
+
+
+
+							//
 
 							//
 							//  Figure out if we are short of the goal and busy wait to it

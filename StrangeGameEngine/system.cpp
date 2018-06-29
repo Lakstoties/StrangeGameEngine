@@ -449,10 +449,25 @@ namespace SGE
 						//
 						PrintMessage(currentIndex);
 
+
+						//
+						//  Lock out Add from putting in
+						//
+						messageQueueMutex.lock();
+
+
 						//
 						//  Delete that message
 						//
 						DeleteMessage(currentIndex);
+
+						//
+						//  Unlock and allow add back in
+						//
+						messageQueueMutex.unlock();
+
+
+
 
 						//
 						//  Move to the next index
