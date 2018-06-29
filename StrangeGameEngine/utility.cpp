@@ -21,96 +21,6 @@ namespace SGE
 {
 	namespace Utility
 	{
-		namespace Compensator
-		{
-			void CompensatorCalculator::AddSample(float sample)
-			{
-				//
-				//  Drop the sample off into sample set
-				//
-				sampleSet[currentIndex] = sample;
-
-				//
-				//  Increment the index to the next spot
-				//
-				currentIndex = (currentIndex++) % MAX_SAMPLE_SET_SIZE;
-
-				if (currentSampleSetSize < MAX_SAMPLE_SET_SIZE)
-				{
-					currentSampleSetSize++;
-				}
-			}
-
-			void CompensatorCalculator::ClearSampleSet()
-			{
-				//
-				//  Reset Index
-				//
-				currentIndex = 0;
-
-				//
-				//  Reset Sample Set Size
-				//
-				currentSampleSetSize = 0;
-
-				//
-				//  Reset sample set
-				//
-				for (int i = 0; i < MAX_SAMPLE_SET_SIZE; i++)
-				{
-					sampleSet[i] = 0.0f;
-				}
-			}
-
-			float CompensatorCalculator::GenerateCompensation()
-			{
-				if (currentSampleSetSize == 0)
-				{
-					return 0.0f;
-				}
-
-				float sum = 0.0f;
-
-				if (currentSampleSetSize < MAX_SAMPLE_SET_SIZE)
-				{
-					for (int i = 0; i < currentIndex; i++)
-					{
-						sum += sampleSet[i];
-					}
-
-					sum /= currentSampleSetSize;
-				}
-				else
-				{
-					for (int i = 0; i < MAX_SAMPLE_SET_SIZE; i++)
-					{
-						sum += sampleSet[i];
-					}
-
-					sum /= MAX_SAMPLE_SET_SIZE;
-				}
-
-				return targetNumber - sum;
-			}
-
-			void CompensatorCalculator::SetTarget(float target)
-			{
-				targetNumber = target;
-				ClearSampleSet();
-			}
-
-			CompensatorCalculator::CompensatorCalculator()
-			{
-				
-			}
-			CompensatorCalculator::CompensatorCalculator(float target)
-			{
-				targetNumber = target;
-			}
-		}
-
-
-
 		namespace Terminal
 		{
 			//
@@ -274,47 +184,6 @@ namespace SGE
 
 		namespace Timer
 		{
-			std::thread* SleepResolutionCheckerThread = NULL;
-			bool SleepResolutionCheckerAlive = false;
-
-
-			std::chrono::microseconds SleepLagMicroseconds = std::chrono::microseconds(0);
-
-			void SleepResolutionCheckerFunction()
-			{
-				std::chrono::time_point<std::chrono::steady_clock> sleepStartTime;
-
-				while (SleepResolutionCheckerAlive)
-				{
-					sleepStartTime = std::chrono::steady_clock::now();
-
-					std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
-					SleepLagMicroseconds = std::chrono::duration_cast<std::chrono::microseconds>((std::chrono::steady_clock::now() - sleepStartTime));
-				}
-			}
-
-			void StartSleepResolutionChecker()
-			{
-				SleepResolutionCheckerAlive = true;
-
-				SleepResolutionCheckerThread = new std::thread(SleepResolutionCheckerFunction);
-			}
-
-			void StopSleepResolutionChecker()
-			{
-				SleepResolutionCheckerAlive = false;
-
-				if (SleepResolutionCheckerThread != NULL)
-				{
-					if (SleepResolutionCheckerThread->joinable())
-					{
-						SleepResolutionCheckerThread->join();
-					}
-				}
-			}
-
-
 			void TimerDelta::Start(float rateOfChange)
 			{
 				//
@@ -402,7 +271,7 @@ namespace SGE
 				modFile.LoadFile(filename);
 
 				//If we get here, stuff is okay.
-				return true;
+				return modFile.ProperlyLoaded;
 			}
 
 			bool ModulePlayer::Connect(unsigned int startChannel, unsigned int startSample)
@@ -475,6 +344,12 @@ namespace SGE
 
 			bool ModulePlayer::Play()
 			{
+				//  Do we even have a file to play?
+				if (!modFile.ProperlyLoaded)
+				{
+					return false;
+				}
+
 				//If the player thread is already active... don't pester it
 				if (PlayerThreadActive)
 				{
@@ -602,11 +477,8 @@ namespace SGE
 							//
 							//  Set up the channels
 							//
-							//SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld - Desired Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count(), ((long long)ticksADivision * DEFAULT_TICK_TIMING_NANO));
-							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld - Desired Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count(), (long long)SGE::Utility::Timer::SleepLagMicroseconds.count());
+							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count());
 							
-							//SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d\n", modFile.title, CurrentPosition, CurrentDivision);
-
 							//
 							//  Check all the channels for any changes
 							//
@@ -1232,19 +1104,8 @@ break;
 								}
 							}
 							//
-							//  Calculate the delta time, pre- sleep
-							//
-							//deltaTime = std::chrono::steady_clock::now() - startTime;
-
-
-							//Save the timer to help time the processing time for this division
-							//startTime = std::chrono::steady_clock::now();
-
-							//
 							//  Wait for the next division
 							//
-							//std::this_thread::sleep_for(std::chrono::microseconds(ticksADivision * DEFAULT_TICK_TIMING_MICRO) - SGE::Utility::Timer::SleepLagMicroseconds);
-							//std::this_thread::sleep_for(std::chrono::microseconds(ticksADivision * DEFAULT_TICK_TIMING_MICRO));
 
 							//
 							//  Figure out the destinated target time to sleep to
@@ -1252,35 +1113,23 @@ break;
 							std::chrono::time_point<std::chrono::steady_clock> whenToContinue = std::chrono::steady_clock::now() + std::chrono::milliseconds(ticksADivision * DEFAULT_TICK_TIMING_MILLI);
 
 
-							//
-							//  Sleep towards the desired wake time, by attempt millisecond sleeps
-							//
+							while (std::chrono::steady_clock::now() < whenToContinue)
+							{
+								//  Test the sleep waters
+								std::chrono::time_point<std::chrono::steady_clock> timeSleepStart = std::chrono::steady_clock::now();
 
-							//
-							//  Test the sleep waters
-							//
-							std::chrono::time_point<std::chrono::steady_clock> timeSleepStart = std::chrono::steady_clock::now();
+								//  Check the thread sleep quantum
+								std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
-							//
-							//  Check the thread sleep quantum
-							//
-							std::this_thread::sleep_for(std::chrono::milliseconds(1));
+								//  How long did we actually sleep
+								std::chrono::microseconds timeSlept = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timeSleepStart);
 
-							//
-							//  How long did we actually sleep
-							//
-							std::chrono::microseconds timeSlept = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timeSleepStart);
+								if (std::chrono::steady_clock::now() + timeSlept > whenToContinue)
+								{
+									break;
+								}
 
-							//
-							//  Sleep a multiple 
-							//
-							int multiplesOfQuantumToSleep = std::chrono::milliseconds(ticksADivision * DEFAULT_TICK_TIMING_MILLI) / timeSlept;
-
-							std::this_thread::sleep_for(std::chrono::microseconds((multiplesOfQuantumToSleep - 2) * timeSlept));
-
-
-
-							//
+							}
 
 							//
 							//  Figure out if we are short of the goal and busy wait to it

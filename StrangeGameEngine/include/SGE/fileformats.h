@@ -131,6 +131,7 @@ namespace SGE
 			SGE::Sound::sampleType* ConvertSample(unsigned char sample);
 			unsigned int ConvertSampleSize(unsigned char sample);
 
+			bool ProperlyLoaded = false;
 		};
 	}
 }

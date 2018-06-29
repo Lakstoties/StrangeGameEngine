@@ -934,6 +934,7 @@ namespace SGE
 						{
 							//This file is way to small to be a proper wav file
 							SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
+							ProperlyLoaded = true;
 							return -12;
 						}
 
@@ -992,6 +993,7 @@ namespace SGE
 			fclose(moduleFile);
 
 			//If we get to this point, everything is okay
+			ProperlyLoaded = true;
 			return 0;
 		}
 

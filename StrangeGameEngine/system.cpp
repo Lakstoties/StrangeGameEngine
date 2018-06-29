@@ -4,6 +4,7 @@
 #include <ctime>
 #include <mutex>
 #include <condition_variable>
+#include <queue>
 
 //
 //  Because of certain weirdness with Windows and the terminal emulator, we have to check and do some weirdness to get colored text
@@ -90,53 +91,21 @@ namespace SGE
 				std::time_t time = 0;
 
 				//  Source of the message
-				const char* source = NULL;
+				std::string source;
 
 				//  Message contents
-				char* message = NULL;
+				std::string message;
 			};
 
 
 			//
 			//  Message System Queue
 			//
-			const int MESSAGE_QUEUE_SIZE = 1000;
-			MessageEntry queuedMessages[MESSAGE_QUEUE_SIZE];
-			int queueHead = 0;
-			int queueEnd = 0;
-			int currentIndex = 0;
+			std::queue<MessageEntry> messageQueue;
 
 			bool MessageThreadKeepAlive = false;
 
 			std::condition_variable messageProcessingHold;
-
-			const int MESSAGE_MAX_SIZE = 10000;
-
-			//
-			//  Delete Message Function
-			//  
-			//
-			void DeleteMessage(int index)
-			{
-				//
-				//  Sanity Check Index
-				//
-				if (index < 0 || index >= MESSAGE_MAX_SIZE)
-				{
-					return;
-				}
-
-				//  Clean out this entry
-				queuedMessages[index].level = 0;
-				queuedMessages[index].source = NULL;
-				queuedMessages[index].time = 0;
-
-				// Delete the message
-				delete queuedMessages[index].message;
-
-				//NULL out the pointer
-				queuedMessages[index].message = NULL;
-			}
 
 			//
 			//  Add Message Function
@@ -144,7 +113,6 @@ namespace SGE
 			//
 			void SGEAPI Output(int messageLevel, const char* source, const char* message, ...)
 			{
-
 				//
 				//  Sanity Check arguments
 				//
@@ -179,11 +147,6 @@ namespace SGE
 					return;
 				}
 
-
-				//
-				//  Process some initial bits of the message
-				//
-
 				//
 				//  Get the va_list for the variable argument list, which should the argumented used with the message format text.
 				//
@@ -195,59 +158,26 @@ namespace SGE
 				va_start(messageArguments, message);
 
 				//
-				//  Form the message into a static char array
+				//  Load up the message
 				//
-
-				char temp[MESSAGE_MAX_SIZE + 1];
-				int tempStringSize = 0;
-
-				tempStringSize = vsprintf(temp, message, messageArguments);
+				MessageEntry tempMessage;
 				
+				tempMessage.level = messageLevel;
+				tempMessage.source = source;
+				tempMessage.time = std::time(NULL);
 
-				//
-				//  Add to queue
-				//  WARNING:  This will overwrite any message at the index indicated by the queueEnd.
-				//
+				char tempBuffer[1000];
+
+				int newMessageSize = std::vsprintf(tempBuffer, message, messageArguments) + 1;
+
+				tempMessage.message = tempBuffer;
 
 				//
 				//  Lock up the messageQueue mtuex
 				//
 				messageQueueMutex.lock();
 
-				//
-				//  If the queueHead and the queueEnd are the same, check to see if we are overwriting an old message
-				//
-				if (queueHead == queueEnd)
-				{
-					//  Are we overwritting an existing message?
-					if (queuedMessages[queueHead].message != NULL)
-					{
-						// Scoot the head over
-						queueHead = (queueHead++) % MESSAGE_QUEUE_SIZE;
-
-						DeleteMessage(queueEnd);
-					}
-				}
-
-				//
-				//  Load up the message
-				//
-
-				queuedMessages[queueEnd].level = messageLevel;
-				queuedMessages[queueEnd].source = source;
-				queuedMessages[queueEnd].time = std::time(NULL);
-
-				//Create new message memory
-				queuedMessages[queueEnd].message = new char[tempStringSize + 1];
-
-				//Copy the temp message into the target
-				strcpy(queuedMessages[queueEnd].message, temp);
-
-				//
-				//  Move the queueEnd up
-				//
-				queueEnd = (queueEnd++) % MESSAGE_QUEUE_SIZE;
-
+				messageQueue.push(tempMessage);
 				//
 				//  Unlock the Message Queue Mutex
 				//
@@ -265,7 +195,7 @@ namespace SGE
 			//
 			//  Print Message Function
 			//
-			void PrintMessage(int index)
+			void PrintMessage(MessageEntry &currentMessageEntry)
 			{
 				//
 				//  If running on Windows...
@@ -302,8 +232,6 @@ namespace SGE
 				}
 				#endif
 
-
-
 				//
 				//  Generate the timestamp to use
 				//
@@ -311,7 +239,7 @@ namespace SGE
 				//  Temp Time Stamp Buffer
 				char timestamp[100];
 
-				std::strftime(timestamp, 100, "%Y-%m-%e %H:%M:%S", std::localtime(&queuedMessages[index].time));
+				std::strftime(timestamp, 100, "%Y-%m-%e %H:%M:%S", std::localtime(&currentMessageEntry.time));
 
 
 				//
@@ -323,7 +251,7 @@ namespace SGE
 				//
 				consoleOutputMutex.lock();
 
-				switch (queuedMessages[index].level)
+				switch (currentMessageEntry.level)
 				{
 					//If it's an Error message
 				case Message::Levels::Error:
@@ -346,8 +274,8 @@ namespace SGE
 					SetConsoleTextAttribute(windowsSTDERRHandle, FOREGROUND_RED);
 					#endif
 
-					fprintf(stderr, "%s ---ERROR---(%s) ", timestamp, queuedMessages[index].source);
-					fprintf(stderr, queuedMessages[index].message);
+					fprintf(stderr, "%s ---ERROR---(%s) ", timestamp, currentMessageEntry.source.c_str());
+					fprintf(stderr, currentMessageEntry.message.c_str());
 
 					break;
 
@@ -372,8 +300,8 @@ namespace SGE
 
 					#endif
 
-					printf("%s INFORMATION(%s) ", timestamp, queuedMessages[index].source);
-					printf(queuedMessages[index].message);
+					printf("%s INFORMATION(%s) ", timestamp, currentMessageEntry.source.c_str());
+					printf(currentMessageEntry.message.c_str());
 
 					break;
 
@@ -385,8 +313,8 @@ namespace SGE
 					SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_INTENSITY | FOREGROUND_RED | FOREGROUND_GREEN);
 					#endif
 
-					printf("%s --WARNING--(%s) ", timestamp, queuedMessages[index].source);
-					printf(queuedMessages[index].message);
+					printf("%s --WARNING--(%s) ", timestamp, currentMessageEntry.source.c_str());
+					printf(currentMessageEntry.message.c_str());
 
 					break;
 
@@ -398,8 +326,8 @@ namespace SGE
 					SetConsoleTextAttribute(windowsSTDOUTHandle, FOREGROUND_GREEN);
 					#endif
 
-					printf("%s ---DEBUG---(%s) ", timestamp, queuedMessages[index].source);
-					printf(queuedMessages[index].message);
+					printf("%s ---DEBUG---(%s) ", timestamp, currentMessageEntry.source.c_str());
+					printf(currentMessageEntry.message.c_str());
 
 					break;
 				}
@@ -433,7 +361,6 @@ namespace SGE
 				//
 				//  Set up a mutex tied to the conditional variable
 				//
-
 				std::mutex processingMutex;
 				std::unique_lock<std::mutex> processingLock(processingMutex);
 
@@ -442,44 +369,17 @@ namespace SGE
 					//
 					//  Check for a new message
 					//
-					if (queuedMessages[currentIndex].message != NULL)
+					if (messageQueue.size() > 0)
 					{
-						//
 						//  Print that message out
-						//
-						PrintMessage(currentIndex);
+						PrintMessage(messageQueue.front());
 
-
-						//
-						//  Lock out Add from putting in
-						//
-						messageQueueMutex.lock();
-
-
-						//
 						//  Delete that message
-						//
-						DeleteMessage(currentIndex);
-
-						//
-						//  Unlock and allow add back in
-						//
-						messageQueueMutex.unlock();
-
-
-
-
-						//
-						//  Move to the next index
-						//
-						currentIndex = (currentIndex++) % MESSAGE_QUEUE_SIZE;
+						messageQueue.pop();
 					}
 					else
 					{
-						//
 						//  Go to sleep
-						//
-						//std::this_thread::sleep_for(std::chrono::milliseconds(1000));
 						messageProcessingHold.wait(processingLock);
 					}
 				}

@@ -143,11 +143,6 @@ namespace SGE
 		SGE::System::Message::StartMessageSystem();
 
 		//
-		//  Start Sleep Timer Checker
-		//
-		SGE::Utility::Timer::StartSleepResolutionChecker();
-
-		//
 		//  Start the Strange Game Engine
 		//
 		Startup(displayX, displayY, "Test Title");
@@ -191,11 +186,6 @@ namespace SGE
 		//  Shutdown the Strange Game Engine
 		//
 		Shutdown();
-
-		//
-		//  Stop Sleep Timer Checker
-		//
-		SGE::Utility::Timer::StopSleepResolutionChecker();
 
 		//
 		//  Stop the Message System

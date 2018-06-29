@@ -225,10 +225,6 @@ namespace SGE
 			const unsigned int DEFAULT_TICK_TIMING_MILLI = 20;
 		
 			const unsigned int DEFAULT_TICK_TIMING_MICRO = DEFAULT_TICK_TIMING_MILLI * 1000;
-			
-			const unsigned int DEFAULT_TICK_TIMING_NANO = DEFAULT_TICK_TIMING_MILLI * 1000000;
-
-			
 
 			//Default Ticks a Division
 			const unsigned int DEFAULT_TICKS_A_DIVISION = 6;
@@ -276,12 +272,6 @@ namespace SGE
 
 		namespace Timer
 		{
-			extern SGEAPI std::chrono::microseconds SleepLagMicroseconds;
-
-			void SGEAPI StartSleepResolutionChecker();
-
-			void SGEAPI StopSleepResolutionChecker();
-
 			class SGEAPI TimerDelta
 			{
 			private:
@@ -294,29 +284,6 @@ namespace SGE
 
 				std::clock_t StartTime;
 				std::clock_t EndTime;
-			};
-		}
-
-		namespace Compensator
-		{
-			class SGEAPI CompensatorCalculator
-			{
-			private:
-				static const int MAX_SAMPLE_SET_SIZE = 100;
-				float targetNumber = 0.0f;
-				float sampleSet[MAX_SAMPLE_SET_SIZE] = {};
-				int currentIndex = 0;
-				int currentSampleSetSize = 0;
-
-			public:
-				void AddSample(float sample);
-				void ClearSampleSet();
-				void SetTarget(float target);
-				float GenerateCompensation();
-
-				CompensatorCalculator();
-				CompensatorCalculator(float target);
-				
 			};
 		}
 	}
