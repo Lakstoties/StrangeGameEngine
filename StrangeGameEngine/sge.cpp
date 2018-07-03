@@ -43,11 +43,10 @@ namespace SGE
 			//
 			SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::SGE, "GLFW initialization failure!\n");
 		}
-
 		//
-		//  Start the System Timer
+		//  Try to configure the OS's timers to be of a higher precision
 		//
-		SGE::Utility::Timer::StartSystemTimer();
+		SGE::System::OS::SetOSTimerResolution();
 
 		//
 		//  Register any System callbacks
@@ -132,11 +131,6 @@ namespace SGE
 		//  Make sure the mainSoundSystem has stopped running.
 		//
 		SGE::Sound::Stop();
-
-		//
-		//  Start the System Timer
-		//
-		SGE::Utility::Timer::StopSystemTimer();
 
 		//
 		//  Terminate GLFW, if the game engine is done, so are we.

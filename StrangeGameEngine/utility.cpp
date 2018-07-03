@@ -13,11 +13,6 @@
 //
 #include "include\SGE\system.h"
 
-#ifdef _WIN32
-#include <Windows.h>
-#endif
-
-
 //
 //  Strange Game Engine Main Namespace
 //
@@ -190,197 +185,23 @@ namespace SGE
 		//
 		namespace Timer
 		{
-			const int SYSTEM_TIMER_TICK_RATE_MILLISECONDS = 20;
-
-			bool SystemTimerKeepAlive = false;
-			std::thread* SystemTimerThread = NULL;
-
-
-			std::mutex SystemTimerMutex;
-			std::condition_variable SystemTimerConditionalVariable;
-			
-			//
-			//  Timer callback function that sends an alert to all components waiting for a tick via threading conditional variables
-			//
-			void TimerCallback()
-			{
-				SystemTimerConditionalVariable.notify_all();
-			}
-
-			//
-			//  This function serves as a crude timer thread, in case other options are not available.
-			//  Uses a combination of sleep logic and thread yields to try to manage an accurate timer
-			//
-			void CrudeFallbackTimerThread()
-			{
-				//
-				//  Attempt to wait for the desired quantum and determine from there how far off it is.
-				//
-				const int ATTEMPTED_MILLISECOND_QUANTUM = 10;
-
-				//
-				//  Figure out the destinated target time to sleep to
-				//
-				std::chrono::time_point<std::chrono::steady_clock> whenToContinue = std::chrono::steady_clock::now() + std::chrono::milliseconds(SYSTEM_TIMER_TICK_RATE_MILLISECONDS);
-
-				//  Test the sleep waters
-				std::chrono::time_point<std::chrono::steady_clock> timeSleepStart;
-				std::chrono::microseconds timeSlept = std::chrono::microseconds(0);
-
-				//
-				//  While the system timer is suppose to run
-				//
-				while (SystemTimerKeepAlive)
-				{
-					//
-					//  Figure out the next to wait to
-					//
-					whenToContinue = std::chrono::steady_clock::now() + std::chrono::milliseconds(SYSTEM_TIMER_TICK_RATE_MILLISECONDS);
-					
-					//
-					//  Start trying to sleep towards that goal
-					//
-					while ((std::chrono::steady_clock::now() + timeSlept) < whenToContinue)
-					{
-						timeSleepStart = std::chrono::steady_clock::now();
-
-						//  Check the thread sleep quantum
-						std::this_thread::sleep_for(std::chrono::milliseconds(ATTEMPTED_MILLISECOND_QUANTUM));
-
-						//  How long did we actually sleep
-						timeSlept = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timeSleepStart);
-					}
-
-					//
-					//  Figure out if we are short of the goal and busy wait to it
-					//
-					while (std::chrono::steady_clock::now() < whenToContinue)
-					{
-						std::this_thread::yield();
-					}
-
-					//
-					//  Call the callback
-					//
-					TimerCallback();
-				}
-			}
-
-			#ifdef _WIN32
-			void CALLBACK SystemTimerCallbackWindows(_In_ PVOID   lpParameter,	_In_ BOOLEAN TimerOrWaitFired)
-			{
-				TimerCallback();
-			}
-
-			HANDLE phSystemTimer;
-			bool SomeVariable = true;
-
-			#endif
-
-
-
-			//
-			//  Initialize the system timer and start it ticking.
-			//
-			void StartSystemTimer()
-			{
-
-				#ifdef _WIN32
-				//
-				//  If we happen to be on Windows... Let's use the Queue Timers!
-				//
-				CreateTimerQueueTimer(&phSystemTimer, NULL, SystemTimerCallbackWindows, (PVOID)&SomeVariable, SYSTEM_TIMER_TICK_RATE_MILLISECONDS, SYSTEM_TIMER_TICK_RATE_MILLISECONDS, WT_EXECUTEDEFAULT);
-
-				#else
-				//
-				//  Set the signal flag to allow the thread to run
-				//
-				SystemTimerKeepAlive = true;
-
-				//
-				//  If we haven't already created a thread
-				//
-				if (SystemTimerThread == NULL)
-				{
-					//
-					//  Create a thread!
-					//
-					SystemTimerThread = new std::thread(CrudeFallbackTimerThread);
-				}
-				#endif
-			}
-
-			//
-			//  Halt the system timer
-			//
-			void StopSystemTimer()
-			{
-				#ifdef _WIN32
-				//
-				//  If we happen to be on Windows... Let's use the Queue Timers!
-				//
-				DeleteTimerQueueTimer(NULL, phSystemTimer, INVALID_HANDLE_VALUE);
-
-				#else			
-
-				//
-				// Signal the system timer thread to stop
-				//
-				SystemTimerKeepAlive = false;
-
-				//
-				//  If there's actually still a thread there
-				//
-				if (SystemTimerThread != NULL)
-				{
-					//
-					//  Check to see if the thread is joinable, (maybe has already joined for reasons...?)
-					//
-					if (SystemTimerThread->joinable())
-					{
-						//
-						//  Join back into the fold my wayward thread.
-						//
-						SystemTimerThread->join();
-
-						//
-						//  So I can deleted you from existence!!!
-						//
-						delete SystemTimerThread;
-
-						//
-						//  And wipe all traces of you!
-						//
-						SystemTimerThread = NULL;
-					}
-				}
-				#endif		
-			}
-
-			//
-			//  Function that allows for various system components to wait for a system tick without needing to tie into any advanced system components
-			//
-			void WaitForSystemTick()
-			{
-				std::unique_lock<std::mutex> waitLock(SystemTimerMutex);
-
-				SystemTimerConditionalVariable.wait(waitLock);
-			}
-
-
-
 			//
 			//  Crude and rough timer system.  Not really recommended to use for everything due to burning some serious CPU cycles when system clock interrupt intervals shift outside multiples of the desired wait period.
 			//
-			void AccurateWaitForMilliseconds(int milliseconds)
+			void AccurateWaitForMilliseconds(int milliseconds, bool superAccurate)
 			{
 				const int ATTEMPTED_MILLISECOND_QUANTUM = 10;
+
 
 				//
 				//  Figure out the destinated target time to sleep to
 				//
 				std::chrono::time_point<std::chrono::steady_clock> whenToContinue = std::chrono::steady_clock::now() + std::chrono::milliseconds(milliseconds);
 
+
+				#ifdef _WIN32
+				std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds - SGE::System::OS::TARGET_OS_TIMER_RESOLUTION_MILLISECONDS));
+				#else				
 
 				//  Test the sleep waters
 				std::chrono::time_point<std::chrono::steady_clock> timeSleepStart;
@@ -396,14 +217,16 @@ namespace SGE
 					//  How long did we actually sleep
 					timeSlept = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timeSleepStart);
 				}
+				#endif	
 
 				//
 				//  Figure out if we are short of the goal and busy wait to it
 				//
-				while (std::chrono::steady_clock::now() < whenToContinue)
+				while (std::chrono::steady_clock::now() < whenToContinue && superAccurate)
 				{
 					std::this_thread::yield();
 				}
+
 			}
 
 
@@ -1330,7 +1153,8 @@ break;
 							//
 							//  Wait for the next division
 							//
-							SGE::Utility::Timer::AccurateWaitForMilliseconds(DEFAULT_TICK_TIMING_MILLI * ticksADivision);
+							SGE::Utility::Timer::AccurateWaitForMilliseconds(DEFAULT_TICK_TIMING_MILLI * ticksADivision, true);
+
 
 							//
 							//  Calculate the delta time, post sleep

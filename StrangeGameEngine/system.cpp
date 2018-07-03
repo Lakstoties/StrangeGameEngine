@@ -25,6 +25,31 @@ namespace SGE
 	namespace System
 	{
 		//
+		//  OS Specific Stuff
+		//
+		namespace OS
+		{
+			void SetOSTimerResolution()
+			{
+				#ifdef _WIN32
+				//
+				//  If we happen to be on Windows... See the timing rate close to what we need.
+				//
+				TIMECAPS tc;
+				UINT     wTimerRes;
+
+				if (timeGetDevCaps(&tc, sizeof(TIMECAPS)) != TIMERR_NOERROR)
+				{
+					// Error; application can't continue.
+				}
+
+				wTimerRes = min(max(tc.wPeriodMin, TARGET_OS_TIMER_RESOLUTION_MILLISECONDS), tc.wPeriodMax);
+				timeBeginPeriod(wTimerRes);
+				#endif
+			}
+		}
+
+		//
 		//  Callbacks namespace for handling any callbacks related to System
 		//
 		namespace Callbacks

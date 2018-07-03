@@ -10,6 +10,13 @@ namespace SGE
 	//
 	namespace System
 	{
+		namespace OS
+		{
+			const int TARGET_OS_TIMER_RESOLUTION_MILLISECONDS = 5;
+
+			void SetOSTimerResolution();
+		}
+
 		namespace Callbacks
 		{
 			void Register();
