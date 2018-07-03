@@ -504,7 +504,8 @@ void InputTest(bool& testInputRunning)
 		//  Wait a little after each iteration
 		//
 		//std::this_thread::sleep_for(std::chrono::milliseconds(15));
-		std::this_thread::sleep_until(std::chrono::steady_clock::now() + std::chrono::milliseconds(15) - deltaTime);
+		//SGE::Utility::Timer::AccurateWaitForMilliseconds(14);
+		SGE::Utility::Timer::WaitForSystemTick();
 	}
 }
 

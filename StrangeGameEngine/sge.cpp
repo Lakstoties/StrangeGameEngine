@@ -45,6 +45,11 @@ namespace SGE
 		}
 
 		//
+		//  Start the System Timer
+		//
+		SGE::Utility::Timer::StartSystemTimer();
+
+		//
 		//  Register any System callbacks
 		//
 		SGE::System::Callbacks::Register();
@@ -127,6 +132,11 @@ namespace SGE
 		//  Make sure the mainSoundSystem has stopped running.
 		//
 		SGE::Sound::Stop();
+
+		//
+		//  Start the System Timer
+		//
+		SGE::Utility::Timer::StopSystemTimer();
 
 		//
 		//  Terminate GLFW, if the game engine is done, so are we.

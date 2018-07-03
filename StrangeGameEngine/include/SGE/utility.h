@@ -272,6 +272,15 @@ namespace SGE
 
 		namespace Timer
 		{
+			SGEAPI void AccurateWaitForMilliseconds(int milliseconds);
+
+
+			SGEAPI void StartSystemTimer();
+			SGEAPI void StopSystemTimer();
+			SGEAPI void WaitForSystemTick();
+
+
+
 			class SGEAPI TimerDelta
 			{
 			private:
