@@ -185,6 +185,7 @@ namespace SGE
 		//
 		namespace Timer
 		{
+
 			//
 			//  Crude and rough timer system.  Not really recommended to use for everything due to burning some serious CPU cycles when system clock interrupt intervals shift outside multiples of the desired wait period.
 			//
@@ -192,41 +193,38 @@ namespace SGE
 			{
 				const int ATTEMPTED_MILLISECOND_QUANTUM = 10;
 
-
 				//
 				//  Figure out the destinated target time to sleep to
 				//
-				std::chrono::time_point<std::chrono::steady_clock> whenToContinue = std::chrono::steady_clock::now() + std::chrono::milliseconds(milliseconds);
-
+				std::clock_t whenToContinue = std::clock() + (CLOCKS_PER_SEC * milliseconds) / 1000;
 
 				#ifdef _WIN32
 				std::this_thread::sleep_for(std::chrono::milliseconds(milliseconds - SGE::System::OS::TARGET_OS_TIMER_RESOLUTION_MILLISECONDS));
 				#else				
 
 				//  Test the sleep waters
-				std::chrono::time_point<std::chrono::steady_clock> timeSleepStart;
-				std::chrono::microseconds timeSlept = std::chrono::microseconds(0);
+				std::clock_t timeSleepStart;
+				std::clock_t timeSlept = 0;
 
-				while ((std::chrono::steady_clock::now() + timeSlept) < whenToContinue)
+				while ((std::clock() + timeSlept) < whenToContinue)
 				{
-					timeSleepStart = std::chrono::steady_clock::now();
+					timeSleepStart = std::clock();
 
 					//  Check the thread sleep quantum
 					std::this_thread::sleep_for(std::chrono::milliseconds(ATTEMPTED_MILLISECOND_QUANTUM));
 
 					//  How long did we actually sleep
-					timeSlept = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - timeSleepStart);
+					timeSlept = std::clock() - timeSleepStart;
 				}
 				#endif	
 
 				//
 				//  Figure out if we are short of the goal and busy wait to it
 				//
-				while (std::chrono::steady_clock::now() < whenToContinue && superAccurate)
+				while (clock() < whenToContinue && superAccurate)
 				{
 					std::this_thread::yield();
 				}
-
 			}
 
 
