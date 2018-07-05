@@ -469,8 +469,8 @@ namespace SGE
 				//
 				//  Statistics information for tick rate
 				//
-				std::chrono::time_point<std::chrono::steady_clock> startTime;
-				std::chrono::microseconds deltaTime = std::chrono::microseconds(DEFAULT_TICK_TIMING_MICRO);
+				std::time_t startTime;
+				std::time_t deltaTime = 0;
 
 
 				//
@@ -490,8 +490,7 @@ namespace SGE
 						for (CurrentDivision = 0; CurrentDivision < 64 && PlayerThreadActive; CurrentDivision++)
 						{
 							//Save the timer to help time the processing time for this division
-							//startTime = std::chrono::steady_clock::now();
-							startTime = std::chrono::steady_clock::now();
+							startTime = std::clock();
 
 							//
 							//  Check for a post division jump
@@ -522,7 +521,7 @@ namespace SGE
 							//
 							//  Set up the channels
 							//
-							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime.count());
+							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime);
 							
 							//
 							//  Check all the channels for any changes
@@ -1157,7 +1156,7 @@ break;
 							//
 							//  Calculate the delta time, post sleep
 							//
-							deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - startTime);
+							deltaTime = std::clock() - startTime;
 						}
 					}
 				}

@@ -457,8 +457,8 @@ namespace SGE
 			unsigned int CurrentImageBuffer = 0;
 
 			//Timer
-			std::chrono::time_point<std::chrono::steady_clock> previousTime;
-			std::chrono::milliseconds deltaTime = std::chrono::milliseconds(0);
+			time_t previousTime;
+			time_t deltaTime = 0;
 
 
 			void CreateBuffers(unsigned int number, unsigned int XSize, unsigned int YSize);

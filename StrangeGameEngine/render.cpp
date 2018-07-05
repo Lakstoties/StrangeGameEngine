@@ -1,5 +1,6 @@
 ﻿#include "include\SGE\render.h"
 #include "include\SGE\inputs.h"
+#include <ctime>
 #include <cstring>
 
 //
@@ -1141,7 +1142,7 @@ namespace SGE
 		void AnimationBlock::StartAnimation()
 		{
 			//Capture the current time
-			previousTime = std::chrono::steady_clock::now();
+			previousTime = std::clock();
 
 			//Reset the current image
 			CurrentImageBuffer = 0;
@@ -1163,10 +1164,10 @@ namespace SGE
 			if (Animating)
 			{
 				//Check to see if we need to progress to the next frame based on timing factors
-				if (std::chrono::steady_clock::now() - previousTime > std::chrono::milliseconds(MillisecondsPerFrame))
+				if ((std::clock() - previousTime) > MillisecondsPerFrame)
 				{
 					//Grab new previous time
-					previousTime = std::chrono::steady_clock::now();
+					previousTime = std::clock();
 
 					//Go to the next frame buffer
 					CurrentImageBuffer = (CurrentImageBuffer + 1) % NumberOfImages;
