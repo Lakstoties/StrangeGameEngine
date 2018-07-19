@@ -52,7 +52,7 @@
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
       <AdditionalIncludeDirectories>..\GLFW\include;..\PortAudio\include;..\GLEW\include</AdditionalIncludeDirectories>
-      <PreprocessorDefinitions>SGE_BUILD_DLL;_WIN32;GLEW_STATIC;_CRT_SECURE_NO_WARNINGS; _SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions); D_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>SGE_BUILD_DLL;_WIN32;GLEW_STATIC;_CRT_SECURE_NO_WARNINGS; _SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions); D_SCL_SECURE_NO_WARNINGS;</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CLanguageStandard>gnu11</CLanguageStandard>
       <CppLanguageStandard>gnu++1y</CppLanguageStandard>

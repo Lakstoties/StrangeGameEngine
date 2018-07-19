@@ -477,7 +477,7 @@ namespace SGE
 		//
 		//  Draw a character to the screen
 		//
-		void SGEAPI Draw8x8Character(const unsigned long long &character, const int &targetX, const int &targetY, const SGE::Display::Video::pixel &color);
+		void SGEAPI Draw8x8Character(const unsigned long long character, const int targetX, const int targetY, const SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a string of characters to the screen, from a null terminated string
@@ -487,7 +487,7 @@ namespace SGE
 		//
 		//  Draw a block of data from a source to target video ram
 		//
-		void SGEAPI DrawDataBlock(int targetX, int targetY, int sourceWidth, int sourceHeight, unsigned int* sourceDataBlock);
+		void SGEAPI DrawDataBlock(int targetX, int targetY, int sourceWidth, int sourceHeight, SGE::Display::Video::pixel* sourceDataBlock);
 
 		//
 		//  Function that prunes a line represented by two points to within the viewable area of the game screen

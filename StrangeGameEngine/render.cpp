@@ -82,12 +82,9 @@ namespace SGE
 			}
 		}
 
-
 		void inline Draw8x8CharacterRowXY(const unsigned char &characterRowToDraw, const int &targetX, const int &targetY, const SGE::Display::Video::pixel &targetColor)
 		{
 			SGE::Display::Video::pixel* targetRAM = SGE::Display::Video::RAM + targetX + targetY * SGE::Display::Video::ResolutionX;
-
-
 
 			//
 			//  Check for Left Edge Case
@@ -137,10 +134,10 @@ namespace SGE
 		//  Draw a single character
 		//
 		void Draw8x8Character(
-			const unsigned long long &character,			//64-bit Character ROM array to map characters against
-			const int &targetX,								//Target X location to start drawing from (Upper Left Corner)
-			const int &targetY,								//Target Y location to start drawing from (Upper Left Corner)
-			const SGE::Display::Video::pixel &targetColor)	//Target pixel data for the color
+			const unsigned long long character,				//64-bit Character ROM array to map characters against
+			const int targetX,								//Target X location to start drawing from (Upper Left Corner)
+			const int targetY,								//Target Y location to start drawing from (Upper Left Corner)
+			const SGE::Display::Video::pixel targetColor)	//Target pixel data for the color
 		{
 			//Get a pointer to what we are interested in.
 			//Cast down to an unsigned char so to work with 8-bit at a time of the 64-bit
@@ -208,7 +205,7 @@ namespace SGE
 			int targetY,								//Target Y location to start drawing from (Upper Left Corner)
 			int sourceWidth,							//The width of the source block
 			int sourceHeight,							//The height of the source block
-			unsigned int* sourceDataBlock)				//The source data block
+			SGE::Display::Video::pixel* sourceDataBlock)				//The source data block
 		{
 			//Set the starting point in VideoRAM
 			int targetRAM = (targetX + (targetY * SGE::Display::Video::ResolutionX));
@@ -220,7 +217,8 @@ namespace SGE
 			for (int i = 0; i < sourceHeight; i++)
 			{
 				//Copy of row from the source over to the target
-				std::memcpy(&SGE::Display::Video::RAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * sizeof(SGE::Display::Video::pixel));
+				//std::memcpy(&SGE::Display::Video::RAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * sizeof(SGE::Display::Video::pixel));
+				std::copy(sourceDataBlock + sourceRAM, sourceDataBlock + sourceRAM + sourceWidth, SGE::Display::Video::RAM + targetRAM);
 
 				//Increment to the next row in the display
 				targetRAM += SGE::Display::Video::ResolutionX;
@@ -570,7 +568,9 @@ namespace SGE
 			for (int i = SGE::Display::Video::ResolutionX; i < height * SGE::Display::Video::ResolutionX; i += SGE::Display::Video::ResolutionX)
 			{
 				//Copy the first row to the rest of the rows
-				std::memcpy(&targetRAMPointer[i], targetRAMPointer, width * sizeof(SGE::Display::Video::pixel));
+				//std::memcpy(&targetRAMPointer[i], targetRAMPointer, width * sizeof(SGE::Display::Video::pixel));
+				std::copy(targetRAMPointer, targetRAMPointer + width, targetRAMPointer + i);
+				
 			}
 		}
 
@@ -899,9 +899,11 @@ namespace SGE
 				//  Mass move data
 				//
 
-				std::memcpy(&SGE::Display::Video::RAM[copyRowDestination],		//In Video RAM
-						&rowBuffer[copyRowSource],			//From the Row Buffer
-						sizeof(SGE::Display::Video::pixel) * copyRowLength);
+				//std::memcpy(&SGE::Display::Video::RAM[copyRowDestination],		//In Video RAM
+				//		&rowBuffer[copyRowSource],			//From the Row Buffer
+				//		sizeof(SGE::Display::Video::pixel) * copyRowLength);
+
+				std::copy(&rowBuffer[copyRowSource], &rowBuffer[copyRowSource + copyRowLength], &SGE::Display::Video::RAM[copyRowDestination]);
 			}
 
 			//
@@ -960,9 +962,11 @@ namespace SGE
 				//  Mass move data
 				//
 
-				std::memcpy(&SGE::Display::Video::RAM[copyRowDestination],	//In Video RAM
-					&rowBuffer[copyRowSource],			//From the Row Buffer
-					sizeof(SGE::Display::Video::pixel) * copyRowLength);
+				//std::memcpy(&SGE::Display::Video::RAM[copyRowDestination],	//In Video RAM
+				//	&rowBuffer[copyRowSource],			//From the Row Buffer
+				//	sizeof(SGE::Display::Video::pixel) * copyRowLength);
+				
+				std::copy(rowBuffer + copyRowSource, rowBuffer + copyRowSource + copyRowLength, SGE::Display::Video::RAM + copyRowDestination);
 			}
 		}
 

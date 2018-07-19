@@ -407,7 +407,9 @@ namespace SGE
 			//
 			//  memcpy over the data into the buffer
 			//
-			std::memcpy(data, samples, sizeof(sampleType) * size);
+			//std::memcpy(data, samples, sizeof(sampleType) * size);
+			std::copy(samples, samples + size, data);
+
 
 			//
 			//  Everything should have gone okay...

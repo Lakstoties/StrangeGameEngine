@@ -370,7 +370,8 @@ namespace SGE
 					refreshHold.lock();
 
 					//Copy our data to it
-					std::memcpy(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(Video::pixel));
+					//std::memcpy(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(Video::pixel));
+					std::copy(Video::RAM, Video::RAM + Video::RAMSize, (Video::pixel*)pixelBufferMapping);
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
@@ -392,7 +393,8 @@ namespace SGE
 					refreshHold.lock();
 
 					//Update the data
-					std::memcpy(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(Video::pixel));
+					//std::memcpy(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(Video::pixel));
+					std::copy(Video::RAM, Video::RAM + Video::RAMSize, (Video::pixel*)pixelBufferMapping);
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();

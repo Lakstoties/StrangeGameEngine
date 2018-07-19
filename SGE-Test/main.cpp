@@ -33,14 +33,18 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 	//
 	//  Copy first row over
 	//
-	std::memcpy(targetRAM, buffer + copyStart, copyLength * sizeof(SGE::Display::Video::pixel));
+	//std::memcpy(targetRAM, buffer + copyStart, copyLength * sizeof(SGE::Display::Video::pixel));
+	std::copy(buffer + copyStart, buffer + copyStart + copyLength, targetRAM);
+
 
 	//
 	//
 	//
 	for (int i = SGE::Display::Video::ResolutionX; i < SGE::Display::Video::ResolutionY * SGE::Display::Video::ResolutionX; i += SGE::Display::Video::ResolutionX)
 	{
-		std::memcpy(&targetRAM[i], targetRAM, copyLength * sizeof(SGE::Display::Video::pixel));
+		//std::memcpy(&targetRAM[i], targetRAM, copyLength * sizeof(SGE::Display::Video::pixel));
+		std::copy(targetRAM, targetRAM + copyLength, targetRAM + i);
+
 	}
 }
 
