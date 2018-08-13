@@ -37,25 +37,25 @@ namespace SGE
 
 			//
 			//  Prune down to a valid drawing area.
-			//
-			if (startX < 0) { startX = 0; }
-			if (startY < 0) { startY = 0; }
-			if (endX >= SGE::Display::Video::ResolutionX) { endX = SGE::Display::Video::ResolutionX; }
-			if (endY >= SGE::Display::Video::ResolutionY) { endY = SGE::Display::Video::ResolutionY; }
+//
+if (startX < 0) { startX = 0; }
+if (startY < 0) { startY = 0; }
+if (endX >= SGE::Display::Video::ResolutionX) { endX = SGE::Display::Video::ResolutionX; }
+if (endY >= SGE::Display::Video::ResolutionY) { endY = SGE::Display::Video::ResolutionY; }
 
-			//
-			//  Draw the cursor
-			//
-			for (int drawY = startY; drawY < endY; drawY++)
-			{
-				for (int drawX = startX; drawX < endX; drawX++)
-				{
-					SGE::Display::Video::RAM[drawY * SGE::Display::Video::ResolutionX + drawX] = cursorColor;
-				}
-			}
+//
+//  Draw the cursor
+//
+for (int drawY = startY; drawY < endY; drawY++)
+{
+	for (int drawX = startX; drawX < endX; drawX++)
+	{
+		SGE::Display::Video::RAM[drawY * SGE::Display::Video::ResolutionX + drawX] = cursorColor;
+	}
+}
 
 		}
-		
+
 
 		//
 		//  Draws a string of characters
@@ -91,13 +91,16 @@ namespace SGE
 			//
 			if (targetX < 0)
 			{
-				if (targetX + 7 >= 0) {	if (characterRowToDraw & 0x80) { targetRAM[7] = targetColor; } } else { return; }
-				if (targetX + 6 >= 0) { if (characterRowToDraw & 0x40) { targetRAM[6] = targetColor; } } else { return; }
-				if (targetX + 5 >= 0) {	if (characterRowToDraw & 0x20) { targetRAM[5] = targetColor; } } else { return; }
-				if (targetX + 4 >= 0) {	if (characterRowToDraw & 0x10) { targetRAM[4] = targetColor; } } else { return; }
-				if (targetX + 3 >= 0) {	if (characterRowToDraw & 0x08) { targetRAM[3] = targetColor; } } else { return; }
-				if (targetX + 2 >= 0) { if (characterRowToDraw & 0x04) { targetRAM[2] = targetColor; } } else { return; }
-				if (targetX + 1 >= 0) {	if (characterRowToDraw & 0x02) { targetRAM[1] = targetColor; } } else { return; }
+				switch (targetX)
+				{
+				case -1: if (characterRowToDraw & 0x02) { targetRAM[1] = targetColor; }
+				case -2: if (characterRowToDraw & 0x04) { targetRAM[2] = targetColor; }
+				case -3: if (characterRowToDraw & 0x08) { targetRAM[3] = targetColor; }
+				case -4: if (characterRowToDraw & 0x10) { targetRAM[4] = targetColor; }
+				case -5: if (characterRowToDraw & 0x20) { targetRAM[5] = targetColor; }
+				case -6: if (characterRowToDraw & 0x40) { targetRAM[6] = targetColor; }
+				case -7: if (characterRowToDraw & 0x80) { targetRAM[7] = targetColor; }
+				}
 			}
 
 			//
@@ -105,19 +108,22 @@ namespace SGE
 			//
 			else if ((targetX + 7) >= SGE::Display::Video::ResolutionX)
 			{
-				if (targetX + 0 < SGE::Display::Video::ResolutionX) { if (characterRowToDraw & 0x02) { targetRAM[0] = targetColor; } } else { return; }
-				if (targetX + 1 < SGE::Display::Video::ResolutionX) { if (characterRowToDraw & 0x02) { targetRAM[1] = targetColor; } } else { return; }
-				if (targetX + 2 < SGE::Display::Video::ResolutionX) { if (characterRowToDraw & 0x04) { targetRAM[2] = targetColor; } } else { return; }
-				if (targetX + 3 < SGE::Display::Video::ResolutionX) { if (characterRowToDraw & 0x08) { targetRAM[3] = targetColor; } } else { return; }
-				if (targetX + 4 < SGE::Display::Video::ResolutionX) { if (characterRowToDraw & 0x10) { targetRAM[4] = targetColor; } } else { return; }
-				if (targetX + 5 < SGE::Display::Video::ResolutionX) { if (characterRowToDraw & 0x20) { targetRAM[5] = targetColor; } } else { return; }
-				if (targetX + 6 < SGE::Display::Video::ResolutionX) { if (characterRowToDraw & 0x40) { targetRAM[6] = targetColor; } } else { return; }
+				switch (SGE::Display::Video::ResolutionX - targetX)
+				{
+				case 7: if (characterRowToDraw & 0x40) { targetRAM[6] = targetColor; }
+				case 6: if (characterRowToDraw & 0x20) { targetRAM[5] = targetColor; }
+				case 5: if (characterRowToDraw & 0x10) { targetRAM[4] = targetColor; }
+				case 4:	if (characterRowToDraw & 0x08) { targetRAM[3] = targetColor; }
+				case 3: if (characterRowToDraw & 0x04) { targetRAM[2] = targetColor; }
+				case 2:	if (characterRowToDraw & 0x02) { targetRAM[1] = targetColor; }
+				case 1:	if (characterRowToDraw & 0x01) { targetRAM[0] = targetColor; }
+				}
 			}
 
 			//
 			//  If Normal Conditions
 			//
-			else 
+			else
 			{
 				if (characterRowToDraw & 0x01) { targetRAM[0] = targetColor; }
 				if (characterRowToDraw & 0x02) { targetRAM[1] = targetColor; }
@@ -128,6 +134,44 @@ namespace SGE
 				if (characterRowToDraw & 0x40) { targetRAM[6] = targetColor; }
 				if (characterRowToDraw & 0x80) { targetRAM[7] = targetColor; }
 			}
+		}
+
+		void inline Draw8x8CharacterEdgeCase(const unsigned char &characterRowToDraw, const int &targetX, const int &targetY, const int drawIndex, const SGE::Display::Video::pixel &targetColor)
+		{
+			SGE::Display::Video::pixel* targetRAM = SGE::Display::Video::RAM + targetX + targetY * SGE::Display::Video::ResolutionX;
+
+			switch (drawIndex)
+			{
+			case 7: if (characterRowToDraw & 0x40) { targetRAM[6] = targetColor; }
+			case 6: if (characterRowToDraw & 0x20) { targetRAM[5] = targetColor; }
+			case 5: if (characterRowToDraw & 0x10) { targetRAM[4] = targetColor; }
+			case 4:	if (characterRowToDraw & 0x08) { targetRAM[3] = targetColor; }
+			case 3: if (characterRowToDraw & 0x04) { targetRAM[2] = targetColor; }
+			case 2:	if (characterRowToDraw & 0x02) { targetRAM[1] = targetColor; }
+			case 1:	if (characterRowToDraw & 0x01) { targetRAM[0] = targetColor; }
+			case 0: break;
+			case -1: if (characterRowToDraw & 0x02) { targetRAM[1] = targetColor; }
+			case -2: if (characterRowToDraw & 0x04) { targetRAM[2] = targetColor; }
+			case -3: if (characterRowToDraw & 0x08) { targetRAM[3] = targetColor; }
+			case -4: if (characterRowToDraw & 0x10) { targetRAM[4] = targetColor; }
+			case -5: if (characterRowToDraw & 0x20) { targetRAM[5] = targetColor; }
+			case -6: if (characterRowToDraw & 0x40) { targetRAM[6] = targetColor; }
+			case -7: if (characterRowToDraw & 0x80) { targetRAM[7] = targetColor; }
+			}
+		}
+
+		void inline Draw8x8CharacterRowFull(const unsigned char &characterRowToDraw, const int &targetX, const int &targetY, const SGE::Display::Video::pixel &targetColor)
+		{
+			SGE::Display::Video::pixel* targetRAM = SGE::Display::Video::RAM + targetX + targetY * SGE::Display::Video::ResolutionX;
+
+			if (characterRowToDraw & 0x01) { targetRAM[0] = targetColor; }
+			if (characterRowToDraw & 0x02) { targetRAM[1] = targetColor; }
+			if (characterRowToDraw & 0x04) { targetRAM[2] = targetColor; }
+			if (characterRowToDraw & 0x08) { targetRAM[3] = targetColor; }
+			if (characterRowToDraw & 0x10) { targetRAM[4] = targetColor; }
+			if (characterRowToDraw & 0x20) { targetRAM[5] = targetColor; }
+			if (characterRowToDraw & 0x40) { targetRAM[6] = targetColor; }
+			if (characterRowToDraw & 0x80) { targetRAM[7] = targetColor; }
 		}
 
 		//
@@ -156,46 +200,81 @@ namespace SGE
 			}
 
 			//
-			//  Left Edge Case
+			//  Upper Edge Case
 			//
 			else if (targetY < 0)
 			{
-				if (targetY + 7 >= 0) { if (characterToDraw[7]) { Draw8x8CharacterRowXY(characterToDraw[7], targetX, targetY + 7, targetColor); } }	else { return; }
-				if (targetY + 6 >= 0) { if (characterToDraw[6]) { Draw8x8CharacterRowXY(characterToDraw[6], targetX, targetY + 6, targetColor); } }	else { return; }
-				if (targetY + 5 >= 0) { if (characterToDraw[5]) { Draw8x8CharacterRowXY(characterToDraw[5], targetX, targetY + 5, targetColor); } }	else { return; }
-				if (targetY + 4 >= 0) { if (characterToDraw[4]) { Draw8x8CharacterRowXY(characterToDraw[4], targetX, targetY + 4, targetColor); } }	else { return; }
-				if (targetY + 3 >= 0) { if (characterToDraw[3]) { Draw8x8CharacterRowXY(characterToDraw[3], targetX, targetY + 3, targetColor); } } else { return; }
-				if (targetY + 2 >= 0) { if (characterToDraw[2]) { Draw8x8CharacterRowXY(characterToDraw[2], targetX, targetY + 2, targetColor); } }	else { return; }
-				if (targetY + 1 >= 0) { if (characterToDraw[1]) { Draw8x8CharacterRowXY(characterToDraw[1], targetX, targetY + 1, targetColor); } }	else { return; }
+				switch (targetY)
+				{
+				case -1: if (characterToDraw[1]) { Draw8x8CharacterRowXY(characterToDraw[1], targetX, targetY + 1, targetColor); }
+				case -2: if (characterToDraw[2]) { Draw8x8CharacterRowXY(characterToDraw[2], targetX, targetY + 2, targetColor); }
+				case -3: if (characterToDraw[3]) { Draw8x8CharacterRowXY(characterToDraw[3], targetX, targetY + 3, targetColor); }
+				case -4: if (characterToDraw[4]) { Draw8x8CharacterRowXY(characterToDraw[4], targetX, targetY + 4, targetColor); }
+				case -5: if (characterToDraw[5]) { Draw8x8CharacterRowXY(characterToDraw[5], targetX, targetY + 5, targetColor); }
+				case -6: if (characterToDraw[6]) { Draw8x8CharacterRowXY(characterToDraw[6], targetX, targetY + 6, targetColor); }
+				case -7: if (characterToDraw[7]) { Draw8x8CharacterRowXY(characterToDraw[7], targetX, targetY + 7, targetColor); }
+				}
 			}
 
 			//
-			//  Right Edge Case
+			//  Bottom Edge Case
 			//
 			else if ((targetY + 7) >= SGE::Display::Video::ResolutionY)
 			{
-				if (targetY + 0 < SGE::Display::Video::ResolutionY) {	if (characterToDraw[0])	{ Draw8x8CharacterRowXY(characterToDraw[0], targetX, targetY + 0, targetColor);	} } else { return; }
-				if (targetY + 1 < SGE::Display::Video::ResolutionY) {	if (characterToDraw[1])	{ Draw8x8CharacterRowXY(characterToDraw[1], targetX, targetY + 1, targetColor); } } else { return; }
-				if (targetY + 2 < SGE::Display::Video::ResolutionY) {	if (characterToDraw[2])	{ Draw8x8CharacterRowXY(characterToDraw[2], targetX, targetY + 2, targetColor); } } else { return; }
-				if (targetY + 3 < SGE::Display::Video::ResolutionY) {	if (characterToDraw[3])	{ Draw8x8CharacterRowXY(characterToDraw[3], targetX, targetY + 3, targetColor);	} } else { return; }
-				if (targetY + 4 < SGE::Display::Video::ResolutionY) {	if (characterToDraw[4])	{ Draw8x8CharacterRowXY(characterToDraw[4], targetX, targetY + 4, targetColor); } } else { return; }
-				if (targetY + 5 < SGE::Display::Video::ResolutionY) {	if (characterToDraw[5])	{ Draw8x8CharacterRowXY(characterToDraw[5], targetX, targetY + 5, targetColor);	} } else { return; }
-				if (targetY + 6 < SGE::Display::Video::ResolutionY) {	if (characterToDraw[6])	{ Draw8x8CharacterRowXY(characterToDraw[6], targetX, targetY + 6, targetColor);	} } else { return; }
+				switch (SGE::Display::Video::ResolutionY - targetY)
+				{
+				case 7: if (characterToDraw[6]) { Draw8x8CharacterRowXY(characterToDraw[6], targetX, targetY + 6, targetColor); };
+				case 6: if (characterToDraw[5]) { Draw8x8CharacterRowXY(characterToDraw[5], targetX, targetY + 5, targetColor); };
+				case 5: if (characterToDraw[4]) { Draw8x8CharacterRowXY(characterToDraw[4], targetX, targetY + 4, targetColor); };
+				case 4: if (characterToDraw[3]) { Draw8x8CharacterRowXY(characterToDraw[3], targetX, targetY + 3, targetColor); };
+				case 3: if (characterToDraw[2]) { Draw8x8CharacterRowXY(characterToDraw[2], targetX, targetY + 2, targetColor); };
+				case 2: if (characterToDraw[1]) { Draw8x8CharacterRowXY(characterToDraw[1], targetX, targetY + 1, targetColor); };
+				case 1: if (characterToDraw[0]) { Draw8x8CharacterRowXY(characterToDraw[0], targetX, targetY + 0, targetColor); };
+				}
 			}
 
 			//
-			//  Normal drawing conditions
+			//  Normal Y drawing conditions
 			//
 			else 
 			{
-				if (characterToDraw[0]) { Draw8x8CharacterRowXY(characterToDraw[0], targetX, targetY + 0, targetColor); }
-				if (characterToDraw[1]) { Draw8x8CharacterRowXY(characterToDraw[1], targetX, targetY + 1, targetColor); }
-				if (characterToDraw[2]) { Draw8x8CharacterRowXY(characterToDraw[2], targetX, targetY + 2, targetColor); }
-				if (characterToDraw[3]) { Draw8x8CharacterRowXY(characterToDraw[3], targetX, targetY + 3, targetColor); }
-				if (characterToDraw[4]) { Draw8x8CharacterRowXY(characterToDraw[4], targetX, targetY + 4, targetColor); }
-				if (characterToDraw[5]) { Draw8x8CharacterRowXY(characterToDraw[5], targetX, targetY + 5, targetColor); }
-				if (characterToDraw[6]) { Draw8x8CharacterRowXY(characterToDraw[6], targetX, targetY + 6, targetColor); }
-				if (characterToDraw[7]) { Draw8x8CharacterRowXY(characterToDraw[7], targetX, targetY + 7, targetColor); }
+				if (targetX < 0)
+				{
+					if (characterToDraw[0]) { Draw8x8CharacterEdgeCase(characterToDraw[0], targetX, targetY + 0, targetX, targetColor); }
+					if (characterToDraw[1]) { Draw8x8CharacterEdgeCase(characterToDraw[1], targetX, targetY + 1, targetX, targetColor); }
+					if (characterToDraw[2]) { Draw8x8CharacterEdgeCase(characterToDraw[2], targetX, targetY + 2, targetX, targetColor); }
+					if (characterToDraw[3]) { Draw8x8CharacterEdgeCase(characterToDraw[3], targetX, targetY + 3, targetX, targetColor); }
+					if (characterToDraw[4]) { Draw8x8CharacterEdgeCase(characterToDraw[4], targetX, targetY + 4, targetX, targetColor); }
+					if (characterToDraw[5]) { Draw8x8CharacterEdgeCase(characterToDraw[5], targetX, targetY + 5, targetX, targetColor); }
+					if (characterToDraw[6]) { Draw8x8CharacterEdgeCase(characterToDraw[6], targetX, targetY + 6, targetX, targetColor); }
+					if (characterToDraw[7]) { Draw8x8CharacterEdgeCase(characterToDraw[7], targetX, targetY + 7, targetX, targetColor); }
+				}
+
+				else if ((targetX + 7) >= SGE::Display::Video::ResolutionX)
+				{
+					int offset = SGE::Display::Video::ResolutionX - targetX;
+
+					if (characterToDraw[0]) { Draw8x8CharacterEdgeCase(characterToDraw[0], targetX, targetY + 0, offset, targetColor); }
+					if (characterToDraw[1]) { Draw8x8CharacterEdgeCase(characterToDraw[1], targetX, targetY + 1, offset, targetColor); }
+					if (characterToDraw[2]) { Draw8x8CharacterEdgeCase(characterToDraw[2], targetX, targetY + 2, offset, targetColor); }
+					if (characterToDraw[3]) { Draw8x8CharacterEdgeCase(characterToDraw[3], targetX, targetY + 3, offset, targetColor); }
+					if (characterToDraw[4]) { Draw8x8CharacterEdgeCase(characterToDraw[4], targetX, targetY + 4, offset, targetColor); }
+					if (characterToDraw[5]) { Draw8x8CharacterEdgeCase(characterToDraw[5], targetX, targetY + 5, offset, targetColor); }
+					if (characterToDraw[6]) { Draw8x8CharacterEdgeCase(characterToDraw[6], targetX, targetY + 6, offset, targetColor); }
+					if (characterToDraw[7]) { Draw8x8CharacterEdgeCase(characterToDraw[7], targetX, targetY + 7, offset, targetColor); }
+				}
+
+				else
+				{
+					if (characterToDraw[0]) { Draw8x8CharacterRowFull(characterToDraw[0], targetX, targetY + 0, targetColor); }
+					if (characterToDraw[1]) { Draw8x8CharacterRowFull(characterToDraw[1], targetX, targetY + 1, targetColor); }
+					if (characterToDraw[2]) { Draw8x8CharacterRowFull(characterToDraw[2], targetX, targetY + 2, targetColor); }
+					if (characterToDraw[3]) { Draw8x8CharacterRowFull(characterToDraw[3], targetX, targetY + 3, targetColor); }
+					if (characterToDraw[4]) { Draw8x8CharacterRowFull(characterToDraw[4], targetX, targetY + 4, targetColor); }
+					if (characterToDraw[5]) { Draw8x8CharacterRowFull(characterToDraw[5], targetX, targetY + 5, targetColor); }
+					if (characterToDraw[6]) { Draw8x8CharacterRowFull(characterToDraw[6], targetX, targetY + 6, targetColor); }
+					if (characterToDraw[7]) { Draw8x8CharacterRowFull(characterToDraw[7], targetX, targetY + 7, targetColor); }
+				}
 			}
 		}
 
