@@ -335,6 +335,7 @@ namespace SGE
 		namespace FMSynth
 		{
 			const int OPERATORS_PER_CHANNEL = 4;
+			const int MAXIMUM_OPERATORS_TO_PROCESS = 16;
 
 
 			class Operator
@@ -352,7 +353,7 @@ namespace SGE
 				//How much to increment the array per sample gotten
 				float increment = 0.0f;
 
-				float Generate(float modulationAmount);
+				float Generate(float modulation);
 
 
 				Operator();
@@ -366,17 +367,22 @@ namespace SGE
 			public:
 				//
 
-
-
-
 				//Operator array
 				Operator Operators[OPERATORS_PER_CHANNEL];
 
-				//Function to use generating sound
-				int functionMode = 0;
+				//Operator Order Array
+				Operator* orderOfOperators[MAXIMUM_OPERATORS_TO_PROCESS] = { NULL };
+
+				//Operator Input Array
+				bool operatorInputArray[OPERATORS_PER_CHANNEL][OPERATORS_PER_CHANNEL] = { false };
+
+				//Operator Main Out Array
+				bool operatorMainOutputArray[OPERATORS_PER_CHANNEL] = { false };
 
 				//Generate a sample
 				sampleType Generate();
+
+				void Render(unsigned int numberOfSamples);
 
 				Channel();
 			};
