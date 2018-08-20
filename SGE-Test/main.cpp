@@ -62,12 +62,12 @@ void InputTest(bool& testInputRunning)
 {
 	char* menuItemText[7] =
 	{
-		(char*)"Play: Hyper.mod",
-		(char*)"Play: Yehat.mod",
-		(char*)"Play: Marucmbt.mod",
-		(char*)"Stop: Hyper.mod",
-		(char*)"Stop: Yehat.mod",
-		(char*)"Stop: Marucmbt.mod",
+		(char*)"Play: Player 1",
+		(char*)"Play: Player 2",
+		(char*)"Play: Player 3",
+		(char*)"Stop: Player 1",
+		(char*)"Stop: Player 2",
+		(char*)"Stop: Player 3",
 		(char*)"Exit Demo",		
 	};
 

@@ -338,25 +338,25 @@ namespace SGE
 			const int MAXIMUM_OPERATORS_TO_PROCESS = 16;
 
 
-			class Operator
+			struct Operator
 			{
-			private:
-
 			public:
-
 				//Float array to use for the waveform
-				float* WaveformArray = NULL;
+				float* Waveform = NULL;
+
+				//Waveform array size
+				unsigned int WaveformSize = 0;
 
 				//Current location in waveform array  
-				float currentArrayIndex = 0.0f;
+				float WaveformIndex = 0.0f;
 
 				//How much to increment the array per sample gotten
-				float increment = 0.0f;
+				float Increment = 0.0f;
+
+				// Magnitude of the oscillation
+				float Magnitude = 0.0f;
 
 				float Generate(float modulation);
-
-
-				Operator();
 			};
 
 
@@ -371,7 +371,7 @@ namespace SGE
 				Operator Operators[OPERATORS_PER_CHANNEL];
 
 				//Operator Order Array
-				Operator* orderOfOperators[MAXIMUM_OPERATORS_TO_PROCESS] = { NULL };
+				Operator* orderOfOperators[MAXIMUM_OPERATORS_TO_PROCESS] = {NULL};
 
 				//Operator Input Array
 				bool operatorInputArray[OPERATORS_PER_CHANNEL][OPERATORS_PER_CHANNEL] = { false };

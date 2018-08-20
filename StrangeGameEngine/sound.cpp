@@ -17,6 +17,21 @@ namespace SGE
 {
 	namespace Sound
 	{
+		namespace FMSynth
+		{
+			float Operator::Generate(float modulation)
+			{
+				WaveformIndex += Increment + modulation;
+
+				return Waveform[(int)WaveformIndex] * Magnitude;
+			}
+		}
+
+
+
+
+
+
 		//
 		//
 		//  Sound Channel Definitions
