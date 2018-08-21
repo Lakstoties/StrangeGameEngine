@@ -633,10 +633,11 @@ for (int drawY = startY; drawY < endY; drawY++)
 				height = SGE::Display::Video::ResolutionY - startY;
 			}
 
+
 			//Get the starting point in video RAM based on desired location and size of the display
 			SGE::Display::Video::pixel* targetRAMPointer = &SGE::Display::Video::RAM[(startX + (startY * SGE::Display::Video::ResolutionX))];
 
-			//Draw the first row
+			////Draw the first row
 			for (int i = 0; i < width; i++)
 			{
 				//Copy the color into video ram
@@ -649,7 +650,6 @@ for (int drawY = startY; drawY < endY; drawY++)
 				//Copy the first row to the rest of the rows
 				//std::memcpy(&targetRAMPointer[i], targetRAMPointer, width * sizeof(SGE::Display::Video::pixel));
 				std::copy(targetRAMPointer, targetRAMPointer + width, targetRAMPointer + i);
-				
 			}
 		}
 
@@ -657,7 +657,10 @@ for (int drawY = startY; drawY < endY; drawY++)
 		void ZBlank()
 		{
 			//Memset for the win!!
-			std::memset(SGE::Display::Video::RAM, 0, SGE::Display::Video::RAMSize * sizeof(SGE::Display::Video::pixel));
+			//std::memset(SGE::Display::Video::RAM, 0, SGE::Display::Video::RAMSize * sizeof(SGE::Display::Video::pixel));
+
+			//std::fill for it all
+			std::fill(SGE::Display::Video::RAM, SGE::Display::Video::RAM + SGE::Display::Video::RAMSize, (SGE::Display::Video::pixel) 0x00000000);
 		}
 
 		//Packs the Red, Green, and Blue 8-bit components with a dummy Alpha value into a 32-bit unsigned int
