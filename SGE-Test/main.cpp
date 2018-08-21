@@ -22,7 +22,7 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 		xPosition = 0;
 	}
 
-	SGE::Display::Video::pixel *targetRAM = SGE::Display::Video::RAM + xPosition;
+	SGE::Display::Video::pixel *targetRAM = &SGE::Display::Video::RAM[xPosition];
 
 	//Prune the amount of the buffer we are going to copy
 	if (xPosition + bufferSize >= (unsigned int)SGE::Display::Video::ResolutionX)

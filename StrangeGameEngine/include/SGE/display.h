@@ -1,5 +1,6 @@
 #pragma once
 #include "api.h"
+#include <vector>
 //
 //  Strange Game Engine Main Namespace
 //
@@ -34,12 +35,8 @@ namespace SGE
 			//
 			//  The virtual video RAM.  Public accessible to allow other components to write to it directly.
 			//
-			extern SGEAPI pixel* RAM;
-
-			//
-			//  The virtual Video RAM size.
-			//
-			extern SGEAPI unsigned int RAMSize;
+			//extern SGEAPI pixel* RAM;
+			extern SGEAPI std::vector<pixel> RAM;
 
 			//
 			//  The virtual video horizontal resolution

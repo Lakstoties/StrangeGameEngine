@@ -55,25 +55,25 @@ namespace SGE
 
 				//  Regular Colors
 				//  Data Formating Notes						  XXBBGGRR
-				const SGE::Display::Video::pixel Black = 0x00000000;
-				const SGE::Display::Video::pixel Red = 0x000000BB;
-				const SGE::Display::Video::pixel Green = 0x0000BB00;
-				const SGE::Display::Video::pixel Yellow = 0x0000BBBB;
-				const SGE::Display::Video::pixel Blue = 0x00BB0000;
-				const SGE::Display::Video::pixel Magenta = 0x00BB00BB;
-				const SGE::Display::Video::pixel Cyan = 0x00BBBB00;
-				const SGE::Display::Video::pixel White = 0x00BBBBBB;
+				const SGE::Display::Video::pixel Black =		0x00000000;
+				const SGE::Display::Video::pixel Red =			0x000000BB;
+				const SGE::Display::Video::pixel Green =		0x0000BB00;
+				const SGE::Display::Video::pixel Yellow =		0x0000BBBB;
+				const SGE::Display::Video::pixel Blue =			0x00BB0000;
+				const SGE::Display::Video::pixel Magenta =		0x00BB00BB;
+				const SGE::Display::Video::pixel Cyan =			0x00BBBB00;
+				const SGE::Display::Video::pixel White =		0x00BBBBBB;
 
 				//  Bright Colors
 				//  Data Formating Notes						  XXBBGGRR
-				const SGE::Display::Video::pixel BrightBlack = 0x00555555;
-				const SGE::Display::Video::pixel BrightRed = 0x005555FF;
-				const SGE::Display::Video::pixel BrightGreen = 0x0055FF55;
+				const SGE::Display::Video::pixel BrightBlack =	0x00555555;
+				const SGE::Display::Video::pixel BrightRed =	0x005555FF;
+				const SGE::Display::Video::pixel BrightGreen =	0x0055FF55;
 				const SGE::Display::Video::pixel BrightYellow = 0x0055FFFF;
-				const SGE::Display::Video::pixel BrightBlue = 0x00FF5555;
-				const SGE::Display::Video::pixel BrightMagenta = 0x00FF55FF;
-				const SGE::Display::Video::pixel BrightCyan = 0x00FFFF55;
-				const SGE::Display::Video::pixel BrightWhite = 0x00FFFFFF;
+				const SGE::Display::Video::pixel BrightBlue =	0x00FF5555;
+				const SGE::Display::Video::pixel BrightMagenta =0x00FF55FF;
+				const SGE::Display::Video::pixel BrightCyan =	0x00FFFF55;
+				const SGE::Display::Video::pixel BrightWhite =	0x00FFFFFF;
 			}
 
 
@@ -472,7 +472,7 @@ namespace SGE
 		//
 		//  Draw Simple Mouse Cursor
 		//
-		void SGEAPI DrawMouseSimpleCursor(unsigned int cursorRadius, SGE::Display::Video::pixel cursorColor);
+		void SGEAPI DrawMouseSimpleCursor(unsigned int cursorRadius, const SGE::Display::Video::pixel cursorColor);
 
 		//
 		//  Draw a character to the screen
@@ -487,7 +487,7 @@ namespace SGE
 		//
 		//  Draw a block of data from a source to target video ram
 		//
-		void SGEAPI DrawDataBlock(int targetX, int targetY, int sourceWidth, int sourceHeight, SGE::Display::Video::pixel* sourceDataBlock);
+		void SGEAPI DrawDataBlock(int targetX, int targetY, int sourceWidth, int sourceHeight, const SGE::Display::Video::pixel* sourceDataBlock);
 
 		//
 		//  Function that prunes a line represented by two points to within the viewable area of the game screen
@@ -497,17 +497,17 @@ namespace SGE
 		//
 		//  Draw a line from one point to another
 		//
-		void SGEAPI DrawLine(int startX, int startY, int endX, int endY, SGE::Display::Video::pixel color);
+		void SGEAPI DrawLine(int startX, int startY, int endX, int endY, const SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a rectangle
 		//
-		void SGEAPI DrawRectangle(int startX, int startY, int width, int height, SGE::Display::Video::pixel color);
+		void SGEAPI DrawRectangle(int startX, int startY, int width, int height, const SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a filled box
 		//
-		void SGEAPI DrawBox(int startX, int startY, int width, int height, SGE::Display::Video::pixel color);
+		void SGEAPI DrawBox(int startX, int startY, int width, int height, const SGE::Display::Video::pixel color);
 
 		//
 		//  Blank the video ram with zero alpha black.  Or the blackest of blacks... it's like you can't get any blacker.
@@ -522,22 +522,22 @@ namespace SGE
 		//
 		//  Arbitrary Vector Shape drawing
 		//
-		void SGEAPI DrawVectorShape(int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], SGE::Display::Video::pixel color);
+		void SGEAPI DrawVectorShape(int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], const SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a filled triangle
 		//
-		void SGEAPI DrawFilledTriangleTrue(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color);
+		void SGEAPI DrawFilledTriangleTrue(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, const SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a filled triangle (New method)
 		//
-		void SGEAPI DrawFilledTriangleFast(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color);
+		void SGEAPI DrawFilledTriangleFast(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, const SGE::Display::Video::pixel color);
 
 		//
 		//  Draw a list of triangles
 		//
-		void SGEAPI DrawFilledTriangles(int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, SGE::Display::Video::pixel color);
+		void SGEAPI DrawFilledTriangles(int startX, int startY, float scalingFactor, VertexPoint* vertexArray, unsigned int numberOfVertexes, const SGE::Display::Video::pixel color);
 
 		//
 		//  Character ROM for an 8x8 character set
