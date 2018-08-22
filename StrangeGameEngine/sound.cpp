@@ -19,11 +19,68 @@ namespace SGE
 	{
 		namespace FMSynth
 		{
-			float Operator::Generate(float modulation)
+			void Operator::Generate(float modulation)
 			{
 				WaveformIndex += Increment + modulation;
 
-				return Waveform[(int)WaveformIndex] * Magnitude;
+				Output = Waveform[(int)WaveformIndex] * Magnitude;
+			}
+
+
+			float Channel::Generate()
+			{
+				//
+				//  Go throught each operator in the list and generate.
+				//
+
+				float tempOutput = 0.0f;
+
+				for (int i = 0; i < MAXIMUM_OPERATORS_TO_PROCESS; i++)
+				{
+					//
+					//  If we run into a null, then we stop processing.
+					//
+
+					if (orderOfOperators[i] == -1)
+					{
+						break;
+					}
+
+					//
+					//  Figure out what we need to input into the channel
+					//
+
+					float tempInput = 0.0f;
+
+					for (int j = 0; j < OPERATORS_PER_CHANNEL; j++)
+					{
+						if (operatorInputArray[orderOfOperators[i]][j])
+						{
+							tempInput += Operators[j].Output;
+						}
+					}
+
+					//
+					//  Generate the next state of the operator
+					//
+
+					Operators[orderOfOperators[i]].Generate(tempInput);
+
+					//
+					//  Check to see if this operator outputs to the Main Output
+					//
+
+					if (operatorMainOutputArray[orderOfOperators[i]])
+					{
+						tempOutput += Operators[orderOfOperators[i]].Output;
+					}
+
+					//
+					//  Output Result
+					//
+
+					return tempOutput;
+				}
 			}
 		}
 

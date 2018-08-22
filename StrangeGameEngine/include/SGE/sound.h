@@ -356,7 +356,9 @@ namespace SGE
 				// Magnitude of the oscillation
 				float Magnitude = 0.0f;
 
-				float Generate(float modulation);
+				float Output = 0.0f;
+
+				void Generate(float modulation);
 			};
 
 
@@ -371,7 +373,7 @@ namespace SGE
 				Operator Operators[OPERATORS_PER_CHANNEL];
 
 				//Operator Order Array
-				Operator* orderOfOperators[MAXIMUM_OPERATORS_TO_PROCESS] = {NULL};
+				int orderOfOperators[MAXIMUM_OPERATORS_TO_PROCESS] = {-1};
 
 				//Operator Input Array
 				bool operatorInputArray[OPERATORS_PER_CHANNEL][OPERATORS_PER_CHANNEL] = { false };
@@ -380,9 +382,9 @@ namespace SGE
 				bool operatorMainOutputArray[OPERATORS_PER_CHANNEL] = { false };
 
 				//Generate a sample
-				sampleType Generate();
+				float Generate();
 
-				void Render(unsigned int numberOfSamples);
+				void Render(unsigned int numberOfSamples, int* outputBuffer);
 
 				Channel();
 			};

@@ -2,6 +2,7 @@
 #include "include\SGE\inputs.h"
 #include <ctime>
 #include <cstring>
+#include <vector>
 
 //
 //  Strange Game Engine Main Namespace
@@ -154,13 +155,13 @@ namespace SGE
 				{
 					switch (targetY)
 					{
-					case 7: if (characterToDraw[6]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[6], targetX, targetY + 6, targetColor); };
-					case 6: if (characterToDraw[5]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[5], targetX, targetY + 5, targetColor); };
-					case 5: if (characterToDraw[4]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[4], targetX, targetY + 4, targetColor); };
-					case 4: if (characterToDraw[3]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[3], targetX, targetY + 3, targetColor); };
-					case 3: if (characterToDraw[2]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[2], targetX, targetY + 2, targetColor); };
-					case 2: if (characterToDraw[1]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[1], targetX, targetY + 1, targetColor); };
-					case 1: if (characterToDraw[0]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[0], targetX, targetY + 0, targetColor); };
+					case -1: if (characterToDraw[6]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[1], targetX, targetY + 1, targetColor); };
+					case -2: if (characterToDraw[5]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[2], targetX, targetY + 2, targetColor); };
+					case -3: if (characterToDraw[4]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[3], targetX, targetY + 3, targetColor); };
+					case -4: if (characterToDraw[3]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[4], targetX, targetY + 4, targetColor); };
+					case -5: if (characterToDraw[2]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[5], targetX, targetY + 5, targetColor); };
+					case -6: if (characterToDraw[1]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[6], targetX, targetY + 6, targetColor); };
+					case -7: if (characterToDraw[0]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[7], targetX, targetY + 7, targetColor); };
 					}
 				}
 
@@ -168,13 +169,13 @@ namespace SGE
 				{
 					switch (targetY)
 					{
-					case 7: if (characterToDraw[6]) { Draw8x8CharacterRightEdgeCase(characterToDraw[6], targetX, targetY + 6, targetColor); };
-					case 6: if (characterToDraw[5]) { Draw8x8CharacterRightEdgeCase(characterToDraw[5], targetX, targetY + 5, targetColor); };
-					case 5: if (characterToDraw[4]) { Draw8x8CharacterRightEdgeCase(characterToDraw[4], targetX, targetY + 4, targetColor); };
-					case 4: if (characterToDraw[3]) { Draw8x8CharacterRightEdgeCase(characterToDraw[3], targetX, targetY + 3, targetColor); };
-					case 3: if (characterToDraw[2]) { Draw8x8CharacterRightEdgeCase(characterToDraw[2], targetX, targetY + 2, targetColor); };
-					case 2: if (characterToDraw[1]) { Draw8x8CharacterRightEdgeCase(characterToDraw[1], targetX, targetY + 1, targetColor); };
-					case 1: if (characterToDraw[0]) { Draw8x8CharacterRightEdgeCase(characterToDraw[0], targetX, targetY + 0, targetColor); };
+					case -1: if (characterToDraw[6]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[1], targetX, targetY + 1, targetColor); };
+					case -2: if (characterToDraw[5]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[2], targetX, targetY + 2, targetColor); };
+					case -3: if (characterToDraw[4]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[3], targetX, targetY + 3, targetColor); };
+					case -4: if (characterToDraw[3]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[4], targetX, targetY + 4, targetColor); };
+					case -5: if (characterToDraw[2]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[5], targetX, targetY + 5, targetColor); };
+					case -6: if (characterToDraw[1]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[6], targetX, targetY + 6, targetColor); };
+					case -7: if (characterToDraw[0]) { Draw8x8CharacterLeftEdgeCase(characterToDraw[7], targetX, targetY + 7, targetColor); };
 					}
 				}
 
@@ -182,13 +183,13 @@ namespace SGE
 				{
 					switch (targetY)
 					{
-					case 7: if (characterToDraw[6]) { Draw8x8CharacterRowFull(characterToDraw[6], targetX, targetY + 6, targetColor); };
-					case 6: if (characterToDraw[5]) { Draw8x8CharacterRowFull(characterToDraw[5], targetX, targetY + 5, targetColor); };
-					case 5: if (characterToDraw[4]) { Draw8x8CharacterRowFull(characterToDraw[4], targetX, targetY + 4, targetColor); };
-					case 4: if (characterToDraw[3]) { Draw8x8CharacterRowFull(characterToDraw[3], targetX, targetY + 3, targetColor); };
-					case 3: if (characterToDraw[2]) { Draw8x8CharacterRowFull(characterToDraw[2], targetX, targetY + 2, targetColor); };
-					case 2: if (characterToDraw[1]) { Draw8x8CharacterRowFull(characterToDraw[1], targetX, targetY + 1, targetColor); };
-					case 1: if (characterToDraw[0]) { Draw8x8CharacterRowFull(characterToDraw[0], targetX, targetY + 0, targetColor); };
+					case -1: if (characterToDraw[6]) { Draw8x8CharacterRowFull(characterToDraw[1], targetX, targetY + 1, targetColor); };
+					case -2: if (characterToDraw[5]) { Draw8x8CharacterRowFull(characterToDraw[2], targetX, targetY + 2, targetColor); };
+					case -3: if (characterToDraw[4]) { Draw8x8CharacterRowFull(characterToDraw[3], targetX, targetY + 3, targetColor); };
+					case -4: if (characterToDraw[3]) { Draw8x8CharacterRowFull(characterToDraw[4], targetX, targetY + 4, targetColor); };
+					case -5: if (characterToDraw[2]) { Draw8x8CharacterRowFull(characterToDraw[5], targetX, targetY + 5, targetColor); };
+					case -6: if (characterToDraw[1]) { Draw8x8CharacterRowFull(characterToDraw[6], targetX, targetY + 6, targetColor); };
+					case -7: if (characterToDraw[0]) { Draw8x8CharacterRowFull(characterToDraw[7], targetX, targetY + 7, targetColor); };
 					}
 				}
 			}
@@ -646,6 +647,7 @@ namespace SGE
 
 			//Get the starting point in video RAM based on desired location and size of the display
 			SGE::Display::Video::pixel* targetRAMPointer = &SGE::Display::Video::RAM[(startX + (startY * SGE::Display::Video::ResolutionX))];
+			
 
 			////Draw the first row
 			for (int i = 0; i < width; i++)
@@ -653,7 +655,7 @@ namespace SGE
 				//Copy the color into video ram
 				targetRAMPointer[i] = color;
 			}
-
+			
 			//Loop through the remaining rows
 			for (int i = SGE::Display::Video::ResolutionX; i < height * SGE::Display::Video::ResolutionX; i += SGE::Display::Video::ResolutionX)
 			{
