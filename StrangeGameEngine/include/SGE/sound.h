@@ -19,6 +19,11 @@ namespace SGE
 		typedef short sampleType;
 
 		//
+		//  Typedef to define the format used for rendering data
+		//
+		typedef int renderSampleType;
+
+		//
 		//  Number of channels for the system
 		//
 		const int MAX_CHANNELS = 32;
@@ -336,6 +341,7 @@ namespace SGE
 		{
 			const int OPERATORS_PER_CHANNEL = 4;
 			const int MAXIMUM_OPERATORS_TO_PROCESS = 16;
+			const int NUMBER_OF_SYNTH_CHANNELS = 32;
 
 
 			struct Operator
@@ -354,7 +360,7 @@ namespace SGE
 				float Increment = 0.0f;
 
 				// Magnitude of the oscillation
-				float Magnitude = 0.0f;
+				float Magnitude = 1.0f;
 
 				float Output = 0.0f;
 
@@ -362,10 +368,8 @@ namespace SGE
 			};
 
 
-			class Channel
+			struct SynthChannel
 			{
-			private:
-
 			public:
 				//
 
@@ -384,10 +388,15 @@ namespace SGE
 				//Generate a sample
 				float Generate();
 
-				void Render(unsigned int numberOfSamples, int* outputBuffer);
-
-				Channel();
+				void Render(unsigned int numberOfSamples, renderSampleType* outputBuffer);
 			};
+
+
+			//
+			//  Synth Channels
+			//
+
+			extern SynthChannel SynthChannels[NUMBER_OF_SYNTH_CHANNELS];
 		}
 
 
@@ -422,7 +431,7 @@ namespace SGE
 			//
 			//  Render function
 			//
-			void Render(unsigned int numerOfSamples, int* outputBuffer);
+			void Render(unsigned int numerOfSamples, renderSampleType* outputBuffer);
 			
 			//
 			//  Basic functions

@@ -19,6 +19,9 @@ namespace SGE
 	{
 		namespace FMSynth
 		{
+			SynthChannel SynthChannels[NUMBER_OF_SYNTH_CHANNELS];
+
+
 			void Operator::Generate(float modulation)
 			{
 				WaveformIndex += Increment + modulation;
@@ -27,7 +30,7 @@ namespace SGE
 			}
 
 
-			float Channel::Generate()
+			float SynthChannel::Generate()
 			{
 				//
 				//  Go throught each operator in the list and generate.
@@ -74,13 +77,19 @@ namespace SGE
 					{
 						tempOutput += Operators[orderOfOperators[i]].Output;
 					}
-
-					//
-					//  Output Result
-					//
-
-					return tempOutput;
 				}
+
+				//
+				//  Output Result
+				//
+
+				return tempOutput;
+			}
+
+
+			void Render(unsigned int numberOfSamples, renderSampleType* outputBuffer)
+			{
+
 			}
 		}
 
@@ -98,7 +107,7 @@ namespace SGE
 		//
 		//  Given arguments, render a number of samples asked and return a pointer to the buffer.
 		//
-		void Channel::Render(unsigned int numberOfSamples, int* sampleBuffer)
+		void Channel::Render(unsigned int numberOfSamples, renderSampleType* sampleBuffer)
 		{
 			//
 			//  For statistical reasons
@@ -638,15 +647,15 @@ namespace SGE
 		float MasterVolume = 1.0f;
 
 		//
-		//All the sound channel target render buffers
+		//  All the sound channel target render buffers
 		//
-		int* renderedChannelBuffers[MAX_CHANNELS] = { nullptr };
+		renderSampleType* renderedChannelBuffers[MAX_CHANNELS] = { nullptr };
 
 		//
 		//32-bit mixing buffers
 		//
-		int* mixingFrameBufferRight = nullptr;		//Mixing buffer for Right Channel
-		int* mixingFrameBufferLeft  = nullptr;		//Mixing buffer for Left Channel
+		renderSampleType* mixingFrameBufferRight = nullptr;		//Mixing buffer for Right Channel
+		renderSampleType* mixingFrameBufferLeft  = nullptr;		//Mixing buffer for Left Channel
 
 		//
 		//Current Frame Buffer Sizes

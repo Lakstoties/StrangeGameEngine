@@ -3,6 +3,13 @@
 //
 #include "GL\glew.h"
 
+
+
+//
+//  Include Vulkan Stuff
+//
+//#define GLFW_INCLUDE_VULKAN
+
 //
 //  Include GLFW to handle windowing
 //
