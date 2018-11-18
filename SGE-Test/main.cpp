@@ -9,7 +9,7 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 
 	//Check to see if we can draw this thing anyway.
 	if ((xPosition + (int)bufferSize < 0) ||					//If the xPosition is so far off screen that nothing shows up
-		(xPosition >= SGE::Display::Video::ResolutionX))
+		(xPosition >= SGE::Display::Video::X))
 	{
 		return;
 	}
@@ -25,9 +25,9 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 	SGE::Display::Video::pixel *targetRAM = &SGE::Display::Video::RAM[xPosition];
 
 	//Prune the amount of the buffer we are going to copy
-	if (xPosition + bufferSize >= (unsigned int)SGE::Display::Video::ResolutionX)
+	if (xPosition + bufferSize >= (unsigned int)SGE::Display::Video::X)
 	{
-		copyLength = (SGE::Display::Video::ResolutionX - xPosition - 1) ;
+		copyLength = (SGE::Display::Video::X - xPosition - 1) ;
 	}
 
 	//
@@ -40,7 +40,7 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 	//
 	//
 	//
-	for (int i = SGE::Display::Video::ResolutionX; i < SGE::Display::Video::ResolutionY * SGE::Display::Video::ResolutionX; i += SGE::Display::Video::ResolutionX)
+	for (int i = SGE::Display::Video::X; i < SGE::Display::Video::Y * SGE::Display::Video::X; i += SGE::Display::Video::X)
 	{
 		//std::memcpy(&targetRAM[i], targetRAM, copyLength * sizeof(SGE::Display::Video::pixel));
 		std::copy(targetRAM, targetRAM + copyLength, targetRAM + i);
@@ -275,18 +275,18 @@ void InputTest(bool& testInputRunning)
 
 
 		//  Advance blue wave
-		currentWaveXBlue = (SGE::Display::FrameCount % (SGE::Display::Video::ResolutionX + 8)) - 8;
+		currentWaveXBlue = (SGE::Display::FrameCount % (SGE::Display::Video::X + 8)) - 8;
 
 
 		currentWaveXRed++;
 
-		if (currentWaveXGreen > SGE::Display::Video::ResolutionX + 8)
+		if (currentWaveXGreen > SGE::Display::Video::X + 8)
 		{
 			currentWaveXGreen = -8;
 		}
 
 
-		if (currentWaveXRed > SGE::Display::Video::ResolutionX + 8)
+		if (currentWaveXRed > SGE::Display::Video::X + 8)
 		{
 			currentWaveXRed = -8;
 		}

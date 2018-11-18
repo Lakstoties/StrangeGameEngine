@@ -436,10 +436,10 @@ namespace SGE
 
 			//Resolution of images
 			//X
-			unsigned int ResolutionX = 0;
+			unsigned int X = 0;
 
 			//Y
-			unsigned int ResolutionY = 0;
+			unsigned int Y = 0;
 
 			//Individual Image Buffer Size
 			unsigned int ImageBufferSize = 0;

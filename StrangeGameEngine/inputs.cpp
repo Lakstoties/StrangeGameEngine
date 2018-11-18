@@ -100,8 +100,8 @@ namespace SGE
 				//
 				//  Calculate offsets
 				//
-				currentFrameBufferXOffset = (currentFrameBufferX - (currentFrameBufferY * SGE::Display::Video::ResolutionX) / SGE::Display::Video::ResolutionY) / 2;
-				currentFrameBufferYOffset = (currentFrameBufferY - (currentFrameBufferX * SGE::Display::Video::ResolutionY) / SGE::Display::Video::ResolutionX) / 2;
+				currentFrameBufferXOffset = (currentFrameBufferX - (currentFrameBufferY * SGE::Display::Video::X) / SGE::Display::Video::Y) / 2;
+				currentFrameBufferYOffset = (currentFrameBufferY - (currentFrameBufferX * SGE::Display::Video::Y) / SGE::Display::Video::X) / 2;
 
 				//
 				//If the Offset goes negative it needs to be hard capped or it throws off calculations.
@@ -118,8 +118,8 @@ namespace SGE
 				//
 				//Scaled
 				//
-				SGE::Inputs::Mouse::PositionX = ((SGE::Inputs::Mouse::PositionRawX - currentFrameBufferXOffset) * SGE::Display::Video::ResolutionX) / (currentFrameBufferX - currentFrameBufferXOffset * 2);
-				SGE::Inputs::Mouse::PositionY = ((SGE::Inputs::Mouse::PositionRawY - currentFrameBufferYOffset) * SGE::Display::Video::ResolutionY) / (currentFrameBufferY - currentFrameBufferYOffset * 2);
+				SGE::Inputs::Mouse::PositionX = ((SGE::Inputs::Mouse::PositionRawX - currentFrameBufferXOffset) * SGE::Display::Video::X) / (currentFrameBufferX - currentFrameBufferXOffset * 2);
+				SGE::Inputs::Mouse::PositionY = ((SGE::Inputs::Mouse::PositionRawY - currentFrameBufferYOffset) * SGE::Display::Video::Y) / (currentFrameBufferY - currentFrameBufferYOffset * 2);
 			}
 
 			//

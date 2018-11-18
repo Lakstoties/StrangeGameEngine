@@ -92,10 +92,10 @@ namespace SGE
 			std::vector<pixel> RAM;
 
 			//The virtual video horizontal resolution
-			int ResolutionX = 0;
+			int X = 0;
 
 			//The virtual video vertical resolution
-			int ResolutionY = 0;
+			int Y = 0;
 		}
 
 		//A mutex that can be used to temporarily pause the drawing thread at a key point to allow the video ram to be updated fully.
@@ -172,8 +172,8 @@ namespace SGE
 
 			//Update the viewport sizes and offsets
 			//Calculate offsets
-			SGE::Display::ViewPortWindowOffsetX = (frameBufferX - (frameBufferY * Video::ResolutionX) / Video::ResolutionY) >> 1;
-			SGE::Display::ViewPortWindowOffsetY = (frameBufferY - (frameBufferX * Video::ResolutionY) / Video::ResolutionX) >> 1;
+			SGE::Display::ViewPortWindowOffsetX = (frameBufferX - (frameBufferY * Video::X) / Video::Y) >> 1;
+			SGE::Display::ViewPortWindowOffsetY = (frameBufferY - (frameBufferX * Video::Y) / Video::X) >> 1;
 
 			//If the Offset goes negative it needs to be hard capped or it throws off calculations.
 			if (SGE::Display::ViewPortWindowOffsetX < 0) { (SGE::Display::ViewPortWindowOffsetX = 0); }
@@ -243,7 +243,7 @@ namespace SGE
 					refreshHold.unlock();
 
 					//Move load up the texture data from the buffer
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::ResolutionX, Video::ResolutionY, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::X, Video::Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
 					//Set the flag back to normal
 					GameResolutionChanged = false;
@@ -264,7 +264,7 @@ namespace SGE
 					refreshHold.unlock();
 
 					//Move the data to the texture from the buffer
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::ResolutionX, Video::ResolutionY, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 				}
 
 
@@ -384,7 +384,7 @@ namespace SGE
 					refreshHold.unlock();
 
 					//Move load up the texture data from the buffer
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::ResolutionX, Video::ResolutionY, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::X, Video::Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
 					//Set the flag back to normal
 					GameResolutionChanged = false;
@@ -407,7 +407,7 @@ namespace SGE
 					refreshHold.unlock();
 
 					//Move the data to the texture from the buffer
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::ResolutionX, Video::ResolutionY, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 				}
 
 
@@ -499,7 +499,7 @@ namespace SGE
 					refreshHold.lock();
 
 					//Slow method
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::ResolutionX, Video::ResolutionY, 0, GL_RGBA, GL_UNSIGNED_BYTE, &Video::RAM.begin());
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::X, Video::Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, &Video::RAM.begin());
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
@@ -517,7 +517,7 @@ namespace SGE
 					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
 					refreshHold.lock();
 
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::ResolutionX, Video::ResolutionY, GL_RGBA, GL_UNSIGNED_BYTE, &Video::RAM.begin());
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, &Video::RAM.begin());
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
@@ -657,11 +657,11 @@ namespace SGE
 		{
 			if (!GameDisplayOpen)
 			{
-				Video::ResolutionX = newVideoX;
-				Video::ResolutionY = newVideoY;
+				Video::X = newVideoX;
+				Video::Y = newVideoY;
 
 				//Initialize the Virtual Video RAM
-				Video::RAM.resize(Video::ResolutionX * Video::ResolutionY);
+				Video::RAM.resize(Video::X * Video::Y);
 
 
 				//Flag that the game display is open
@@ -688,15 +688,15 @@ namespace SGE
 				//delete Video::RAM;
 
 				//Set the new resolution values
-				Video::ResolutionX = width;
-				Video::ResolutionY = height;
+				Video::X = width;
+				Video::Y = height;
 
 				//
 				//Make some new RAM bits!
 				//
 
 				//Initialize the Virtual Video RAM
-				Video::RAM.resize(Video::ResolutionX * Video::ResolutionY);
+				Video::RAM.resize(Video::X * Video::Y);
 
 				//Flag the game resolution has changed
 				GameResolutionChanged = true;

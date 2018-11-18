@@ -41,12 +41,12 @@ namespace SGE
 			//
 			//  The virtual video horizontal resolution
 			//
-			extern SGEAPI int ResolutionX;
+			extern SGEAPI int X;
 
 			//
 			//  The virtual video vertical resolution
 			//
-			extern SGEAPI int ResolutionY;
+			extern SGEAPI int Y;
 		}
 
 		//
