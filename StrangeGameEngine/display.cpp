@@ -371,7 +371,6 @@ namespace SGE
 					//Grab the pinter to the mapped buffer range
 					pixelBufferMapping = (char*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, Video::RAM.size() * sizeof(Video::pixel), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
 
-
 					//Lock the refresh mutex
 					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
 					refreshHold.lock();
@@ -453,6 +452,8 @@ namespace SGE
 				//  Count the frame
 				//
 				FrameCount++;
+
+				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 		}
 
@@ -619,6 +620,11 @@ namespace SGE
 
 			//Adjust Texture magnification
 			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+
+			//Enable VSYNC to keep the frame rate from going too ridiculous.
+			//There's no need to outpace the monitor update rate for updating the contents of the Virtual Video RAM
+			glfwSwapInterval(1);
 
 			//
 			//  Detect what version of OpenGL were are working with and figure out what rendering method to use
