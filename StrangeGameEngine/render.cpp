@@ -512,33 +512,27 @@ namespace SGE
 				height = SGE::Display::Video::Y - startY;
 			}
 
-
 			//Get the starting point in video RAM based on desired location and size of the display
-			SGE::Display::Video::pixel* targetRAMPointer = &SGE::Display::Video::RAM[(startX + (startY * SGE::Display::Video::X))];
+			int startingPoint= startX + (startY * SGE::Display::Video::X);
 			
-
-			////Draw the first row
+			//Draw the first row
 			for (int i = 0; i < width; i++)
 			{
 				//Copy the color into video ram
-				targetRAMPointer[i] = color;
+				SGE::Display::Video::RAM[startingPoint + i] = color;
 			}
-			
+
 			//Loop through the remaining rows
 			for (int i = SGE::Display::Video::X; i < height * SGE::Display::Video::X; i += SGE::Display::Video::X)
 			{
 				//Copy the first row to the rest of the rows
-				//std::memcpy(&targetRAMPointer[i], targetRAMPointer, width * sizeof(SGE::Display::Video::pixel));
-				std::copy(targetRAMPointer, targetRAMPointer + width, targetRAMPointer + i);
+				std::copy(&SGE::Display::Video::RAM[startingPoint], &SGE::Display::Video::RAM[startingPoint + width], &SGE::Display::Video::RAM[startingPoint + i]);
 			}
 		}
 
 		//Blank the video RAM with straight zeros.  Hence Zero Alpba Black.
 		void ZBlank()
 		{
-			//Memset for the win!!
-			//std::memset(SGE::Display::Video::RAM.data(), 0, SGE::Display::Video::RAM.size() * sizeof(SGE::Display::Video::pixel));
-
 			//std::fill for it all
 			std::fill(SGE::Display::Video::RAM.begin(), SGE::Display::Video::RAM.end(), (SGE::Display::Video::pixel) 0x00000000);
 		}
@@ -554,8 +548,7 @@ namespace SGE
 			return blueValue << 16 | greenValue << 8 | redValue;
 		}
 
-
-
+		
 		void DrawVectorShape(int startX, int startY, float scalingFactor, int numberOfVertexes, VertexPoint vertexes[], SGE::Display::Video::pixel color)
 		{
 			//Go through the vertex point list and draw lines

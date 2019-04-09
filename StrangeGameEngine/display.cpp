@@ -366,10 +366,10 @@ namespace SGE
 				if (GameResolutionChanged)
 				{
 					//Recreate the Buffer storage for the new video ram size
-					glBufferStorage(GL_PIXEL_UNPACK_BUFFER, Video::RAM.size() * sizeof(Video::pixel), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+					glBufferStorage(GL_PIXEL_UNPACK_BUFFER, Video::RAM.size() * sizeof(Video::pixel), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
 
 					//Grab the pinter to the mapped buffer range
-					pixelBufferMapping = (char*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, Video::RAM.size() * sizeof(Video::pixel), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_COHERENT_BIT);
+					pixelBufferMapping = (char*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, Video::RAM.size() * sizeof(Video::pixel), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
 
 					//Lock the refresh mutex
 					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
@@ -381,6 +381,10 @@ namespace SGE
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
+
+					//Flush the buffer and let OpenGL know the buffer has changed.
+					glFlushMappedBufferRange(pixelBufferObject, 0, Video::RAM.size() * sizeof(Video::pixel));
+
 
 					//Move load up the texture data from the buffer
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::X, Video::Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -404,6 +408,9 @@ namespace SGE
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
+
+					//Flush the buffer and let OpenGL know the buffer has changed.
+					glFlushMappedBufferRange(pixelBufferObject, 0, Video::RAM.size() * sizeof(Video::pixel));
 
 					//Move the data to the texture from the buffer
 					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -452,8 +459,6 @@ namespace SGE
 				//  Count the frame
 				//
 				FrameCount++;
-
-				std::this_thread::sleep_for(std::chrono::milliseconds(1));
 			}
 		}
 
