@@ -3,13 +3,6 @@
 //
 #include "GL\glew.h"
 
-
-
-//
-//  Include Vulkan Stuff
-//
-//#define GLFW_INCLUDE_VULKAN
-
 //
 //  Include GLFW to handle windowing
 //
@@ -185,11 +178,52 @@ namespace SGE
 			SGE::Display::ViewPortWindowY = frameBufferY - (SGE::Display::ViewPortWindowOffsetY << 1);
 		}
 
+
+		void OpenGLBoilerPlateFunction()
+		{
+			//
+			//Universal OpenGL commands
+			//These have been in OpenGL forever and a day...  We shouldn't need to check to see if there are part of the system.
+			//
+
+			//Handle to call the OpenGL texture we are using
+			GLuint textureHandle = 0;
+
+			//Enable 2D Texturing
+			glEnable(GL_TEXTURE_2D);
+
+			//Disable Alpha Blending
+			glDisable(GL_BLEND);
+
+			//Generate the texture space and pass the handle off
+			glGenTextures(1, &textureHandle);
+
+			//
+			//Manage updating the texture that serves as our "buffer"
+			//
+
+			//Bind a 2D texture to the texture handle
+			glBindTexture(GL_TEXTURE_2D, textureHandle);
+
+			//Turn off Mip map filtering and all that jazz
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+			//Adjust Texture magnification
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+
+			//Enable VSYNC to keep the frame rate from going too ridiculous.
+			//There's no need to outpace the monitor update rate for updating the contents of the Virtual Video RAM
+			glfwSwapInterval(1);
+		}
+
 		//
 		//  Compatibility Drawing Function for OpenGL 2.0 and later
 		//
 		void OpenGL20DrawFunction()
 		{
+			OpenGLBoilerPlateFunction();
+
 			//Initialize for drawing
 
 			//Create a simple handle for the Pixel Buffer Object
@@ -319,6 +353,8 @@ namespace SGE
 		//
 		void OpenGL44DrawFunction()
 		{
+			OpenGLBoilerPlateFunction();
+
 			//Initialize for drawing
 
 			//Experimental
@@ -467,6 +503,8 @@ namespace SGE
 		//
 		void FailSafeDrawFunction()
 		{
+			OpenGLBoilerPlateFunction();
+
 			//Initialize for drawing
 
 			//Do some drawing.
@@ -576,13 +614,9 @@ namespace SGE
 			}
 		}
 
-
 		//Main update thread to take what's in video RAM and dump it on the screen.
 		void UpdateThread()
 		{
-			//Handle to call the OpenGL texture we are using
-			GLuint textureHandle = 0;
-
 			//Check to see if we have a valid window to draw to or if the window is closing down
 			if (glfwWindowShouldClose(SGE::OSWindow))
 			{
@@ -600,68 +634,62 @@ namespace SGE
 			glewInit();
 
 			//
-			//Universal OpenGL commands
-			//These have been in OpenGL forever and a day...  We shouldn't need to check to see if there are part of the system.
-			//
-
-			//Enable 2D Texturing
-			glEnable(GL_TEXTURE_2D);
-
-			//Disable Alpha Blending
-			glDisable(GL_BLEND);
-
-			//Generate the texture space and pass the handle off
-			glGenTextures(1, &textureHandle);
-
-			//
-			//Manage updating the texture that serves as our "buffer"
-			//
-
-			//Bind a 2D texture to the texture handle
-			glBindTexture(GL_TEXTURE_2D, textureHandle);
-
-			//Turn off Mip map filtering and all that jazz
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-			//Adjust Texture magnification
-			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-
-			//Enable VSYNC to keep the frame rate from going too ridiculous.
-			//There's no need to outpace the monitor update rate for updating the contents of the Virtual Video RAM
-			glfwSwapInterval(1);
-
-			//
 			//  Detect what version of OpenGL were are working with and figure out what rendering method to use
 			//
 			SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Display, "OpenGL Version: %s\n", glGetString(GL_VERSION));
 
-			//Go through and find what method can be successfully used.
-
-			//Ideal version that used persistent, coherently mapped pixel buffer object
+			//Ideal version that used persistent mapped pixel buffer object
 			if (GLEW_VERSION_4_4)
 			{
 				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Display, "OpenGL version 4.4 detected!\n");
 				OpenGL44DrawFunction();
 			}
-			//Fallback to a lower standard
+
+			//Used Pixel Buffer Objects with basic data transfer, supported in OpenGL 2.0... So should be a safe alternative.
+			else if (GLEW_VERSION_2_0)
+			{
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Display, "OpenGL version 2.0 detected!\n");
+				OpenGL20DrawFunction();
+			}
+
+			//
+			//Oh sweet baby jesus, we are on a potato.  Only OpenGL 1?  Really?
+			//
 			else
 			{
-				//Used Pixel Buffer Objects with basic data transfer, supported in OpenGL 2.0... So should be a safe alternative.
-				if (GLEW_VERSION_2_0)
-				{
-					SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Display, "OpenGL version 2.0 detected!\n");
-					OpenGL20DrawFunction();
-				}
-				else
-				{
-					//Oh sweet baby jesus, we are on a potato.  Only OpenGL 1?  Really?
-					SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Display, "OpenGL Potato Mode Engaged!\n");
-					FailSafeDrawFunction();
-				}
-			}	
+				SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Display, "OpenGL Potato Mode Engaged!\n");
+				FailSafeDrawFunction();
+			}
 		}
 
+		//
+		//  Initialization Function to get the OSWindow set up the way it should be
+		//
+
+		void Init(int windowX, int windowY, const char* gameTitle)
+		{
+			//
+			//  Check to make sure another window isn't active, we only want one window going at a time.
+			//
+			if (OSWindow != nullptr)
+			{
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::SGE, "There's already a game window open!\n");
+				return;
+			}
+
+			//
+			//  Create a standard Window
+			//
+			OSWindow = glfwCreateWindow(windowX, windowY, gameTitle, NULL, NULL);
+
+			if (OSWindow == nullptr)
+			{
+				//
+				//  Huh, window creation failed...
+				//
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::SGE, "GLFW failed to create the main game window.\n");
+			}
+		}
 
 		//Open the Virtual Display Window
 		void Open(int newVideoX, int newVideoY)

@@ -60,26 +60,9 @@ namespace SGE
 		SGE::Sound::Start();
 
 		//
-		//  Check to make sure another window isn't active, we only want one window going at a time.
+		//  Start up the video system
 		//
-		if (OSWindow != nullptr)
-		{
-			SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::SGE, "There's already a game window open!\n");
-			return;
-		}
-
-		//
-		//  Otherwise, let's create this window.
-		//
-		OSWindow = glfwCreateWindow(windowX, windowY, gameTitle, NULL, NULL);
-
-		if (OSWindow == nullptr)
-		{
-			//
-			//  Huh, window creation failed...
-			//
-			SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::SGE, "GLFW failed to create the main game window.\n");
-		}
+		SGE::Display::Init(windowX, windowY, gameTitle);
 
 		//
 		//  Register all the major callbacks for SGE system

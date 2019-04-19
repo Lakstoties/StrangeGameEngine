@@ -65,6 +65,11 @@ namespace SGE
 		extern SGEAPI unsigned int FrameCount;
 
 		//
+		//  Video System Initialization
+		//
+		void SGEAPI Init(int windowX, int windowY, const char* gameTitle);
+
+		//
 		//  Block display refresh.  Useful for preventing screen tearing from draw operations happening in the middle of a display refresh
 		//
 		void SGEAPI BlockRefresh();
