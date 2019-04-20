@@ -95,9 +95,7 @@ namespace SGE
 
 
 
-
-
-
+			   
 		//
 		//
 		//  Sound Channel Definitions
@@ -107,112 +105,71 @@ namespace SGE
 		//
 		//  Given arguments, render a number of samples asked and return a pointer to the buffer.
 		//
-		void Channel::Render(unsigned int numberOfSamples, renderSampleType* sampleBuffer)
+		void Channel::Render(unsigned int numberOfSamples, std::vector<renderSampleType> &sampleBuffer)
 		{
-			//
 			//  For statistical reasons
-			//
 			unsigned int currentSampleAverage = 0;
 
-			//
 			//  Starting at the offset, copy over samples to the buffer.
-			//
 			for (unsigned int i = 0; i < numberOfSamples; i++)
 			{
-				//
 				//  If we are currently not playing and there's actually something to play.
-				//
-				if (!Playing || currentSampleBuffer->size == 0 || currentSampleBuffer->data == NULL)
+				if (!Playing || currentSampleBuffer->Sample.size() == 0)
 				{
-					//
 					//  Nothing playing, 0 out the samples
-					//
 					sampleBuffer[i] = 0;
 				}
 				else
-				{	//
+				{	
 					//  Check to see if we are getting delayed
-					//
 					if (delaySampleEnabled)
 					{
-						//
 						//  Check to see if we've delayed enough
-						//
 						if (delayCurrentSamples >= delaySampleInterval)
 						{
-							//
 							//  We're done!
-							//
 							delaySampleEnabled = false;
 						}
 
-						//
 						//  Increment the delay
-						//
 						delayCurrentSamples++;
 					}
 
-					//
 					//  Continue life as normal
-					//
 					else
 					{
-
-						//
 						//  Grab the sample for the offset
-						//
-
-						//
 						//  Copy the sample from the source buffer to the target buffer and adjusted the volume.
 						//  If the volume effect is in use, use that volume value.
-						//
-						sampleBuffer[i] = int(currentSampleBuffer->data[(unsigned int)offset] * Volume);
+						sampleBuffer[i] = int(currentSampleBuffer->Sample[(unsigned int)offset] * Volume);
 
-						//
 						//  Add to the acculumator for the average
 						//  Negate negatives since we are only interested in overall amplitude
-						//
 						currentSampleAverage += abs(sampleBuffer[i]);
 
-						//
 						//  Calculate the next offset based on the appropriate increment
-						//
 
-						//
 						//  Check to see if we need to trigger the sample
-						//
 						if (retriggerSampleEnabled)
 						{
-							//
 							//  Once enough samples have been processed
-							//
 							if (retriggerCurrentSamples >= retriggerSampleInterval)
 							{
-								//
 								//  Set the sample offset back to the designated destination
-								//
 								offset = (float)retriggerSampleDestination;
 
-								//
 								//  Reset the counter
-								//
 								retriggerCurrentSamples %= retriggerSampleInterval;
 							}
 
-							//
 							//  Increment to the next sample
-							//
 							retriggerCurrentSamples++;
 						}
 
-						//
 						//  Check to see if we need to cut the sample.
-						//
 						if (cutSampleEnabled)
 						{
-							//
 							//  Once enough samples have been processed
-							//
 							if (cutCurrentSamples >= cutSampleInterval)
 							{
 								//  Zero out volume
@@ -225,36 +182,22 @@ namespace SGE
 							cutCurrentSamples++;
 						}
 
-
-
-						//
 						//  Check for period slide effect
-						//
 						if (periodSlidEnabled)
 						{
-							//
 							//  Once enough samples have been processed
-							//
 							if (periodSlideCurrentSamples >= periodSlideSampleInterval)
 							{
-								//
 								//  Convert the offset increment to a period in relationship to 1 second
-								//
 								float offsetPeriod = 1 / offsetIncrement;
 
-								//
 								//  Add the period delta
-								//
 								offsetPeriod += periodSlideDelta;
 
-								//
 								//  Do we have a target period
-								//
 								if (periodTarget != 0)
 								{
-									//
 									// Check to see if offsetPeriod is past target
-									//
 
 									if ((periodSlideDelta < 0 && offsetPeriod < periodTarget) ||
 										(periodSlideDelta > 0 && offsetPeriod > periodTarget))
@@ -264,73 +207,50 @@ namespace SGE
 									}
 								}
 
-								//
 								//  Flip it back to an offset increment
-								//
 								offsetIncrement = 1 / offsetPeriod;
 
-								//
 								//  Reset the counter
-								//
 								periodSlideCurrentSamples %= periodSlideSampleInterval;
 							}
 
 							periodSlideCurrentSamples++;
 						}
 
-
-						//
 						//  Check to see if the Arpeggio Effect is in effect
-						//
 						if (arpeggioEnabled)
 						{
-							//
 							//  Check the state of the Arpeggio effect
-							//
 							if (arpeggioCurrentSamples > arpeggioSampleInterval)
 							{
-								//
 								//  Reset and roll the counter
-								//
 								arpeggioCurrentSamples %= arpeggioSampleInterval;
 
-								//
 								//  Transition the state
 								//  Increment and then modulus to the states around.
-								//
 								++arpeggioState %= 3;
 
-								//
 								//  Based on that state alter the argpeggio offset increment
-								//
 								switch (arpeggioState)
 								{
-									//
 									//  If at default state, just use the regular offsetIncrement
-									//
 								case 0:
 									currentOffsetIncrement = offsetIncrement;
 									break;
 
-									//
 									//  If at state 1, calculate the increment for X semitones
-									//
 								case 1:
 									currentOffsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, arpeggioSemitoneX));
 									break;
 
-									//
 									//  If at state 2, calculate the increment for X semitones
-									//
 								case 2:
 									currentOffsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, arpeggioSemitoneY));
 									break;
 								}
 							}
 
-							//
 							//  Advance the number of samples
-							//
 							arpeggioCurrentSamples++;
 						}
 						else
@@ -338,9 +258,7 @@ namespace SGE
 							currentOffsetIncrement = offsetIncrement;
 						}
 
-						//
 						//  Check for Vibrato Effect
-						//
 						if (vibratoEnabled)
 						{
 							//Calculate the offset
@@ -350,9 +268,7 @@ namespace SGE
 							vibratoCurrentWaveformPosition = (int)(vibratoCurrentWaveformPosition + vibratoCycles) % SAMPLE_RATE;
 						}
 
-						//
 						//  Check for the Volume Slide effect
-						//
 						if (volumeSlideEnabled)
 						{
 							//Check the state of Volume Slide Effect
@@ -366,22 +282,24 @@ namespace SGE
 
 								//Check to make sure it did not exit normal ranges
 								//Short circuit logic
-								(Volume < 0.0f) && (Volume = 0.0f);
-								(Volume > 1.0f) && (Volume = 1.0f);
+								if (Volume < 0.0f)
+								{
+									Volume = 0.0f;
+								}
+								else if (Volume > 1.0f)
+								{
+									Volume = 1.0f;
+								}
 							}
 							volumeSlideCurrentSamples++;
 						}
 
-						//
 						//  Increment Offset  Appropriately
-						//
 
 						//For the Arpeggio Effect
 						offset += currentOffsetIncrement;
 
-						//
 						//  Check for repeating loops
-						//
 
 						//Check to see if this same is suppose to repeat and is set to do so... correctly
 						if ((currentSampleBuffer->repeatDuration > 0) && ((unsigned int)offset >= (currentSampleBuffer->repeatOffset + currentSampleBuffer->repeatDuration)))
@@ -390,12 +308,10 @@ namespace SGE
 							offset -= currentSampleBuffer->repeatDuration;
 						}
 
-						//
 						//  Check to see if it's gone pass the valid bufferSize
-						//
 
 						//If not repeatable and the offset has gone past the end of the buffer
-						if ((unsigned int)offset >= currentSampleBuffer->size)
+						if ((unsigned int)offset >= currentSampleBuffer->Sample.size())
 						{
 							//Fuck this shit we're out!
 							Stop();
@@ -448,30 +364,13 @@ namespace SGE
 		//
 		bool SampleBuffer::Allocate(unsigned int numOfSamples)
 		{
-			//
-			//  Delete the previous buffer, if it exists
-			//
-			Delete();
-
-			//
-			//  Set the buffer size
-			//
-			size = numOfSamples;
-
-			//
 			//  Get an array to put in place
-			//
-			data = new sampleType[size];
+			Sample.resize(numOfSamples);
 
-			//
 			//  Zero out the buffer to make sure it is clean
-			//  Some OSes don't make the ram is clean when given
-			//
-			Zero();
+			std::fill(Sample.begin(), Sample.end(), 0);
 
-			//
 			//  Everything thing should be okay.
-			//
 			return true;
 		}
 
@@ -486,73 +385,14 @@ namespace SGE
 			Allocate(numOfSamples);
 
 			//
-			//  memcpy over the data into the buffer
+			//  Copy over the data into the buffer
 			//
-			//std::memcpy(data, samples, sizeof(sampleType) * size);
-			std::copy(samples, samples + size, data);
-
+			std::copy(samples, samples + Sample.size(), Sample.data());
 
 			//
 			//  Everything should have gone okay...
 			//
 			return true;
-		}
-
-		//
-		//  Zero out a buffer completely
-		//
-		bool SampleBuffer::Zero()
-		{
-			//
-			//  Check to make sure there's actually a buffer to zero out
-			//
-			if (data == NULL)
-			{
-				//Hey, there's no buffer to zero out!
-				return false;
-			}
-
-			//
-			//  Otherwise memset the bitch.
-			//
-			std::memset(data, 0, sizeof(sampleType) * size);
-
-			//
-			//  Everything happened okay in theory
-			//
-			return true;
-		}
-
-		//
-		//  Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
-		//
-		void SampleBuffer::Delete()
-		{
-			//
-			//  Delete the buffer
-			//
-			delete data;
-
-			//
-			//  Set the pointer back to NULL
-			//
-			data = NULL;
-
-			//
-			//  Reset the buffer size
-			//
-			size = 0;
-		}
-
-		//
-		//  Destructor - Makes sure any memory assigned to the data pointer is deleted and sent back to the OS
-		//
-		SampleBuffer::~SampleBuffer()
-		{
-			//
-			//  Reset the buffer which will free the memory.
-			//
-			Delete();
 		}
 
 		//
@@ -649,13 +489,13 @@ namespace SGE
 		//
 		//  All the sound channel target render buffers
 		//
-		renderSampleType* renderedChannelBuffers[MAX_CHANNELS] = { nullptr };
+		std::vector<renderSampleType> renderedChannelBuffers[MAX_CHANNELS];
 
 		//
 		//32-bit mixing buffers
 		//
-		renderSampleType* mixingFrameBufferRight = nullptr;		//Mixing buffer for Right Channel
-		renderSampleType* mixingFrameBufferLeft  = nullptr;		//Mixing buffer for Left Channel
+		std::vector<renderSampleType> mixingFrameBufferRight;
+		std::vector<renderSampleType> mixingFrameBufferLeft;
 
 		//
 		//Current Frame Buffer Sizes
@@ -670,40 +510,22 @@ namespace SGE
 		void GenerateFrameBuffers(unsigned long newFrameBufferSize)
 		{
 			//Delete any old buffers
-			delete[] mixingFrameBufferLeft;
-			delete[] mixingFrameBufferRight;
+			mixingFrameBufferLeft.clear();
+			mixingFrameBufferRight.clear();
 
 			//Set the new render frame buffer size
 			frameBufferSize = newFrameBufferSize;
 
 			//Generate new mixing frame buffers
-			mixingFrameBufferLeft  = new int[frameBufferSize];
-			mixingFrameBufferRight = new int[frameBufferSize];
+			mixingFrameBufferLeft.resize(frameBufferSize);
+			mixingFrameBufferRight.resize(frameBufferSize);
 
 			//Generate new render frame buffers
 			for (int i = 0; i < MAX_CHANNELS; i++)
 			{
 				//Delete any old buffer
-				delete[] renderedChannelBuffers[i];
-				renderedChannelBuffers[i] = new int[frameBufferSize];
-			}
-		}
-
-		//Deletes and cleans up Frame buffers that were holding audio data
-		void DeleteFrameBuffers()
-		{
-			delete[] mixingFrameBufferLeft;
-			delete[] mixingFrameBufferRight;
-
-			//Reset the pointer values to nullptr
-			mixingFrameBufferLeft = nullptr;
-			mixingFrameBufferRight = nullptr;
-
-			//Delete old render frame buffers
-			for (int i = 0; i < MAX_CHANNELS; i++)
-			{
-				delete[] renderedChannelBuffers[i];
-				renderedChannelBuffers[i] = nullptr;
+				renderedChannelBuffers[i].clear();
+				renderedChannelBuffers[i].resize(frameBufferSize);
 			}
 		}
 
@@ -746,22 +568,17 @@ namespace SGE
 			//Check to see if the frame buffer size is bigger than the frame buffers already allocated
 			if (frameCount > frameBufferSize)
 			{
-				DeleteFrameBuffers();
 				GenerateFrameBuffers(frameCount);
 				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Sound, "DEBUG:  Sound  System - Frame Buffer Size Increased to: %lu\n", frameBufferSize);
 
 			}
-
-			//Initialize the mixing buffers
-			//Depending on the platform, possibly not needed, but some platforms don't promise zeroed memory upon allocation.
-			//std::memset(mixingFrameBufferLeft,  0, sizeof(int) * frameBufferSize);
-			//std::memset(mixingFrameBufferRight, 0, sizeof(int) * frameBufferSize);
 
 			//Go through each channel and render samples
 			for (int i = 0; i < MAX_CHANNELS; i++)
 			{
 				Channels[i].Render(frameCount, renderedChannelBuffers[i]);
 			}
+
 
 			//Dump it into the output buffer
 			//Adjust to master volume...
@@ -777,8 +594,8 @@ namespace SGE
 				//  Channel 0 always initializes the first value in the buffer
 				//  This saves us from having to memset the buffers
 				//
-				mixingFrameBufferLeft[i] =	int(renderedChannelBuffers[0][i] * (0.5f + Channels[0].Pan));
-				mixingFrameBufferRight[i] =	int(renderedChannelBuffers[0][i] * (0.5f - Channels[0].Pan));
+				mixingFrameBufferLeft[i] =	int(renderedChannelBuffers[0][i] * (0.5f + Channels[0].Pan) * MasterVolume);
+				mixingFrameBufferRight[i] =	int(renderedChannelBuffers[0][i] * (0.5f - Channels[0].Pan) * MasterVolume);
 
 				//
 				//  Starts at channel 1 and goes from there.
@@ -804,18 +621,41 @@ namespace SGE
 				//
 
 				//  For the left channel
-				outputBufferLeft[i] = (mixingFrameBufferLeft[i] / SAMPLE_MAX_AMPLITUDE) ? ( mixingFrameBufferLeft[i] > 0 ? SAMPLE_MAX_AMPLITUDE : -SAMPLE_MAX_AMPLITUDE): mixingFrameBufferLeft[i];
+				if (mixingFrameBufferLeft[i] > SAMPLE_MAX_AMPLITUDE)
+				{
+					outputBufferLeft[i] = SAMPLE_MAX_AMPLITUDE;
+				}
+				else if (mixingFrameBufferLeft[i] < -SAMPLE_MAX_AMPLITUDE)
+				{
+					outputBufferLeft[i] = -SAMPLE_MAX_AMPLITUDE;
+				}
+				else
+				{
+					outputBufferLeft[i] = mixingFrameBufferLeft[i];
+				}
 
 				//  For the right channel
-				outputBufferRight[i] = (mixingFrameBufferRight[i] / SAMPLE_MAX_AMPLITUDE) ? (mixingFrameBufferRight[i] > 0 ? SAMPLE_MAX_AMPLITUDE : -SAMPLE_MAX_AMPLITUDE) : mixingFrameBufferRight[i];
+				if (mixingFrameBufferRight[i] > SAMPLE_MAX_AMPLITUDE)
+				{
+					outputBufferRight[i] = SAMPLE_MAX_AMPLITUDE;
+				}
+				else if (mixingFrameBufferRight[i] < -SAMPLE_MAX_AMPLITUDE)
+				{
+					outputBufferRight[i] = -SAMPLE_MAX_AMPLITUDE;
+				}
+				else
+				{
+					outputBufferRight[i] = mixingFrameBufferRight[i];
+				}
+
 
 				//Sum up the levels
 				//Negate negative values since we are interested in overall amplitude and not phasing
 				//For the left channel
-				currentLeftAverageLevel += abs(outputBufferLeft[i]);
+				currentLeftAverageLevel += std::abs(outputBufferLeft[i]);
 
 				//For the right channel
-				currentRightAverageLevel += abs(outputBufferRight[i]);
+				currentRightAverageLevel += std::abs(outputBufferRight[i]);
 			}
 
 			//Report stats
@@ -948,9 +788,6 @@ namespace SGE
 			{
 				SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "PortAudio Stream Closed.\n");
 			}
-
-			//Stream closed, it should be safe to nuke the render frame buffers
-			DeleteFrameBuffers();
 
 			//Terminate PortAudio
 			//Check to see if the initialize succeeded, otherwise return

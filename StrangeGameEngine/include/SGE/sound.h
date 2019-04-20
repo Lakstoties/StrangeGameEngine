@@ -2,6 +2,7 @@
 #include "api.h"
 #include <thread>
 #include <mutex>
+#include <vector>
 
 //
 //  Strange Game Engine Main Namespace
@@ -293,12 +294,8 @@ namespace SGE
 			//
 			//  Buffer to contain the samples
 			//
-			sampleType* data = NULL;
-
-			//
-			//  Size of the buffer
-			//
-			unsigned int size = 0;
+			//sampleType* data = NULL;
+			std::vector<sampleType> Sample;
 
 			//
 			//  The offeset the sample will repeat at.
@@ -319,21 +316,6 @@ namespace SGE
 			//  Create a blank buffer, and then load data into it.
 			//
 			bool Load(unsigned int numOfSamples, sampleType *samples);
-
-			//
-			//  Zero out a buffer completely
-			//
-			bool Zero();
-
-			//
-			//  Free the buffer back to the system, effectively resetting it to before any creation or loading was done to it.
-			//
-			void Delete();
-
-			//
-			//  Destructor to make sure the buffer memory is freed upon destruction to prevent memory leaks.
-			//
-			~SampleBuffer();			
 		};
 
 
@@ -431,7 +413,7 @@ namespace SGE
 			//
 			//  Render function
 			//
-			void Render(unsigned int numerOfSamples, renderSampleType* outputBuffer);
+			void Render(unsigned int numerOfSamples, std::vector<renderSampleType> &outputBuffer);
 			
 			//
 			//  Basic functions
