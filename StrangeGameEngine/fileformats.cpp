@@ -19,8 +19,7 @@ namespace SGE
 
 		int Bitmap::LoadFile(char* targetFilename)
 		{
-			//FILE* bitmapFile;
-			std::fstream bitmapFile;
+			FILE* bitmapFile;
 			size_t readCount = 0;
 			unsigned char pixelRed;
 			unsigned char pixelGreen;
@@ -32,10 +31,10 @@ namespace SGE
 
 			//Attempt to open the bitmap file
 			//Open in binary read mode.
-			bitmapFile.open(targetFilename, 'r');
+			bitmapFile = fopen(targetFilename, "rb");
 
 			//Check to see if we got a valid file pointer
-			if (bitmapFile.bad())
+			if (bitmapFile == NULL)
 			{
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  Cannot open file \"%s\"\n", targetFilename);
 				return -1;
@@ -53,7 +52,7 @@ namespace SGE
 			readCount = 0;
 
 			//Read in the ID fieid.  We are looking for a "BM" to indicate it is a typical BMP/Bitmap
-			bitmapFile.read(idField, 2);
+			readCount += fread(&idField, 1, 2, bitmapFile);
 
 			//The ID field before continuing
 			//If memcmp doesn't return a 0, something is different
@@ -65,7 +64,6 @@ namespace SGE
 
 			//Read in the BMP field size in bytes
 			readCount += fread(&bmpSize, 1, 4, bitmapFile);
-			std::fscanf(bitmapFile,
 
 			//Read some reserved data, application specific, not our concern really.
 			readCount += fread(&reserved1, 1, 2, bitmapFile);
