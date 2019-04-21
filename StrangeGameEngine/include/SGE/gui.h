@@ -88,19 +88,19 @@ namespace SGE
 
 
 		//Background Color
-		SGE::Display::Video::pixel backgroundColor;
+		SGE::Display::Video::pixel backgroundColor = 0;
 
 		//Border Color
-		SGE::Display::Video::pixel borderColor;
+		SGE::Display::Video::pixel borderColor = 0;
 
 		//Highlight Color
-		SGE::Display::Video::pixel highlightColor;
+		SGE::Display::Video::pixel highlightColor = 0;
 
 		//Regular Text Color
-		SGE::Display::Video::pixel regularColor;
+		SGE::Display::Video::pixel regularColor = 0;
 
 		//Highlight Text Color
-		SGE::Display::Video::pixel highlightTextColor;
+		SGE::Display::Video::pixel highlightTextColor = 0;
 
 		Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, int targetNumberOfSelections, char** targetMenuItems);
 

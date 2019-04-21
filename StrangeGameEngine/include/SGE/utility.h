@@ -194,8 +194,8 @@ namespace SGE
 				void Start(float rateOfChange);
 				float Stop();
 
-				std::clock_t StartTime;
-				std::clock_t EndTime;
+				std::clock_t StartTime = 0;
+				std::clock_t EndTime = 0;
 			};
 		}
 	}

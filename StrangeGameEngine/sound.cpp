@@ -1,5 +1,5 @@
 #include "include\SGE\sound.h"
-#include <portaudio.h>
+#include <RtAudio.h>
 #include <thread>
 #include <mutex>
 #include <condition_variable>
@@ -377,6 +377,18 @@ namespace SGE
 		//
 		//
 
+		const int AUDIO_RENDER_BUFFER_SIZE = 256;
+
+		//
+		//  RtAudio Components
+		//
+
+		RtAudio audioSystem;
+		RtAudio::StreamParameters audioStreamParameters;
+		RtAudio::StreamOptions audioStreamOptions;
+
+		unsigned int RTAUDIO_RENDER_BUFFER_SIZE = AUDIO_RENDER_BUFFER_SIZE;
+
 		//
 		//Varibles to hold average volume levels from the last callback from PortAudio
 		//
@@ -394,13 +406,6 @@ namespace SGE
 		Channel Channels[MAX_CHANNELS];
 
 		//
-		//  Render Audio Frame Buffers are sized to the SAMPLE_RATE to give a maximum of a second of buffering
-		//  The needed buffer should be significantly less, but this prevents any need to resize the buffers during runtime.
-		//  We've got memory to space these days.
-		//
-		const int RENDER_FRAME_BUFFER_SIZE = SAMPLE_RATE;
-
-		//
 		//  Master volume for system
 		//
 		float MasterVolume = 1.0f;
@@ -408,44 +413,30 @@ namespace SGE
 		//
 		//  All the sound channel target render buffers
 		//
-		renderSampleType renderedChannelBuffers[MAX_CHANNELS][RENDER_FRAME_BUFFER_SIZE] = { 0 };
+		renderSampleType renderedChannelBuffers[MAX_CHANNELS][AUDIO_RENDER_BUFFER_SIZE] = { 0 };
 
 		//
 		//32-bit mixing buffers
 		//
-		renderSampleType mixingFrameBufferRight[RENDER_FRAME_BUFFER_SIZE] = { 0 };
-		renderSampleType mixingFrameBufferLeft[RENDER_FRAME_BUFFER_SIZE] = { 0 };
+		renderSampleType mixingFrameBufferRight[AUDIO_RENDER_BUFFER_SIZE] = { 0 };
+		renderSampleType mixingFrameBufferLeft[AUDIO_RENDER_BUFFER_SIZE] = { 0 };
 
 		//
 		//Current Frame Buffer Sizes
 		//
 		unsigned long frameBufferSize = 0;
 
-		//
-		//
-		//  Port Audio Components
-		//
-		//
 
-		//Flag to indicate if this object's attempt to initialize port audio threw an error
-		bool paInitializeReturnedError = false;
+		
 
-		//PortAudio Error variable
-		PaError portAudioError;
-
-		//PortAudio Stream
-		PaStream *soundSystemStream;
-
-		//PortAudio Stream Parameters
-		PaStreamParameters outputParameters;
 
 		//Static callback function wrapper to call the callback of the particular SoundSystem object passed.
-		int PortAudioCallback(
-			const void *input,
+		int AudioCallback(
 			void *output,
-			unsigned long frameCount,
-			const PaStreamCallbackTimeInfo* timeInfo,
-			PaStreamCallbackFlags statusFlags,
+			void *input,
+			unsigned int frameCount,
+			double streamTime,
+			RtAudioStreamStatus status,
 			void *userData)
 		{
 			//Statistics stuff
@@ -453,8 +444,8 @@ namespace SGE
 			unsigned int currentRightAverageLevel = 0;
 
 			//Recast the output buffers
-			sampleType* outputBufferLeft =  ((sampleType**)output)[0];
-			sampleType* outputBufferRight = ((sampleType**)output)[1];
+			sampleType* outputBufferLeft =  (sampleType*)output;
+			sampleType* outputBufferRight = (sampleType*)output + frameCount;
 
 			//Go through each channel and render samples
 			for (int i = 0; i < MAX_CHANNELS; i++)
@@ -547,7 +538,7 @@ namespace SGE
 
 			//Return
 			//If no major errors, continue the stream.
-			return paContinue;
+			return 0;
 		}
 
 
@@ -560,72 +551,54 @@ namespace SGE
 		//Start the audio system.
 		void Start()
 		{
-			//Initialize PortAudio
-			portAudioError = Pa_Initialize();
-
-			//Check for any errors
-			if (portAudioError != paNoError)
+			if (audioSystem.getDeviceCount() < 1)
 			{
-				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
-			}
-
-			//Setup Stream parameters
-			//Grab the default output device
-			outputParameters.device = Pa_GetDefaultOutputDevice();
-
-			//If there is not default output device, Error
-			if (outputParameters.device == paNoDevice)
-			{
-				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: No default output device.\n");
-			}
-
-			//Set channels
-			outputParameters.channelCount = 2;
-			//Set sample format
-			outputParameters.sampleFormat = paInt16 | paNonInterleaved;
-			//Set suggested latency
-			outputParameters.suggestedLatency = Pa_GetDeviceInfo(outputParameters.device)->defaultLowOutputLatency;
-			//Set host API
-			outputParameters.hostApiSpecificStreamInfo = NULL;
-
-			//Open up PortAudio Stream
-			portAudioError = Pa_OpenStream(
-				&soundSystemStream,
-				NULL,
-				&outputParameters,
-				SAMPLE_RATE,
-				paFramesPerBufferUnspecified,
-				NULL,
-				&PortAudioCallback,
-				NULL);
-
-
-			//Check for any errors
-			if (portAudioError != paNoError)
-			{
-				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+				//Crap there's no audio devices!
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "Error:  No Audio Devices detected!!!\n");
 			}
 			else
 			{
-				SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "PortAudio Stream Opened\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "%i Audio Devices detected.\n", audioSystem.getDeviceCount());
 			}
+					   
+			//
+			//  Get the basic stream settings together
+			//
+			audioStreamParameters.deviceId = audioSystem.getDefaultOutputDevice();
+			audioStreamParameters.nChannels = 2;
+			audioStreamParameters.firstChannel = 0;
+			
+			//
+			//  Tweak some options
+			//
+			audioStreamOptions.flags = RTAUDIO_NONINTERLEAVED;
 
-			//Check to make sure the stream isn't already active
-			if (!Pa_IsStreamActive(soundSystemStream))
+
+			//
+			//  Try to open up the audio device
+			//
+
+			RtAudio::DeviceInfo defaultDeviceInfo = audioSystem.getDeviceInfo(audioSystem.getDefaultOutputDevice());
+			SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "Attempting to use default audio device: %s\n", defaultDeviceInfo.name);
+
+			try
 			{
-				//Start the stream
-				portAudioError = Pa_StartStream(soundSystemStream);
-
-				//Check for errors
-				if (portAudioError != paNoError)
-				{
-					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
-				}
-				else
-				{
-					SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "PortAudio Stream Started.\n");
-				}
+				audioSystem.openStream(&audioStreamParameters, NULL, RTAUDIO_SINT16, SGE::Sound::SAMPLE_RATE, &RTAUDIO_RENDER_BUFFER_SIZE, &AudioCallback, NULL, &audioStreamOptions);
+				SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "Default Device Opened Successfully!\n");
 			}
+			catch (RtAudioError & e)
+			{
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "Default Device Opened Unsuccessfully!!!\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "Error Output From RtAudio Execept: %s\n", e.getMessage());
+				e.printMessage();
+			}
+			
+			//
+			// Start the Audio Stream
+			//
+
+			SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "Audio Stream Started.\n");
+			audioSystem.startStream();
 
 			//
 			//Generate PreGenerated Base Waveforms.
@@ -640,49 +613,23 @@ namespace SGE
 		//Stop the audio system
 		void Stop()
 		{
-			//Check to see if the stream isn't already stopped.
-			if (!Pa_IsStreamStopped(soundSystemStream))
+			try
 			{
-				//Stop the PortAudio Stream
-				portAudioError = Pa_StopStream(soundSystemStream);
-
-				//Check for errors
-				if (portAudioError != paNoError)
-				{
-					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
-				}
-				else
-				{
-					SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "PortAudio Stream Stopped.\n");
-				}
+				SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "Attempting to Stop Audio Stream.\n");
+				audioSystem.stopStream();
+				SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "Audio Stream Stopped Successfully.\n");
+			}
+			catch (RtAudioError & e)
+			{
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "Audio Stop Unsuccessful!!!\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "Error Output From RtAudio Execept: %s\n", e.getMessage());
+				e.printMessage();
 			}
 
-			//Close the PortAudio stream
-			portAudioError = Pa_CloseStream(soundSystemStream);
-
-			if (portAudioError != paNoError)
+			if (audioSystem.isStreamOpen())
 			{
-				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
-			}
-			else
-			{
-				SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "PortAudio Stream Closed.\n");
-			}
-
-			//Terminate PortAudio
-			//Check to see if the initialize succeeded, otherwise return
-			if (paInitializeReturnedError)
-			{
-				return;
-			}
-
-			//Shut down Port Audio
-			portAudioError = Pa_Terminate();
-
-			//Check for any errors
-			if (portAudioError != paNoError)
-			{
-				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "PortAudio Error: %s\n", Pa_GetErrorText(portAudioError));
+				audioSystem.closeStream();
+				SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "Audio Stream Closed.\n");
 			}
 		}
 	}

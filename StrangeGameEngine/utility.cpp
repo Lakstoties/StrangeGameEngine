@@ -256,7 +256,7 @@ namespace SGE
 						sampleMap[i]->Load(modFile.ConvertSampleSize(i), temp);
 
 						//Get rid of the old buffer.
-						delete temp;
+						delete[] temp;
 					}
 
 					//Apply repeat data
