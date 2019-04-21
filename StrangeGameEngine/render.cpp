@@ -82,19 +82,56 @@ namespace SGE
 			}
 		}
 
-		void inline Draw8x8CharacterSpecialCase(const unsigned char* characterToDraw, const int &targetX, const int &targetY, const SGE::Display::Video::pixel &targetColor)
+		void Draw8x8CharacterFilled(
+			const unsigned long long character,
+			const int targetX,
+			const int targetY,
+			const SGE::Display::Video::pixel targetForegroundColor,
+			const SGE::Display::Video::pixel targetBackgroundColor
+		)
 		{
-			for (int i = 0; i < 8; i++)
+			//Get a pointer to what we are interested in.
+			//Cast down to an unsigned char so to work with 8-bit at a time of the 64-bit
+			const unsigned char* characterToDraw = (unsigned char*)& character;
+
+			//  Special Case
+			if (targetY < 0 || (targetY + 7) >= SGE::Display::Video::Y || targetX < 0 || (targetX + 7) >= SGE::Display::Video::X)
 			{
-				for (int j = 0; j < 8; j++)
+				for (int i = 0; i < 8; i++)
 				{
-					if ((characterToDraw[i] & 0x01 << j) && (targetY + i >=  0) && (targetY + i < SGE::Display::Video::Y) && (targetX + j >= 0) && (targetX + j < SGE::Display::Video::X)) 
+					for (int j = 0; j < 8; j++)
 					{
-						SGE::Display::Video::RAM[targetX + j + (targetY + i) * SGE::Display::Video::X] = targetColor;
+						if ((targetY + i >= 0) && (targetY + i < SGE::Display::Video::Y) && (targetX + j >= 0) && (targetX + j < SGE::Display::Video::X))
+						{
+							SGE::Display::Video::RAM[targetX + j + (targetY + i) * SGE::Display::Video::X] = (characterToDraw[i] & 0x01 << j) ? targetForegroundColor : targetBackgroundColor;
+						}
 					}
 				}
 			}
+
+			//  Normal Case
+			else
+			{
+				//Figure out the target RAM
+				SGE::Display::Video::pixel* targetRAM = &SGE::Display::Video::RAM[targetX + targetY * SGE::Display::Video::X];
+
+				for (int i = 0; i < 8; i++)
+				{
+					targetRAM[0] = (characterToDraw[i] & 0x01) ? targetForegroundColor : targetBackgroundColor;
+					targetRAM[1] = (characterToDraw[i] & 0x02) ? targetForegroundColor : targetBackgroundColor;
+					targetRAM[2] = (characterToDraw[i] & 0x04) ? targetForegroundColor : targetBackgroundColor;
+					targetRAM[3] = (characterToDraw[i] & 0x08) ? targetForegroundColor : targetBackgroundColor;
+					targetRAM[4] = (characterToDraw[i] & 0x10) ? targetForegroundColor : targetBackgroundColor;
+					targetRAM[5] = (characterToDraw[i] & 0x20) ? targetForegroundColor : targetBackgroundColor;
+					targetRAM[6] = (characterToDraw[i] & 0x40) ? targetForegroundColor : targetBackgroundColor;
+					targetRAM[7] = (characterToDraw[i] & 0x80) ? targetForegroundColor : targetBackgroundColor;
+
+					//  Next to next Row
+					targetRAM += SGE::Display::Video::X;
+				}
+			}
 		}
+
 
 
 		//
@@ -110,26 +147,29 @@ namespace SGE
 			//Cast down to an unsigned char so to work with 8-bit at a time of the 64-bit
 			const unsigned char* characterToDraw = (unsigned char*)&character;
 
-			//
 			//  Is there even a character to draw?
-			//
 			if (character == 0)									
 			{
 				//  Nothing to draw
 				return;
 			}
 
-			//
 			//  Special Case
-			//
 			else if (targetY < 0 || (targetY + 7) >= SGE::Display::Video::Y || targetX < 0 || (targetX + 7) >= SGE::Display::Video::X)
 			{
-				Draw8x8CharacterSpecialCase(characterToDraw, targetX, targetY, targetColor);
+				for (int i = 0; i < 8; i++)
+				{
+					for (int j = 0; j < 8; j++)
+					{
+						if ((characterToDraw[i] & 0x01 << j) && (targetY + i >= 0) && (targetY + i < SGE::Display::Video::Y) && (targetX + j >= 0) && (targetX + j < SGE::Display::Video::X))
+						{
+							SGE::Display::Video::RAM[targetX + j + (targetY + i) * SGE::Display::Video::X] = targetColor;
+						}
+					}
+				}
 			}
 
-			//
 			//  Normal Case
-			//
 			else 
 			{
 				//Figure out the target RAM
@@ -175,7 +215,6 @@ namespace SGE
 			for (int i = 0; i < sourceHeight; i++)
 			{
 				//Copy of row from the source over to the target
-				//std::memcpy(&SGE::Display::Video::RAM[targetRAM], &sourceDataBlock[sourceRAM], sourceWidth * sizeof(SGE::Display::Video::pixel));
 				std::copy(sourceDataBlock + sourceRAM, sourceDataBlock + sourceRAM + sourceWidth, &SGE::Display::Video::RAM[targetRAM]);
 
 				//Increment to the next row in the display
@@ -512,21 +551,19 @@ namespace SGE
 				height = SGE::Display::Video::Y - startY;
 			}
 
-			//Get the starting point in video RAM based on desired location and size of the display
-			int startingPoint= startX + (startY * SGE::Display::Video::X);
-			
-			//Draw the first row
-			for (int i = 0; i < width; i++)
-			{
-				//Copy the color into video ram
-				SGE::Display::Video::RAM[startingPoint + i] = color;
-			}
 
-			//Loop through the remaining rows
-			for (int i = SGE::Display::Video::X; i < height * SGE::Display::Video::X; i += SGE::Display::Video::X)
+			//  Get the starting point in video RAM based on desired location and size of the display
+			SGE::Display::Video::pixel* startPointInRAM = SGE::Display::Video::RAM + startX + (startY * SGE::Display::Video::X);
+
+			//
+			//  Straight assignment
+			//
+			for (int j = 0; j < height * SGE::Display::Video::X; j += SGE::Display::Video::X)
 			{
-				//Copy the first row to the rest of the rows
-				std::copy(&SGE::Display::Video::RAM[startingPoint], &SGE::Display::Video::RAM[startingPoint + width], &SGE::Display::Video::RAM[startingPoint + i]);
+				for (int i = 0; i < width; i++)
+				{
+					startPointInRAM[i + j] = color;
+				}
 			}
 		}
 
@@ -534,7 +571,7 @@ namespace SGE
 		void ZBlank()
 		{
 			//std::fill for it all
-			std::fill(SGE::Display::Video::RAM.begin(), SGE::Display::Video::RAM.end(), (SGE::Display::Video::pixel) 0x00000000);
+			std::fill(SGE::Display::Video::RAM, SGE::Display::Video::RAM + SGE::Display::Video::X * SGE::Display::Video::Y, (SGE::Display::Video::pixel) 0x00000000);
 		}
 
 		//Packs the Red, Green, and Blue 8-bit components with a dummy Alpha value into a 32-bit unsigned int
@@ -853,11 +890,6 @@ namespace SGE
 				//
 				//  Mass move data
 				//
-
-				//std::memcpy(&SGE::Display::Video::RAM[copyRowDestination],		//In Video RAM
-				//		&rowBuffer[copyRowSource],			//From the Row Buffer
-				//		sizeof(SGE::Display::Video::pixel) * copyRowLength);
-
 				std::copy(&rowBuffer[copyRowSource], &rowBuffer[copyRowSource + copyRowLength], &SGE::Display::Video::RAM[copyRowDestination]);
 			}
 
@@ -916,11 +948,6 @@ namespace SGE
 				//
 				//  Mass move data
 				//
-
-				//std::memcpy(&SGE::Display::Video::RAM[copyRowDestination],	//In Video RAM
-				//	&rowBuffer[copyRowSource],			//From the Row Buffer
-				//	sizeof(SGE::Display::Video::pixel) * copyRowLength);
-				
 				std::copy(rowBuffer + copyRowSource, rowBuffer + copyRowSource + copyRowLength, &SGE::Display::Video::RAM[copyRowDestination]);
 			}
 		}
@@ -1042,100 +1069,5 @@ namespace SGE
 				partialProductX31 = resetPartialProductX31;
 			}
 		}
-
-
-		//
-		//
-		//  Animation Stuff!
-		//
-		//
-
-
-		void AnimationBlock::CreateBuffers(unsigned int number, unsigned int XSize, unsigned int YSize)
-		{
-			//Store the resolutions
-			X = XSize;
-			Y = YSize;
-
-			//Compute the individual buffer sizes
-			ImageBufferSize = X * Y;
-
-			//Store the number of buffers
-			NumberOfImages = number;
-
-			//Create the buffers
-			//Create the array
-			ImageBuffers = new unsigned int*[NumberOfImages];
-
-			//Go through and create buffers in each spot
-			for (unsigned int i = 0; i < NumberOfImages; i++)
-			{
-				ImageBuffers[i] = new unsigned int[ImageBufferSize];
-			}
-		}
-
-		void AnimationBlock::DeleteBuffers()
-		{
-			//Nuke the individual buffers
-			for (unsigned int i = 0; i < NumberOfImages; i++)
-			{
-				delete[] ImageBuffers[i];
-			}
-
-			//Nuke the array
-			delete[] ImageBuffers;
-
-			//Set the nullptr for the base pointer
-			ImageBuffers = nullptr;
-		}
-
-		bool AnimationBlock::LoadBuffer(unsigned int number, unsigned int* sourceBuffer, unsigned int sourceXOffset, unsigned int sourceYOffset)
-		{
-
-
-
-
-			return true;
-		}
-
-		void AnimationBlock::StartAnimation()
-		{
-			//Capture the current time
-			previousTime = std::clock();
-
-			//Reset the current image
-			CurrentImageBuffer = 0;
-
-			//Flag for animation
-			Animating = true;
-		}
-
-		void AnimationBlock::ResetAnimation()
-		{
-			Animating = false;
-
-			CurrentImageBuffer = 0;
-		}
-
-		void AnimationBlock::DrawAnimation(int XPosition, int YPosition)
-		{
-			//Check for animation
-			if (Animating)
-			{
-				//Check to see if we need to progress to the next frame based on timing factors
-				if ((std::clock() - previousTime) > MillisecondsPerFrame)
-				{
-					//Grab new previous time
-					previousTime = std::clock();
-
-					//Go to the next frame buffer
-					CurrentImageBuffer = (CurrentImageBuffer + 1) % NumberOfImages;
-				}
-			}
-
-			//Draw current frame of animation
-			SGE::Render::DrawDataBlock(XPosition, YPosition, X, Y, ImageBuffers[CurrentImageBuffer]);
-		}
-
 	}
 }

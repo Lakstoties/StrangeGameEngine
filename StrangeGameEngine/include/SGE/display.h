@@ -32,11 +32,25 @@ namespace SGE
 			//
 			typedef unsigned int pixel;
 
+
+			//
+			//  Maximum Limits for the  System
+			//
+
+			// Max Resolution Width
+			const int MAX_RESOLUTION_WIDTH = 1920;
+
+			// Max Resolution Height
+			const int MAX_RESOLUTION_HEIGHT = 1080;
+
+			// Max Video RAM size, hence the size initialized.
+			const int MAX_VIDEO_RAM = MAX_RESOLUTION_WIDTH * MAX_RESOLUTION_HEIGHT * sizeof(pixel);
+
+					   			 		  
 			//
 			//  The virtual video RAM.  Public accessible to allow other components to write to it directly.
 			//
-			//extern SGEAPI pixel* RAM;
-			extern SGEAPI std::vector<pixel> RAM;
+			extern SGEAPI pixel RAM[MAX_VIDEO_RAM];
 
 			//
 			//  The virtual video horizontal resolution

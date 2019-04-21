@@ -82,7 +82,7 @@ namespace SGE
 			//  The virtual video RAM.  Publically accessible to allow other components to write to it directly.
 			//  This is by design.  
 			//
-			std::vector<pixel> RAM;
+			pixel RAM[MAX_VIDEO_RAM] = { 0 };
 
 			//The virtual video horizontal resolution
 			int X = 0;
@@ -271,7 +271,7 @@ namespace SGE
 					refreshHold.lock();
 
 					//Recreate the Buffer storage for the new video ram size
-					glBufferData(GL_PIXEL_UNPACK_BUFFER, Video::RAM.size() * sizeof(Video::pixel), &Video::RAM.begin(), GL_DYNAMIC_DRAW);
+					glBufferData(GL_PIXEL_UNPACK_BUFFER, Video::X * Video::Y * sizeof(Video::pixel), Video::RAM, GL_DYNAMIC_DRAW);
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
@@ -292,7 +292,7 @@ namespace SGE
 					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
 					refreshHold.lock();
 
-					glBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, Video::RAM.size() * sizeof(Video::pixel), &Video::RAM.begin());
+					glBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, Video::X * Video::Y * sizeof(Video::pixel), Video::RAM);
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
@@ -402,10 +402,10 @@ namespace SGE
 				if (GameResolutionChanged)
 				{
 					//Recreate the Buffer storage for the new video ram size
-					glBufferStorage(GL_PIXEL_UNPACK_BUFFER, Video::RAM.size() * sizeof(Video::pixel), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
+					glBufferStorage(GL_PIXEL_UNPACK_BUFFER, Video::X * Video::Y * sizeof(Video::pixel), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
 
 					//Grab the pinter to the mapped buffer range
-					pixelBufferMapping = (char*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, Video::RAM.size() * sizeof(Video::pixel), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+					pixelBufferMapping = (char*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, Video::X * Video::Y * sizeof(Video::pixel), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
 
 					//Lock the refresh mutex
 					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
@@ -413,13 +413,13 @@ namespace SGE
 
 					//Copy our data to it
 					//std::memcpy(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(Video::pixel));
-					std::copy(Video::RAM.begin(), Video::RAM.end(), (Video::pixel*)pixelBufferMapping);
+					std::copy(Video::RAM, Video::RAM + Video::X * Video::Y, (Video::pixel*)pixelBufferMapping);
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
 
 					//Flush the buffer and let OpenGL know the buffer has changed.
-					glFlushMappedBufferRange(pixelBufferObject, 0, Video::RAM.size() * sizeof(Video::pixel));
+					glFlushMappedBufferRange(pixelBufferObject, 0, Video::X * Video::Y * sizeof(Video::pixel));
 
 
 					//Move load up the texture data from the buffer
@@ -440,13 +440,13 @@ namespace SGE
 
 					//Update the data
 					//std::memcpy(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(Video::pixel));
-					std::copy(Video::RAM.begin(), Video::RAM.end(), (Video::pixel*)pixelBufferMapping);
+					std::copy(Video::RAM, Video::RAM + Video::X * Video::Y, (Video::pixel*)pixelBufferMapping);
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
 
 					//Flush the buffer and let OpenGL know the buffer has changed.
-					glFlushMappedBufferRange(pixelBufferObject, 0, Video::RAM.size() * sizeof(Video::pixel));
+					glFlushMappedBufferRange(pixelBufferObject, 0, Video::X * Video::Y * sizeof(Video::pixel));
 
 					//Move the data to the texture from the buffer
 					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, 0);
@@ -543,7 +543,7 @@ namespace SGE
 					refreshHold.lock();
 
 					//Slow method
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::X, Video::Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, &Video::RAM.begin());
+					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::X, Video::Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, Video::RAM);
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
@@ -561,7 +561,7 @@ namespace SGE
 					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
 					refreshHold.lock();
 
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, &Video::RAM.begin());
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, Video::RAM);
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
@@ -699,10 +699,6 @@ namespace SGE
 				Video::X = newVideoX;
 				Video::Y = newVideoY;
 
-				//Initialize the Virtual Video RAM
-				Video::RAM.resize(Video::X * Video::Y);
-
-
 				//Flag that the game display is open
 				GameDisplayOpen = true;
 			}
@@ -723,9 +719,6 @@ namespace SGE
 				//Also this should halt any render operations from other game threads, until we are done.
 				refreshHold.lock();
 
-				//Delete the old RAM bits
-				//delete Video::RAM;
-
 				//Set the new resolution values
 				Video::X = width;
 				Video::Y = height;
@@ -733,9 +726,6 @@ namespace SGE
 				//
 				//Make some new RAM bits!
 				//
-
-				//Initialize the Virtual Video RAM
-				Video::RAM.resize(Video::X * Video::Y);
 
 				//Flag the game resolution has changed
 				GameResolutionChanged = true;

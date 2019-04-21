@@ -318,71 +318,6 @@ namespace SGE
 			bool Load(unsigned int numOfSamples, sampleType *samples);
 		};
 
-
-		namespace FMSynth
-		{
-			const int OPERATORS_PER_CHANNEL = 4;
-			const int MAXIMUM_OPERATORS_TO_PROCESS = 16;
-			const int NUMBER_OF_SYNTH_CHANNELS = 32;
-
-
-			struct Operator
-			{
-			public:
-				//Float array to use for the waveform
-				float* Waveform = NULL;
-
-				//Waveform array size
-				unsigned int WaveformSize = 0;
-
-				//Current location in waveform array  
-				float WaveformIndex = 0.0f;
-
-				//How much to increment the array per sample gotten
-				float Increment = 0.0f;
-
-				// Magnitude of the oscillation
-				float Magnitude = 1.0f;
-
-				float Output = 0.0f;
-
-				void Generate(float modulation);
-			};
-
-
-			struct SynthChannel
-			{
-			public:
-				//
-
-				//Operator array
-				Operator Operators[OPERATORS_PER_CHANNEL];
-
-				//Operator Order Array
-				int orderOfOperators[MAXIMUM_OPERATORS_TO_PROCESS] = {-1};
-
-				//Operator Input Array
-				bool operatorInputArray[OPERATORS_PER_CHANNEL][OPERATORS_PER_CHANNEL] = { false };
-
-				//Operator Main Out Array
-				bool operatorMainOutputArray[OPERATORS_PER_CHANNEL] = { false };
-
-				//Generate a sample
-				float Generate();
-
-				void Render(unsigned int numberOfSamples, renderSampleType* outputBuffer);
-			};
-
-
-			//
-			//  Synth Channels
-			//
-
-			extern SynthChannel SynthChannels[NUMBER_OF_SYNTH_CHANNELS];
-		}
-
-
-
 		//
 		//  Sound Channel Class
 		//
@@ -413,7 +348,7 @@ namespace SGE
 			//
 			//  Render function
 			//
-			void Render(unsigned int numerOfSamples, std::vector<renderSampleType> &outputBuffer);
+			void Render(unsigned int numerOfSamples, renderSampleType* outputBuffer);
 			
 			//
 			//  Basic functions

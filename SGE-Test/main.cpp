@@ -391,13 +391,13 @@ void InputTest(bool& testInputRunning)
 		//
 
 		//  Set Background Color
-		terminal.BackgroundColorArray[targetTerminalRow * terminal.columns + targetTerminalColumn] = SGE::Render::Colors::ColorMode8Bit[targetTerminalBackgroundColor];
+		terminal(targetTerminalRow, targetTerminalColumn).BackColor = SGE::Render::Colors::ColorMode8Bit[targetTerminalBackgroundColor];
 
 		//  Set Foreground Color
-		terminal.ForegroundColorArray[targetTerminalRow * terminal.columns + targetTerminalColumn] = SGE::Render::Colors::ColorMode8Bit[targetTerminalForegroundColor];
+		terminal(targetTerminalRow, targetTerminalColumn).ForeColor = SGE::Render::Colors::ColorMode8Bit[targetTerminalForegroundColor];
 
 		//  Set Character
-		terminal.CharacterArray[targetTerminalRow * terminal.columns + targetTerminalColumn] = targetTerminalCharacter;
+		terminal(targetTerminalRow, targetTerminalColumn).Character = targetTerminalCharacter;
 
 		//
 		//  Draw Mouse Cursor

@@ -425,54 +425,13 @@ namespace SGE
 
 		}
 
-		class AnimationBlock
-		{
-		public:
-			//buffer array to store the images and data
-			unsigned int** ImageBuffers = nullptr;
-
-			//Number of images
-			unsigned int NumberOfImages = 0;
-
-			//Resolution of images
-			//X
-			unsigned int X = 0;
-
-			//Y
-			unsigned int Y = 0;
-
-			//Individual Image Buffer Size
-			unsigned int ImageBufferSize = 0;
-
-			//Status Flag for Animation
-			bool Animating = false;
-
-			//Animation rate
-			unsigned int MillisecondsPerFrame = 0;
-
-			//Reverse Animation
-			bool ReverseAnimation = false;
-
-			//Current image from buffer
-			unsigned int CurrentImageBuffer = 0;
-
-			//Timer
-			time_t previousTime;
-			time_t deltaTime = 0;
-
-
-			void CreateBuffers(unsigned int number, unsigned int XSize, unsigned int YSize);
-			void DeleteBuffers();
-			bool LoadBuffer(unsigned int number, unsigned int* sourceBuffer, unsigned int XOffset, unsigned int YOffset);
-			void StartAnimation();
-			void ResetAnimation();
-			void DrawAnimation(int XPosition, int YPosition);
-		};
-
 		//
 		//  Draw Simple Mouse Cursor
 		//
 		void SGEAPI DrawMouseSimpleCursor(unsigned int cursorRadius, const SGE::Display::Video::pixel cursorColor);
+
+
+		void SGEAPI Draw8x8CharacterFilled(const unsigned long long character, const int targetX, const int targetY, const SGE::Display::Video::pixel targetForegroundColor, const SGE::Display::Video::pixel targetBackgroundColor);
 
 		//
 		//  Draw a character to the screen

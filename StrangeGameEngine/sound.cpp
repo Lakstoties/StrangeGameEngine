@@ -17,95 +17,12 @@ namespace SGE
 {
 	namespace Sound
 	{
-		namespace FMSynth
-		{
-			SynthChannel SynthChannels[NUMBER_OF_SYNTH_CHANNELS];
-
-
-			void Operator::Generate(float modulation)
-			{
-				WaveformIndex += Increment + modulation;
-
-				Output = Waveform[(int)WaveformIndex] * Magnitude;
-			}
-
-
-			float SynthChannel::Generate()
-			{
-				//
-				//  Go throught each operator in the list and generate.
-				//
-
-				float tempOutput = 0.0f;
-
-				for (int i = 0; i < MAXIMUM_OPERATORS_TO_PROCESS; i++)
-				{
-					//
-					//  If we run into a null, then we stop processing.
-					//
-
-					if (orderOfOperators[i] == -1)
-					{
-						break;
-					}
-
-					//
-					//  Figure out what we need to input into the channel
-					//
-
-					float tempInput = 0.0f;
-
-					for (int j = 0; j < OPERATORS_PER_CHANNEL; j++)
-					{
-						if (operatorInputArray[orderOfOperators[i]][j])
-						{
-							tempInput += Operators[j].Output;
-						}
-					}
-
-					//
-					//  Generate the next state of the operator
-					//
-
-					Operators[orderOfOperators[i]].Generate(tempInput);
-
-					//
-					//  Check to see if this operator outputs to the Main Output
-					//
-
-					if (operatorMainOutputArray[orderOfOperators[i]])
-					{
-						tempOutput += Operators[orderOfOperators[i]].Output;
-					}
-				}
-
-				//
-				//  Output Result
-				//
-
-				return tempOutput;
-			}
-
-
-			void Render(unsigned int numberOfSamples, renderSampleType* outputBuffer)
-			{
-
-			}
-		}
-
-
-
-			   
-		//
 		//
 		//  Sound Channel Definitions
 		//
-		//
 
-		//
-		//  Given arguments, render a number of samples asked and return a pointer to the buffer.
-		//
-		void Channel::Render(unsigned int numberOfSamples, std::vector<renderSampleType> &sampleBuffer)
+		//  Given arguments, render a number of samples asked to the given vector.
+		void Channel::Render(unsigned int numberOfSamples, renderSampleType* sampleBuffer)
 		{
 			//  For statistical reasons
 			unsigned int currentSampleAverage = 0;
@@ -477,9 +394,11 @@ namespace SGE
 		Channel Channels[MAX_CHANNELS];
 
 		//
-		//  Initialize size for the Render Frame Buffers
+		//  Render Audio Frame Buffers are sized to the SAMPLE_RATE to give a maximum of a second of buffering
+		//  The needed buffer should be significantly less, but this prevents any need to resize the buffers during runtime.
+		//  We've got memory to space these days.
 		//
-		const unsigned long INITIAL_RENDER_FRAME_BUFFER_SIZE = 1024;
+		const int RENDER_FRAME_BUFFER_SIZE = SAMPLE_RATE;
 
 		//
 		//  Master volume for system
@@ -489,45 +408,18 @@ namespace SGE
 		//
 		//  All the sound channel target render buffers
 		//
-		std::vector<renderSampleType> renderedChannelBuffers[MAX_CHANNELS];
+		renderSampleType renderedChannelBuffers[MAX_CHANNELS][RENDER_FRAME_BUFFER_SIZE] = { 0 };
 
 		//
 		//32-bit mixing buffers
 		//
-		std::vector<renderSampleType> mixingFrameBufferRight;
-		std::vector<renderSampleType> mixingFrameBufferLeft;
+		renderSampleType mixingFrameBufferRight[RENDER_FRAME_BUFFER_SIZE] = { 0 };
+		renderSampleType mixingFrameBufferLeft[RENDER_FRAME_BUFFER_SIZE] = { 0 };
 
 		//
 		//Current Frame Buffer Sizes
 		//
 		unsigned long frameBufferSize = 0;
-
-		//
-		//  Sound Buffer Functions
-		//
-
-		//Creates and sets up frame buffers for audio data
-		void GenerateFrameBuffers(unsigned long newFrameBufferSize)
-		{
-			//Delete any old buffers
-			mixingFrameBufferLeft.clear();
-			mixingFrameBufferRight.clear();
-
-			//Set the new render frame buffer size
-			frameBufferSize = newFrameBufferSize;
-
-			//Generate new mixing frame buffers
-			mixingFrameBufferLeft.resize(frameBufferSize);
-			mixingFrameBufferRight.resize(frameBufferSize);
-
-			//Generate new render frame buffers
-			for (int i = 0; i < MAX_CHANNELS; i++)
-			{
-				//Delete any old buffer
-				renderedChannelBuffers[i].clear();
-				renderedChannelBuffers[i].resize(frameBufferSize);
-			}
-		}
 
 		//
 		//
@@ -563,15 +455,6 @@ namespace SGE
 			//Recast the output buffers
 			sampleType* outputBufferLeft =  ((sampleType**)output)[0];
 			sampleType* outputBufferRight = ((sampleType**)output)[1];
-
-
-			//Check to see if the frame buffer size is bigger than the frame buffers already allocated
-			if (frameCount > frameBufferSize)
-			{
-				GenerateFrameBuffers(frameCount);
-				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Sound, "DEBUG:  Sound  System - Frame Buffer Size Increased to: %lu\n", frameBufferSize);
-
-			}
 
 			//Go through each channel and render samples
 			for (int i = 0; i < MAX_CHANNELS; i++)
@@ -726,9 +609,6 @@ namespace SGE
 			{
 				SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "PortAudio Stream Opened\n");
 			}
-
-			//Generate the initial render frame buffers
-			GenerateFrameBuffers(INITIAL_RENDER_FRAME_BUFFER_SIZE);
 
 			//Check to make sure the stream isn't already active
 			if (!Pa_IsStreamActive(soundSystemStream))

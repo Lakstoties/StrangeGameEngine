@@ -9,10 +9,28 @@ namespace SGE
 {
 	namespace GUI
 	{
-		class SGEAPI TextBox
+		class TextBox
 		{
+		public:
+			//
+			//  Nice little struct to hold all the relevant data in a sensible fashion
+			//
+			struct TextBoxData
+			{
+				char Character = 0;
+				SGE::Display::Video::pixel ForeColor = 0;
+				SGE::Display::Video::pixel BackColor = 0;
+			};
+
+		private:
+
+			//
+			//  2D Vector of TextBoxData to hold all the bits.
+			//
+			std::vector<std::vector<TextBoxData>> Characters;
 
 		public:
+
 			//  The number of rows in the text box
 			unsigned int rows = 0;
 
@@ -25,26 +43,19 @@ namespace SGE
 			//  The spacing between character between rows
 			unsigned int RowSpacing = 8;
 
-			//Buffers to store characters
-			char* CharacterArray = NULL;
-
-			//Color Array for Foreground
-			SGE::Display::Video::pixel* ForegroundColorArray = NULL;
-			
-			//Color Array for Background
-			SGE::Display::Video::pixel* BackgroundColorArray = NULL;
-
 			//Upper Left corner to align to
 			int XPosition = 0;
 			int YPosition = 0;
 
-			TextBox(unsigned int numberOfRows, unsigned int numberOfColumns, int xPosition, int yPosition);
-			~TextBox();
+			SGEAPI TextBox(unsigned int numberOfRows, unsigned int numberOfColumns, int xPosition, int yPosition);
 
-			void Draw();
-			void DeleteBuffers();
-			void CreateBuffers(unsigned int newRows, unsigned int newColumns);
-			void ResetBuffers();
+			SGEAPI void Draw();
+			SGEAPI void CreateBuffers(unsigned int newRows, unsigned int newColumns);
+
+			//  Overload Parenthesis Operator for easy access
+
+			SGEAPI TextBoxData& operator ()(int row, int column);
+			SGEAPI TextBoxData operator ()(int row, int column) const;
 		};
 	}
 
