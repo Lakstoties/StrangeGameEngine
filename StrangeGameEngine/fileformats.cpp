@@ -945,13 +945,13 @@ namespace SGE
 						//
 
 						//Copy the first two bytes over into period
-						patterns[i].division[j].channels[k].period = ((readBuffer[0] & 0x0F) << 8) | (readBuffer[1]);
+						patterns[i][j][k].period = ((readBuffer[0] & 0x0F) << 8) | (readBuffer[1]);
 
 						//Copy the second two bytes over into effect
-						patterns[i].division[j].channels[k].effect = ((readBuffer[2] & 0x0F) << 8) | (readBuffer[3]);
+						patterns[i][j][k].effect = ((readBuffer[2] & 0x0F) << 8) | (readBuffer[3]);
 
 						//Bit mask unneeded bits, shift, and add them together
-						patterns[i].division[j].channels[k].sample = (readBuffer[0] & 0xF0) | ((readBuffer[2] & 0xF0) >> 4);
+						patterns[i][j][k].sample = (readBuffer[0] & 0xF0) | ((readBuffer[2] & 0xF0) >> 4);
 					}
 				}
 			}
@@ -999,49 +999,29 @@ namespace SGE
 			return 0;
 		}
 
-		//
-		//  Converts sample data from 8 bits to 16
-		//
-		SGE::Sound::sampleType* ModuleFile::ConvertSample(unsigned char sample)
+		bool ModuleFile::MODSample::ConvertSampleTo16Bit(SGE::Sound::sampleType* target)
 		{
-			//Check for a valid sample
-			if (sample > 32)
+			if (this->data == nullptr)
 			{
-				return nullptr;
+				return false;
 			}
 
-			//Create a buffer to store the converted samples into.
-			SGE::Sound::sampleType* temp = new SGE::Sound::sampleType[samples[sample].lengthInWords * 2];
 
-			if (samples[sample].lengthInWords > 1)
+			if (this->lengthInWords > 1)
 			{
 				//Go through the module sample and convert the 8-bit to 16-bit range
 				//Store it in the destinationBuffer
-				for (int i = 0; i < (samples[sample].lengthInWords * 2); i++)
+				for (int i = 0; i < (this->lengthInWords * 2); i++)
 				{
-					temp[i] = SGE::Sound::sampleType(samples[sample].data[i] << 8);
+					target[i] = SGE::Sound::sampleType(this->data[i] << 8);
 				}
 			}
-
-			return temp;
+			return true;
 		}
 
-		//
-		//  Finds out sample size from words to bytes
-		//
-		unsigned int ModuleFile::ConvertSampleSize(unsigned char sample)
+		int ModuleFile::MODSample::SampleLengthInBytes()
 		{
-			//Check for a valid sample
-			if (sample > 32)
-			{
-				return 0;
-			}
-
-			return samples[sample].lengthInWords * 2;
+			return this->lengthInWords * 2;
 		}
-
-
-
-
 	}
 }

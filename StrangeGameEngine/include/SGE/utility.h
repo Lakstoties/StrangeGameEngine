@@ -159,7 +159,7 @@ namespace SGE
 				SGE::Sound::Channel* channelMap[4] = { nullptr };
 
 				//
-				SGE::FileFormats::ModuleFile modFile = SGE::FileFormats::ModuleFile();
+				SGE::FileFormats::ModuleFile modFile;
 				bool PlayerThreadActive = false;
 				std::thread* playerThread = NULL;
 

@@ -200,9 +200,6 @@ namespace SGE
 
 			bool ModulePlayer::Load(char * filename)
 			{
-				//Make sure we have a new module file
-				modFile = SGE::FileFormats::ModuleFile();
-
 				//Load it up.
 				modFile.LoadFile(filename);
 
@@ -244,16 +241,16 @@ namespace SGE
 				//Convert samples over, load them up
 				for (int i = 0; i < 31; i++)
 				{
-					if (modFile.ConvertSampleSize(i) > 2)
+					if (modFile.samples[i].SampleLengthInBytes() > 2)
 					{
 						//Allocate memory to the size we need.
-						temp = new SGE::Sound::sampleType[modFile.ConvertSampleSize(i)];
+						temp = new SGE::Sound::sampleType[modFile.samples[i].SampleLengthInBytes()];
 
 						//Convert the sample data
-						temp = modFile.ConvertSample(i);
+						modFile.samples[i].ConvertSampleTo16Bit(temp);
 
 						//Load the convert sample data into the sample buffer
-						sampleMap[i]->Load(modFile.ConvertSampleSize(i), temp);
+						sampleMap[i]->Load(modFile.samples[i].SampleLengthInBytes(), temp);
 
 						//Get rid of the old buffer.
 						delete[] temp;
@@ -430,30 +427,30 @@ namespace SGE
 
 								//Check to see if sample is not zero
 								//If it is zero don't change the sample used in the channel
-								if (modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].sample > 0 &&
-									modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].sample != CurrentChannelSamples[c])
+								if (modFile.patterns[CurrentPattern][CurrentDivision][c].sample > 0 &&
+									modFile.patterns[CurrentPattern][CurrentDivision][c].sample != CurrentChannelSamples[c])
 								{
 									//Otherwise, channel up the sample used, effectively reseting the channel to the sample settings.
 									//Stop this channel
 									channelMap[c]->Stop();
 
 									//Switch to the sample
-									channelMap[c]->currentSampleBuffer = sampleMap[modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].sample - 1];
+									channelMap[c]->currentSampleBuffer = sampleMap[modFile.patterns[CurrentPattern][CurrentDivision][c].sample - 1];
 
 									//Set sample volume
-									channelMap[c]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].sample - 1].volume) / 64.0f;
+									channelMap[c]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern][CurrentDivision][c].sample - 1].volume) / 64.0f;
 
 									//Indicate Current Channel's Sample
-									CurrentChannelSamples[c] = modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].sample;
+									CurrentChannelSamples[c] = modFile.patterns[CurrentPattern][CurrentDivision][c].sample;
 
 									channelPlays[c] = true;
 								}
 
 								//If the sample is the same, just reset the volume.
-								if (modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].sample == CurrentChannelSamples[c])
+								if (modFile.patterns[CurrentPattern][CurrentDivision][c].sample == CurrentChannelSamples[c])
 								{
 									//Set sample volume
-									channelMap[c]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].sample - 1].volume) / 64.0f;
+									channelMap[c]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern][CurrentDivision][c].sample - 1].volume) / 64.0f;
 
 									if (!channelMap[c]->Playing)
 									{
@@ -466,9 +463,9 @@ namespace SGE
 								//
 
 								//Parse out the effect
-								effectTypeOnChannel[c] = (modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].effect & 0x0F00) >> 8;
-								effectXOnChannel[c] = (modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].effect & 0x00F0) >> 4;
-								effectYOnChannel[c] = (modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].effect & 0x000F);
+								effectTypeOnChannel[c] = (modFile.patterns[CurrentPattern][CurrentDivision][c].effect & 0x0F00) >> 8;
+								effectXOnChannel[c] = (modFile.patterns[CurrentPattern][CurrentDivision][c].effect & 0x00F0) >> 4;
+								effectYOnChannel[c] = (modFile.patterns[CurrentPattern][CurrentDivision][c].effect & 0x000F);
 								
 
 								//
@@ -480,10 +477,10 @@ namespace SGE
 								//  If it is zero don't change the period used in this channel
 								//  NOTE:  Effect 3 does some weird stuff, the period is target note to shift to but it does NOT trigger a play effect
 
-								if (modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].period > 0)
+								if (modFile.patterns[CurrentPattern][CurrentDivision][c].period > 0)
 								{
 									//Save the period
-									CurrentChannelPeriods[c] = modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].period;
+									CurrentChannelPeriods[c] = modFile.patterns[CurrentPattern][CurrentDivision][c].period;
 
 									//
 									//   Period Slides don't actually play the note, but use the period as a value for the effect
@@ -496,7 +493,7 @@ namespace SGE
 
 										//Convert the period to offset timing interval in relation to system sampling rate
 										//Using NTSC sampling
-										channelMap[c]->offsetIncrement = PeriodToOffsetIncrement(modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].period);
+										channelMap[c]->offsetIncrement = PeriodToOffsetIncrement(modFile.patterns[CurrentPattern][CurrentDivision][c].period);
 
 										//Channel plays
 										channelPlays[c] = true;
@@ -534,7 +531,7 @@ namespace SGE
 								//Is there an effect at all?
 								//If the whole effect value is 0, then there is no effect
 								//
-								if (modFile.patterns[CurrentPattern].division[CurrentDivision].channels[c].effect != 0)
+								if (modFile.patterns[CurrentPattern][CurrentDivision][c].effect != 0)
 								{
 									//Since the effect value is non-zero, there's some kind of effect data to be processed!
 									//Let's find it!

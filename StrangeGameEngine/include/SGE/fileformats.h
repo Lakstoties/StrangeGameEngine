@@ -14,7 +14,7 @@ namespace SGE
 		struct SGEAPI Bitmap
 		{
 			//File Header
-			char idField[2];				//ID Field,  should be "BM" for Bitmap.
+			char idField[2] = "";				//ID Field,  should be "BM" for Bitmap.
 			unsigned int bmpSize = 0;			//Bitmap file size
 			unsigned short reserved1 = 0;		//Reserved data that's application specific
 			unsigned short reserved2 = 0;		//Reserved data that's application specific
@@ -22,8 +22,8 @@ namespace SGE
 
 			//Info Header
 			unsigned int sizeOfHeader = 0;		//Size of the header, used to indicate version of the header used and extended information that may exist
-			unsigned int width = 0;		//Width of the bitmap in pixels
-			unsigned int height = 0;		//Height of the bitmap in pixels
+			unsigned int width = 0;				//Width of the bitmap in pixels
+			unsigned int height = 0;			//Height of the bitmap in pixels
 			unsigned short colorPanes = 0;		//Number of color panes
 			unsigned short bitsPerPixel = 0;	//Bits per pixel or color depth of image
 			unsigned int compressionMethod = 0;	//Compress method in use
@@ -79,18 +79,29 @@ namespace SGE
 		//Class for a module tracker file (FastTracker format)
 		class SGEAPI ModuleFile
 		{
+		private:
 			///
 			///  Specific Module File Structures
 			///
-			struct MODSample
+			class MODSample
 			{
-				char title[23] = { 0 };					//Sample Title
-				unsigned short lengthInWords = 0;		//Sample Length in Words (16-bit chunks)
-				unsigned char finetune = 0;				//Sample Fine Tune, in lowest four bits.  Technically a signed nibble.
-				unsigned char volume = 0;				//Sample volume.  0 - 64 are legal values
-				unsigned short repeatOffset = 0;		//Sample repeat offset
-				unsigned short repeatLength = 0;		//Sample repeat length
-				char* data = nullptr;					//Pointer to Sample data
+			public:
+				//
+				//  Convert Sample from 8 bit to 16 bits
+				//
+
+				bool ConvertSampleTo16Bit(SGE::Sound::sampleType* target);
+
+				int SampleLengthInBytes();
+
+
+				char			title[23] = { 0 };		//Sample Title
+				unsigned short	lengthInWords = 0;		//Sample Length in Words (16-bit chunks)
+				unsigned char	finetune = 0;			//Sample Fine Tune, in lowest four bits.  Technically a signed nibble.
+				unsigned char	volume = 0;				//Sample volume.  0 - 64 are legal values
+				unsigned short	repeatOffset = 0;		//Sample repeat offset
+				unsigned short	repeatLength = 0;		//Sample repeat length
+				char*			data = nullptr;			//Pointer to Sample data
 			};
 
 			struct MODChannelData
@@ -100,37 +111,27 @@ namespace SGE
 				unsigned short effect = 0;				//Effects to use on this channel this division
 			};
 
-			struct MODDivisionData
-			{
-				MODChannelData channels[4];			//Channels in a division
-			};
-
-			struct MODPatternData
-			{
-				MODDivisionData division[64];		//Division in a pattern
-			};
-
-
 		public:
 			//
 			//  MOD File Header
 			//
-
 			char title[20] = { 0 };						//Module Title
 			unsigned char songPositions = 0;			//Number of song positions, AKA patterns. 1 - 128
 			unsigned char patternTable[128] = { 0 };	//Pattern table, legal valves 0 - 63  (High value in table is the highest pattern stored.)
 
 			MODSample samples[31];
-			MODPatternData patterns[64];
+
+			//
+			//  [Patterns] [Divisions] [Channels]
+			//
+			MODChannelData patterns[64][64][4];
+
 			unsigned char numberOfPatterns = 0;
 
 			ModuleFile();
 			~ModuleFile();
 
 			int LoadFile(char* targetFilename);
-			SGE::Sound::sampleType* ConvertSample(unsigned char sample);
-			unsigned int ConvertSampleSize(unsigned char sample);
-
 			bool ProperlyLoaded = false;
 		};
 	}

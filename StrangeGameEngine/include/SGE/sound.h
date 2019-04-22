@@ -81,7 +81,6 @@ namespace SGE
 			const float SEMITONE_MULTIPLIER = 1.0595f;
 		}
 
-
 		//
 		//  A list of MIDI notes and their associated frequencies.
 		//
@@ -237,8 +236,6 @@ namespace SGE
 			11839.821289f,	//Gb	126
 			12543.853516f	//G		127
 		};
-
-
 
 		//
 		//  Base Pre-Generated Waveforms

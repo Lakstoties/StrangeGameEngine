@@ -294,7 +294,7 @@ namespace SGE
 		//
 		//  Create a blank buffer, and then load data into it.
 		//
-		bool SampleBuffer::Load(unsigned int numOfSamples, sampleType *samples)
+		bool SampleBuffer::Load(unsigned int numOfSamples, sampleType* samples)
 		{
 			//
 			//  Get a clean buffer
@@ -543,9 +543,7 @@ namespace SGE
 
 
 		//
-		//
 		//  Sound System Core Functions
-		//
 		//
 
 		//Start the audio system.
