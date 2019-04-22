@@ -50,7 +50,7 @@ namespace SGE
 			//  Components relevent to Module Tracker parts of the sound system
 			//
 
-			//A list of Module Tracker Format periods
+			// A list of Module Tracker Format periods
 			const unsigned int MOD_NOTE_PERIOD[] =
 			{
 				//Octave 0 - Historically, unsupported.
@@ -124,24 +124,24 @@ namespace SGE
 				57		//B
 			};
 
-			//A list of Tracker Music MODule file conversation notes.
-			//Tuning frequency for NTSC screens for Mod files
+			// A list of Tracker Music MODule file conversation notes.
+			// Tuning frequency for NTSC screens for Mod files
 			const float NTSC_TUNING = 7159090.5f;
 
-			//Tuning frequency for PAL screens for Mod Files
+			// Tuning frequency for PAL screens for Mod Files
 			const float PAL_TUNING = 7093789.2f;
 
-			//Typical old school tick timing was around 20 milliseconds
+			// Typical old school tick timing was around 20 milliseconds
 			const unsigned int DEFAULT_TICK_TIMING_MILLI = 20;
 		
 			const unsigned int DEFAULT_TICK_TIMING_MICRO = DEFAULT_TICK_TIMING_MILLI * 1000;
 
-			//Default Ticks a Division
+			// Default Ticks a Division
 			const unsigned int DEFAULT_TICKS_A_DIVISION = 6;
 
-			//  Number of samples sent per tick based on sample rate and typical tick rate
+			// Number of samples sent per tick based on sample rate and typical tick rate
 			const unsigned int DEFAULT_SAMPLES_TICK = SGE::Sound::SAMPLE_RATE * DEFAULT_TICK_TIMING_MILLI / 1000;
-			
+
 			//Player for module files
 			class SGEAPI ModulePlayer
 			{
@@ -150,6 +150,7 @@ namespace SGE
 				unsigned char CurrentPattern = 0;
 				unsigned char CurrentDivision = 0;
 				unsigned char CurrentChannelSamples[4] = { 0 };
+				unsigned char PreviousChannelSamples[4] = { 0 };
 				unsigned int CurrentChannelPeriods[4] = { 0 };
 
 				unsigned int beatsPerMinute = 125;

@@ -50,14 +50,6 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 
 
 
-
-
-
-
-
-
-
-
 void InputTest(bool& testInputRunning)
 {
 	char* menuItemText[7] =
@@ -93,19 +85,19 @@ void InputTest(bool& testInputRunning)
 	testMenu.highlightTextColor = SGE::Render::PackColors(0, 0, 0);
 	
 	//Create some players
-	SGE::Utility::ModuleTrackerMusic::ModulePlayer modulePlayerTest;
-	SGE::Utility::ModuleTrackerMusic::ModulePlayer modulePlayerTest2;
-	SGE::Utility::ModuleTrackerMusic::ModulePlayer modulePlayerTest3;
+	SGE::Utility::ModuleTrackerMusic::ModulePlayer* modulePlayerTest = new SGE::Utility::ModuleTrackerMusic::ModulePlayer();
+	SGE::Utility::ModuleTrackerMusic::ModulePlayer* modulePlayerTest2 = new SGE::Utility::ModuleTrackerMusic::ModulePlayer();
+	SGE::Utility::ModuleTrackerMusic::ModulePlayer* modulePlayerTest3 = new SGE::Utility::ModuleTrackerMusic::ModulePlayer();
 	
 	//Load up the module files
-	modulePlayerTest.Load((char*)"hyper.mod");
-	modulePlayerTest2.Load((char*)"yehat.mod");
-	modulePlayerTest3.Load((char*)"marucmbt.mod");
+	modulePlayerTest->Load((char*)"hyper.mod");
+	modulePlayerTest2->Load((char*)"yehat.mod");
+	modulePlayerTest3->Load((char*)"marucmbt.mod");
 
 	//Connect up to the sound system
-	modulePlayerTest.Connect(12, 64);
-	modulePlayerTest2.Connect(24, 128);
-	modulePlayerTest3.Connect(28, 192);
+	modulePlayerTest->Connect(12, 64);
+	modulePlayerTest2->Connect(24, 128);
+	modulePlayerTest3->Connect(28, 192);
 
 	testMenu.CursorOn();
 
@@ -358,13 +350,13 @@ void InputTest(bool& testInputRunning)
 
 		//DRaw Player status boxes
 		//One for the hyper.mod
-		SGE::Debug::DrawPlayerStatusBox(&modulePlayerTest, 160, 40);
+		SGE::Debug::DrawPlayerStatusBox(modulePlayerTest, 160, 40);
 
 		//One for the yehat.mod
-		SGE::Debug::DrawPlayerStatusBox(&modulePlayerTest2, 160, 120);
+		SGE::Debug::DrawPlayerStatusBox(modulePlayerTest2, 160, 120);
 
 		//One for the stardstm.mod
-		SGE::Debug::DrawPlayerStatusBox(&modulePlayerTest3, 160, 200);
+		SGE::Debug::DrawPlayerStatusBox(modulePlayerTest3, 160, 200);
 
 		//Draw Master Volume Meters
 		//Draw Box
@@ -463,27 +455,27 @@ void InputTest(bool& testInputRunning)
 				switch (testMenu.selection)
 				{
 				case 0:
-					modulePlayerTest.Play();
+					modulePlayerTest->Play();
 					break;
 
 				case 1:
-					modulePlayerTest2.Play();
+					modulePlayerTest2->Play();
 					break;
 
 				case 2:
-					modulePlayerTest3.Play();
+					modulePlayerTest3->Play();
 					break;
 
 				case 3:
-					modulePlayerTest.Stop();
+					modulePlayerTest->Stop();
 					break;
 
 				case 4:
-					modulePlayerTest2.Stop();
+					modulePlayerTest2->Stop();
 					break;
 
 				case 5:
-					modulePlayerTest3.Stop();
+					modulePlayerTest3->Stop();
 					break;
 
 				case 6:

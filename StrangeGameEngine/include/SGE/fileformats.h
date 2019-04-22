@@ -95,22 +95,24 @@ namespace SGE
 			class MODSample
 			{
 			public:
+				//  Maximum Size of a MOD File Sample
+				//  Technically a maximum size of 65535 2-byte Words, but 128kB is close enough
+				static const unsigned int MAXIMUM_SAMPLE_SIZE = 128 * 1024;
+
 				//
 				//  Convert Sample from 8 bit to 16 bits
 				//
-
 				bool ConvertSampleTo16Bit(SGE::Sound::sampleType* target);
 
 				int SampleLengthInBytes();
 
-
-				char			title[23] = { 0 };		//Sample Title
-				unsigned short	lengthInWords = 0;		//Sample Length in Words (16-bit chunks)
-				unsigned char	finetune = 0;			//Sample Fine Tune, in lowest four bits.  Technically a signed nibble.
-				unsigned char	volume = 0;				//Sample volume.  0 - 64 are legal values
-				unsigned short	repeatOffset = 0;		//Sample repeat offset
-				unsigned short	repeatLength = 0;		//Sample repeat length
-				char*			data = nullptr;			//Pointer to Sample data
+				char			title[23] = { 0 };					//Sample Title
+				unsigned short	lengthInWords = 0;					//Sample Length in Words (16-bit chunks)
+				unsigned char	finetune = 0;						//Sample Fine Tune, in lowest four bits.  Technically a signed nibble.
+				unsigned char	volume = 0;							//Sample volume.  0 - 64 are legal values
+				unsigned short	repeatOffset = 0;					//Sample repeat offset
+				unsigned short	repeatLength = 0;					//Sample repeat length
+				char			data[MAXIMUM_SAMPLE_SIZE] = { 0 };	//Sample data
 			};
 
 			struct MODChannelData

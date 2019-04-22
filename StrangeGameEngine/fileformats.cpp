@@ -686,10 +686,7 @@ namespace SGE
 
 		ModuleFile::~ModuleFile()
 		{
-			for (int i = 0; i < 31; i++)
-			{
-				delete[] samples[i].data;
-			}
+
 		}
 
 
@@ -1004,15 +1001,12 @@ namespace SGE
 			{
 				if (samples[i].lengthInWords > 1)
 				{
-					//Create some memory to store the sample in.
-					samples[i].data = new char[samples[i].lengthInWords * 2];
-
 					//Read the data in there
-					readCount = fread(samples[i].data, 1, samples[i].lengthInWords * 2, moduleFile);
+					readCount = fread(samples[i].data, 1, samples[i].SampleLengthInBytes(), moduleFile);
 					totalReadCount += readCount;
 
 					//Check to see if we actually read enough bytes
-					if (readCount != samples[i].lengthInWords * 2)
+					if (readCount != samples[i].SampleLengthInBytes())
 					{
 						//This file is way to small to be a proper wav file
 						SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Module File \"%s\" is not correct format - File Too Small to be proper.  Sample Data Reported: %d  Sample Data Read: %d \n", targetFilename, samples[i].lengthInWords * 2, readCount);
@@ -1038,22 +1032,21 @@ namespace SGE
 
 		bool ModuleFile::MODSample::ConvertSampleTo16Bit(SGE::Sound::sampleType* target)
 		{
-			if (this->data == nullptr)
-			{
-				return false;
-			}
-
-
-			if (this->lengthInWords > 1)
+			if (lengthInWords > 1)
 			{
 				//Go through the module sample and convert the 8-bit to 16-bit range
 				//Store it in the destinationBuffer
-				for (int i = 0; i < (this->lengthInWords * 2); i++)
+				for (int i = 0; i < (lengthInWords * 2); i++)
 				{
 					target[i] = SGE::Sound::sampleType(this->data[i] << 8);
 				}
+				return true;
 			}
-			return true;
+			else
+			{
+				return false;
+			}
+			
 		}
 
 		int ModuleFile::MODSample::SampleLengthInBytes()

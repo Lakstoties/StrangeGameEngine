@@ -425,38 +425,49 @@ namespace SGE
 								//
 								channelPlays[CurrentChannel] = false;
 
-								//Check to see if sample is not zero
-								//If it is zero don't change the sample used in the channel
-								if (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample > 0 &&
-									modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample != CurrentChannelSamples[CurrentChannel])
+								//Check to see if sample is zero
+								if (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample == 0)
 								{
-									//Otherwise, channel up the sample used, effectively reseting the channel to the sample settings.
-									//Stop this channel
-									channelMap[CurrentChannel]->Stop();
-
-									//Switch to the sample
-									channelMap[CurrentChannel]->currentSampleBuffer = sampleMap[modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample - 1];
-
-									//Set sample volume
-									channelMap[CurrentChannel]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample - 1].volume) / 64.0f;
-
-									//Indicate Current Channel's Sample
+									// Grab the previous sample
+									CurrentChannelSamples[CurrentChannel] = PreviousChannelSamples[CurrentChannel];
+								}
+								else
+								{
+									// Set the current one
 									CurrentChannelSamples[CurrentChannel] = modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample;
 
-									channelPlays[CurrentChannel] = true;
-								}
-
-								//If the sample is the same, just reset the volume.
-								if (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample == CurrentChannelSamples[CurrentChannel])
-								{
-									//Set sample volume
-									channelMap[CurrentChannel]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample - 1].volume) / 64.0f;
-
-									if (!channelMap[CurrentChannel]->Playing)
+									//  If the sample is different, play it like a new one								
+									if (PreviousChannelSamples[CurrentChannel] != CurrentChannelSamples[CurrentChannel])
 									{
+										//Otherwise, channel up the sample used, effectively reseting the channel to the sample settings.
+										//Stop this channel
+										channelMap[CurrentChannel]->Stop();
+
+										//Switch to the sample
+										channelMap[CurrentChannel]->currentSampleBuffer = sampleMap[CurrentChannelSamples[CurrentChannel] - 1];
+
+										//Set sample volume
+										channelMap[CurrentChannel]->Volume = float(modFile.samples[CurrentChannelSamples[CurrentChannel] - 1].volume) / 64.0f;
+
 										channelPlays[CurrentChannel] = true;
 									}
+
+									// If the sample is the same, BUT it 
+									else
+									{
+										//Set sample volume
+										channelMap[CurrentChannel]->Volume = float(modFile.samples[CurrentChannelSamples[CurrentChannel] - 1].volume) / 64.0f;
+
+										if (!channelMap[CurrentChannel]->Playing)
+										{
+											channelPlays[CurrentChannel] = true;
+										}
+									}
+
+									// Save the previous sample
+									PreviousChannelSamples[CurrentChannel] = CurrentChannelSamples[CurrentChannel];
 								}
+
 
 								//
 								//  Check for any effect chanages on the channel.
