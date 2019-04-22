@@ -17,10 +17,21 @@ namespace SGE
 		const int BITMAP_FILE_HEADER_SIZE = 14;
 		const int BITMAP_DATA_HEADER_SIZE = 40;
 
-		int Bitmap::LoadFile(char* targetFilename)
+		Bitmap::~Bitmap()
 		{
-			FILE* bitmapFile;
-			size_t readCount = 0;
+			//Check for iamgeData and delete it.
+			if (imageData != nullptr)
+			{
+				delete imageData;
+			}
+		}
+
+
+		Bitmap::Bitmap(char* targetFilename)
+		{
+			//FILE* bitmapFile;
+			std::fstream bitmapFile;
+			std::streamsize  readCount = 0;
 			unsigned char pixelRed;
 			unsigned char pixelGreen;
 			unsigned char pixelBlue;
@@ -30,14 +41,15 @@ namespace SGE
 			//
 
 			//Attempt to open the bitmap file
-			//Open in binary read mode.
-			bitmapFile = fopen(targetFilename, "rb");
+			// Open as a input binary file
+			bitmapFile.open(targetFilename, std::ios::in | std::ios::binary);
 
 			//Check to see if we got a valid file pointer
-			if (bitmapFile == NULL)
+			//if (bitmapFile == NULL)
+			if (!bitmapFile)
 			{
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  Cannot open file \"%s\"\n", targetFilename);
-				return -1;
+				return;
 			}
 
 			//
@@ -52,34 +64,40 @@ namespace SGE
 			readCount = 0;
 
 			//Read in the ID fieid.  We are looking for a "BM" to indicate it is a typical BMP/Bitmap
-			readCount += fread(&idField, 1, 2, bitmapFile);
+			bitmapFile.read((char *)&idField, 2);
+			readCount += bitmapFile.gcount();
 
 			//The ID field before continuing
 			//If memcmp doesn't return a 0, something is different
 			if (std::memcmp("BM", &idField, 2) != 0)
 			{
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Incorrect ID field.\n", targetFilename);
-				return -2;
+				return;
 			}
 
 			//Read in the BMP field size in bytes
-			readCount += fread(&bmpSize, 1, 4, bitmapFile);
+			//readCount += fread(&bmpSize, 1, 4, bitmapFile);
+			bitmapFile.read((char*)&bmpSize, 4);
+			readCount += bitmapFile.gcount();
 
 			//Read some reserved data, application specific, not our concern really.
-			readCount += fread(&reserved1, 1, 2, bitmapFile);
+			bitmapFile.read((char*)& reserved1, 2);
+			readCount += bitmapFile.gcount();
 
 			//Read in some more reserved data, application specific, not our concern, moving on...
-			readCount += fread(&reserved2, 1, 2, bitmapFile);
+			bitmapFile.read((char*)& reserved2, 2);
+			readCount += bitmapFile.gcount();
 
 			//Read in the offset that should indicate where the file data should begin
-			readCount += fread(&offset, 1, 4, bitmapFile);
+			bitmapFile.read((char*)& offset, 4);
+			readCount += bitmapFile.gcount();
 
 
 			//Check to see if we got a whole header, or if the end of file hit early
 			if (readCount < BITMAP_FILE_HEADER_SIZE)
 			{
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - File header too small.  Read count: %i\n", targetFilename, readCount);
-				return -3;
+				return;
 			}
 
 			//
@@ -92,7 +110,9 @@ namespace SGE
 			//Also reset the read count with the value from this read
 			readCount = 0;
 
-			readCount += fread(&sizeOfHeader, 1, 4, bitmapFile);
+			bitmapFile.read((char*)& sizeOfHeader, 4);
+			readCount += bitmapFile.gcount();
+			
 
 			//Check to make sure this value is of some kind of known value
 			//These values were pulled from the Wikipedia entry on BMP File Format
@@ -108,7 +128,7 @@ namespace SGE
 			{
 				//This header size is not a known size
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Bitmap Info Header not of a known size.\n", targetFilename);
-				return -4;
+				return;
 			}
 
 			//Check to make sure the header is add least size 40 or larger.  Most formats that use smaller are absolutely ancient.
@@ -116,30 +136,34 @@ namespace SGE
 			{
 				//This is not a supported version at the moment.
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Bitmap Info Header if of an unsupported version.\n", targetFilename);
-				return -5;
+				return;
 			}
 
 			//At this point we should have enough header information to figure out the file properly
 
 			//Read in the bitmap width
-			readCount += fread(&width, 1, 4, bitmapFile);
+			bitmapFile.read((char*)&width, 4);
+			readCount += bitmapFile.gcount();
 
 			//Read in the bitmap height
-			readCount += fread(&height, 1, 4, bitmapFile);
+			bitmapFile.read((char*)&height, 4);
+			readCount += bitmapFile.gcount();
 
 			//Read in the color panes
-			readCount += fread(&colorPanes, 1, 2, bitmapFile);
+			bitmapFile.read((char*)&colorPanes, 2);
+			readCount += bitmapFile.gcount();
 
 			//Check color panes to make sure it is a value of one, otherwise there's probably something wrong with the file
 			if (colorPanes != 1)
 			{
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Color Panes value is not equal to 1, when it should be.\n", targetFilename);
-				return -6;
+				return;
 			}
 
 			//Read in the bits per pixel
 			//Right now we only support 24bpp, but support for other versions is not out of the question
-			readCount += fread(&bitsPerPixel, 1, 2, bitmapFile);
+			bitmapFile.read((char*)&bitsPerPixel, 2);
+			readCount += bitmapFile.gcount();
 
 			//Check to make sure the bits per pixel is something sensible
 			if (!(						//If not at one the below:
@@ -152,24 +176,26 @@ namespace SGE
 			{
 				//This doesn't have a proper bits per pixel value
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Bits Per Pixel value is not 1, 4, 8, 16, 24, or 32.\n", targetFilename);
-				return -7;
+				return;
 			}
 
 			//We are only supporting 24bpp at the moment, so error out if someone tries to us anything else right now
 			if (bitsPerPixel != 24)
 			{
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - Only 24bpp BMPs supported right now.\n", targetFilename);
-				return -8;
+				return;
 			}
 
 			//Read in compression method in use
-			readCount += fread(&compressionMethod, 1, 4, bitmapFile);
+			bitmapFile.read((char*)&compressionMethod, 4);
+			readCount += bitmapFile.gcount();
+			
 
 			//We don't support any kind of compression, so if it's anything other than a 0, we can't process it.
 			if (compressionMethod != 0)
 			{
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - No compression is presently supported\n", targetFilename);
-				return -9;
+				return;
 			}
 
 			//
@@ -177,26 +203,31 @@ namespace SGE
 			//
 
 			//Read in the size of the raw bitmap data size, uncompressed bitmaps can use a dummy 0 value.
-			readCount += fread(&dataSize, 1, 4, bitmapFile);
+			bitmapFile.read((char*)& dataSize, 4);
+			readCount += bitmapFile.gcount();
 
 			//Read in the horizontal resolution of the image
-			readCount += fread(&horizontalResolution, 1, 4, bitmapFile);
+			bitmapFile.read((char*)& horizontalResolution, 4);
+			readCount += bitmapFile.gcount();
 
 			//Read in the vertical resoltuion of the image
-			readCount += fread(&verticalResolution, 1, 4, bitmapFile);
+			bitmapFile.read((char*)& verticalResolution, 4);
+			readCount += bitmapFile.gcount();
 
 			//Read in the number of colors in the palette  Useful for other smaller bbp formats
-			readCount += fread(&colorsInPalette, 1, 4, bitmapFile);
+			bitmapFile.read((char*)& colorsInPalette, 4);
+			readCount += bitmapFile.gcount();
 
 			//Read in number of important colors used.  It's there, not often used... usually ignored.
-			readCount += fread(&importantColors, 1, 4, bitmapFile);
+			bitmapFile.read((char*)& importantColors, 4);
+			readCount += bitmapFile.gcount();
 
 
 			//Check to see if we got a whole header, or if the end of file hit early
 			if (readCount < BITMAP_DATA_HEADER_SIZE)
 			{
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  File \"%s\" is not correct format - File too small - Incomplete Bitmap Data Header, size was %i.\n", targetFilename, readCount);
-				return -10;
+				return;
 			}
 
 
@@ -214,7 +245,8 @@ namespace SGE
 			//
 			//  Go to the file offset where the image data starts
 			//
-			fseek(bitmapFile, offset, SEEK_SET);
+			//fseek(bitmapFile, offset, SEEK_SET);
+			bitmapFile.seekg(offset);
 
 			//Create a spot to put the image data
 			imageData = new SGE::Display::Video::pixel[height * width];
@@ -236,9 +268,13 @@ namespace SGE
 				{
 					//Pull the pixel bytes
 					//Currently works for 24 bits per pixel RGB BMPs
-					fread(&pixelBlue, 1, 1, bitmapFile);
-					fread(&pixelGreen, 1, 1, bitmapFile);
-					fread(&pixelRed, 1, 1, bitmapFile);
+					bitmapFile.read((char*)&pixelBlue, 1);
+
+					//fread(&pixelGreen, 1, 1, bitmapFile);
+					bitmapFile.read((char*)&pixelGreen, 1);
+
+					//fread(&pixelRed, 1, 1, bitmapFile);
+					bitmapFile.read((char*)&pixelRed, 1);
 
 					//Rearrange the pixel color data to something we can use
 					imageData[j + i] = ((uint32_t)pixelRed) | ((uint32_t)pixelGreen << 8) | ((uint32_t)pixelBlue << 16);
@@ -247,11 +283,12 @@ namespace SGE
 
 			//If the whole process goes well, and has reached this point
 			//Close file
-			fclose(bitmapFile);
+			bitmapFile.close();
 
 			//Signal all good
-			return 0;
+			return;
 		}
+
 
 		//
 		//  Wave File Definitions

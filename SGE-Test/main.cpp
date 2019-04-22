@@ -115,12 +115,6 @@ void InputTest(bool& testInputRunning)
 	//Capture keyboard state
 	SGE::Inputs::Keyboard::SaveStatus(lastKeyboardState);
 
-
-	//Load a bitmap
-	SGE::FileFormats::Bitmap testBitmap;
-
-	testBitmap.LoadFile((char*)"TestImage.bmp");
-
 	//Vector Point List
 	SGE::Render::VertexPoint letterSVectorPoints[28]=
 	{
@@ -202,6 +196,26 @@ void InputTest(bool& testInputRunning)
 
 
 	//
+	//  Bouncing Test Image
+	//
+	SGE::Utility::Timer::TimerDelta bouncingImageTravelDelta;
+
+	//Load a bitmap
+	SGE::FileFormats::Bitmap testBitmap("TestImage.bmp");
+
+	float bouncingImageX = 700;
+	float bouncingImageY = 200;
+
+	int bouncingImageXDelta = -2;
+	int bouncingImageYDelta = -1;
+
+	float bouncingImageTimeDelta;
+
+	int bouncingImageXDeltaFlip = 100;
+	int bouncingImageYDeltaFlip = 50;
+
+
+	//
 	//  Simple Filled Trinagle Test
 	//
 	SGE::Render::VertexPoint spinningVertexO1 = { 100, -112 };
@@ -210,8 +224,8 @@ void InputTest(bool& testInputRunning)
 	SGE::Render::VertexPoint spinningVertex1 = { 50, 50 };
 	SGE::Render::VertexPoint spinningVertex2 = { 50, 150 };
 	SGE::Render::VertexPoint spinningVertex3 = { 150, 100 };
-	int spinningVertexCX = 960;
-	int spinningVertexCY = 350;
+	int spinningVertexCX = 1100;
+	int spinningVertexCY = 400;
 
 	float spinningDegree = 0;
 
@@ -248,10 +262,6 @@ void InputTest(bool& testInputRunning)
 		//  Blank the virtual display RAM
 		//
 		SGE::Render::ZBlank();
-
-		//Copy over background image
-		//SGE::Render::DrawDataBlock(targetDisplay, 0, 0, testBitmap.image.width, testBitmap.image.height, testBitmap.image.imageData);
-
 
 		//  Stop to advanced the green wave
 		currentWaveXGreen += greenWaveDelta.Stop();
@@ -290,6 +300,39 @@ void InputTest(bool& testInputRunning)
 		{
 			currentWaveXRed = -8;
 		}
+
+		//
+		//  Bouncing Test Graphic
+		//
+		SGE::Render::DrawDataBlock((int)bouncingImageX, (int)bouncingImageY, testBitmap.width, testBitmap.height, testBitmap.imageData);
+
+		//
+		//  Delta changes
+		//
+
+		bouncingImageTimeDelta = bouncingImageTravelDelta.Stop();
+		bouncingImageTravelDelta.Start(60.0f);
+
+		bouncingImageX += bouncingImageXDelta * bouncingImageTimeDelta;
+		bouncingImageY += bouncingImageYDelta * bouncingImageTimeDelta;
+
+		//
+		//  Check for delta flip due to going too far off the screen
+		//
+
+		//  For X Delta
+		if (bouncingImageX < -bouncingImageXDeltaFlip || (bouncingImageX + testBitmap.width - SGE::Display::Video::X) > bouncingImageXDeltaFlip)
+		{
+			bouncingImageXDelta = -bouncingImageXDelta;
+		}
+
+		//  For Y Delta
+		if (bouncingImageY < -bouncingImageYDeltaFlip || (bouncingImageY + testBitmap.height - SGE::Display::Video::Y) > bouncingImageYDeltaFlip)
+		{
+			bouncingImageYDelta = -bouncingImageYDelta;
+		}
+
+
 
 
 		//Draw Filled triangles

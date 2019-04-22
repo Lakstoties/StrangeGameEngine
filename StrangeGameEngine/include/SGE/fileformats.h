@@ -11,8 +11,9 @@ namespace SGE
 	namespace FileFormats
 	{
 		//Struct that contains converted bitmap data from a file
-		struct SGEAPI Bitmap
+		class SGEAPI Bitmap
 		{
+		private:
 			//File Header
 			char idField[2] = "";				//ID Field,  should be "BM" for Bitmap.
 			unsigned int bmpSize = 0;			//Bitmap file size
@@ -22,8 +23,6 @@ namespace SGE
 
 			//Info Header
 			unsigned int sizeOfHeader = 0;		//Size of the header, used to indicate version of the header used and extended information that may exist
-			unsigned int width = 0;				//Width of the bitmap in pixels
-			unsigned int height = 0;			//Height of the bitmap in pixels
 			unsigned short colorPanes = 0;		//Number of color panes
 			unsigned short bitsPerPixel = 0;	//Bits per pixel or color depth of image
 			unsigned int compressionMethod = 0;	//Compress method in use
@@ -33,12 +32,22 @@ namespace SGE
 			unsigned int colorsInPalette = 0;	//Number of colors in the color palette
 			unsigned int importantColors = 0;	//Number of important colors
 
+		public:
+			unsigned int width = 0;				//Width of the bitmap in pixels
+			unsigned int height = 0;			//Height of the bitmap in pixels
+
 			//Data Section
 			unsigned int imageDataSize = 0;
 			SGE::Display::Video::pixel* imageData = nullptr;
 
-			//Function to Load Data
-			int LoadFile(char* targetFilename);
+			//Default Constructor
+			Bitmap(char* targetFilename);
+
+			//Default Destructor
+			~Bitmap();
+			
+
+
 		};
 
 		//Struct that contains converted wave data from a file

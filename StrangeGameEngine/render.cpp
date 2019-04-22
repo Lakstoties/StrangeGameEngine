@@ -205,17 +205,100 @@ namespace SGE
 			int sourceHeight,										//The height of the source block
 			const SGE::Display::Video::pixel* sourceDataBlock)		//The source data block
 		{
+			//
+			//  Sanity Checks
+			//
+
+			//  Are we completely off in the -X area?
+			if ((targetX + sourceWidth) <= 0)
+			{
+				// Can't draw this
+				return;
+			}
+
+			//  Are we completely off in the -Y area?
+			if ((targetY + sourceHeight) <= 0)
+			{
+				// Can't draw this either
+				return;
+			}
+
+			//  Are we completely off in the Beyond X area?
+			if ((targetX >= SGE::Display::Video::X))
+			{
+				// Yep, can't draw this either
+				return;
+			}
+
+			//  Are we completely off in the Beyond Y area?
+			if ((targetY >= SGE::Display::Video::Y))
+			{
+				// Yes, yes, can't draw this either
+			}
+
+			//
+			//  In theory, there's something to draw here.
+			//
+
+			int startX = targetX;
+			int startY = targetY;
+			int width = sourceWidth;
+			int height = sourceHeight;
+			int sourceXOffset = 0;
+			int sourceYOffset = 0;
+
+			//
+			//  Check for partial draw situations
+			//
+
+			//
+			//  Check for overdraw in -X
+			//
+			if (startX < 0)
+			{
+				sourceXOffset -= startX;
+				width += startX;
+				startX = 0;
+			}
+
+			//
+			//  Check for overdraw in +X
+			//
+			if ((startX + sourceWidth) >= SGE::Display::Video::X)
+			{
+				width = SGE::Display::Video::X - startX;
+			}
+
+			//
+			//  Check for overdraw in -Y
+			//
+			if (startY < 0)
+			{
+				sourceYOffset -= startY;
+				height += startY;
+				startY = 0;
+			}
+
+			//
+			//  Check for overdraw in the Y
+			//
+			if ((startY + sourceHeight) >= SGE::Display::Video::Y)
+			{
+				height = SGE::Display::Video::Y - startY;
+			}
+
+
 			//Set the starting point in VideoRAM
-			int targetRAM = (targetX + (targetY * SGE::Display::Video::X));
+			int targetRAM = startX + (startY * SGE::Display::Video::X);
 
 			//Set the starting pint in the source data block RAM
-			int sourceRAM = 0;
+			int sourceRAM = sourceXOffset + (sourceYOffset * sourceWidth);
 
 			//For each row of the source block
-			for (int i = 0; i < sourceHeight; i++)
+			for (int i = 0; i < height; i++)
 			{
 				//Copy of row from the source over to the target
-				std::copy(sourceDataBlock + sourceRAM, sourceDataBlock + sourceRAM + sourceWidth, &SGE::Display::Video::RAM[targetRAM]);
+				std::copy(sourceDataBlock + sourceRAM, sourceDataBlock + sourceRAM + width, SGE::Display::Video::RAM + targetRAM);
 
 				//Increment to the next row in the display
 				targetRAM += SGE::Display::Video::X;

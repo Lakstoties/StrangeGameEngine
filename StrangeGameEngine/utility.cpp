@@ -414,7 +414,7 @@ namespace SGE
 							//
 							//  Check all the channels for any changes
 							//
-							for (int c = 0; c < 4; c++)
+							for (int CurrentChannel = 0; CurrentChannel < 4; CurrentChannel++)
 							{
 								//
 								//  Check for sample changes on each channel
@@ -423,38 +423,38 @@ namespace SGE
 								//
 								//  Keep track to see if the channel needs to play again
 								//
-								channelPlays[c] = false;
+								channelPlays[CurrentChannel] = false;
 
 								//Check to see if sample is not zero
 								//If it is zero don't change the sample used in the channel
-								if (modFile.patterns[CurrentPattern][CurrentDivision][c].sample > 0 &&
-									modFile.patterns[CurrentPattern][CurrentDivision][c].sample != CurrentChannelSamples[c])
+								if (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample > 0 &&
+									modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample != CurrentChannelSamples[CurrentChannel])
 								{
 									//Otherwise, channel up the sample used, effectively reseting the channel to the sample settings.
 									//Stop this channel
-									channelMap[c]->Stop();
+									channelMap[CurrentChannel]->Stop();
 
 									//Switch to the sample
-									channelMap[c]->currentSampleBuffer = sampleMap[modFile.patterns[CurrentPattern][CurrentDivision][c].sample - 1];
+									channelMap[CurrentChannel]->currentSampleBuffer = sampleMap[modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample - 1];
 
 									//Set sample volume
-									channelMap[c]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern][CurrentDivision][c].sample - 1].volume) / 64.0f;
+									channelMap[CurrentChannel]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample - 1].volume) / 64.0f;
 
 									//Indicate Current Channel's Sample
-									CurrentChannelSamples[c] = modFile.patterns[CurrentPattern][CurrentDivision][c].sample;
+									CurrentChannelSamples[CurrentChannel] = modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample;
 
-									channelPlays[c] = true;
+									channelPlays[CurrentChannel] = true;
 								}
 
 								//If the sample is the same, just reset the volume.
-								if (modFile.patterns[CurrentPattern][CurrentDivision][c].sample == CurrentChannelSamples[c])
+								if (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample == CurrentChannelSamples[CurrentChannel])
 								{
 									//Set sample volume
-									channelMap[c]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern][CurrentDivision][c].sample - 1].volume) / 64.0f;
+									channelMap[CurrentChannel]->Volume = float(modFile.samples[modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample - 1].volume) / 64.0f;
 
-									if (!channelMap[c]->Playing)
+									if (!channelMap[CurrentChannel]->Playing)
 									{
-										channelPlays[c] = true;
+										channelPlays[CurrentChannel] = true;
 									}
 								}
 
@@ -463,9 +463,9 @@ namespace SGE
 								//
 
 								//Parse out the effect
-								effectTypeOnChannel[c] = (modFile.patterns[CurrentPattern][CurrentDivision][c].effect & 0x0F00) >> 8;
-								effectXOnChannel[c] = (modFile.patterns[CurrentPattern][CurrentDivision][c].effect & 0x00F0) >> 4;
-								effectYOnChannel[c] = (modFile.patterns[CurrentPattern][CurrentDivision][c].effect & 0x000F);
+								effectTypeOnChannel[CurrentChannel] = (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].effect & 0x0F00) >> 8;
+								effectXOnChannel[CurrentChannel] = (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].effect & 0x00F0) >> 4;
+								effectYOnChannel[CurrentChannel] = (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].effect & 0x000F);
 								
 
 								//
@@ -477,26 +477,26 @@ namespace SGE
 								//  If it is zero don't change the period used in this channel
 								//  NOTE:  Effect 3 does some weird stuff, the period is target note to shift to but it does NOT trigger a play effect
 
-								if (modFile.patterns[CurrentPattern][CurrentDivision][c].period > 0)
+								if (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].period > 0)
 								{
 									//Save the period
-									CurrentChannelPeriods[c] = modFile.patterns[CurrentPattern][CurrentDivision][c].period;
+									CurrentChannelPeriods[CurrentChannel] = modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].period;
 
 									//
 									//   Period Slides don't actually play the note, but use the period as a value for the effect
 									//
-									if (effectTypeOnChannel[c] != 0x3 && effectTypeOnChannel[c] != 0x5)
+									if (effectTypeOnChannel[CurrentChannel] != 0x3 && effectTypeOnChannel[CurrentChannel] != 0x5)
 									{
 										//If non-zero, change the period used
 										//Changing periods, so stop the current stuff
-										channelMap[c]->Stop();
+										channelMap[CurrentChannel]->Stop();
 
 										//Convert the period to offset timing interval in relation to system sampling rate
 										//Using NTSC sampling
-										channelMap[c]->offsetIncrement = PeriodToOffsetIncrement(modFile.patterns[CurrentPattern][CurrentDivision][c].period);
+										channelMap[CurrentChannel]->offsetIncrement = PeriodToOffsetIncrement(modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].period);
 
 										//Channel plays
-										channelPlays[c] = true;
+										channelPlays[CurrentChannel] = true;
 									}
 								}
 
@@ -506,24 +506,24 @@ namespace SGE
 								//
 
 								//Turn off Arpeggio
-								channelMap[c]->arpeggioEnabled = false;
+								channelMap[CurrentChannel]->arpeggioEnabled = false;
 
 								//Turn off Volume Slide
-								channelMap[c]->volumeSlideEnabled = false;
+								channelMap[CurrentChannel]->volumeSlideEnabled = false;
 
 								//Turn off Vibrato
-								channelMap[c]->vibratoEnabled = false;
+								channelMap[CurrentChannel]->vibratoEnabled = false;
 
 								//Turn off Period Slide
-								channelMap[c]->periodSlidEnabled = false;
+								channelMap[CurrentChannel]->periodSlidEnabled = false;
 
 								//Turn off Retrigger Sample
-								channelMap[c]->retriggerSampleEnabled = false;
+								channelMap[CurrentChannel]->retriggerSampleEnabled = false;
 
 								//Check to see if we need to retrigger vibrato
-								if (channelMap[c]->vibratoRetriggers)
+								if (channelMap[CurrentChannel]->vibratoRetriggers)
 								{
-									channelMap[c]->vibratoCurrentWaveformPosition = 0;
+									channelMap[CurrentChannel]->vibratoCurrentWaveformPosition = 0;
 								}
 
 
@@ -531,30 +531,30 @@ namespace SGE
 								//Is there an effect at all?
 								//If the whole effect value is 0, then there is no effect
 								//
-								if (modFile.patterns[CurrentPattern][CurrentDivision][c].effect != 0)
+								if (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].effect != 0)
 								{
 									//Since the effect value is non-zero, there's some kind of effect data to be processed!
 									//Let's find it!
 
-									switch (effectTypeOnChannel[c])
+									switch (effectTypeOnChannel[CurrentChannel])
 									{
 										//
 										//  Configure Arpeggio or Effect 0 / 0x0
 										//
 									case 0x0:
 										//  Set rate the arpeggio effect will change states
-										channelMap[c]->arpeggioSampleInterval = DEFAULT_SAMPLES_TICK;
+										channelMap[CurrentChannel]->arpeggioSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//  Set the semitones arpeggio will alternate between
-										channelMap[c]->arpeggioSemitoneX = effectXOnChannel[c];
-										channelMap[c]->arpeggioSemitoneY = effectYOnChannel[c];
+										channelMap[CurrentChannel]->arpeggioSemitoneX = effectXOnChannel[CurrentChannel];
+										channelMap[CurrentChannel]->arpeggioSemitoneY = effectYOnChannel[CurrentChannel];
 
 										//  Reset the state variables for the effect
-										channelMap[c]->arpeggioCurrentSamples = 0;
-										channelMap[c]->arpeggioState = 0;
+										channelMap[CurrentChannel]->arpeggioCurrentSamples = 0;
+										channelMap[CurrentChannel]->arpeggioState = 0;
 
 										//  Enable it and signal the sound system to start rendering it
-										channelMap[c]->arpeggioEnabled = true;
+										channelMap[CurrentChannel]->arpeggioEnabled = true;
 
 										//  Effect found, move on.
 										break;
@@ -564,19 +564,19 @@ namespace SGE
 										//
 									case 0x1:
 										//  Set the target period
-										channelMap[c]->periodTarget = 0;
+										channelMap[CurrentChannel]->periodTarget = 0;
 
 										//  Set the number of samples for the period slide
-										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+										channelMap[CurrentChannel]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//  Calculate the total delta
-										channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod((float) effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+										channelMap[CurrentChannel]->periodSlideDelta = -AmigaPeriodToSystemPeriod((float) effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]) / 2.0f;
 
 										//  Reset the state variables for the effect
-										channelMap[c]->periodSlideCurrentSamples = 0;
+										channelMap[CurrentChannel]->periodSlideCurrentSamples = 0;
 
 										//  Enable the period slide
-										channelMap[c]->periodSlidEnabled = true;
+										channelMap[CurrentChannel]->periodSlidEnabled = true;
 
 										//  Effect found, move on
 										break;
@@ -586,19 +586,19 @@ namespace SGE
 										//
 									case 0x2:
 										//  Set the target period
-										channelMap[c]->periodTarget = 0;
+										channelMap[CurrentChannel]->periodTarget = 0;
 
 										//  Set the number of samples for the period slide
-										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+										channelMap[CurrentChannel]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//  Calculate the delta
-										channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod((float) effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+										channelMap[CurrentChannel]->periodSlideDelta = AmigaPeriodToSystemPeriod((float) effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]) / 2.0f;
 
 										//  Reset the state variables for the effect
-										channelMap[c]->periodSlideCurrentSamples = 0;
+										channelMap[CurrentChannel]->periodSlideCurrentSamples = 0;
 
 										//  Enable the period slide
-										channelMap[c]->periodSlidEnabled = true;
+										channelMap[CurrentChannel]->periodSlidEnabled = true;
 
 										//  Effect found, move on
 										break;
@@ -608,34 +608,34 @@ namespace SGE
 										//
 									case 0x3:
 										//  Set the target period
-										channelMap[c]->periodTarget = AmigaPeriodToSystemPeriod((float) CurrentChannelPeriods[c]);
+										channelMap[CurrentChannel]->periodTarget = AmigaPeriodToSystemPeriod((float) CurrentChannelPeriods[CurrentChannel]);
 
 										//  Set the number of sampls for the period slide
-										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+										channelMap[CurrentChannel]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//
 										//  Calculate the delta after determining direction of slide
 										//
 
 										//  If both X and Y are 0, then use previous slide stuff
-										if (effectXOnChannel[c] != 0 || effectYOnChannel[c] != 0)
+										if (effectXOnChannel[CurrentChannel] != 0 || effectYOnChannel[CurrentChannel] != 0)
 										{
 											//Check to see which direction to move the period
-											if (channelMap[c]->periodTarget > SystemPeriodToAmigaPeriod(1 / channelMap[c]->offsetIncrement))
+											if (channelMap[CurrentChannel]->periodTarget > SystemPeriodToAmigaPeriod(1 / channelMap[CurrentChannel]->offsetIncrement))
 											{
-												channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod((float) effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+												channelMap[CurrentChannel]->periodSlideDelta = AmigaPeriodToSystemPeriod((float) effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]) / 2.0f;
 											}
 											else
 											{
-												channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod((float) effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+												channelMap[CurrentChannel]->periodSlideDelta = -AmigaPeriodToSystemPeriod((float) effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]) / 2.0f;
 											}
 										}
 
 										//  Reset the state variables for the effect
-										channelMap[c]->periodSlideCurrentSamples = 0;
+										channelMap[CurrentChannel]->periodSlideCurrentSamples = 0;
 
 										//  Enable the period slide
-										channelMap[c]->periodSlidEnabled = true;
+										channelMap[CurrentChannel]->periodSlidEnabled = true;
 
 										//  Found the effect, move on.
 										break;
@@ -647,20 +647,20 @@ namespace SGE
 									case 0x4:
 										//  Set the Amplitude for the frequency shift y/16 semitones.
 										//  If 0, use previous settings
-										if (effectYOnChannel[c] != 0)
+										if (effectYOnChannel[CurrentChannel] != 0)
 										{
-											channelMap[c]->vibratoAmplitude = effectYOnChannel[c] / 16.0f;
+											channelMap[CurrentChannel]->vibratoAmplitude = effectYOnChannel[CurrentChannel] / 16.0f;
 										}
 
 										//  Set the cycle rate for the Vibrato so that (X * Ticks) / 64 cyckes occur in the division
 										//  If 0, use previous settings
-										if (effectXOnChannel[c] != 0)
+										if (effectXOnChannel[CurrentChannel] != 0)
 										{
-											channelMap[c]->vibratoCycles = (effectXOnChannel[c] * ticksADivision) / 64.0f;
+											channelMap[CurrentChannel]->vibratoCycles = (effectXOnChannel[CurrentChannel] * ticksADivision) / 64.0f;
 										}
 
 										//  Enable Vibrato
-										channelMap[c]->vibratoEnabled = true;
+										channelMap[CurrentChannel]->vibratoEnabled = true;
 
 										//  Effect found, move on.
 										break;
@@ -675,27 +675,27 @@ namespace SGE
 										//
 									
 										//  Set the target period
-										channelMap[c]->periodTarget = AmigaPeriodToSystemPeriod((float) CurrentChannelPeriods[c]);
+										channelMap[CurrentChannel]->periodTarget = AmigaPeriodToSystemPeriod((float) CurrentChannelPeriods[CurrentChannel]);
 
 										//  Set the number of sampls for the period slide
-										channelMap[c]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+										channelMap[CurrentChannel]->periodSlideSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//
 										//  Calculate the delta
 										//
 
 										//  If both X and Y are 0, then use previous slide stuff
-										if (effectXOnChannel[c] != 0 || effectYOnChannel[c] != 0)
+										if (effectXOnChannel[CurrentChannel] != 0 || effectYOnChannel[CurrentChannel] != 0)
 										{
 											//Check to see which direction to move the period
 
-											if (channelMap[c]->periodTarget > SystemPeriodToAmigaPeriod(1 / channelMap[c]->offsetIncrement))
+											if (channelMap[CurrentChannel]->periodTarget > SystemPeriodToAmigaPeriod(1 / channelMap[CurrentChannel]->offsetIncrement))
 											{
-												channelMap[c]->periodSlideDelta = AmigaPeriodToSystemPeriod((float) effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+												channelMap[CurrentChannel]->periodSlideDelta = AmigaPeriodToSystemPeriod((float) effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]) / 2.0f;
 											}
 											else
 											{
-												channelMap[c]->periodSlideDelta = -AmigaPeriodToSystemPeriod((float) effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 2.0f;
+												channelMap[CurrentChannel]->periodSlideDelta = -AmigaPeriodToSystemPeriod((float) effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]) / 2.0f;
 											}
 										}
 
@@ -704,26 +704,26 @@ namespace SGE
 										//
 
 										//  Set the number of samples that progress for each tick in the effect.
-										channelMap[c]->volumeSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+										channelMap[CurrentChannel]->volumeSlideSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//  Check to see the rate we have to slide the volume up
-										if (effectXOnChannel[c] != 0)
+										if (effectXOnChannel[CurrentChannel] != 0)
 										{
-											channelMap[c]->volumeSlideRate = effectXOnChannel[c] / 64.0f;
+											channelMap[CurrentChannel]->volumeSlideRate = effectXOnChannel[CurrentChannel] / 64.0f;
 										}
 
 										//  Check to see the rate we have to slide the volume down
 										//  Y is only paid attention if X is zero and is therefor assumed to be zero
-										else if (effectYOnChannel[c] != 0)
+										else if (effectYOnChannel[CurrentChannel] != 0)
 										{
-											channelMap[c]->volumeSlideRate = -effectYOnChannel[c] / 64.0f;
+											channelMap[CurrentChannel]->volumeSlideRate = -effectYOnChannel[CurrentChannel] / 64.0f;
 										}
 
 										//  Continue the period slide
-										channelMap[c]->periodSlidEnabled = true;
+										channelMap[CurrentChannel]->periodSlidEnabled = true;
 
 										//  Enable Volume Slide
-										channelMap[c]->volumeSlideEnabled = true;
+										channelMap[CurrentChannel]->volumeSlideEnabled = true;
 
 										//  Effect found, move on.
 										break;
@@ -733,26 +733,26 @@ namespace SGE
 										//
 									case 0x06:
 										//  Set the number of samples that progress for each tick in the effect.
-										channelMap[c]->volumeSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+										channelMap[CurrentChannel]->volumeSlideSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//  Check to see the rate we have to slide the volume up
-										if (effectXOnChannel[c] != 0)
+										if (effectXOnChannel[CurrentChannel] != 0)
 										{
-											channelMap[c]->volumeSlideRate = effectXOnChannel[c] / 64.0f;
+											channelMap[CurrentChannel]->volumeSlideRate = effectXOnChannel[CurrentChannel] / 64.0f;
 										}
 
 										//  Check to see the rate we have to slide the volume down
 										//  Y is only paid attention if X is zero
-										else if (effectYOnChannel[c] != 0)
+										else if (effectYOnChannel[CurrentChannel] != 0)
 										{
-											channelMap[c]->volumeSlideRate = -effectYOnChannel[c] / 64.0f;
+											channelMap[CurrentChannel]->volumeSlideRate = -effectYOnChannel[CurrentChannel] / 64.0f;
 										}
 
 										//  Continue Vibrato
-										channelMap[c]->vibratoEnabled = true;
+										channelMap[CurrentChannel]->vibratoEnabled = true;
 
 										//  Enable Volume Slide
-										channelMap[c]->volumeSlideEnabled = true;
+										channelMap[CurrentChannel]->volumeSlideEnabled = true;
 
 										//  Effect found, move on.
 										break;
@@ -763,7 +763,7 @@ namespace SGE
 									case 0x09:
 
 										//  Set offset of sample to...
-										channelMap[c]->offset = (float) (effectXOnChannel[c] * 4096 + effectYOnChannel[c] * 256) * 2;
+										channelMap[CurrentChannel]->offset = (float) (effectXOnChannel[CurrentChannel] * 4096 + effectYOnChannel[CurrentChannel] * 256) * 2;
 
 
 										//  Effect found, move on.
@@ -775,23 +775,23 @@ namespace SGE
 										//
 									case 0xA:
 										//  Set the number of samples that progress for each tick in the effect.
-										channelMap[c]->volumeSlideSampleInterval = DEFAULT_SAMPLES_TICK;
+										channelMap[CurrentChannel]->volumeSlideSampleInterval = DEFAULT_SAMPLES_TICK;
 
 										//  Check to see the rate we have to slide the volume up
-										if (effectXOnChannel[c] != 0)
+										if (effectXOnChannel[CurrentChannel] != 0)
 										{
-											channelMap[c]->volumeSlideRate = effectXOnChannel[c] / 64.0f;
+											channelMap[CurrentChannel]->volumeSlideRate = effectXOnChannel[CurrentChannel] / 64.0f;
 										}
 
 										//  Check to see the rate we have to slide the volume down
 										//  Y is only paid attention if X is zero and is therefor assumed to be zero
-										else if (effectYOnChannel[c] != 0)
+										else if (effectYOnChannel[CurrentChannel] != 0)
 										{
-											channelMap[c]->volumeSlideRate = -effectYOnChannel[c] / 64.0f;
+											channelMap[CurrentChannel]->volumeSlideRate = -effectYOnChannel[CurrentChannel] / 64.0f;
 										}
 
 										//  Enable Volume Slide
-										channelMap[c]->volumeSlideEnabled = true;
+										channelMap[CurrentChannel]->volumeSlideEnabled = true;
 
 										//  Effect found, move on.
 										break;
@@ -804,7 +804,7 @@ namespace SGE
 										postDivisionJump = true;
 
 										//  Set target position
-										postDivisionJumpTargetPosition = (effectXOnChannel[c] * 16 + effectYOnChannel[c]);
+										postDivisionJumpTargetPosition = (effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]);
 
 										//  Set target division
 										postDivisionJumpTargetDivision = 0;
@@ -817,12 +817,12 @@ namespace SGE
 										//
 									case 0xC:
 										//  Set the volume for the channel
-										channelMap[c]->Volume = (effectXOnChannel[c] * 16 + effectYOnChannel[c]) / 64.0f;
+										channelMap[CurrentChannel]->Volume = (effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]) / 64.0f;
 
 										//  If for some reason the channel volume is higher than 1.0f, set it back down.
-										if (channelMap[c]->Volume > 1.0f)
+										if (channelMap[CurrentChannel]->Volume > 1.0f)
 										{
-											channelMap[c]->Volume = 1.0f;
+											channelMap[CurrentChannel]->Volume = 1.0f;
 										}
 
 										//  Effect found, move on.
@@ -839,7 +839,7 @@ namespace SGE
 										postDivisionJumpTargetPosition = CurrentPosition + 1;
 
 										//  Set target division
-										postDivisionJumpTargetDivision = (effectXOnChannel[c] * 10 + effectYOnChannel[c]);
+										postDivisionJumpTargetDivision = (effectXOnChannel[CurrentChannel] * 10 + effectYOnChannel[CurrentChannel]);
 
 										//  Effect found, move on.
 										break;
@@ -849,7 +849,7 @@ namespace SGE
 										//
 									case 0xE:
 										//  Check the Effect's X setting to see what exact effect they want
-										switch (effectXOnChannel[c])
+										switch (effectXOnChannel[CurrentChannel])
 										{
 										//  Set the sound filter on/off
 										case 0x0:
@@ -860,54 +860,54 @@ namespace SGE
 										case 0x4:
 											//  Set the waveform
 											//  If Y is 0 or 4, set it to a sine waveform
-											switch (effectYOnChannel[c])
+											switch (effectYOnChannel[CurrentChannel])
 											{
 											//  If Y is 0, Sine waveform with Retrigger.
 											case 0x0:
-												channelMap[c]->vibratoWaveform = SGE::Sound::Waveforms::Sine;
-												channelMap[c]->vibratoRetriggers = true;
+												channelMap[CurrentChannel]->vibratoWaveform = SGE::Sound::Waveforms::Sine;
+												channelMap[CurrentChannel]->vibratoRetriggers = true;
 												break;
 
 											//  If Y is 1, Ramp Down waveform with Retrigger.
 											case 0x1:
-												channelMap[c]->vibratoWaveform = SGE::Sound::Waveforms::RampDown;
-												channelMap[c]->vibratoRetriggers = true;
+												channelMap[CurrentChannel]->vibratoWaveform = SGE::Sound::Waveforms::RampDown;
+												channelMap[CurrentChannel]->vibratoRetriggers = true;
 												break;
 
 											//  If Y is 2, Square waveform with Retrigger.
 											case 0x2:
-												channelMap[c]->vibratoWaveform = SGE::Sound::Waveforms::Square;
-												channelMap[c]->vibratoRetriggers = true;
+												channelMap[CurrentChannel]->vibratoWaveform = SGE::Sound::Waveforms::Square;
+												channelMap[CurrentChannel]->vibratoRetriggers = true;
 												break;
 
 											//  If Y is 3, Random choice with Retrigger
 											case 0x3:
 												//  Not implemented
-												channelMap[c]->vibratoRetriggers = true;
+												channelMap[CurrentChannel]->vibratoRetriggers = true;
 												break;
 
 											//  If Y is 4, Sine waveform without Retrigger
 											case 0x4:
-												channelMap[c]->vibratoWaveform = SGE::Sound::Waveforms::Sine;
-												channelMap[c]->vibratoRetriggers = false;
+												channelMap[CurrentChannel]->vibratoWaveform = SGE::Sound::Waveforms::Sine;
+												channelMap[CurrentChannel]->vibratoRetriggers = false;
 												break;
 
 											//  If Y is 5, Ramp Down waveform without Retrigger
 											case 0x5:
-												channelMap[c]->vibratoWaveform = SGE::Sound::Waveforms::RampDown;
-												channelMap[c]->vibratoRetriggers = false;
+												channelMap[CurrentChannel]->vibratoWaveform = SGE::Sound::Waveforms::RampDown;
+												channelMap[CurrentChannel]->vibratoRetriggers = false;
 												break;
 
 											//  If Y is 6, Square waveform without Retrigger
 											case 0x6:
-												channelMap[c]->vibratoWaveform = SGE::Sound::Waveforms::Square;
-												channelMap[c]->vibratoRetriggers = false;
+												channelMap[CurrentChannel]->vibratoWaveform = SGE::Sound::Waveforms::Square;
+												channelMap[CurrentChannel]->vibratoRetriggers = false;
 												break;
 
 											//  If Y is 7, random choice without Retrigger
 											case 0x7:
 												//  Not implemented
-												channelMap[c]->vibratoRetriggers = false;
+												channelMap[CurrentChannel]->vibratoRetriggers = false;
 												break;
 											}
 
@@ -919,10 +919,10 @@ namespace SGE
 										case 0x9:
 											if (effectYOnChannel != 0)
 											{
-												channelMap[c]->retriggerSampleDestination = 0;
-												channelMap[c]->retriggerCurrentSamples = 0;
-												channelMap[c]->retriggerSampleInterval = effectYOnChannel[c] * DEFAULT_SAMPLES_TICK;
-												channelMap[c]->retriggerSampleEnabled = true;
+												channelMap[CurrentChannel]->retriggerSampleDestination = 0;
+												channelMap[CurrentChannel]->retriggerCurrentSamples = 0;
+												channelMap[CurrentChannel]->retriggerSampleInterval = effectYOnChannel[CurrentChannel] * DEFAULT_SAMPLES_TICK;
+												channelMap[CurrentChannel]->retriggerSampleEnabled = true;
 											}
 
 											break;
@@ -931,12 +931,12 @@ namespace SGE
 											//  Case A, 10, Fine volume slide up
 										case 0xA:
 											//  Increment current volume by y
-											channelMap[c]->Volume += (effectYOnChannel[c]) / 64.0f;
+											channelMap[CurrentChannel]->Volume += (effectYOnChannel[CurrentChannel]) / 64.0f;
 
 											//  Check to make sure the volume doesn't go over 1.0
-											if (channelMap[c]->Volume > 1.0f)
+											if (channelMap[CurrentChannel]->Volume > 1.0f)
 											{
-												channelMap[c]->Volume = 1.0f;
+												channelMap[CurrentChannel]->Volume = 1.0f;
 											}
 
 											//  Effect found, move on.
@@ -945,12 +945,12 @@ namespace SGE
 											//  Case B, 11, Fine volume slide down
 										case 0xB:
 											//  Increment current volume by y
-											channelMap[c]->Volume -= (effectYOnChannel[c]) / 64.0f;
+											channelMap[CurrentChannel]->Volume -= (effectYOnChannel[CurrentChannel]) / 64.0f;
 
 											//  Check to make sure the volume doesn't go over 1.0
-											if (channelMap[c]->Volume < 0.0f)
+											if (channelMap[CurrentChannel]->Volume < 0.0f)
 											{
-												channelMap[c]->Volume = 0.0f;
+												channelMap[CurrentChannel]->Volume = 0.0f;
 											}
 
 											//  Effect found, move on.
@@ -958,18 +958,18 @@ break;
 
 // Case C, 12, Cut sample
 										case 0xC:
-											channelMap[c]->cutCurrentSamples = 0;
-											channelMap[c]->cutSampleInterval = effectYOnChannel[c] * DEFAULT_SAMPLES_TICK;
-											channelMap[c]->cutSampleEnabled = true;
+											channelMap[CurrentChannel]->cutCurrentSamples = 0;
+											channelMap[CurrentChannel]->cutSampleInterval = effectYOnChannel[CurrentChannel] * DEFAULT_SAMPLES_TICK;
+											channelMap[CurrentChannel]->cutSampleEnabled = true;
 
 											//  Effect found, move on.
 											break;
 
 											// Case D, 13, Delay sample
 										case 0xD:
-											channelMap[c]->delayCurrentSamples = 0;
-											channelMap[c]->delaySampleInterval = effectYOnChannel[c] * DEFAULT_SAMPLES_TICK;
-											channelMap[c]->delaySampleEnabled = true;
+											channelMap[CurrentChannel]->delayCurrentSamples = 0;
+											channelMap[CurrentChannel]->delaySampleInterval = effectYOnChannel[CurrentChannel] * DEFAULT_SAMPLES_TICK;
+											channelMap[CurrentChannel]->delaySampleEnabled = true;
 
 
 											//  Effect found, move on.
@@ -983,7 +983,7 @@ break;
 											//  Not implemented effect
 											//
 										default:
-											SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
+											SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[CurrentChannel], effectXOnChannel[CurrentChannel], effectYOnChannel[CurrentChannel]);
 
 											break;
 										}
@@ -996,9 +996,9 @@ break;
 										//
 									case 0xF:
 										//  If the value is 32 or below, consider it Ticks Per Division setting
-										if (effectXOnChannel[c] * 16 + effectYOnChannel[c] <= 32)
+										if (effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel] <= 32)
 										{
-											ticksADivision = effectXOnChannel[c] * 16 + effectYOnChannel[c];
+											ticksADivision = effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel];
 										}
 										//  If the value is above 32, consider it setting the beats per minute
 										else
@@ -1013,7 +1013,7 @@ break;
 										//  If we are here, then we have found either an Unimplented or Unknown effect, Error Log it!
 										//
 									default:
-										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[c], effectXOnChannel[c], effectYOnChannel[c]);
+										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[CurrentChannel], effectXOnChannel[CurrentChannel], effectYOnChannel[CurrentChannel]);
 										break;
 									}
 								}
