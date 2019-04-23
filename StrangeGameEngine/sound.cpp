@@ -21,6 +21,185 @@ namespace SGE
 		//  Sound Channel Definitions
 		//
 
+		//
+		//  Method to Apply the Areggio Effect
+		//
+		float Channel::ArpeggioEffect::Apply(float offsetIncrement)
+		{
+			//  Check to see if the Arpeggio Effect is in effect
+			if (Enabled)
+			{
+				//  Check the state of the Arpeggio effect
+				if (CurrentSamples > SampleInterval)
+				{
+					//  Reset and roll the counter
+					CurrentSamples %= SampleInterval;
+
+					//  Transition the state
+					//  Increment and then modulus to the states around.
+					State = (State + 1) % 3;
+				}
+
+				//  Based on that state alter the argpeggio offset increment
+				if (State == 1)
+				{
+					//  If at state 1, calculate the increment for X semitones
+					offsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, SemitoneX));
+				}
+
+				else if (State == 2)
+				{
+					//  If at state 2, calculate the increment for Y semitones
+					offsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, SemitoneY));
+				}
+
+				//  Advance the number of samples
+				CurrentSamples++;
+			}
+
+			// Return the new offset
+			return offsetIncrement;
+		}
+
+		//
+		//  Method to Apply the Vibrato Effect
+		//
+		float Channel::VibratoEffect::Apply(float offsetIncrement)
+		{
+			if (Enabled)
+			{
+				//Calculate the offset
+				offsetIncrement = offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, Amplitude * Waveform[CurrentWaveformPosition]);
+
+				//Increment the vibrato waveform position
+				CurrentWaveformPosition = (int)(CurrentWaveformPosition + Cycles) % SAMPLE_RATE;
+			}
+
+			return offsetIncrement;
+		}
+
+		//
+		//  Method to Apply the Period Slide Effect
+		//
+		float Channel::PeriodSlideEffect::Apply(float offsetIncrement)
+		{
+			if (Enabled)
+			{
+				//  Once enough samples have been processed
+				if (CurrentSamples >= SampleInterval)
+				{
+					//  Convert the offset increment to a period in relationship to 1 second
+					float offsetPeriod = 1 / offsetIncrement;
+
+					//  Add the period delta
+					offsetPeriod += Delta;
+
+					//  Do we have a target period
+					if (Target != 0)
+					{
+						// Check to see if offsetPeriod is past target
+
+						if ((Delta < 0 && offsetPeriod < Target) ||
+							(Delta > 0 && offsetPeriod > Target))
+						{
+							offsetPeriod = Target;
+							Enabled = false;
+						}
+					}
+
+					//  Flip it back to an offset increment
+					offsetIncrement = 1 / offsetPeriod;
+
+					//  Reset the counter
+					CurrentSamples %= SampleInterval;
+				}
+
+				CurrentSamples++;
+			}
+
+			return offsetIncrement;
+		}
+
+		//
+		//  Method to Apply the Volume Slide Effect
+		//
+		float Channel::VolumeSlideEffect::Apply(float currentVolume)
+		{
+			//  Check for the Volume Slide effect
+			if (Enabled && SampleInterval != 0)
+			{
+				//Check the state of Volume Slide Effect
+				if (CurrentSamples > SampleInterval)
+				{
+					//Reset and roll the counter
+					CurrentSamples %= SampleInterval;
+
+					//Apply the slide
+					currentVolume += Rate;
+
+					//Check to make sure it did not exit normal ranges
+					//Short circuit logic
+					if (currentVolume < 0.0f)
+					{
+						currentVolume = 0.0f;
+					}
+					else if (currentVolume > 1.0f)
+					{
+						currentVolume = 1.0f;
+					}
+				}
+				CurrentSamples++;
+			}
+
+			return currentVolume;
+		}
+
+		//
+		//  Method to Apply the Retrigger Effect
+		//
+		float Channel::RetriggerEffect::Apply(float offset)
+		{
+			//  Check to see if we need to trigger the sample
+			if (Enabled)
+			{
+				//  Once enough samples have been processed
+				if (CurrentSamples >= SampleInterval)
+				{
+					//  Set the sample offset back to the designated destination
+					offset = (float)SampleDestination;
+
+					//  Reset the counter
+					CurrentSamples %= SampleInterval;
+				}
+
+				//  Increment to the next sample
+				CurrentSamples++;
+			}
+			
+			return offset;
+		}
+
+		float Channel::CutEffect::Apply(float currentVolume)
+		{
+			//  Check to see if we need to cut the sample.
+			if (Enabled)
+			{
+				//  Once enough samples have been processed
+				if (CurrentSamples >= SampleInterval)
+				{
+					//  Zero out volume
+					currentVolume = 0.0f;
+
+					//  No need to check anymore
+					Enabled = false;
+				}
+
+				CurrentSamples++;
+			}
+
+			return currentVolume;
+		}
+
 		//  Given arguments, render a number of samples asked to the given vector.
 		void Channel::Render(unsigned int numberOfSamples, renderSampleType* sampleBuffer)
 		{
@@ -31,7 +210,7 @@ namespace SGE
 			for (unsigned int i = 0; i < numberOfSamples; i++)
 			{
 				//  If we are currently not playing and there's actually something to play.
-				if (!Playing || currentSampleBuffer->Size == 0)
+				if (!Playing || SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size == 0 || !CurrentSampleBufferSet)
 				{
 					//  Nothing playing, 0 out the samples
 					sampleBuffer[i] = 0;
@@ -39,17 +218,17 @@ namespace SGE
 				else
 				{	
 					//  Check to see if we are getting delayed
-					if (delaySampleEnabled)
+					if (Delay.Enabled)
 					{
 						//  Check to see if we've delayed enough
-						if (delayCurrentSamples >= delaySampleInterval)
+						if (Delay.CurrentSamples >= Delay.SampleInterval)
 						{
 							//  We're done!
-							delaySampleEnabled = false;
+							Delay.Enabled = false;
 						}
 
 						//  Increment the delay
-						delayCurrentSamples++;
+						Delay.CurrentSamples++;
 					}
 
 					//  Continue life as normal
@@ -58,177 +237,62 @@ namespace SGE
 						//  Grab the sample for the offset
 						//  Copy the sample from the source buffer to the target buffer and adjusted the volume.
 						//  If the volume effect is in use, use that volume value.
-						sampleBuffer[i] = int(currentSampleBuffer->Samples[(unsigned int)offset] * Volume);
+						sampleBuffer[i] = int(SGE::Sound::SampleBuffers[CurrentSampleBuffer].Samples[(unsigned int)offset] * Volume);
 
 						//  Add to the acculumator for the average
 						//  Negate negatives since we are only interested in overall amplitude
 						currentSampleAverage += abs(sampleBuffer[i]);
 
+						//
 						//  Calculate the next offset based on the appropriate increment
+						//
 
-						//  Check to see if we need to trigger the sample
-						if (retriggerSampleEnabled)
-						{
-							//  Once enough samples have been processed
-							if (retriggerCurrentSamples >= retriggerSampleInterval)
-							{
-								//  Set the sample offset back to the designated destination
-								offset = (float)retriggerSampleDestination;
+						//
+						//  Apply Volume Slide Effect
+						//
+						Volume = VolumeSlide.Apply(Volume);
 
-								//  Reset the counter
-								retriggerCurrentSamples %= retriggerSampleInterval;
-							}
+						//
+						//  Apply Cut Effect
+						//
+						Volume = Cut.Apply(Volume);
 
-							//  Increment to the next sample
-							retriggerCurrentSamples++;
-						}
+											   						 
+						//
+						//  Effect Pipeline, that affects offset Increments
+						//
 
-						//  Check to see if we need to cut the sample.
-						if (cutSampleEnabled)
-						{
-							//  Once enough samples have been processed
-							if (cutCurrentSamples >= cutSampleInterval)
-							{
-								//  Zero out volume
-								Volume = 0.0f;
+						//  Apply Retrigger Effect
+						//  This effect changes the offset
+						offset = Retrigger.Apply(offset);
 
-								//  No need to check anymore
-								cutSampleEnabled = false;
-							}
+						//  Apply Period Slide Effect, if active
+						//  This changes the offsetIncrement for the channel, hence it write it
+						offsetIncrement = PeriodSlide.Apply(offsetIncrement);
 
-							cutCurrentSamples++;
-						}
+						//  Apply the Arpeggio Effect, if active
+						currentOffsetIncrement = Arpeggio.Apply(offsetIncrement);
 
-						//  Check for period slide effect
-						if (periodSlidEnabled)
-						{
-							//  Once enough samples have been processed
-							if (periodSlideCurrentSamples >= periodSlideSampleInterval)
-							{
-								//  Convert the offset increment to a period in relationship to 1 second
-								float offsetPeriod = 1 / offsetIncrement;
+						//  Apply the Vibrato Effect, if active
 
-								//  Add the period delta
-								offsetPeriod += periodSlideDelta;
-
-								//  Do we have a target period
-								if (periodTarget != 0)
-								{
-									// Check to see if offsetPeriod is past target
-
-									if ((periodSlideDelta < 0 && offsetPeriod < periodTarget) ||
-										(periodSlideDelta > 0 && offsetPeriod > periodTarget))
-									{
-										offsetPeriod = periodTarget;
-										periodSlidEnabled = false;
-									}
-								}
-
-								//  Flip it back to an offset increment
-								offsetIncrement = 1 / offsetPeriod;
-
-								//  Reset the counter
-								periodSlideCurrentSamples %= periodSlideSampleInterval;
-							}
-
-							periodSlideCurrentSamples++;
-						}
-
-						//  Check to see if the Arpeggio Effect is in effect
-						if (arpeggioEnabled)
-						{
-							//  Check the state of the Arpeggio effect
-							if (arpeggioCurrentSamples > arpeggioSampleInterval)
-							{
-								//  Reset and roll the counter
-								arpeggioCurrentSamples %= arpeggioSampleInterval;
-
-								//  Transition the state
-								//  Increment and then modulus to the states around.
-								++arpeggioState %= 3;
-
-								//  Based on that state alter the argpeggio offset increment
-								switch (arpeggioState)
-								{
-									//  If at default state, just use the regular offsetIncrement
-								case 0:
-									currentOffsetIncrement = offsetIncrement;
-									break;
-
-									//  If at state 1, calculate the increment for X semitones
-								case 1:
-									currentOffsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, arpeggioSemitoneX));
-									break;
-
-									//  If at state 2, calculate the increment for X semitones
-								case 2:
-									currentOffsetIncrement = float(offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, arpeggioSemitoneY));
-									break;
-								}
-							}
-
-							//  Advance the number of samples
-							arpeggioCurrentSamples++;
-						}
-						else
-						{
-							currentOffsetIncrement = offsetIncrement;
-						}
-
-						//  Check for Vibrato Effect
-						if (vibratoEnabled)
-						{
-							//Calculate the offset
-							currentOffsetIncrement = currentOffsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, vibratoAmplitude * vibratoWaveform[vibratoCurrentWaveformPosition]);
-
-							//Increment the vibrato waveform position
-							vibratoCurrentWaveformPosition = (int)(vibratoCurrentWaveformPosition + vibratoCycles) % SAMPLE_RATE;
-						}
-
-						//  Check for the Volume Slide effect
-						if (volumeSlideEnabled)
-						{
-							//Check the state of Volume Slide Effect
-							if (volumeSlideCurrentSamples > volumeSlideSampleInterval)
-							{
-								//Reset and roll the counter
-								volumeSlideCurrentSamples %= volumeSlideSampleInterval;
-
-								//Apply the slide
-								Volume += volumeSlideRate;
-
-								//Check to make sure it did not exit normal ranges
-								//Short circuit logic
-								if (Volume < 0.0f)
-								{
-									Volume = 0.0f;
-								}
-								else if (Volume > 1.0f)
-								{
-									Volume = 1.0f;
-								}
-							}
-							volumeSlideCurrentSamples++;
-						}
+						currentOffsetIncrement = Vibrato.Apply(currentOffsetIncrement);
 
 						//  Increment Offset  Appropriately
-
-						//For the Arpeggio Effect
 						offset += currentOffsetIncrement;
 
 						//  Check for repeating loops
 
 						//Check to see if this same is suppose to repeat and is set to do so... correctly
-						if ((currentSampleBuffer->RepeatDuration > 0) && ((unsigned int)offset >= (currentSampleBuffer->RepeatOffset + currentSampleBuffer->RepeatDuration)))
+						if ((SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration > 0) && ((unsigned int)offset >= (SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset + SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration)))
 						{
 							//Rewind back by the repeatDuration.
-							offset -= currentSampleBuffer->RepeatDuration;
+							offset -= SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration;
 						}
 
 						//  Check to see if it's gone pass the valid bufferSize
 
 						//If not repeatable and the offset has gone past the end of the buffer
-						if ((int)offset >= currentSampleBuffer->Size)
+						if ((int)offset >= SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size)
 						{
 							//Fuck this shit we're out!
 							Stop();
@@ -246,7 +310,7 @@ namespace SGE
 		void Channel::Play()
 		{
 			//If the channel is at least loaded
-			if (currentSampleBuffer != nullptr)
+			if (CurrentSampleBufferSet && SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size != 0)
 			{
 				//Reset the play offset
 				offset = 0;
@@ -259,15 +323,11 @@ namespace SGE
 		//Stop the currently playing audio
 		void Channel::Stop()
 		{
-			//If the channel at least is loaded with some data
-			if (currentSampleBuffer != nullptr)
-			{
-				//Set the flags
-				Playing = false;
+			//Set the flags
+			Playing = false;
 
-				//Reset the playing offset
-				offset = 0;
-			}
+			//Reset the playing offset
+			offset = 0;
 		}
 
 
@@ -279,7 +339,7 @@ namespace SGE
 			if (bufferNumber >= 0 && bufferNumber < MAX_SAMPLE_BUFFERS)
 			{
 				CurrentSampleBuffer = bufferNumber;
-				this->currentSampleBuffer = &SGE::Sound::SampleBuffers[bufferNumber];
+				CurrentSampleBufferSet = true;
 			}
 		}
 

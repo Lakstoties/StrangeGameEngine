@@ -344,14 +344,19 @@ namespace SGE
 			//  Current Sound Sample Buffer in use
 			//  Made private to force use of the sample buffers
 			//
-			SampleBuffer* currentSampleBuffer = nullptr;
+			//SampleBuffer* currentSampleBuffer = nullptr;
 
 
 		public:
 			//
-			//  Current Sample
+			//  Current Sample Buffer
 			//
-			int CurrentSampleBuffer = -1;
+			int CurrentSampleBuffer = 0;
+
+			//
+			//  Flag to indicate if the Channel has been set to a sample buffer
+			//
+			bool CurrentSampleBufferSet = false;
 
 			//
 			//  Sample offset
@@ -402,77 +407,146 @@ namespace SGE
 			//
 			float Volume = 1.0f;
 			float Pan = 0.0f;
+			//
+			//
+			//  Effects for Channels
+			//  Mainly used by Module Player
+			//
+			//
 
 			//
-			//  Effects for Module system
+			// Arpeggio effect, Effect 0
 			//
 
-			//
-			//  Arpeggio effect, Effect 0
-			//
-			bool			arpeggioEnabled = false;
-			unsigned int	arpeggioSampleInterval = 0;
-			unsigned int	arpeggioCurrentSamples = 0;
-			unsigned int	arpeggioState = 0;
-			unsigned int	arpeggioSemitoneX = 0;
-			unsigned int	arpeggioSemitoneY = 0;
-			float			arpeggioOffsetIncrement = 0.0f;
+			//  Class for the Arpeggio Effect
+			class ArpeggioEffect
+			{
+			public:
+				bool Enabled = false;
+				unsigned int SampleInterval = 0;
+				unsigned int CurrentSamples = 0;
+				unsigned int State = 0;
+				unsigned int SemitoneX = 0;
+				unsigned int SemitoneY = 0;
+				float OffsetIncrement = 0.0f;
+
+				float Apply(float offsetIncrement);
+			};
+
+			ArpeggioEffect Arpeggio;
+
 
 			//
 			//  Period Slide, Effect 1 and 2
 			//
-			bool			periodSlidEnabled = false;
-			unsigned int	periodSlideSampleInterval = 0;
-			unsigned int	periodSlideCurrentSamples = 0;
-			float			periodSlideDelta = 0.0f;
-			float			periodTarget = 0.0f;
 
+			//  Class for the Period Slide Effect
+			class PeriodSlideEffect
+			{
+			public:
+				bool Enabled = false;
+				unsigned int SampleInterval = 0;
+				unsigned int CurrentSamples = 0;
+				float Delta = 0.0f;
+				float Target = 0.0f;
+
+				float Apply(float offsetIncrement);
+			};
+
+			PeriodSlideEffect PeriodSlide;
 
 			//
 			//  Volume Slide, Effect 10
 			//
-			bool			volumeSlideEnabled = false;
-			unsigned int	volumeSlideSampleInterval = 0;
-			unsigned int	volumeSlideCurrentSamples = 0;
-			float			volumeSlideCurrentVolume = 0.0f;
-			float			volumeSlideRate = 0.0f;
+
+			//  Class for the Volume Slide Effect
+			class VolumeSlideEffect
+			{
+			public:
+				bool Enabled = false;
+				unsigned int SampleInterval = 0;
+				unsigned int CurrentSamples = 0;
+				float CurrentVolume = 0.0f;
+				float Rate = 0.0f;
+
+				float Apply(float currentVolume);
+			};
+
+			VolumeSlideEffect VolumeSlide;
 
 			//
 			//  Vibrato, Effect 4 
 			//
-			bool			vibratoEnabled = false;
-			unsigned int	vibratoCurrentWaveformPosition = 0;
-			float			vibratoAmplitude = 0;
-			float			vibratoCycles = 0;
-			float			vibratoOffsetIncrement = 0;
+			
+			//  Class for the Vibrato Effect
+			class VibratoEffect
+			{
+			public:
+				bool Enabled = false;
+				unsigned int CurrentWaveformPosition = 0;
+				float Amplitude = 0;
+				float Cycles = 0;
+				float OffsetIncrement = 0;
 
-			//
-			//  Vibrato with Effect 14 - 4 settings
-			//
-			float*			vibratoWaveform = Waveforms::Sine;
-			bool			vibratoRetriggers = false;
+				//  Module
+				//  Vibrato with Effect 14 - 4 settings
+				float* Waveform = Waveforms::Sine;
+				bool Retriggers = false;
+
+				float Apply(float offsetIncrement);
+			};
+
+			VibratoEffect Vibrato;
 
 			//
 			//  Retrigger, Effect 14 - 9 settings
 			//
-			bool		 retriggerSampleEnabled = false;
-			unsigned int retriggerSampleInterval = 0;
-			unsigned int retriggerCurrentSamples = 0;
-			unsigned int retriggerSampleDestination = 0;
+
+			//  Class for the Retrigger Effect
+			class RetriggerEffect
+			{
+			public:
+				bool Enabled = false;
+				unsigned int SampleInterval = 0;
+				unsigned int CurrentSamples = 0;
+				unsigned int SampleDestination = 0;
+
+				float Apply(float offset);
+			};
+
+			RetriggerEffect Retrigger;
 
 			//
 			//  Cut,  Effect 14-12 settings
 			//
-			bool		 cutSampleEnabled = false;
-			unsigned int cutSampleInterval = 0;
-			unsigned int cutCurrentSamples = 0;
+
+			//  Class for the Cut Effect
+			class CutEffect
+			{
+			public:
+				bool Enabled = false;
+				unsigned int SampleInterval = 0;
+				unsigned int CurrentSamples = 0;
+
+				float Apply(float currentVolume);
+			};
+
+			CutEffect Cut;
 
 			//
 			//  Delay, Effect 14-13 settings
 			//
-			bool		 delaySampleEnabled = false;
-			unsigned int delaySampleInterval = 0;
-			unsigned int delayCurrentSamples = 0;
+
+			//  Class for the Delay Effect
+			class DelayEffect
+			{
+			public:
+				bool Enabled = false;
+				unsigned int SampleInterval = 0;
+				unsigned int CurrentSamples = 0;
+			};
+
+			DelayEffect Delay;
 
 			//
 			//  Statistics Stuff

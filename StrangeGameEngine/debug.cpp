@@ -49,7 +49,7 @@ namespace SGE
 			// Draw channel using indicator
 			for (int i = 0; i < SGE::Sound::MAX_CHANNELS; i++)
 			{
-				if (SGE::Sound::Channels[i].CurrentSampleBuffer != -1)
+				if (SGE::Sound::Channels[i].CurrentSampleBufferSet)
 				{
 					SGE::Render::DrawRectangle(
 						xCornerPosition + SIDE_SPACING - 1 + (SGE::Sound::Channels[i].CurrentSampleBuffer % 64) * STATUS_SQUARE_X_SPACING,
@@ -141,7 +141,7 @@ namespace SGE
 			char sampleString[5];
 
 			sprintf(channelString, "%02i", channelNumber);
-			if (SGE::Sound::Channels[channelNumber].CurrentSampleBuffer >= 0)
+			if (SGE::Sound::Channels[channelNumber].CurrentSampleBufferSet)
 			{
 				sprintf(sampleString, "%02X", SGE::Sound::Channels[channelNumber].CurrentSampleBuffer);
 			}
@@ -195,19 +195,19 @@ namespace SGE
 
 			//Is Arpeggio On?
 			SGE::Render::DrawString((char*)"AR", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 128,
-				SGE::Sound::Channels[channelNumber].arpeggioEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
+				SGE::Sound::Channels[channelNumber].Arpeggio.Enabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
 
 			//Is Vibrato On?
 			SGE::Render::DrawString((char*)"VB", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 138,
-				SGE::Sound::Channels[channelNumber].vibratoEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
+				SGE::Sound::Channels[channelNumber].Vibrato.Enabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
 
 			//Is Volume Slide On?
 			SGE::Render::DrawString((char*)"VS", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 148,
-				SGE::Sound::Channels[channelNumber].volumeSlideEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
+				SGE::Sound::Channels[channelNumber].VolumeSlide.Enabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
 
 			//Is Period Slide On?
 			SGE::Render::DrawString((char*)"PS", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 158,
-				SGE::Sound::Channels[channelNumber].periodSlidEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
+				SGE::Sound::Channels[channelNumber].PeriodSlide.Enabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
 		}
 
 		//
