@@ -9,6 +9,64 @@ namespace SGE
 	namespace Debug
 	{
 		//
+		//  Status of Sample Buffers
+		//
+		void SGEAPI DrawSampleBuffersStatus(int xCornerPosition, int yCornerPosition)
+		{
+			const int BACKGROUND_HEIGHT = 55;
+			const int BACKGROUND_WIDTH = 545;
+			const int STATUS_SQUARE_SIZE = 6;
+			const int STATUS_SQUARE_X_SPACING = 8;
+			const int STATUS_SQUARE_Y_SPACING = 10;
+			const int SIDE_SPACING = 20;
+			const int TOP_SPACING = 10;
+
+			char temp[5];
+
+			//  Draw the background
+			SGE::Render::DrawBox(xCornerPosition, yCornerPosition, BACKGROUND_WIDTH, BACKGROUND_HEIGHT, SGE::Render::Colors::ColorMode8Bit[2]);
+
+			//  Draw the label
+
+			//  Draw all the status lights
+			for (int i = 0; i < 4; i++)
+			{
+				sprintf(temp, "%02X", i * 64);
+				SGE::Render::DrawString(temp, SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + 3, yCornerPosition + TOP_SPACING - 2 + i * STATUS_SQUARE_Y_SPACING, SGE::Render::Colors::ColorMode8Bit[157]);
+
+				for (int j = 0; j < 64; j++)
+				{
+					//Draw status box
+					SGE::Render::DrawBox(
+						xCornerPosition + SIDE_SPACING + j * STATUS_SQUARE_X_SPACING, 
+						yCornerPosition + TOP_SPACING + i * STATUS_SQUARE_Y_SPACING, 
+						STATUS_SQUARE_SIZE, 
+						STATUS_SQUARE_SIZE,
+						SGE::Sound::SampleBuffers[j + i * 64].Samples == nullptr ? SGE::Render::Colors::ColorMode8Bit[52] : SGE::Render::Colors::ColorMode8Bit[40]);
+				}
+			}
+
+			// Draw channel using indicator
+			for (int i = 0; i < SGE::Sound::MAX_CHANNELS; i++)
+			{
+				if (SGE::Sound::Channels[i].CurrentSampleBuffer != -1)
+				{
+					SGE::Render::DrawRectangle(
+						xCornerPosition + SIDE_SPACING - 1 + (SGE::Sound::Channels[i].CurrentSampleBuffer % 64) * STATUS_SQUARE_X_SPACING,
+						yCornerPosition + TOP_SPACING - 1 + (SGE::Sound::Channels[i].CurrentSampleBuffer / 64) * STATUS_SQUARE_Y_SPACING,
+						STATUS_SQUARE_SIZE + 2,
+						STATUS_SQUARE_SIZE + 2,
+						SGE::Sound::Channels[i].Playing ? SGE::Render::Colors::ColorMode8Bit[255] : SGE::Render::Colors::ColorMode8Bit[0]
+					);
+				}
+			}
+
+
+
+		}
+
+
+		//
 		//  Audio Level Meter
 		//
 		void DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, unsigned int sampleLevel, float channelVolume)
@@ -67,7 +125,7 @@ namespace SGE
 		void DrawChannelMonitor(int xCornerPosition, int yCornerPosition, unsigned int channelNumber)
 		{
 			const int CHANNEL_MONITOR_WIDTH = 18;
-			const int CHANNEL_MONITOR_HEIGHT = 155;
+			const int CHANNEL_MONITOR_HEIGHT = 165;
 			const int CHANNEL_BAR_WIDTH = 8;
 			const int CHANNEL_BAR_SPACING = (CHANNEL_MONITOR_WIDTH - CHANNEL_BAR_WIDTH) / 2;
 			const int CHANNEL_VOLUME_SPACING = 2;
@@ -79,18 +137,29 @@ namespace SGE
 				return;
 			}
 
-			char tempString[5];
+			char channelString[5];
+			char sampleString[5];
 
-			sprintf(tempString, "%02i", channelNumber);
+			sprintf(channelString, "%02i", channelNumber);
+			if (SGE::Sound::Channels[channelNumber].CurrentSampleBuffer >= 0)
+			{
+				sprintf(sampleString, "%02X", SGE::Sound::Channels[channelNumber].CurrentSampleBuffer);
+			}
+			else
+			{
+				sprintf(sampleString, "--");
+			}
 
 			//Draw Test Background
 			SGE::Render::DrawBox(xCornerPosition, yCornerPosition, CHANNEL_MONITOR_WIDTH, CHANNEL_MONITOR_HEIGHT, SGE::Render::Colors::ColorMode8Bit[2]);
 
+			SGE::Render::DrawString(sampleString, SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + 3, yCornerPosition + 1, SGE::Render::Colors::ColorMode8Bit[226]);
+
 			//Draw Pan gauge background
-			SGE::Render::DrawBox(xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition, CHANNEL_VOLUME_WIDTH, 8, SGE::Render::Colors::ColorMode8Bit[237]);
+			SGE::Render::DrawBox(xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 10, CHANNEL_VOLUME_WIDTH, 8, SGE::Render::Colors::ColorMode8Bit[237]);
 
 			//Draw Pan gauge itself
-			SGE::Render::DrawBox(xCornerPosition + CHANNEL_VOLUME_SPACING + (CHANNEL_VOLUME_WIDTH / 2) + (int) SGE::Sound::Channels[channelNumber].Pan * CHANNEL_VOLUME_WIDTH, yCornerPosition, 1, 8, SGE::Render::Colors::ColorMode8Bit[255]);
+			SGE::Render::DrawBox(xCornerPosition + CHANNEL_VOLUME_SPACING + (CHANNEL_VOLUME_WIDTH / 2) - (int) (SGE::Sound::Channels[channelNumber].Pan * CHANNEL_VOLUME_WIDTH), yCornerPosition + 10, 1, 8, SGE::Render::Colors::ColorMode8Bit[255]);
 
 			//
 			//  Draw Meter Lights
@@ -99,45 +168,45 @@ namespace SGE
 			//Green Lights: 11
 			for (int i = 0; i < 11; i++)
 			{
-				SGE::Render::DrawBox(xCornerPosition + CHANNEL_BAR_SPACING, yCornerPosition + 100 - i * 6, CHANNEL_BAR_WIDTH, 5,
+				SGE::Render::DrawBox(xCornerPosition + CHANNEL_BAR_SPACING, yCornerPosition + 110 - i * 6, CHANNEL_BAR_WIDTH, 5,
 					(SGE::Sound::Channels[channelNumber].LastRenderedAverageLevel >(unsigned int)(i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16) ? SGE::Render::Colors::ColorMode8Bit[40] : SGE::Render::Colors::ColorMode8Bit[22]);
 			}
 
 			//Yellow Lights: 4
 			for (int i = 11; i < 15; i++)
 			{
-				SGE::Render::DrawBox(xCornerPosition + CHANNEL_BAR_SPACING, yCornerPosition + 100 - i * 6, CHANNEL_BAR_WIDTH, 5,
+				SGE::Render::DrawBox(xCornerPosition + CHANNEL_BAR_SPACING, yCornerPosition + 110 - i * 6, CHANNEL_BAR_WIDTH, 5,
 					(SGE::Sound::Channels[channelNumber].LastRenderedAverageLevel >(unsigned int)(i * SGE::Sound::SAMPLE_MAX_AMPLITUDE) / 16) ? SGE::Render::Colors::ColorMode8Bit[226] : SGE::Render::Colors::ColorMode8Bit[58]);
 			}
 
 			//Sixthteenth Level Light
-			SGE::Render::DrawBox(xCornerPosition + CHANNEL_BAR_SPACING, yCornerPosition + 10, CHANNEL_BAR_WIDTH, 5,
+			SGE::Render::DrawBox(xCornerPosition + CHANNEL_BAR_SPACING, yCornerPosition + 20, CHANNEL_BAR_WIDTH, 5,
 				SGE::Sound::Channels[channelNumber].LastRenderedAverageLevel > (15 * SGE::Sound::SAMPLE_MAX_AMPLITUDE / 16) ? SGE::Render::Colors::ColorMode8Bit[160] : SGE::Render::Colors::ColorMode8Bit[52]);
 
 			//Draw the Volume level indicator box
-			SGE::Render::DrawRectangle(xCornerPosition + CHANNEL_BAR_SPACING - 1, yCornerPosition + 99 - 6 * (int)(SGE::Sound::Channels[channelNumber].Volume * 15), CHANNEL_BAR_WIDTH + 2, 7, SGE::Render::Colors::ColorMode8Bit[255]);
+			SGE::Render::DrawRectangle(xCornerPosition + CHANNEL_BAR_SPACING - 1, yCornerPosition + 109 - 6 * (int)(SGE::Sound::Channels[channelNumber].Volume * 15), CHANNEL_BAR_WIDTH + 2, 7, SGE::Render::Colors::ColorMode8Bit[255]);
 
 			//Draw Channel Label
-			SGE::Render::DrawString(tempString, SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + 3, yCornerPosition + 108, SGE::Render::Colors::ColorMode8Bit[157]);
+			SGE::Render::DrawString(channelString, SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + 3, yCornerPosition + 118, SGE::Render::Colors::ColorMode8Bit[157]);
 
 			//
 			//Draw Mode lights
 			//
 
 			//Is Arpeggio On?
-			SGE::Render::DrawString((char*)"AR", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 118,
+			SGE::Render::DrawString((char*)"AR", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 128,
 				SGE::Sound::Channels[channelNumber].arpeggioEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
 
 			//Is Vibrato On?
-			SGE::Render::DrawString((char*)"VB", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 128,
+			SGE::Render::DrawString((char*)"VB", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 138,
 				SGE::Sound::Channels[channelNumber].vibratoEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
 
 			//Is Volume Slide On?
-			SGE::Render::DrawString((char*)"VS", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 138,
+			SGE::Render::DrawString((char*)"VS", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 148,
 				SGE::Sound::Channels[channelNumber].volumeSlideEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
 
 			//Is Period Slide On?
-			SGE::Render::DrawString((char*)"PS", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 148,
+			SGE::Render::DrawString((char*)"PS", SGE::Render::CHARACTER_8x8_ROM, 7, xCornerPosition + CHANNEL_VOLUME_SPACING, yCornerPosition + 158,
 				SGE::Sound::Channels[channelNumber].periodSlidEnabled ? SGE::Render::Colors::ColorMode8Bit[157] : SGE::Render::Colors::ColorMode8Bit[237]);
 		}
 

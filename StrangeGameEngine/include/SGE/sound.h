@@ -291,28 +291,47 @@ namespace SGE
 			//
 			//  Buffer to contain the samples
 			//
-			//sampleType* data = NULL;
-			std::vector<sampleType> Sample;
+			sampleType* Samples = nullptr;
 
+			//
+			//  Size of buffer
+			//
+			int Size = 0;
+			
 			//
 			//  The offeset the sample will repeat at.
 			//
-			unsigned int repeatOffset = 0;
+			unsigned int RepeatOffset = 0;
 
 			//
 			//  The duration of the repeat
 			//
-			unsigned int repeatDuration = 0;
+			unsigned int RepeatDuration = 0;
 
 			//
 			//  Create a blank buffer of a certain sample size
 			//
-			bool Allocate(unsigned int numOfSamples);
+			void SGEAPI Create(int numOfSamples);
+			
+			//
+			//  Clear the buffer
+			//
+			void SGEAPI Zero();
 
 			//
-			//  Create a blank buffer, and then load data into it.
+			//  Delete the buffer
 			//
-			bool Load(unsigned int numOfSamples, sampleType *samples);
+			void SGEAPI Delete();
+
+			//
+			//  Deconstructor
+			//
+			~SampleBuffer();
+
+			//
+			//  Load Raw Data Samples from a buffer of sampleType
+			//
+			void SGEAPI LoadRaw(int numOfSamples, sampleType* samples);
 		};
 
 		//
@@ -320,7 +339,20 @@ namespace SGE
 		//
 		class Channel
 		{
+		private:
+			//
+			//  Current Sound Sample Buffer in use
+			//  Made private to force use of the sample buffers
+			//
+			SampleBuffer* currentSampleBuffer = nullptr;
+
+
 		public:
+			//
+			//  Current Sample
+			//
+			int CurrentSampleBuffer = -1;
+
 			//
 			//  Sample offset
 			//
@@ -329,7 +361,7 @@ namespace SGE
 			//
 			//  Amount to increment the offset by
 			//
-			float offsetIncrement = 0;
+			float offsetIncrement = 1.0f;
 
 			//
 			//  Current offset Increment after all effects have been applied
@@ -337,29 +369,28 @@ namespace SGE
 			float currentOffsetIncrement = 0;
 
 			//
-			//  Current Sound Sample Buffer in use
-			//  Set to the maximum buffers, to indicate one hasn't been selected.
-			//
-			SampleBuffer* currentSampleBuffer = NULL;
-			
-			//
 			//  Render function
 			//
 			void Render(unsigned int numerOfSamples, renderSampleType* outputBuffer);
+
+			//
+			//  Set Sample Buffer
+			//
+			void SGEAPI SetSampleBuffer(int bufferNumber);
 			
 			//
 			//  Basic functions
 			//
 
-			//
+	   		//
 			//  Play
 			//
-			void Play();
+			void SGEAPI Play();
 
 			//
 			//  Hard stop
 			//
-			void Stop();
+			void SGEAPI Stop();
 
 			//
 			//  Status flag
@@ -466,12 +497,12 @@ namespace SGE
 		//
 		//  All the sound samples in the system
 		//
-		extern SampleBuffer SampleBuffers[MAX_SAMPLE_BUFFERS];
+		extern SGEAPI SampleBuffer SampleBuffers[MAX_SAMPLE_BUFFERS];
 
 		//
 		//  All the system's sound channels
 		//
-		extern Channel Channels[MAX_CHANNELS];
+		extern SGEAPI Channel Channels[MAX_CHANNELS];
 
 		//
 		//  System Managagement

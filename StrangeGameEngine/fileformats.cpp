@@ -297,11 +297,6 @@ namespace SGE
 		const int WAVE_FILE_HEADER_SIZE = 12;
 		const int WAVE_FILE_SUBCHUNK_HEADER_SIZE = 8;
 
-		//Default constructor for a SoundSystemWaveFile
-		Wave::Wave()
-		{
-		}
-
 		//Deconstructor for a SoundSystemWaveFile
 		Wave::~Wave()
 		{
@@ -318,24 +313,23 @@ namespace SGE
 				delete audioData;
 			}
 		}
+
 		//Load audio data from a file into a collection of audio buffers
 		//Returns a 0 if all is well, something else if there is an error.
-		int Wave::LoadFile(char* targetFilename)
+		Wave::Wave(char* targetFilename)
 		{
-			FILE* soundFile;
-			size_t readCount = 0;
+			std::fstream soundFile;
+			std::streamsize readCount = 0;
 			bool keepLookingThroughSubchunks = true;
 
-			soundFile = fopen(targetFilename, "rb");
 
-			//
+			soundFile.open(targetFilename, std::ios::in | std::ios::binary);
+
 			//Check to see if the file is even there.
-			//
-
-			if (soundFile == NULL)
+			if (!soundFile)
 			{
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  Cannot open file \"%s\"\n", targetFilename);
-				return -1;
+				return;
 			}
 
 			//
@@ -352,7 +346,8 @@ namespace SGE
 			//
 			//Offset: 0		Size: 4		ChunkID:				Check the chunk ID to see if it says RIFF in ASCII
 			//
-			readCount += fread(&chunkID, 1, 4, soundFile);
+			soundFile.read(chunkID, 4);
+			readCount += soundFile.gcount();
 
 			//
 			//  Check for a valid chunkID
@@ -364,16 +359,18 @@ namespace SGE
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Incorrect header.\n", targetFilename);
 
 				//Close out the file
-				fclose(soundFile);
-
-				return -10;
+				soundFile.close();
+				return;
 			}
 
 			//
 			//Offset: 4		Size: 4		ChunkSize:				Check the chunk size and save it for double checking purposes
 			//
 
-			readCount += fread(&chunkSize, 1, 4, soundFile);
+			//readCount += fread(&chunkSize, 1, 4, soundFile);
+			soundFile.read((char*)&chunkSize, 4);
+			readCount += soundFile.gcount();
+
 
 			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Sound System Wave File: %s - Chunk Size: %d\n", targetFilename, chunkSize);
 
@@ -381,7 +378,9 @@ namespace SGE
 			//Offset: 8		Size: 4		Format:		Check format for "WAVE"
 			//
 
-			readCount += fread(&format, 1, 4, soundFile);
+			//readCount += fread(&format, 1, 4, soundFile);
+			soundFile.read((char*)&format, 4);
+			readCount += soundFile.gcount();
 
 			if (memcmp("WAVE", &format, 4) != 0)
 			{
@@ -389,9 +388,8 @@ namespace SGE
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Incorrect Encoding Format.\n", targetFilename);
 
 				//Close out the file
-				fclose(soundFile);
-
-				return -20;
+				soundFile.close();
+				return;
 			}
 
 			//Check to see if we actually read enough bytes to make up a proper wave file header
@@ -399,7 +397,8 @@ namespace SGE
 			{
 				//This file is way to small to be a proper wav file
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - File Too Small to be proper.\n", targetFilename);
-				return -2;
+				soundFile.close();
+				return;
 			}
 
 
@@ -415,12 +414,16 @@ namespace SGE
 				//
 				//Offset: 12	Size: 4		SubchunkID:				Look for the "fmt " (space is null)
 				//
-				readCount += fread(&subChunkID, 1, 4, soundFile);
+				//readCount += fread(&subChunkID, 1, 4, soundFile);
+				soundFile.read((char*)&subChunkID, 4);
+				readCount += soundFile.gcount();
 
 				//
 				//Offset: 16	Size: 4		Subchunksize:			For PCM files, it should be 16, otherwise this is probably a different format
 				//
-				readCount += fread(&subChunkSize, 1, 3, soundFile);
+				//readCount += fread(&subChunkSize, 1, 3, soundFile);
+				soundFile.read((char*)&subChunkSize, 4);
+				readCount += soundFile.gcount();
 
 				//Is this the "fmt " subchunk
 				if (memcmp("fmt", &subChunkID, 3) == 0)
@@ -431,14 +434,14 @@ namespace SGE
 				else
 				{
 					//Advance past this section of the file
-					if (fseek(soundFile, subChunkSize, SEEK_CUR) != 0)
+					//if (fseek(soundFile, subChunkSize, SEEK_CUR) != 0)
+					if (soundFile.seekg(subChunkSize,std::ios::cur))
 					{
 						SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing fmt subchunk.\n", targetFilename);
 
 						//Close out the file
-						fclose(soundFile);
-
-						return -30;
+						soundFile.close();
+						return;
 					}
 				}
 
@@ -448,9 +451,8 @@ namespace SGE
 					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing fmt subchunk.\n", targetFilename);
 
 					//Close out the file
-					fclose(soundFile);
-
-					return -30;
+					soundFile.close();
+					return;
 				}
 			}
 
@@ -461,9 +463,8 @@ namespace SGE
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Format Chunk Size Incorrect.\n", targetFilename);
 
 				//Close out the file
-				fclose(soundFile);
-
-				return -40;
+				soundFile.close();
+				return;
 			}
 
 
@@ -474,7 +475,10 @@ namespace SGE
 			//
 			//Offset: 20	Size: 2		Audio Format:			Should be 1 for PCM.  If not 1, then probably another format we aren't wanting.
 			//
-			readCount += fread(&audioFormat, 1, 2, soundFile);
+			//readCount += fread(&audioFormat, 1, 2, soundFile);
+			soundFile.read((char*)&audioFormat, 2);
+			readCount += soundFile.gcount();
+			
 
 			if (audioFormat != 1)
 			{
@@ -482,15 +486,16 @@ namespace SGE
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Format Chunk Size Incorrect.\n", targetFilename);
 
 				//Close out the file
-				fclose(soundFile);
-
-				return -50;
+				soundFile.close();
+				return;
 			}
 
 			//
 			//Offset: 22	Size: 2		Number of Channels:		1 = Mono, 2 = Stereo, and so forth.   We are looking for Mono channels currently,
 			//
-			readCount += fread(&numberOfChannels, 1, 2, soundFile);
+			//readCount += fread(&numberOfChannels, 1, 2, soundFile);
+			soundFile.read((char*)& numberOfChannels, 2);
+			readCount += soundFile.gcount();
 
 			//May support more channels later
 			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Sound System Wave File: %s - Number of Channels: %d\n", targetFilename, numberOfChannels);
@@ -498,7 +503,9 @@ namespace SGE
 			//
 			//Offset: 24	Size: 4		Sample Rate
 			//
-			readCount += fread(&sampleRate, 1, 4, soundFile);
+			//readCount += fread(&sampleRate, 1, 4, soundFile);
+			soundFile.read((char*)& sampleRate, 4);
+			readCount += soundFile.gcount();
 
 			//Sample Rate of the data.  Currently looking for 44100.
 			//May implement resampling in future, but not right now.
@@ -508,25 +515,30 @@ namespace SGE
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" has an unsupported sample rate.  44100Hz Only.  Sorry.\n", targetFilename);
 
 				//Close out the file
-				fclose(soundFile);
-
-				return -70;
+				soundFile.close();
+				return;
 			}
 
 			//Offset: 28	Size: 4		Byte Rate
 			//Equals to:  Sample Rate * Number of Channels * Bits Per Sample / 8
 			//The number of bytes per second
-			readCount += fread(&byteRate, 1, 4, soundFile);
+			//readCount += fread(&byteRate, 1, 4, soundFile);
+			soundFile.read((char*)& byteRate, 4);
+			readCount += soundFile.gcount();
 
 			//Offset: 32	Size: 2		Block Alignment
 			//Equals to:  Numbers of Channels * Bits Per Sample / 8
 			//The number of bytes per frame/sample
-			readCount += fread(&blockAlignment, 1, 2, soundFile);
+			//readCount += fread(&blockAlignment, 1, 2, soundFile);
+			soundFile.read((char*)& blockAlignment, 2);
+			readCount += soundFile.gcount();
 
 			//Offset: 34	Size: 2		Bits Per Sample
 			//Bits of data per sample
 			//We presently want to see 16 bits.
-			readCount += fread(&bitsPerSample, 1, 2, soundFile);
+			//readCount += fread(&bitsPerSample, 1, 2, soundFile);
+			soundFile.read((char*)& bitsPerSample, 2);
+			readCount += soundFile.gcount();
 
 			if (bitsPerSample != 16)
 			{
@@ -534,9 +546,8 @@ namespace SGE
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" has an unsupported bit rate.  16-bit Only.  Sorry.\n", targetFilename);
 
 				//Close out the file
-				fclose(soundFile);
-
-				return -100;
+				soundFile.close();
+				return;
 			}
 
 			//If we hit end of file early
@@ -546,9 +557,8 @@ namespace SGE
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - fmt subchunk too small.\n", targetFilename);
 
 				//Close out the file
-				fclose(soundFile);
-
-				return -45;
+				soundFile.close();
+				return;
 			}
 
 
@@ -570,12 +580,16 @@ namespace SGE
 				//Second chunk of data: "data"
 				//Offset: 36	Size: 4		Subchunk 2 ID
 				//ID to indicate the next subchunk of data, if it isn't "data" something is wrong
-				readCount += fread(&subChunkID, 1, 4, soundFile);
+				//readCount += fread(&subChunkID, 1, 4, soundFile);
+				soundFile.read((char*)&subChunkID, 4);
+				readCount += soundFile.gcount();
 
 				//
 				//Offset: 40	Size: 4		Subchunk 2 Size
 				//
-				readCount += fread(&subChunkSize, 1, 3, soundFile);
+				//readCount += fread(&subChunkSize, 1, 3, soundFile);
+				soundFile.read((char*)& subChunkSize, 4);
+				readCount += soundFile.gcount();
 
 				//Is this the "data" subchunk
 				if (memcmp("data", &subChunkID, 4) == 0)
@@ -586,14 +600,15 @@ namespace SGE
 				else
 				{
 					//Advance past this section of the file
-					if (fseek(soundFile, subChunkSize, SEEK_CUR) != 0)
+					//if (fseek(soundFile, subChunkSize, SEEK_CUR) != 0)
+					soundFile.seekg(subChunkSize, std::ios::cur);
+					if (!soundFile)
 					{
 						SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing data subchunk.\n", targetFilename);
 
 						//Close out the file
-						fclose(soundFile);
-
-						return -105;
+						soundFile.close();
+						return;
 					}
 				}
 
@@ -604,9 +619,8 @@ namespace SGE
 					SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - Missing data subchunk.\n", targetFilename);
 
 					//Close out the file
-					fclose(soundFile);
-
-					return -105;
+					soundFile.close();
+					return;
 				}
 			}
 
@@ -618,9 +632,8 @@ namespace SGE
 				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Sound System Wave File Error:  File \"%s\" is not correct format - data subchunk too small.\n", targetFilename);
 
 				//Close out the file
-				fclose(soundFile);
-
-				return -105;
+				soundFile.close();
+				return;
 			}
 
 
@@ -658,7 +671,9 @@ namespace SGE
 				//For each channel
 				for (unsigned int j = 0; j < numberOfChannels; j++)
 				{
-					readCount += fread(&audioData[j][i], 2, 1, soundFile);
+					//readCount += fread(&audioData[j][i], 2, 1, soundFile);
+					soundFile.read((char*)&audioData[j][i], 2);
+					readCount += soundFile.gcount();
 				}
 			}
 
@@ -667,9 +682,8 @@ namespace SGE
 			//If we get here... It's all good!... Maybe... Hoepfully?
 
 			//Close out the sound file
-			fclose(soundFile);
-
-			return 0;
+			soundFile.close();
+			return;
 		}
 
 		//

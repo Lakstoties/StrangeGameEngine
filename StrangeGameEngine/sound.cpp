@@ -31,7 +31,7 @@ namespace SGE
 			for (unsigned int i = 0; i < numberOfSamples; i++)
 			{
 				//  If we are currently not playing and there's actually something to play.
-				if (!Playing || currentSampleBuffer->Sample.size() == 0)
+				if (!Playing || currentSampleBuffer->Size == 0)
 				{
 					//  Nothing playing, 0 out the samples
 					sampleBuffer[i] = 0;
@@ -58,7 +58,7 @@ namespace SGE
 						//  Grab the sample for the offset
 						//  Copy the sample from the source buffer to the target buffer and adjusted the volume.
 						//  If the volume effect is in use, use that volume value.
-						sampleBuffer[i] = int(currentSampleBuffer->Sample[(unsigned int)offset] * Volume);
+						sampleBuffer[i] = int(currentSampleBuffer->Samples[(unsigned int)offset] * Volume);
 
 						//  Add to the acculumator for the average
 						//  Negate negatives since we are only interested in overall amplitude
@@ -219,16 +219,16 @@ namespace SGE
 						//  Check for repeating loops
 
 						//Check to see if this same is suppose to repeat and is set to do so... correctly
-						if ((currentSampleBuffer->repeatDuration > 0) && ((unsigned int)offset >= (currentSampleBuffer->repeatOffset + currentSampleBuffer->repeatDuration)))
+						if ((currentSampleBuffer->RepeatDuration > 0) && ((unsigned int)offset >= (currentSampleBuffer->RepeatOffset + currentSampleBuffer->RepeatDuration)))
 						{
 							//Rewind back by the repeatDuration.
-							offset -= currentSampleBuffer->repeatDuration;
+							offset -= currentSampleBuffer->RepeatDuration;
 						}
 
 						//  Check to see if it's gone pass the valid bufferSize
 
 						//If not repeatable and the offset has gone past the end of the buffer
-						if ((unsigned int)offset >= currentSampleBuffer->Sample.size())
+						if ((int)offset >= currentSampleBuffer->Size)
 						{
 							//Fuck this shit we're out!
 							Stop();
@@ -270,6 +270,19 @@ namespace SGE
 			}
 		}
 
+
+		//
+		//  Set Sample Buffer
+		//
+		void Channel::SetSampleBuffer(int bufferNumber)
+		{
+			if (bufferNumber >= 0 && bufferNumber < MAX_SAMPLE_BUFFERS)
+			{
+				CurrentSampleBuffer = bufferNumber;
+				this->currentSampleBuffer = &SGE::Sound::SampleBuffers[bufferNumber];
+			}
+		}
+
 		//
 		//
 		// Sound Sample Buffer Defintions
@@ -277,40 +290,94 @@ namespace SGE
 		//
 
 		//
-		//  Allocate a blank buffer of a certain sample size
+		//  Create a blank buffer
 		//
-		bool SampleBuffer::Allocate(unsigned int numOfSamples)
+		void SampleBuffer::Create(int numOfSamples)
 		{
-			//  Get an array to put in place
-			Sample.resize(numOfSamples);
+			//
+			// Check for legitmate number of samples
+			//
+			if (numOfSamples < 1)
+			{
+				//Info the error
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Sound, "SampleBuffer Create Error: Number of sample requested was less than 1\n");
+				return;
+			}
 
-			//  Zero out the buffer to make sure it is clean
-			std::fill(Sample.begin(), Sample.end(), 0);
+			//
+			// Purge any existing buffers
+			//
+			if (nullptr)
+			{
+				this->Delete();
+			}
 
-			//  Everything thing should be okay.
-			return true;
+			//
+			//  Create the buffer
+			//
+
+			// Set the sample size
+			this->Size = numOfSamples;
+
+			// Assign a new sample array
+			this->Samples = new sampleType[Size];
+
+			// Zero the contents
+			this->Zero();
 		}
 
 		//
-		//  Create a blank buffer, and then load data into it.
+		//  Zero out a buffer
 		//
-		bool SampleBuffer::Load(unsigned int numOfSamples, sampleType* samples)
+		void SampleBuffer::Zero()
 		{
-			//
-			//  Get a clean buffer
-			//
-			Allocate(numOfSamples);
-
-			//
-			//  Copy over the data into the buffer
-			//
-			std::copy(samples, samples + Sample.size(), Sample.data());
-
-			//
-			//  Everything should have gone okay...
-			//
-			return true;
+			if (Size > 0 && Samples != nullptr)
+			{
+				std::fill(Samples, Samples + Size, 0);
+			}
 		}
+
+		//
+		//  Delete a buffer
+		//
+		void SampleBuffer::Delete()
+		{
+			// Check to see if there's anything allocated there
+			if (Samples != nullptr)
+			{
+				// Delete the array of stuff
+				delete[] Samples;
+
+				// Assign nullptr to the pointer for record keeping
+				Samples = nullptr;
+
+				// Set the size back to default
+				Size = 0;
+			}
+		}
+
+		//
+		//  Destructor for SampleBuffer
+		//
+		SampleBuffer::~SampleBuffer()
+		{
+			this->Delete();
+		}
+
+		//
+		//  Load Raw Data Samples from a buffer of sampleType
+		//
+		void SampleBuffer::LoadRaw(int numOfSamples, sampleType* samples)
+		{
+			// Create the buffer
+			this->Create(numOfSamples);
+
+			// Copy stuff over
+			std::copy(samples, samples + numOfSamples, Samples);
+		}
+
+
+
 
 		//
 		//
@@ -575,10 +642,6 @@ namespace SGE
 			//
 			//  Try to open up the audio device
 			//
-
-			RtAudio::DeviceInfo defaultDeviceInfo = audioSystem.getDeviceInfo(audioSystem.getDefaultOutputDevice());
-			SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Sound, "Attempting to use default audio device: %s\n", defaultDeviceInfo.name);
-
 			try
 			{
 				audioSystem.openStream(&audioStreamParameters, NULL, RTAUDIO_SINT16, SGE::Sound::SAMPLE_RATE, &RTAUDIO_RENDER_BUFFER_SIZE, &AudioCallback, NULL, &audioStreamOptions);

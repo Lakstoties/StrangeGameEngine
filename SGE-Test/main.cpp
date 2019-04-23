@@ -83,6 +83,17 @@ void InputTest(bool& testInputRunning)
 
 	//Highlight Text Color
 	testMenu.highlightTextColor = SGE::Render::PackColors(0, 0, 0);
+
+	// Create a wave file to load
+	SGE::FileFormats::Wave* testWaveFile = new SGE::FileFormats::Wave("TestSample.wav");
+
+	// Load wave into Sample Buffer
+	SGE::Sound::SampleBuffers[0].LoadRaw(testWaveFile->numberOfSamples, testWaveFile->audioData[0]);
+
+	// Set the Channel to use this sample
+	SGE::Sound::Channels[0].SetSampleBuffer(0);
+	SGE::Sound::Channels[0].Play();
+	
 	
 	//Create some players
 	SGE::Utility::ModuleTrackerMusic::ModulePlayer* modulePlayerTest = new SGE::Utility::ModuleTrackerMusic::ModulePlayer();
@@ -316,12 +327,14 @@ void InputTest(bool& testInputRunning)
 		if (bouncingImageX < -bouncingImageXDeltaFlip || (bouncingImageX + testBitmap.width - SGE::Display::Video::X) > bouncingImageXDeltaFlip)
 		{
 			bouncingImageXDelta = -bouncingImageXDelta;
+			SGE::Sound::Channels[0].Play();
 		}
 
 		//  For Y Delta
 		if (bouncingImageY < -bouncingImageYDeltaFlip || (bouncingImageY + testBitmap.height - SGE::Display::Video::Y) > bouncingImageYDeltaFlip)
 		{
 			bouncingImageYDelta = -bouncingImageYDelta;
+			SGE::Sound::Channels[0].Play();
 		}
 
 
@@ -383,6 +396,12 @@ void InputTest(bool& testInputRunning)
 		//  Draw Keyboard Status
 		//
 		SGE::Debug::DrawKeyboardStatus(160, 315);
+
+		//
+		//  Draw Sample Buffer Status
+		//
+		SGE::Debug::DrawSampleBuffersStatus(5, 475);
+
 
 		//
 		//  Draw spinning Triangle 

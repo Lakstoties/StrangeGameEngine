@@ -51,7 +51,7 @@ namespace SGE
 		};
 
 		//Struct that contains converted wave data from a file
-		struct SGEAPI Wave
+		class SGEAPI Wave
 		{
 			//
 			//  Wave File Header  (RIFF Chunk)
@@ -76,10 +76,9 @@ namespace SGE
 			unsigned short blockAlignment = 0;		//Number of bytes per frame with all channels:  numberOfChannels * bitsPerSamples / 8
 			unsigned short bitsPerSample = 0;		//Bit Depth, 8 = 8 bits, 16 = 16 bits, etc..
 
-			Wave();
+		public:
+			Wave(char* targetFilename);
 			~Wave();
-
-			int LoadFile(char* targetFilename);
 
 			SGE::Sound::sampleType** audioData = nullptr;
 			unsigned int numberOfSamples = 0;

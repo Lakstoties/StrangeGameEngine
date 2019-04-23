@@ -225,7 +225,7 @@ namespace SGE
 				//Map up samples
 				for (int i = 0; i < 31; i++)
 				{
-					sampleMap[i] = &SGE::Sound::SampleBuffers[i + startSample];
+					sampleMap[i] = i + startSample;
 				}
 
 				//Map up channels
@@ -250,17 +250,17 @@ namespace SGE
 						modFile.samples[i].ConvertSampleTo16Bit(temp);
 
 						//Load the convert sample data into the sample buffer
-						sampleMap[i]->Load(modFile.samples[i].SampleLengthInBytes(), temp);
+						SGE::Sound::SampleBuffers[sampleMap[i]].LoadRaw(modFile.samples[i].SampleLengthInBytes(), temp);
 
 						//Get rid of the old buffer.
 						delete[] temp;
 					}
 
 					//Apply repeat data
-					sampleMap[i]->repeatOffset = modFile.samples[i].repeatOffset;
+					SGE::Sound::SampleBuffers[sampleMap[i]].RepeatOffset = modFile.samples[i].repeatOffset;
 
 					//Because of mod file weirdness check to make sure the duration is more than 1.
-					sampleMap[i]->repeatDuration = modFile.samples[i].repeatLength > 1 ? modFile.samples[i].repeatLength : 0;
+					SGE::Sound::SampleBuffers[sampleMap[i]].RepeatDuration = modFile.samples[i].repeatLength > 1 ? modFile.samples[i].repeatLength : 0;
 				}
 
 
@@ -444,7 +444,7 @@ namespace SGE
 										channelMap[CurrentChannel]->Stop();
 
 										//Switch to the sample
-										channelMap[CurrentChannel]->currentSampleBuffer = sampleMap[CurrentChannelSamples[CurrentChannel] - 1];
+										channelMap[CurrentChannel]->SetSampleBuffer(sampleMap[CurrentChannelSamples[CurrentChannel] - 1]);
 
 										//Set sample volume
 										channelMap[CurrentChannel]->Volume = float(modFile.samples[CurrentChannelSamples[CurrentChannel] - 1].volume) / 64.0f;

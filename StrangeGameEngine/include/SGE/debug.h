@@ -40,5 +40,10 @@ namespace SGE
 		//  Debug function to show audio levels
 		//
 		void SGEAPI DrawLevelMeter(char label[4], int xCornerPosition, int yCornerPosition, unsigned int sampleLevel, float channelVolume);
+
+		//
+		//  Debug function to show the status of Sample Buffers
+		//
+		void SGEAPI DrawSampleBuffersStatus(int xCornerPosition, int yCornerPosition);
 	}
 }
