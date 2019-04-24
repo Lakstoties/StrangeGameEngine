@@ -472,6 +472,7 @@ namespace SGE
 				float CurrentVolume = 0.0f;
 				float Rate = 0.0f;
 
+				void Set(unsigned int sampleInterval, float rate);
 				float Apply(float currentVolume);
 			};
 
@@ -496,6 +497,11 @@ namespace SGE
 				float* Waveform = Waveforms::Sine;
 				bool Retriggers = false;
 
+				void Continue();
+				void UseSineWaveform(bool retrigger);
+				void UseRampDownWaveform(bool retrigger);
+				void UseSquareWaveform(bool retrigger);
+				void Set(float amplitude, float cycles);
 				float Apply(float offsetIncrement);
 			};
 
@@ -531,6 +537,7 @@ namespace SGE
 				unsigned int SampleInterval = 0;
 				unsigned int CurrentSamples = 0;
 
+				void Set(unsigned int sampleInterval);
 				float Apply(float currentVolume);
 			};
 
@@ -547,6 +554,9 @@ namespace SGE
 				bool Enabled = false;
 				unsigned int SampleInterval = 0;
 				unsigned int CurrentSamples = 0;
+
+				void Set(unsigned int sampleInterval);
+				bool Apply();
 			};
 
 			DelayEffect Delay;

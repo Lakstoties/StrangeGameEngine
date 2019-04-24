@@ -146,13 +146,48 @@ namespace SGE
 			class SGEAPI ModulePlayer
 			{
 			public:
-				unsigned char CurrentPosition = 0;
-				unsigned char CurrentPattern = 0;
-				unsigned char CurrentDivision = 0;
+				class Effect
+				{
+				public:
+					unsigned char Type = 0;
+					unsigned char X = 0;
+					unsigned char Y = 0;
+
+					void Parse(unsigned short rawEffectData);
+				};
+
+				class ModuleLocation
+				{
+				public:
+					unsigned char Position = 0;
+					unsigned char NumberOfPositions = 0;
+					unsigned char Division = 0;
+					bool EndOfModule = false;
+
+					void NextDivision();
+					void SetDivision(unsigned char division);
+					void SetPosition(unsigned char position);
+					void Reset();
+				};
+
+				
+				ModuleLocation Location;
+
+				class ModuleChannel
+				{
+				public:
+					unsigned char Sample = 0;
+					unsigned int Period = 0;
+					Effect Effect;
+				};
+
+				ModuleChannel Channel[4];
+
 				unsigned char CurrentChannelSamples[4] = { 0 };
 				unsigned char PreviousChannelSamples[4] = { 0 };
 				unsigned int CurrentChannelPeriods[4] = { 0 };
-
+				Effect CurrentChannelEffects[4];
+				
 				unsigned int beatsPerMinute = 125;
 				unsigned char ticksADivision = 6;
 

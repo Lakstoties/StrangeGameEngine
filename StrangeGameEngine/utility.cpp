@@ -188,6 +188,57 @@ namespace SGE
 			}
 
 
+			void ModulePlayer::Effect::Parse(unsigned short rawEffectData)
+			{
+				Type = (rawEffectData & 0x0F00) >> 8;
+				X = (rawEffectData & 0x00F0) >> 4;
+				Y = (rawEffectData & 0x000F);
+			}
+
+
+			void ModulePlayer::ModuleLocation::NextDivision()
+			{
+				if (!EndOfModule)
+				// Increment to the next Division
+				Division++;
+
+				//  Check to see if we've reached the end
+				if (Division >= 64)
+				{
+					// Next Position, reset the Divison
+					Division = 0;
+
+					if ((Position + 1) >= NumberOfPositions)
+					{
+						EndOfModule = true;
+					}
+					else
+					{
+						// Increment to the next Position
+						Position++;
+					}
+				}
+			}
+
+			void ModulePlayer::ModuleLocation::SetDivision(unsigned char division)
+			{
+				Division = division;
+			}
+
+			void ModulePlayer::ModuleLocation::SetPosition(unsigned char position)
+			{
+				Position = position;
+				Division = 0;
+			}
+
+			void ModulePlayer::ModuleLocation::Reset()
+			{
+				Position = 0;
+				Division = 0;
+				EndOfModule = false;
+			}
+
+
 			bool ModulePlayer::Load(char * filename)
 			{
 				//Load it up.
@@ -329,9 +380,6 @@ namespace SGE
 
 			void ModulePlayer::PlayThread()
 			{
-				unsigned char effectTypeOnChannel[4] = { 0 };
-				unsigned char effectXOnChannel[4] = { 0 };
-				unsigned char effectYOnChannel[4] = { 0 };
 				unsigned int postDivisionJumpTargetPosition = 0;
 				unsigned int postDivisionJumpTargetDivision = 0;
 				bool postDivisionJump = false;
@@ -359,663 +407,617 @@ namespace SGE
 					SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: Starting to play: %s\n", modFile.title);
 					SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: Song Positions: %d\n", modFile.songPositions);
 
-					for (CurrentPosition = 0; CurrentPosition < modFile.songPositions && PlayerThreadActive; CurrentPosition++)
+					//
+					//  Load up the Location data
+					//
+					Location.Reset();
+					Location.NumberOfPositions = modFile.songPositions;
+
+					//
+					//  While we are not at the end of the song.
+					//
+
+					while (!Location.EndOfModule && PlayerThreadActive)
 					{
-						//Pull the current pattern from the current position
-						CurrentPattern = modFile.patternTable[CurrentPosition];
+						//Save the timer to help time the processing time for this division
+						startTime = std::clock();
 
-						//Process through the divisions
-						for (CurrentDivision = 0; CurrentDivision < 64 && PlayerThreadActive; CurrentDivision++)
+						//
+						//  Set up the channels
+						//
+						SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld\n", modFile.title, Location.Position, Location.Division, deltaTime);
+
+						//
+						//  Check all the channels for any changes
+						//
+						for (int CurrentChannel = 0; CurrentChannel < 4; CurrentChannel++)
 						{
-							//Save the timer to help time the processing time for this division
-							startTime = std::clock();
+							//
+							//  Check for sample changes on each channel
+							//
 
 							//
-							//  Check for a post division jump
+							//  Keep track to see if the channel needs to play again
 							//
-							if (postDivisionJump)
+							channelPlays[CurrentChannel] = false;
+
+							//Check to see if sample is zero
+							if (modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].sample == 0)
 							{
-								//
-								//  Set Position
-								//
-								CurrentPosition = postDivisionJumpTargetPosition;
+								// Grab the previous sample
+								CurrentChannelSamples[CurrentChannel] = PreviousChannelSamples[CurrentChannel];
+							}
+							else
+							{
+								// Set the current one
+								CurrentChannelSamples[CurrentChannel] = modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].sample;
+
+								//  If the sample is different, play it like a new one								
+								if (PreviousChannelSamples[CurrentChannel] != CurrentChannelSamples[CurrentChannel])
+								{
+									//Otherwise, channel up the sample used, effectively reseting the channel to the sample settings.
+									//Stop this channel
+									SGE::Sound::Channels[channelMap[CurrentChannel]].Stop();
+
+									//Switch to the sample
+									SGE::Sound::Channels[channelMap[CurrentChannel]].SetSampleBuffer(sampleMap[CurrentChannelSamples[CurrentChannel] - 1]);
+
+									//Set sample volume
+									SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = float(modFile.samples[CurrentChannelSamples[CurrentChannel] - 1].volume) / 64.0f;
+
+									channelPlays[CurrentChannel] = true;
+								}
+
+								// If the sample is the same, BUT it 
+								else
+								{
+									//Set sample volume
+									SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = float(modFile.samples[CurrentChannelSamples[CurrentChannel] - 1].volume) / 64.0f;
+
+									if (!SGE::Sound::Channels[channelMap[CurrentChannel]].Playing)
+									{
+										channelPlays[CurrentChannel] = true;
+									}
+								}
+
+								// Save the previous sample
+								PreviousChannelSamples[CurrentChannel] = CurrentChannelSamples[CurrentChannel];
+							}
+
+
+							//
+							//  Check for any effect chanages on the channel.
+							//
+
+							//Parse out the effect
+							CurrentChannelEffects[CurrentChannel].Parse(modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].effect);
+
+
+							//
+							//  Check for period changes on each channel
+							//
+
+							//
+							//  Check to see if period not zero
+							//  If it is zero don't change the period used in this channel
+							//  NOTE:  Effect 3 does some weird stuff, the period is target note to shift to but it does NOT trigger a play effect
+
+							if (modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].period > 0)
+							{
+								//Save the period
+								CurrentChannelPeriods[CurrentChannel] = modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].period;
 
 								//
-								//  Set Division
+								//   Period Slides don't actually play the note, but use the period as a value for the effect
 								//
-								CurrentDivision = postDivisionJumpTargetDivision;
+								if (CurrentChannelEffects[CurrentChannel].Type != 0x3 && CurrentChannelEffects[CurrentChannel].Type != 0x5)
+								{
+									//If non-zero, change the period used
+									//Changing periods, so stop the current stuff
+									SGE::Sound::Channels[channelMap[CurrentChannel]].Stop();
 
-								//
-								//  Set the Pattern
-								//
-								CurrentPattern = modFile.patternTable[CurrentPosition];
+									//Convert the period to offset timing interval in relation to system sampling rate
+									//Using NTSC sampling
+									SGE::Sound::Channels[channelMap[CurrentChannel]].offsetIncrement = PeriodToOffsetIncrement(modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].period);
 
-								//
-								//  Reset Jump flag
-								//
-								postDivisionJump = false;
+									//Channel plays
+									channelPlays[CurrentChannel] = true;
+
+									//Check to see if we need to retrigger vibrato at the start of a new note
+									if (SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers)
+									{
+										SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.CurrentWaveformPosition = 0;
+									}
+								}
 							}
 
 							//
-							//  Set up the channels
+							//Turn off any channel based rendering effects for now
+							//If there's suppose to be an effect, it should be configured in the next heap of logic.
 							//
-							SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Utility, "Mod Player: %s - Pattern: %d - Division: %d - Previous Time: %lld\n", modFile.title, CurrentPosition, CurrentDivision, deltaTime);
-							
+
+							//Turn off Arpeggio
+							SGE::Sound::Channels[channelMap[CurrentChannel]].Arpeggio.Enabled = false;
+
+							//Turn off Volume Slide
+							SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Enabled = false;
+
+							//Turn off Vibrato
+							SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Enabled = false;
+
+							//Turn off Period Slide
+							SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Enabled = false;
+
+							//Turn off Retrigger Sample
+							SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.Enabled = false;
+
 							//
-							//  Check all the channels for any changes
+							//Is there an effect at all?
+							//If the whole effect value is 0, then there is no effect
 							//
-							for (int CurrentChannel = 0; CurrentChannel < 4; CurrentChannel++)
+							if (modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].effect != 0)
 							{
-								//
-								//  Check for sample changes on each channel
-								//
+								//Since the effect value is non-zero, there's some kind of effect data to be processed!
+								//Let's find it!
 
-								//
-								//  Keep track to see if the channel needs to play again
-								//
-								channelPlays[CurrentChannel] = false;
-
-								//Check to see if sample is zero
-								if (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample == 0)
+								if (CurrentChannelEffects[CurrentChannel].Type == 0x0)
 								{
-									// Grab the previous sample
-									CurrentChannelSamples[CurrentChannel] = PreviousChannelSamples[CurrentChannel];
-								}
-								else
-								{
-									// Set the current one
-									CurrentChannelSamples[CurrentChannel] = modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].sample;
-
-									//  If the sample is different, play it like a new one								
-									if (PreviousChannelSamples[CurrentChannel] != CurrentChannelSamples[CurrentChannel])
-									{
-										//Otherwise, channel up the sample used, effectively reseting the channel to the sample settings.
-										//Stop this channel
-										SGE::Sound::Channels[channelMap[CurrentChannel]].Stop();
-
-										//Switch to the sample
-										SGE::Sound::Channels[channelMap[CurrentChannel]].SetSampleBuffer(sampleMap[CurrentChannelSamples[CurrentChannel] - 1]);
-
-										//Set sample volume
-										SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = float(modFile.samples[CurrentChannelSamples[CurrentChannel] - 1].volume) / 64.0f;
-
-										channelPlays[CurrentChannel] = true;
-									}
-
-									// If the sample is the same, BUT it 
-									else
-									{
-										//Set sample volume
-										SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = float(modFile.samples[CurrentChannelSamples[CurrentChannel] - 1].volume) / 64.0f;
-
-										if (!SGE::Sound::Channels[channelMap[CurrentChannel]].Playing)
-										{
-											channelPlays[CurrentChannel] = true;
-										}
-									}
-
-									// Save the previous sample
-									PreviousChannelSamples[CurrentChannel] = CurrentChannelSamples[CurrentChannel];
-								}
-
-
-								//
-								//  Check for any effect chanages on the channel.
-								//
-
-								//Parse out the effect
-								effectTypeOnChannel[CurrentChannel] = (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].effect & 0x0F00) >> 8;
-								effectXOnChannel[CurrentChannel] = (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].effect & 0x00F0) >> 4;
-								effectYOnChannel[CurrentChannel] = (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].effect & 0x000F);
-								
-
-								//
-								//  Check for period changes on each channel
-								//
-
-								//
-								//  Check to see if period not zero
-								//  If it is zero don't change the period used in this channel
-								//  NOTE:  Effect 3 does some weird stuff, the period is target note to shift to but it does NOT trigger a play effect
-
-								if (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].period > 0)
-								{
-									//Save the period
-									CurrentChannelPeriods[CurrentChannel] = modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].period;
-
 									//
-									//   Period Slides don't actually play the note, but use the period as a value for the effect
+									//  Configure Arpeggio or Effect 0 / 0x0
 									//
-									if (effectTypeOnChannel[CurrentChannel] != 0x3 && effectTypeOnChannel[CurrentChannel] != 0x5)
-									{
-										//If non-zero, change the period used
-										//Changing periods, so stop the current stuff
-										SGE::Sound::Channels[channelMap[CurrentChannel]].Stop();
-
-										//Convert the period to offset timing interval in relation to system sampling rate
-										//Using NTSC sampling
-										SGE::Sound::Channels[channelMap[CurrentChannel]].offsetIncrement = PeriodToOffsetIncrement(modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].period);
-
-										//Channel plays
-										channelPlays[CurrentChannel] = true;
-									}
+									SGE::Sound::Channels[channelMap[CurrentChannel]].Arpeggio.Set(
+										DEFAULT_SAMPLES_TICK,
+										CurrentChannelEffects[CurrentChannel].X,
+										CurrentChannelEffects[CurrentChannel].Y);
 								}
-
-								//
-								//Turn off any channel based rendering effects for now
-								//If there's suppose to be an effect, it should be configured in the next heap of logic.
-								//
-
-								//Turn off Arpeggio
-								SGE::Sound::Channels[channelMap[CurrentChannel]].Arpeggio.Enabled = false;
-
-								//Turn off Volume Slide
-								SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Enabled = false;
-
-								//Turn off Vibrato
-								SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Enabled = false;
-
-								//Turn off Period Slide
-								SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Enabled = false;
-
-								//Turn off Retrigger Sample
-								SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.Enabled = false;
-
-								//Check to see if we need to retrigger vibrato
-								if (SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers)
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0x1)
 								{
-									SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.CurrentWaveformPosition = 0;
+									//
+									//  Configure Slide Up or Effect 1 / 0x1
+									//
+									SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
+										CurrentChannelPeriods[CurrentChannel],
+										DEFAULT_SAMPLES_TICK,
+										-(CurrentChannelEffects[CurrentChannel].X * 16 + CurrentChannelEffects[CurrentChannel].Y),
+										NTSC_TUNING);
 								}
-
-
-								//
-								//Is there an effect at all?
-								//If the whole effect value is 0, then there is no effect
-								//
-								if (modFile.patterns[CurrentPattern][CurrentDivision][CurrentChannel].effect != 0)
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0x2)
 								{
-									//Since the effect value is non-zero, there's some kind of effect data to be processed!
-									//Let's find it!
+									//
+									//  Configure Slide Down or Effect 2 / 0x2
+									//
+									SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
+										0,
+										DEFAULT_SAMPLES_TICK,
+										CurrentChannelEffects[CurrentChannel].X * 16 + CurrentChannelEffects[CurrentChannel].Y,
+										NTSC_TUNING);
+								}
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0x3)
+								{
+									//
+									//  Configure the Slide to Note of Effect 3 / 0x3
+									//
 
-									switch (effectTypeOnChannel[CurrentChannel])
+									//  See if there's a new slide
+									if (CurrentChannelEffects[CurrentChannel].X != 0 || CurrentChannelEffects[CurrentChannel].Y != 0)
 									{
-										//
-										//  Configure Arpeggio or Effect 0 / 0x0
-										//
-									case 0x0:
-
-										//  Set the Effect
-										SGE::Sound::Channels[channelMap[CurrentChannel]].Arpeggio.Set(
-											DEFAULT_SAMPLES_TICK,
-											effectXOnChannel[CurrentChannel],
-											effectYOnChannel[CurrentChannel]);
-
-										//  Effect found, move on.
-										break;
-
-										//
-										//  Configure Slide Up or Effect 1 / 0x1
-										//
-									case 0x1:
-
 										SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
 											CurrentChannelPeriods[CurrentChannel],
 											DEFAULT_SAMPLES_TICK,
-											-(effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]),
+											CurrentChannelEffects[CurrentChannel].X * 16 + CurrentChannelEffects[CurrentChannel].Y,
 											NTSC_TUNING);
-										//  Effect found, move on
-										break;
+									}
 
-										//
-										//  Configure Slide Down or Effect 2 / 0x2
-										//
-									case 0x2:
-
+									// Or continue the previous one towards the current note
+									else
+									{
 										SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
-											0,
+											CurrentChannelPeriods[CurrentChannel],
 											DEFAULT_SAMPLES_TICK,
-											effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel],
+											SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Delta,
 											NTSC_TUNING);
+									}
+								}
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0x4)
+								{
+									//
+									//  Configure the Vibrato Effect or Effect 4 / 0x4
+									//
+									SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Set(
+										CurrentChannelEffects[CurrentChannel].X / 16.0f,
+										(CurrentChannelEffects[CurrentChannel].Y * ticksADivision) / 64.0f);
+								}
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0x5)
+								{
+									//
+									//  Configure - Continue Slide to note, but do Volume Slide
+									//
+									SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
+										CurrentChannelPeriods[CurrentChannel],
+										DEFAULT_SAMPLES_TICK,
+										SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Delta,
+										NTSC_TUNING);
 
-										//  Effect found, move on
-										break;
+									//  Check to see the rate we have to slide the volume up
+									if (CurrentChannelEffects[CurrentChannel].X != 0)
+									{
+										SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Set(
+											DEFAULT_SAMPLES_TICK,
+											CurrentChannelEffects[CurrentChannel].X / 64.0f);
+									}
+									//  Check to see the rate we have to slide the volume down
+									//  Y is only paid attention if X is zero and is therefor assumed to be zero
+									else if (CurrentChannelEffects[CurrentChannel].Y != 0)
+									{
+										SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Set(
+											DEFAULT_SAMPLES_TICK,
+											-CurrentChannelEffects[CurrentChannel].Y / 64.0f);
+									}
+								}
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0x6)
+								{
+									//
+									//  Configure - Continue Vibrato, but do Volume Slide
+									//
+									SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Continue();
+									//  Check to see the rate we have to slide the volume up
+									if (CurrentChannelEffects[CurrentChannel].X != 0)
+									{
+										SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Set(
+											DEFAULT_SAMPLES_TICK,
+											CurrentChannelEffects[CurrentChannel].X / 64.0f);
+									}
 
+									//  Check to see the rate we have to slide the volume down
+									//  Y is only paid attention if X is zero and is therefor assumed to be zero
+									else if (CurrentChannelEffects[CurrentChannel].Y != 0)
+									{
+										SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Set(
+											DEFAULT_SAMPLES_TICK,
+											-CurrentChannelEffects[CurrentChannel].Y / 64.0f);
+									}
+								}
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0x7)
+								{
+									//
+									//  Place holder for Tremolo
+									//
+									SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", CurrentChannelEffects[CurrentChannel].Type, CurrentChannelEffects[CurrentChannel].X, CurrentChannelEffects[CurrentChannel].Y);
+								}
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0x8)
+								{
+									//
+									//  Place holder for Pan
+									//  Rarely implemented
+									//
+									SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", CurrentChannelEffects[CurrentChannel].Type, CurrentChannelEffects[CurrentChannel].X, CurrentChannelEffects[CurrentChannel].Y);
+								}
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0x9)
+								{
+									//
+									//  Set sample offset
+									//
+									SGE::Sound::Channels[channelMap[CurrentChannel]].offset = (float)(CurrentChannelEffects[CurrentChannel].X * 4096 + CurrentChannelEffects[CurrentChannel].Y * 256) * 2;
+								}
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0xA)
+								{
+									//
+									//  Volume Slide Effect
+									//
+
+									//  Check to see the rate we have to slide the volume up
+									if (CurrentChannelEffects[CurrentChannel].X != 0)
+									{
+										SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Set(
+											DEFAULT_SAMPLES_TICK,
+											CurrentChannelEffects[CurrentChannel].X / 64.0f);
+									}
+
+									//  Check to see the rate we have to slide the volume down
+									//  Y is only paid attention if X is zero and is therefor assumed to be zero
+									else if (CurrentChannelEffects[CurrentChannel].Y != 0)
+									{
+										SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Set(
+											DEFAULT_SAMPLES_TICK,
+											-CurrentChannelEffects[CurrentChannel].Y / 64.0f);
+									}
+								}
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0xB)
+								{
+									//
+									//  Configure for Jump position after this division or Effect 11 / 0xB
+									//
+
+									//  Flag a jump after this division
+									postDivisionJump = true;
+
+									//  Set target position
+									postDivisionJumpTargetPosition = (CurrentChannelEffects[CurrentChannel].X * 16 + CurrentChannelEffects[CurrentChannel].Y);
+									//  Set target division
+									postDivisionJumpTargetDivision = 0;
+								}
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0xC)
+								{
+									//
+									//  Configure the Volume or Effect 12 / 0xC
+									//
+
+									//  Set the volume for the channel
+									SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = (CurrentChannelEffects[CurrentChannel].X * 16 + CurrentChannelEffects[CurrentChannel].Y) / 64.0f;
+
+									//  If for some reason the channel volume is higher than 1.0f, set it back down.
+									if (SGE::Sound::Channels[channelMap[CurrentChannel]].Volume > 1.0f)
+									{
+										SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = 1.0f;
+									}
+								}
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0xD)
+								{
+									//
+									//  Configure pattern break or Effect 13 / 0xD
+									//
+
+									//  Flag a jump after this division
+									postDivisionJump = true;
+
+									//  Set target position
+									postDivisionJumpTargetPosition = Location.Position + 1;
+
+									//  Set target division
+									postDivisionJumpTargetDivision = (CurrentChannelEffects[CurrentChannel].X * 10 + CurrentChannelEffects[CurrentChannel].Y);
+								}
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0xE)
+								{
+									//
+									//  Configure an effect under this category.  There's a few of them shove under Effect 14 or 0xE
+									//
+
+									//
+									//  Check the Effect's X setting to see what exact effect they want
+									//
+
+									if (CurrentChannelEffects[CurrentChannel].X == 0x0)
+									{
 										//
-										//  Configure the Slide to Note of Effect 3 / 0x3
+										//  Place holder for setting filter
 										//
-									case 0x3:
-										//  Check to see if there's new slide info
-										if (effectXOnChannel[CurrentChannel] != 0 || effectYOnChannel[CurrentChannel] != 0)
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0x1)
+									{
+										//
+										//  Place holder for Fineslide up
+										//
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0x2)
+									{
+										//
+										//  Place holder for Fineslide down
+										//
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0x3)
+									{
+										//
+										//  Place holder for Glissasndo On/Off
+										//
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0x4)
+									{
+										//
+										//  Set the Vibrato waveform
+										//
+										if (CurrentChannelEffects[CurrentChannel].Y == 0)
 										{
-											SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
-												CurrentChannelPeriods[CurrentChannel],
-												DEFAULT_SAMPLES_TICK,
-												effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel],
-												NTSC_TUNING);
+											// Use Sine waveform with retrigger
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.UseSineWaveform(true);
 										}
-
-										//
-										else
+										else if (CurrentChannelEffects[CurrentChannel].Y == 1)
 										{
-											SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
-												CurrentChannelPeriods[CurrentChannel],
-												DEFAULT_SAMPLES_TICK,
-												SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Delta,
-												NTSC_TUNING);
+											// Use Ramp Down waveform with retrigger
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.UseRampDownWaveform(true);
 										}
-
-										//  Found the effect, move on.
-										break;
-
-
-										//
-										//  Configure the Vibrato Effect or Effect 4 / 0x4
-										//
-									case 0x4:
-										//  Set the Amplitude for the frequency shift y/16 semitones.
-										//  If 0, use previous settings
-										if (effectYOnChannel[CurrentChannel] != 0)
+										else if (CurrentChannelEffects[CurrentChannel].Y == 2)
 										{
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Amplitude = effectYOnChannel[CurrentChannel] / 16.0f;
+											// Use Square waveform with trigger
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.UseSquareWaveform(true);
 										}
-
-										//  Set the cycle rate for the Vibrato so that (X * Ticks) / 64 cyckes occur in the division
-										//  If 0, use previous settings
-										if (effectXOnChannel[CurrentChannel] != 0)
+										else if (CurrentChannelEffects[CurrentChannel].Y == 3)
 										{
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Cycles = (effectXOnChannel[CurrentChannel] * ticksADivision) / 64.0f;
+											//
+											//  Place holder for random selection with retrigger
+											//
 										}
-
-										//  Enable Vibrato
-										SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Enabled = true;
-
-										//  Effect found, move on.
-										break;
-
-										//
-										//  Configure - Continue Slide to note, but do Volume Slide
-										//
-									case 0x5:
-
-										//
-										//  Update the Slide to Note
-										//
-									
-										//  Set the target period
-										SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Target = PeriodToOffsetIncrement(CurrentChannelPeriods[CurrentChannel]);
-
-										//  Set the number of sampls for the period slide
-										SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.SampleInterval = DEFAULT_SAMPLES_TICK;
-
-										//
-										//  Calculate the delta
-										//
-
-										//  If both X and Y are 0, then use previous slide stuff
-										if (effectXOnChannel[CurrentChannel] != 0 || effectYOnChannel[CurrentChannel] != 0)
+										else if (CurrentChannelEffects[CurrentChannel].Y == 4)
 										{
-											//Check to see which direction to move the period
-
-											if (SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Target > (1 / SGE::Sound::Channels[channelMap[CurrentChannel]].offsetIncrement))
-											{
-												SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Delta = PeriodToOffsetIncrement(effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]) / 2.0f;
-											}
-											else
-											{
-												SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Delta = -PeriodToOffsetIncrement(effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]) / 2.0f;
-											}
+											// Use Sine waveform without retrigger
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.UseSineWaveform(false);
 										}
-
-										//
-										//  Configure the volume slide
-										//
-
-										//  Set the number of samples that progress for each tick in the effect.
-										SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.SampleInterval = DEFAULT_SAMPLES_TICK;
-
-										//  Check to see the rate we have to slide the volume up
-										if (effectXOnChannel[CurrentChannel] != 0)
+										else if (CurrentChannelEffects[CurrentChannel].Y == 5)
 										{
-											SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Rate = effectXOnChannel[CurrentChannel] / 64.0f;
+											// Use Ramp Down waveform without retrigger
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.UseRampDownWaveform(false);
 										}
-
-										//  Check to see the rate we have to slide the volume down
-										//  Y is only paid attention if X is zero and is therefor assumed to be zero
-										else if (effectYOnChannel[CurrentChannel] != 0)
+										else if (CurrentChannelEffects[CurrentChannel].Y == 6)
 										{
-											SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Rate = -effectYOnChannel[CurrentChannel] / 64.0f;
+											// Use Square waveform without retrigger
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.UseSquareWaveform(false);
 										}
-
-										//  Continue the period slide
-										SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Enabled = true;
-
-										//  Enable Volume Slide
-										SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Enabled = true;
-
-										//  Effect found, move on.
-										break;
-
-										//
-										//  Configure - Continue Vibrato, but do Volume Slide
-										//
-									case 0x06:
-										//  Set the number of samples that progress for each tick in the effect.
-										SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.SampleInterval = DEFAULT_SAMPLES_TICK;
-
-										//  Check to see the rate we have to slide the volume up
-										if (effectXOnChannel[CurrentChannel] != 0)
+										else if (CurrentChannelEffects[CurrentChannel].Y == 7)
 										{
-											SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Rate = effectXOnChannel[CurrentChannel] / 64.0f;
+											//
+											//  Place holder for random selection without retrigger
+											//
 										}
-
-										//  Check to see the rate we have to slide the volume down
-										//  Y is only paid attention if X is zero
-										else if (effectYOnChannel[CurrentChannel] != 0)
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0x5)
+									{
+										//
+										//  Place holder for Set finetune value
+										//
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0x6)
+									{
+										//
+										//  Place holder for Loop Pattern
+										//
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0x7)
+									{
+										//
+										//  Place holder for Set Tremolo Waveform
+										//
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0x8)
+									{
+										//
+										//  Unused
+										//
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0x9)
+									{
+										//
+										//  Retrigger Sample
+										//
+										if (CurrentChannelEffects[CurrentChannel].Y != 0)
 										{
-											SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Rate = -effectYOnChannel[CurrentChannel] / 64.0f;
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.SampleDestination = 0;
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.CurrentSamples = 0;
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.SampleInterval = CurrentChannelEffects[CurrentChannel].Y * DEFAULT_SAMPLES_TICK;
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.Enabled = true;
 										}
-
-										//  Continue Vibrato
-										SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Enabled = true;
-
-										//  Enable Volume Slide
-										SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Enabled = true;
-
-										//  Effect found, move on.
-										break;
-
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0xA)
+									{
 										//
-										//  Set sample offset
+										//  Fine volume slide up
 										//
-									case 0x09:
 
-										//  Set offset of sample to...
-										SGE::Sound::Channels[channelMap[CurrentChannel]].offset = (float) (effectXOnChannel[CurrentChannel] * 4096 + effectYOnChannel[CurrentChannel] * 256) * 2;
+										//  Increment current volume by y
+										SGE::Sound::Channels[channelMap[CurrentChannel]].Volume += (CurrentChannelEffects[CurrentChannel].Y) / 64.0f;
 
-
-										//  Effect found, move on.
-										break;
-
-
-										//
-										//  Configure Volume Slide or Effect 10 / 0xA
-										//
-									case 0xA:
-										//  Set the number of samples that progress for each tick in the effect.
-										SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.SampleInterval = DEFAULT_SAMPLES_TICK;
-
-										//  Check to see the rate we have to slide the volume up
-										if (effectXOnChannel[CurrentChannel] != 0)
-										{
-											SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Rate = effectXOnChannel[CurrentChannel] / 64.0f;
-										}
-
-										//  Check to see the rate we have to slide the volume down
-										//  Y is only paid attention if X is zero and is therefor assumed to be zero
-										else if (effectYOnChannel[CurrentChannel] != 0)
-										{
-											SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Rate = -effectYOnChannel[CurrentChannel] / 64.0f;
-										}
-
-										//  Enable Volume Slide
-										SGE::Sound::Channels[channelMap[CurrentChannel]].VolumeSlide.Enabled = true;
-
-										//  Effect found, move on.
-										break;
-
-										//
-										//  Configure for Jump position after this division or Effect 11 / 0xB
-										//
-									case 0xB:
-										//  Flag a jump after this division
-										postDivisionJump = true;
-
-										//  Set target position
-										postDivisionJumpTargetPosition = (effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]);
-
-										//  Set target division
-										postDivisionJumpTargetDivision = 0;
-
-										//  Effect found, move on.
-										break;
-
-										//
-										//  Configure the Volume or Effect 12 / 0xC
-										//
-									case 0xC:
-										//  Set the volume for the channel
-										SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = (effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel]) / 64.0f;
-
-										//  If for some reason the channel volume is higher than 1.0f, set it back down.
+										//  Check to make sure the volume doesn't go over 1.0
 										if (SGE::Sound::Channels[channelMap[CurrentChannel]].Volume > 1.0f)
 										{
 											SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = 1.0f;
 										}
-
-										//  Effect found, move on.
-										break;
-
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0xB)
+									{
 										//
-										//  Configure pattern break or Effect 13 / 0xD
+										//  Fine volume slide down
 										//
-									case 0xD:
-										//  Flag a jump after this division
-										postDivisionJump = true;
 
-										//  Set target position
-										postDivisionJumpTargetPosition = CurrentPosition + 1;
+										//  Increment current volume by y
+										SGE::Sound::Channels[channelMap[CurrentChannel]].Volume -= (CurrentChannelEffects[CurrentChannel].Y) / 64.0f;
 
-										//  Set target division
-										postDivisionJumpTargetDivision = (effectXOnChannel[CurrentChannel] * 10 + effectYOnChannel[CurrentChannel]);
-
-										//  Effect found, move on.
-										break;
-
-										//
-										//  Configure an effect under this category.  There's a few of them shove under Effect 14 or 0xE
-										//
-									case 0xE:
-										//  Check the Effect's X setting to see what exact effect they want
-										switch (effectXOnChannel[CurrentChannel])
+										//  Check to make sure the volume doesn't go over 1.0
+										if (SGE::Sound::Channels[channelMap[CurrentChannel]].Volume < 0.0f)
 										{
-										//  Set the sound filter on/off
-										case 0x0:
-											//Not implemented.
-											break;
-
-										//  Set Vibrato Effect Waveform
-										case 0x4:
-											//  Set the waveform
-											//  If Y is 0 or 4, set it to a sine waveform
-											switch (effectYOnChannel[CurrentChannel])
-											{
-											//  If Y is 0, Sine waveform with Retrigger.
-											case 0x0:
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Waveform = SGE::Sound::Waveforms::Sine;
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers = true;
-												break;
-
-											//  If Y is 1, Ramp Down waveform with Retrigger.
-											case 0x1:
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Waveform = SGE::Sound::Waveforms::RampDown;
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers = true;
-												break;
-
-											//  If Y is 2, Square waveform with Retrigger.
-											case 0x2:
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Waveform = SGE::Sound::Waveforms::Square;
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers = true;
-												break;
-
-											//  If Y is 3, Random choice with Retrigger
-											case 0x3:
-												//  Not implemented
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers = true;
-												break;
-
-											//  If Y is 4, Sine waveform without Retrigger
-											case 0x4:
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Waveform = SGE::Sound::Waveforms::Sine;
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers = false;
-												break;
-
-											//  If Y is 5, Ramp Down waveform without Retrigger
-											case 0x5:
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Waveform = SGE::Sound::Waveforms::RampDown;
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers = false;
-												break;
-
-											//  If Y is 6, Square waveform without Retrigger
-											case 0x6:
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Waveform = SGE::Sound::Waveforms::Square;
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers = false;
-												break;
-
-											//  If Y is 7, random choice without Retrigger
-											case 0x7:
-												//  Not implemented
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers = false;
-												break;
-											}
-
-											//  Effect found, move on.
-											break;
-
-
-											//  Case 9,  Retrigger sample
-										case 0x9:
-											if (effectYOnChannel != 0)
-											{
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.SampleDestination = 0;
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.CurrentSamples = 0;
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.SampleInterval = effectYOnChannel[CurrentChannel] * DEFAULT_SAMPLES_TICK;
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.Enabled = true;
-											}
-
-											break;
-
-
-											//  Case A, 10, Fine volume slide up
-										case 0xA:
-											//  Increment current volume by y
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Volume += (effectYOnChannel[CurrentChannel]) / 64.0f;
-
-											//  Check to make sure the volume doesn't go over 1.0
-											if (SGE::Sound::Channels[channelMap[CurrentChannel]].Volume > 1.0f)
-											{
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = 1.0f;
-											}
-
-											//  Effect found, move on.
-											break;
-
-											//  Case B, 11, Fine volume slide down
-										case 0xB:
-											//  Increment current volume by y
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Volume -= (effectYOnChannel[CurrentChannel]) / 64.0f;
-
-											//  Check to make sure the volume doesn't go over 1.0
-											if (SGE::Sound::Channels[channelMap[CurrentChannel]].Volume < 0.0f)
-											{
-												SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = 0.0f;
-											}
-
-											//  Effect found, move on.
-											break;
-
-											// Case C, 12, Cut sample
-										case 0xC:
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Cut.CurrentSamples = 0;
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Cut.SampleInterval = effectYOnChannel[CurrentChannel] * DEFAULT_SAMPLES_TICK;
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Cut.Enabled = true;
-
-											//  Effect found, move on.
-											break;
-
-											// Case D, 13, Delay sample
-										case 0xD:
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Delay.CurrentSamples = 0;
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Delay.SampleInterval = effectYOnChannel[CurrentChannel] * DEFAULT_SAMPLES_TICK;
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Delay.Enabled = true;
-
-
-											//  Effect found, move on.
-											break;
-
-
-
-
-
-											//
-											//  Not implemented effect
-											//
-										default:
-											SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[CurrentChannel], effectXOnChannel[CurrentChannel], effectYOnChannel[CurrentChannel]);
-
-											break;
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = 0.0f;
 										}
-
-										//  Found our effect.  Moving on!
-										break;
-
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0xC)
+									{
 										//
-										//  Configure Ticks Per Division or Effect 15 / 0xF
+										//  Cut sample
 										//
-									case 0xF:
-										//  If the value is 32 or below, consider it Ticks Per Division setting
-										if (effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel] <= 32)
-										{
-											ticksADivision = effectXOnChannel[CurrentChannel] * 16 + effectYOnChannel[CurrentChannel];
-										}
-										//  If the value is above 32, consider it setting the beats per minute
-										else
-										{
-
-										}
-
-										//  Effect found, move on.
-										break;
-
+										SGE::Sound::Channels[channelMap[CurrentChannel]].Cut.Set(CurrentChannelEffects[CurrentChannel].Y * DEFAULT_SAMPLES_TICK);
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0xD)
+									{
 										//
-										//  If we are here, then we have found either an Unimplented or Unknown effect, Error Log it!
+										//  Delay sample
 										//
-									default:
-										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", effectTypeOnChannel[CurrentChannel], effectXOnChannel[CurrentChannel], effectYOnChannel[CurrentChannel]);
-										break;
+										SGE::Sound::Channels[channelMap[CurrentChannel]].Delay.Set(CurrentChannelEffects[CurrentChannel].Y * DEFAULT_SAMPLES_TICK);
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0xE)
+									{
+										//
+										//  Place holder for delay pattern
+										//
+									}
+									else if (CurrentChannelEffects[CurrentChannel].X == 0xF)
+									{
+										//
+										//  Place holder for invert loop
+										//
+									}
+								}
+
+								else if (CurrentChannelEffects[CurrentChannel].Type == 0xF)
+								{
+									//
+									//  Configure Ticks Per Division or Effect 15 / 0xF
+									//
+
+									//  If the value is 32 or below, consider it Ticks Per Division setting
+									if (CurrentChannelEffects[CurrentChannel].X * 16 + CurrentChannelEffects[CurrentChannel].Y <= 32)
+									{
+										ticksADivision = CurrentChannelEffects[CurrentChannel].X * 16 + CurrentChannelEffects[CurrentChannel].Y;
+									}
+									//  If the value is above 32, consider it setting the beats per minute
+									else
+									{
+
 									}
 								}
 							}
+						}
 
-							//
-							//  Playback trigger point
-							//  Positioned here to make sure all the settings are good across all the channels before triggering all of them.
-							//  Otherwise, there's a slight chance for some very minor desychronization to occur.
-							//
+						//
+						//  Playback trigger point
+						//  Positioned here to make sure all the settings are good across all the channels before triggering all of them.
+						//  Otherwise, there's a slight chance for some very minor desychronization to occur.
+						//
 
-							//  Go through all the channels
-							for (int c = 0; c < 4; c++)
+						//  Go through all the channels
+						for (int c = 0; c < 4; c++)
+						{
+							//  If there was a sample or period mentioned, play it if it is not equal to 0
+							if (channelPlays[c])
 							{
-								//  If there was a sample or period mentioned, play it if it is not equal to 0
-								if (channelPlays[c])
-								{
-									//  Play it
-									SGE::Sound::Channels[channelMap[c]].Play();
-								}
+								//  Play it
+								SGE::Sound::Channels[channelMap[c]].Play();
 							}
-							//
-							//  Wait for the next division
-							//
-							SGE::Utility::Timer::AccurateWaitForMilliseconds(DEFAULT_TICK_TIMING_MILLI * ticksADivision, true);
+						}
+						//
+						//  Wait for the next division
+						//
+						SGE::Utility::Timer::AccurateWaitForMilliseconds(DEFAULT_TICK_TIMING_MILLI * ticksADivision, true);
 
 
+						//
+						//  Calculate the delta time, post sleep
+						//
+						deltaTime = std::clock() - startTime;
+
+
+						//
+						//  Check for a post division jump
+						//
+						if (postDivisionJump)
+						{
 							//
-							//  Calculate the delta time, post sleep
+							//  Set Position
 							//
-							deltaTime = std::clock() - startTime;
+							Location.Position = postDivisionJumpTargetPosition;
+
+							//
+							//  Set Division
+							//
+							Location.Division = postDivisionJumpTargetDivision;
+
+							//
+							//  Reset Jump flag
+							//
+							postDivisionJump = false;
+						}
+						else
+						{
+							Location.NextDivision();
 						}
 					}
 				}
-
+			
 				//
 				//  Post Playback processing
 				//

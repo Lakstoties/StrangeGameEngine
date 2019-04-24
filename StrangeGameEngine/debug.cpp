@@ -246,8 +246,8 @@ namespace SGE
 			SGE::Render::DrawBox(xCornerPosition + 25, yCornerPosition + 4, 16, 10, SGE::Render::Colors::ColorMode8Bit[235]);
 
 			//Position Number
-			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentPosition / 10) + 0x30], xCornerPosition + 26, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
-			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentPosition % 10) + 0x30], xCornerPosition + 32, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->Location.Position / 10) + 0x30], xCornerPosition + 26, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->Location.Position % 10) + 0x30], xCornerPosition + 32, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
 
 			//Pattern In Use
 			//"Pat"
@@ -259,8 +259,8 @@ namespace SGE
 			SGE::Render::DrawBox(xCornerPosition + 64, yCornerPosition + 4, 16, 10, SGE::Render::Colors::ColorMode8Bit[235]);
 
 			//Pattern Number
-			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentPattern / 10) + 0x30], xCornerPosition + 65, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
-			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentPattern % 10) + 0x30], xCornerPosition + 71, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->modFile.patternTable[modulePlayerToUse->Location.Position] / 10) + 0x30], xCornerPosition + 65, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->modFile.patternTable[modulePlayerToUse->Location.Position] % 10) + 0x30], xCornerPosition + 71, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
 
 			//Division we are in Pattern
 			//"Div"
@@ -272,8 +272,8 @@ namespace SGE
 			SGE::Render::DrawBox(xCornerPosition + 103, yCornerPosition + 4, 16, 10, SGE::Render::Colors::ColorMode8Bit[235]);
 
 			//Division Number
-			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentDivision / 10) + 0x30], xCornerPosition + 104, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
-			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentDivision % 10) + 0x30], xCornerPosition + 110, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->Location.Division / 10) + 0x30], xCornerPosition + 104, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
+			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->Location.Division % 10) + 0x30], xCornerPosition + 110, yCornerPosition + 5, SGE::Render::Colors::ColorMode8Bit[40]);
 
 			//Sample Block
 			//"Smp"

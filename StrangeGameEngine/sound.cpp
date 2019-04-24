@@ -82,8 +82,58 @@ namespace SGE
 		}
 
 		//
-		//  Method to Apply the Vibrato Effect
+		//  Vibrato Methods
 		//
+
+		//  Use the Sine Waveform
+		void Channel::VibratoEffect::UseSineWaveform(bool retrigger)
+		{
+			Waveform = Waveforms::Sine;
+			Retriggers = retrigger;
+		}
+
+		//  Use the RampDown Waveform
+		void Channel::VibratoEffect::UseRampDownWaveform(bool retrigger)
+		{
+			Waveform = Waveforms::RampDown;
+			Retriggers = retrigger;
+		}
+
+		//  Use the Square Waveform
+		void Channel::VibratoEffect::UseSquareWaveform(bool retrigger)
+		{
+			Waveform = Waveforms::Square;
+			Retriggers = retrigger;
+		}
+
+		//  Continue the Effect
+		void Channel::VibratoEffect::Continue()
+		{
+			Enabled = true;
+		}
+
+		//  Set the Effect
+		void Channel::VibratoEffect::Set(float amplitude, float cycles)
+		{
+			//  Set the Amplitude for the frequency shift y/16 semitones.
+			//  If 0, use previous settings
+			if (amplitude != 0)
+			{
+				Amplitude = amplitude;
+			}
+
+			//  Set the cycle rate for the Vibrato so that (X * Ticks) / 64 cyckes occur in the division
+			//  If 0, use previous settings
+			if (cycles != 0)
+			{
+				Cycles = cycles;
+			}
+
+			//  Enable Vibrato
+			Enabled = true;
+		}
+
+		//  Method to Apply the Vibrato Effect
 		float Channel::VibratoEffect::Apply(float offsetIncrement)
 		{
 			if (Enabled)
@@ -140,7 +190,7 @@ namespace SGE
 						//
 						//  Get our difference and direction
 						//
-						int difference = Target - offsetPeriod;
+						float difference = Target - offsetPeriod;
 
 						// If we have a positive difference, hence our Target is greater than our current offset
 						if (difference > 0)
@@ -190,9 +240,25 @@ namespace SGE
 			return offsetIncrement;
 		}
 
+
 		//
+		//  Volume Slide Effect Methods
+		//
+
+		//  Method to Set the Volume Slide Effect
+		
+		void Channel::VolumeSlideEffect::Set(unsigned int sampleInterval, float rate)
+		{
+			//  Set the number of samples that progress for each tick in the effect.
+			SampleInterval = sampleInterval;
+
+			Rate = rate;
+			
+			//  Enable Volume Slide
+			Enabled = true;
+		}
+
 		//  Method to Apply the Volume Slide Effect
-		//
 		float Channel::VolumeSlideEffect::Apply(float currentVolume)
 		{
 			//  Check for the Volume Slide effect
@@ -224,9 +290,12 @@ namespace SGE
 			return currentVolume;
 		}
 
+
 		//
+		//  Retrigger Effect Methods
+		//
+
 		//  Method to Apply the Retrigger Effect
-		//
 		float Channel::RetriggerEffect::Apply(float offset)
 		{
 			//  Check to see if we need to trigger the sample
@@ -249,6 +318,20 @@ namespace SGE
 			return offset;
 		}
 
+
+		//
+		//  Cut Effect Methods
+		//
+
+		//  Method to Set the Cut Effect
+		void Channel::CutEffect::Set(unsigned int sampleInterval)
+		{
+			SampleInterval = sampleInterval;
+			CurrentSamples = 0;
+			Enabled = true;
+		}
+		
+		//  Method to Apply the Cut Effect
 		float Channel::CutEffect::Apply(float currentVolume)
 		{
 			//  Check to see if we need to cut the sample.
@@ -270,7 +353,42 @@ namespace SGE
 			return currentVolume;
 		}
 
-		//  Given arguments, render a number of samples asked to the given vector.
+		//
+		//  Delay Effect Methods
+		//
+
+		// Method to Set the Delay Effect
+		void Channel::DelayEffect::Set(unsigned int sampleInterval)
+		{
+			SampleInterval = sampleInterval;
+			CurrentSamples = 0;
+			Enabled = true;
+		}
+
+		// Method to Apply the Delay Effect
+		bool Channel::DelayEffect::Apply()
+		{
+			//  Check to see if we are getting delayed
+			if (Enabled)
+			{
+				//  Check to see if we've delayed enough
+				if (CurrentSamples >= SampleInterval)
+				{
+					//  We're done!
+					Enabled = false;
+					return false;
+				}
+
+				//  Increment the delay
+				CurrentSamples++;
+				return true;
+			}
+			return false;
+		}
+		
+		//
+		//  Channel Render Method
+		//
 		void Channel::Render(unsigned int numberOfSamples, renderSampleType* sampleBuffer)
 		{
 			//  For statistical reasons
@@ -287,22 +405,8 @@ namespace SGE
 				}
 				else
 				{	
-					//  Check to see if we are getting delayed
-					if (Delay.Enabled)
-					{
-						//  Check to see if we've delayed enough
-						if (Delay.CurrentSamples >= Delay.SampleInterval)
-						{
-							//  We're done!
-							Delay.Enabled = false;
-						}
-
-						//  Increment the delay
-						Delay.CurrentSamples++;
-					}
-
-					//  Continue life as normal
-					else
+					//  If we are NOT delayed.
+					if (!Delay.Apply())
 					{
 						//  Grab the sample for the offset
 						//  Copy the sample from the source buffer to the target buffer and adjusted the volume.
