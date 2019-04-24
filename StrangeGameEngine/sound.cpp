@@ -22,8 +22,28 @@ namespace SGE
 		//
 
 		//
-		//  Method to Apply the Areggio Effect
+		//  Arpeggio Methods
 		//
+
+		//  Method to Set the Arpeggio Effect
+		void Channel::ArpeggioEffect::Set(unsigned int sampleInterval, unsigned int semitoneX, unsigned int semitoneY)
+		{
+			//  Set rate the arpeggio effect will change states
+			SampleInterval = sampleInterval;
+
+			//  Set the semitones arpeggio will alternate between
+			SemitoneX = semitoneX;
+			SemitoneY = semitoneY;
+
+			//  Reset the state variables for the effect
+			CurrentSamples = 0;
+			State = 0;
+
+			//  Enable it and signal the sound system to start rendering it
+			Enabled = true;
+		}
+
+		//  Method to Apply the Arpeggio Effect
 		float Channel::ArpeggioEffect::Apply(float offsetIncrement)
 		{
 			//  Check to see if the Arpeggio Effect is in effect
@@ -78,9 +98,32 @@ namespace SGE
 			return offsetIncrement;
 		}
 
+
 		//
+		//  Period Slide Meothds
+		//
+
+		//  Method to Set the Period Slide Effect
+		void Channel::PeriodSlideEffect::Set(float target, unsigned int sampleInterval, float delta, float periodBasis)
+		{
+			//  Set the target period
+			Target = target;
+
+			//  Set the number of samples for the period slide
+			SampleInterval = sampleInterval;
+
+			Delta = delta;
+
+			PeriodBasis = periodBasis;
+
+			//  Reset the state variables for the effect
+			CurrentSamples = 0;
+
+			//  Enable the period slide
+			Enabled = true;
+		}
+
 		//  Method to Apply the Period Slide Effect
-		//
 		float Channel::PeriodSlideEffect::Apply(float offsetIncrement)
 		{
 			if (Enabled)
@@ -89,26 +132,53 @@ namespace SGE
 				if (CurrentSamples >= SampleInterval)
 				{
 					//  Convert the offset increment to a period in relationship to 1 second
-					float offsetPeriod = 1 / offsetIncrement;
-
-					//  Add the period delta
-					offsetPeriod += Delta;
+					float offsetPeriod = (PeriodBasis / (offsetIncrement * SGE::Sound::SAMPLE_RATE * 2));
 
 					//  Do we have a target period
 					if (Target != 0)
 					{
-						// Check to see if offsetPeriod is past target
+						//
+						//  Get our difference and direction
+						//
+						int difference = Target - offsetPeriod;
 
-						if ((Delta < 0 && offsetPeriod < Target) ||
-							(Delta > 0 && offsetPeriod > Target))
+						// If we have a positive difference, hence our Target is greater than our current offset
+						if (difference > 0)
 						{
-							offsetPeriod = Target;
+							//If we are going to overshoot the target
+							if ((offsetPeriod + Delta) > Target)
+							{
+								offsetPeriod = Target;
+							}
+							else
+							{
+								offsetPeriod += Delta;
+							}
+						}
+						else if (difference < 0)
+						{
+							if ((offsetPeriod - Delta) < Target)
+							{
+								offsetPeriod = Target;
+							}
+							else
+							{
+								offsetPeriod -= Delta;
+							}
+						}
+						else
+						{
 							Enabled = false;
 						}
 					}
+					else
+					{
+						//  Add the period delta
+						offsetPeriod += Delta;
+					}
 
 					//  Flip it back to an offset increment
-					offsetIncrement = 1 / offsetPeriod;
+					offsetIncrement = PeriodBasis / (offsetPeriod * SGE::Sound::SAMPLE_RATE * 2);
 
 					//  Reset the counter
 					CurrentSamples %= SampleInterval;

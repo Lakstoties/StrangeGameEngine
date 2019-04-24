@@ -303,16 +303,16 @@ namespace SGE
 			SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(modulePlayerToUse->CurrentChannelSamples[3] % 10) + 0x30], xCornerPosition + 135, yCornerPosition + 49, SGE::Render::Colors::ColorMode8Bit[40]);
 
 			//Draw Channel Meters
-			DrawLevelMeter((char*)"CH1", xCornerPosition + 5, yCornerPosition + 16, modulePlayerToUse->channelMap[0]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[0]->Volume);
-			DrawLevelMeter((char*)"CH2", xCornerPosition + 5, yCornerPosition + 27, modulePlayerToUse->channelMap[1]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[1]->Volume);
-			DrawLevelMeter((char*)"CH3", xCornerPosition + 5, yCornerPosition + 38, modulePlayerToUse->channelMap[2]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[2]->Volume);
-			DrawLevelMeter((char*)"CH4", xCornerPosition + 5, yCornerPosition + 49, modulePlayerToUse->channelMap[3]->LastRenderedAverageLevel, modulePlayerToUse->channelMap[3]->Volume);
+			DrawLevelMeter((char*)"CH1", xCornerPosition + 5, yCornerPosition + 16, SGE::Sound::Channels[modulePlayerToUse->channelMap[0]].LastRenderedAverageLevel, SGE::Sound::Channels[modulePlayerToUse->channelMap[0]].Volume);
+			DrawLevelMeter((char*)"CH2", xCornerPosition + 5, yCornerPosition + 27, SGE::Sound::Channels[modulePlayerToUse->channelMap[1]].LastRenderedAverageLevel, SGE::Sound::Channels[modulePlayerToUse->channelMap[1]].Volume);
+			DrawLevelMeter((char*)"CH3", xCornerPosition + 5, yCornerPosition + 38, SGE::Sound::Channels[modulePlayerToUse->channelMap[2]].LastRenderedAverageLevel, SGE::Sound::Channels[modulePlayerToUse->channelMap[2]].Volume);
+			DrawLevelMeter((char*)"CH4", xCornerPosition + 5, yCornerPosition + 49, SGE::Sound::Channels[modulePlayerToUse->channelMap[3]].LastRenderedAverageLevel, SGE::Sound::Channels[modulePlayerToUse->channelMap[3]].Volume);
 
 			//Draw Frequency Meters
-			DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 15, modulePlayerToUse->channelMap[0]->currentOffsetIncrement);
-			DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 26, modulePlayerToUse->channelMap[1]->currentOffsetIncrement);
-			DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 37, modulePlayerToUse->channelMap[2]->currentOffsetIncrement);
-			DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 48, modulePlayerToUse->channelMap[3]->currentOffsetIncrement);
+			DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 15, SGE::Sound::Channels[modulePlayerToUse->channelMap[0]].currentOffsetIncrement);
+			DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 26, SGE::Sound::Channels[modulePlayerToUse->channelMap[1]].currentOffsetIncrement);
+			DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 37, SGE::Sound::Channels[modulePlayerToUse->channelMap[2]].currentOffsetIncrement);
+			DrawFrequencyMeter(xCornerPosition + 145, yCornerPosition + 48, SGE::Sound::Channels[modulePlayerToUse->channelMap[3]].currentOffsetIncrement);
 
 			//Draw Title of Track at the Bottom
 			SGE::Render::DrawString(modulePlayerToUse->modFile.title, SGE::Render::CHARACTER_8x8_ROM, 5, xCornerPosition + 5, yCornerPosition + 60, SGE::Render::Colors::ColorMode8Bit[157]);

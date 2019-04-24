@@ -430,6 +430,7 @@ namespace SGE
 				unsigned int SemitoneY = 0;
 				float OffsetIncrement = 0.0f;
 
+				void Set(unsigned int sampleInterval, unsigned int semitoneX, unsigned int semitoneY);
 				float Apply(float offsetIncrement);
 			};
 
@@ -449,7 +450,9 @@ namespace SGE
 				unsigned int CurrentSamples = 0;
 				float Delta = 0.0f;
 				float Target = 0.0f;
+				float PeriodBasis = (float)SAMPLE_RATE;
 
+				void Set(float target, unsigned int sampleInterval, float delta, float periodBasis);
 				float Apply(float offsetIncrement);
 			};
 

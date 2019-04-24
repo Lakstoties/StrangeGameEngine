@@ -163,7 +163,8 @@ namespace SGE
 				//
 				int sampleMap[31] = { -1 };
 
-				SGE::Sound::Channel* channelMap[4] = { nullptr };
+				//SGE::Sound::Channel* channelMap[4] = { nullptr };
+				int channelMap[4] = { -1 };
 
 				//
 				SGE::FileFormats::ModuleFile modFile;
