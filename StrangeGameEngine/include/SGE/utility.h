@@ -183,15 +183,8 @@ namespace SGE
 
 				ModuleChannel Channel[4];
 
-				unsigned char CurrentChannelSamples[4] = { 0 };
-				unsigned char PreviousChannelSamples[4] = { 0 };
-				unsigned int CurrentChannelPeriods[4] = { 0 };
-				Effect CurrentChannelEffects[4];
-				
 				unsigned int beatsPerMinute = 125;
 				unsigned char ticksADivision = 6;
-
-				//SGE::Sound::SampleBuffer* sampleMap[31] = { nullptr };
 
 				//
 				//  Mapping MOD Samples to appropriate SGE Sound System Sample Buffers
