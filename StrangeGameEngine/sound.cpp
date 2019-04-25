@@ -295,6 +295,16 @@ namespace SGE
 		//  Retrigger Effect Methods
 		//
 
+		//  Method to Set the Retrigger Effect
+		void Channel::RetriggerEffect::Set(unsigned int sampleDestination, unsigned int sampleInterval)
+		{
+			SampleDestination = sampleDestination;
+			SampleInterval = sampleInterval;
+
+			CurrentSamples = 0;
+			Enabled = true;
+		}
+
 		//  Method to Apply the Retrigger Effect
 		float Channel::RetriggerEffect::Apply(float offset)
 		{

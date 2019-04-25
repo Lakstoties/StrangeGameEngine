@@ -580,8 +580,8 @@ namespace SGE
 									//
 									SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
 										Channel[CurrentChannel].Period,
-										DEFAULT_SAMPLES_TICK,
-										-(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y),
+										DEFAULT_SAMPLES_TICK / 6,
+										-(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 6.0f,
 										NTSC_TUNING);
 								}
 								else if (Channel[CurrentChannel].Effect.Type == 0x2)
@@ -589,10 +589,14 @@ namespace SGE
 									//
 									//  Configure Slide Down or Effect 2 / 0x2
 									//
+
+									//
+									//  NOTE:  Slides are divided by six to allow smoother transitions.
+									//
 									SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
 										0,
-										DEFAULT_SAMPLES_TICK,
-										Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y,
+										DEFAULT_SAMPLES_TICK / 6,
+										(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 6.0f,
 										NTSC_TUNING);
 								}
 								else if (Channel[CurrentChannel].Effect.Type == 0x3)
@@ -606,8 +610,8 @@ namespace SGE
 									{
 										SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
 											Channel[CurrentChannel].Period,
-											DEFAULT_SAMPLES_TICK,
-											Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y,
+											DEFAULT_SAMPLES_TICK / 6,
+											(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 6.0f,
 											NTSC_TUNING);
 									}
 
@@ -616,7 +620,7 @@ namespace SGE
 									{
 										SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
 											Channel[CurrentChannel].Period,
-											DEFAULT_SAMPLES_TICK,
+											DEFAULT_SAMPLES_TICK / 6,
 											SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Delta,
 											NTSC_TUNING);
 									}
@@ -882,10 +886,9 @@ namespace SGE
 										//
 										if (Channel[CurrentChannel].Effect.Y != 0)
 										{
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.SampleDestination = 0;
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.CurrentSamples = 0;
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.SampleInterval = Channel[CurrentChannel].Effect.Y * DEFAULT_SAMPLES_TICK;
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.Enabled = true;
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.Set(
+												0,
+												Channel[CurrentChannel].Effect.Y* DEFAULT_SAMPLES_TICK);
 										}
 									}
 									else if (Channel[CurrentChannel].Effect.X == 0xA)

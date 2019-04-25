@@ -520,6 +520,7 @@ namespace SGE
 				unsigned int CurrentSamples = 0;
 				unsigned int SampleDestination = 0;
 
+				void Set(unsigned int sampleDestination, unsigned int sampleInterval);
 				float Apply(float offset);
 			};
 
