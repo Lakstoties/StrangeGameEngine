@@ -578,10 +578,14 @@ namespace SGE
 									//
 									//  Configure Slide Up or Effect 1 / 0x1
 									//
+
+									//
+									//  NOTE:  Slides are divided by 42 to allow smoother transitions.  It is the answer.
+									//
 									SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
 										Channel[CurrentChannel].Period,
-										DEFAULT_SAMPLES_TICK / 6,
-										-(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 6.0f,
+										DEFAULT_SAMPLES_TICK / 42,
+										-(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 42.0f,
 										NTSC_TUNING);
 								}
 								else if (Channel[CurrentChannel].Effect.Type == 0x2)
@@ -591,12 +595,12 @@ namespace SGE
 									//
 
 									//
-									//  NOTE:  Slides are divided by six to allow smoother transitions.
+									//  NOTE:  Slides are divided by 42 to allow smoother transitions.  It is the answer.
 									//
 									SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
 										0,
-										DEFAULT_SAMPLES_TICK / 6,
-										(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 6.0f,
+										DEFAULT_SAMPLES_TICK / 42,
+										(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 42.0f,
 										NTSC_TUNING);
 								}
 								else if (Channel[CurrentChannel].Effect.Type == 0x3)
@@ -605,13 +609,17 @@ namespace SGE
 									//  Configure the Slide to Note of Effect 3 / 0x3
 									//
 
+									//
+									//  NOTE:  Slides are divided by 42 to allow smoother transitions.  It is the answer.
+									//
+
 									//  See if there's a new slide
 									if (Channel[CurrentChannel].Effect.X != 0 || Channel[CurrentChannel].Effect.Y != 0)
 									{
 										SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
 											Channel[CurrentChannel].Period,
-											DEFAULT_SAMPLES_TICK / 6,
-											(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 6.0f,
+											DEFAULT_SAMPLES_TICK / 42,
+											(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 42.0f,
 											NTSC_TUNING);
 									}
 
@@ -620,7 +628,7 @@ namespace SGE
 									{
 										SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
 											Channel[CurrentChannel].Period,
-											DEFAULT_SAMPLES_TICK / 6,
+											SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.SampleInterval,
 											SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Delta,
 											NTSC_TUNING);
 									}
@@ -630,9 +638,20 @@ namespace SGE
 									//
 									//  Configure the Vibrato Effect or Effect 4 / 0x4
 									//
-									SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Set(
-										Channel[CurrentChannel].Effect.X / 16.0f,
-										(Channel[CurrentChannel].Effect.Y * ticksADivision) / 64.0f);
+
+									//  If either the Effect X or Y is Zero, then use the previous Vibrato settings
+									if (Channel[CurrentChannel].Effect.X == 0 || Channel[CurrentChannel].Effect.Y == 0)
+									{
+										SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Continue();
+									}
+
+									//  Otherwise it is new Vibrato!
+									else
+									{
+										SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Set(
+											Channel[CurrentChannel].Effect.X / 16.0f,
+											(Channel[CurrentChannel].Effect.Y * ticksADivision) / 64.0f);
+									}
 								}
 								else if (Channel[CurrentChannel].Effect.Type == 0x5)
 								{
@@ -641,7 +660,7 @@ namespace SGE
 									//
 									SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
 										Channel[CurrentChannel].Period,
-										DEFAULT_SAMPLES_TICK,
+										SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.SampleInterval,
 										SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Delta,
 										NTSC_TUNING);
 
