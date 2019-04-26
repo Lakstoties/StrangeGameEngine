@@ -287,51 +287,40 @@ namespace SGE
 		//
 		class SampleBuffer
 		{
-		public:
-			//
 			//  Buffer to contain the samples
-			//
-			sampleType* Samples = nullptr;
+			sampleType* samples = nullptr;
 
-			//
+		public:
 			//  Size of buffer
-			//
 			int Size = 0;
 			
-			//
 			//  The offeset the sample will repeat at.
-			//
 			unsigned int RepeatOffset = 0;
 
-			//
 			//  The duration of the repeat
-			//
 			unsigned int RepeatDuration = 0;
 
-			//
 			//  Create a blank buffer of a certain sample size
-			//
 			void SGEAPI Create(int numOfSamples);
 			
-			//
 			//  Clear the buffer
-			//
 			void SGEAPI Zero();
 
-			//
 			//  Delete the buffer
-			//
 			void SGEAPI Delete();
 
-			//
 			//  Deconstructor
-			//
 			~SampleBuffer();
 
-			//
 			//  Load Raw Data Samples from a buffer of sampleType
-			//
 			void SGEAPI LoadRaw(int numOfSamples, sampleType* samples);
+
+			//  Overload the index operator
+			sampleType operator[](unsigned int index);
+
+			//  Overload the boolean logic
+			operator bool() const;
+
 		};
 
 		//
@@ -344,62 +333,40 @@ namespace SGE
 			//  Current Sound Sample Buffer in use
 			//  Made private to force use of the sample buffers
 			//
-			//SampleBuffer* currentSampleBuffer = nullptr;
-
 
 		public:
-			//
 			//  Current Sample Buffer
-			//
 			int CurrentSampleBuffer = 0;
 
-			//
 			//  Flag to indicate if the Channel has been set to a sample buffer
-			//
 			bool CurrentSampleBufferSet = false;
 
-			//
 			//  Sample offset
-			//
 			float offset = 0;
 
-			//
 			//  Amount to increment the offset by
-			//
 			float offsetIncrement = 1.0f;
 
-			//
 			//  Current offset Increment after all effects have been applied
-			//
 			float currentOffsetIncrement = 0;
 
-			//
 			//  Render function
-			//
 			void Render(unsigned int numerOfSamples, renderSampleType* outputBuffer);
 
-			//
 			//  Set Sample Buffer
-			//
 			void SGEAPI SetSampleBuffer(int bufferNumber);
 			
 			//
 			//  Basic functions
 			//
 
-	   		//
 			//  Play
-			//
 			void SGEAPI Play();
 
-			//
-			//  Hard stop
-			//
+			//  Stop
 			void SGEAPI Stop();
 
-			//
 			//  Status flag
-			//
 			bool Playing = false;
 
 			//
@@ -407,15 +374,9 @@ namespace SGE
 			//
 			float Volume = 1.0f;
 			float Pan = 0.0f;
-			//
-			//
-			//  Effects for Channels
-			//  Mainly used by Module Player
-			//
-			//
 
 			//
-			// Arpeggio effect, Effect 0
+			//  Effects for Channels
 			//
 
 			//  Class for the Arpeggio Effect
@@ -436,11 +397,6 @@ namespace SGE
 
 			ArpeggioEffect Arpeggio;
 
-
-			//
-			//  Period Slide, Effect 1 and 2
-			//
-
 			//  Class for the Period Slide Effect
 			class PeriodSlideEffect
 			{
@@ -458,10 +414,6 @@ namespace SGE
 
 			PeriodSlideEffect PeriodSlide;
 
-			//
-			//  Volume Slide, Effect 10
-			//
-
 			//  Class for the Volume Slide Effect
 			class VolumeSlideEffect
 			{
@@ -477,10 +429,6 @@ namespace SGE
 			};
 
 			VolumeSlideEffect VolumeSlide;
-
-			//
-			//  Vibrato, Effect 4 
-			//
 			
 			//  Class for the Vibrato Effect
 			class VibratoEffect
@@ -511,10 +459,6 @@ namespace SGE
 
 			VibratoEffect Vibrato;
 
-			//
-			//  Retrigger, Effect 14 - 9 settings
-			//
-
 			//  Class for the Retrigger Effect
 			class RetriggerEffect
 			{
@@ -530,10 +474,6 @@ namespace SGE
 
 			RetriggerEffect Retrigger;
 
-			//
-			//  Cut,  Effect 14-12 settings
-			//
-
 			//  Class for the Cut Effect
 			class CutEffect
 			{
@@ -547,10 +487,6 @@ namespace SGE
 			};
 
 			CutEffect Cut;
-
-			//
-			//  Delay, Effect 14-13 settings
-			//
 
 			//  Class for the Delay Effect
 			class DelayEffect

@@ -42,7 +42,7 @@ namespace SGE
 						yCornerPosition + TOP_SPACING + i * STATUS_SQUARE_Y_SPACING, 
 						STATUS_SQUARE_SIZE, 
 						STATUS_SQUARE_SIZE,
-						SGE::Sound::SampleBuffers[j + i * 64].Samples == nullptr ? SGE::Render::Colors::ColorMode8Bit[52] : SGE::Render::Colors::ColorMode8Bit[40]);
+						!SGE::Sound::SampleBuffers[j + i * 64] ? SGE::Render::Colors::ColorMode8Bit[52] : SGE::Render::Colors::ColorMode8Bit[40]);
 				}
 			}
 
