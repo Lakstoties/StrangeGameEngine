@@ -138,8 +138,9 @@ namespace SGE
 		{
 			if (Enabled)
 			{
+				
 				//Calculate the offset
-				offsetIncrement = offsetIncrement * pow(Precalculated::SEMITONE_MULTIPLIER, Amplitude * Waveform[CurrentWaveformPosition]);
+				offsetIncrement = offsetIncrement + (Amplitude * Waveform[CurrentWaveformPosition]);
 
 				//Increment the vibrato waveform position
 				CurrentWaveformPosition = (int)(CurrentWaveformPosition + Cycles) % SAMPLE_RATE;

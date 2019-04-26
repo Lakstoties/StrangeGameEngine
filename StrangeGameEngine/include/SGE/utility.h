@@ -159,12 +159,32 @@ namespace SGE
 				class ModuleLocation
 				{
 				public:
-					unsigned char Position = 0;
+					//
+					//  Total Nunmber of Positions
+					//  
 					unsigned char NumberOfPositions = 0;
+
+
+					//
+					//  Current Position and Division
+					//
+					unsigned char Position = 0;
 					unsigned char Division = 0;
+
+					//
+					//  Jump To Position and Division
+					//
+					unsigned char JumpPosition = 0;
+					unsigned char JumpDivision = 0;
+					bool JumpNext = false;
+
+					//
+					//  Flag to indicate the end of the Module has been reached
+					//
 					bool EndOfModule = false;
 
 					void NextDivision();
+					void SetNextJump(unsigned char position, unsigned char division);
 					void SetDivision(unsigned char division);
 					void SetPosition(unsigned char position);
 					void Reset();
@@ -178,6 +198,7 @@ namespace SGE
 				public:
 					unsigned char Sample = 0;
 					unsigned int Period = 0;
+					bool Plays = false;
 					Effect Effect;
 				};
 

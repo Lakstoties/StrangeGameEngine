@@ -487,6 +487,7 @@ namespace SGE
 			{
 			public:
 				bool Enabled = false;
+
 				unsigned int CurrentWaveformPosition = 0;
 				float Amplitude = 0;
 				float Cycles = 0;
