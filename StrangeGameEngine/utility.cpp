@@ -406,7 +406,7 @@ namespace SGE
 				//  Previous Effect Settings
 				//
 
-				Effect PreviousVibrato;
+				Effect PreviousVibrato[4];
 
 
 				//  Start playback processing
@@ -528,12 +528,6 @@ namespace SGE
 
 									//Channel plays
 									Channel[CurrentChannel].Plays = true;
-
-									//Check to see if we need to retrigger vibrato at the start of a new note
-									if (SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers)
-									{
-										SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.CurrentWaveformPosition = 0;
-									}
 								}
 							}
 
@@ -629,8 +623,8 @@ namespace SGE
 										float tempOffsetIncrement = PeriodToOffsetIncrement(Channel[CurrentChannel].Period);
 
 										SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Set(
-											tempOffsetIncrement * pow(SGE::Sound::Precalculated::SEMITONE_MULTIPLIER, PreviousVibrato.Y / 16.0f) - tempOffsetIncrement,
-											((PreviousVibrato.X * ticksADivision) / 64.0f)* (1000.0f / (DEFAULT_TICK_TIMING_MILLI * ticksADivision)));
+											tempOffsetIncrement * pow(SGE::Sound::Precalculated::SEMITONE_MULTIPLIER, PreviousVibrato[CurrentChannel].Y / 16.0f) - tempOffsetIncrement,
+											((PreviousVibrato[CurrentChannel].X * ticksADivision) / 64.0f)* (1000.0f / (DEFAULT_TICK_TIMING_MILLI * ticksADivision)));
 									}
 
 									//  Otherwise it is new Vibrato!
@@ -643,7 +637,7 @@ namespace SGE
 											((Channel[CurrentChannel].Effect.X * ticksADivision) / 64.0f) * (1000.0f / (DEFAULT_TICK_TIMING_MILLI * ticksADivision)));
 
 										//  Save the Vibrato settings to use in the future
-										PreviousVibrato = Channel[CurrentChannel].Effect;
+										PreviousVibrato[CurrentChannel] = Channel[CurrentChannel].Effect;
 									}
 								}
 								//  Configure - Continue Slide to note, but do Volume Slide
@@ -675,9 +669,6 @@ namespace SGE
 								//  Configure - Continue Vibrato, but do Volume Slide
 								else if (Channel[CurrentChannel].Effect.Type == 0x6)
 								{
-
-									SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Continue();
-
 									//  Check to see the rate we have to slide the volume up
 									if (Channel[CurrentChannel].Effect.X != 0)
 									{
@@ -785,43 +776,35 @@ namespace SGE
 									//  Set the Vibrato waveform
 									else if (Channel[CurrentChannel].Effect.X == 0x4)
 									{
-										if (Channel[CurrentChannel].Effect.Y == 0)
+										// Set the waveform to use
+										if (Channel[CurrentChannel].Effect.Y == 0 || Channel[CurrentChannel].Effect.Y == 4)
 										{
 											// Use Sine waveform with retrigger
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.UseSineWaveform(true);
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Waveform(SGE::Sound::Channel::VibratoEffect::VibratoWaveforms::Sine);
 										}
-										else if (Channel[CurrentChannel].Effect.Y == 1)
+										else if (Channel[CurrentChannel].Effect.Y == 1 || Channel[CurrentChannel].Effect.Y == 5)
 										{
 											// Use Ramp Down waveform with retrigger
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.UseRampDownWaveform(true);
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Waveform(SGE::Sound::Channel::VibratoEffect::VibratoWaveforms::RampDown);
 										}
-										else if (Channel[CurrentChannel].Effect.Y == 2)
+										else if (Channel[CurrentChannel].Effect.Y == 2 || Channel[CurrentChannel].Effect.Y == 6)
 										{
 											// Use Square waveform with trigger
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.UseSquareWaveform(true);
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Waveform(SGE::Sound::Channel::VibratoEffect::VibratoWaveforms::Square);
 										}
 										else if (Channel[CurrentChannel].Effect.Y == 3)
 										{
 											//  Place holder for random selection with retrigger
 										}
-										else if (Channel[CurrentChannel].Effect.Y == 4)
+
+										// Set if it triggers or not
+										if (Channel[CurrentChannel].Effect.Y >= 4)
 										{
-											// Use Sine waveform without retrigger
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.UseSineWaveform(false);
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers = false;
 										}
-										else if (Channel[CurrentChannel].Effect.Y == 5)
+										else
 										{
-											// Use Ramp Down waveform without retrigger
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.UseRampDownWaveform(false);
-										}
-										else if (Channel[CurrentChannel].Effect.Y == 6)
-										{
-											// Use Square waveform without retrigger
-											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.UseSquareWaveform(false);
-										}
-										else if (Channel[CurrentChannel].Effect.Y == 7)
-										{
-											//  Place holder for random selection without retrigger
+											SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Retriggers = true;
 										}
 									}
 									else if (Channel[CurrentChannel].Effect.X == 0x5)

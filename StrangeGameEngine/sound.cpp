@@ -85,32 +85,23 @@ namespace SGE
 		//  Vibrato Methods
 		//
 
-		//  Use the Sine Waveform
-		void Channel::VibratoEffect::UseSineWaveform(bool retrigger)
+		//  Set the waveform for the effect
+		void Channel::VibratoEffect::Waveform(VibratoWaveforms waveformToUse)
 		{
-			Waveform = Waveforms::Sine;
-			Retriggers = retrigger;
+			if (waveformToUse == VibratoWaveforms::Sine)
+			{
+				waveform = Waveforms::Sine;
+			}
+			else if (waveformToUse == VibratoWaveforms::RampDown)
+			{
+				waveform = Waveforms::RampDown;
+			}
+			else if (waveformToUse == VibratoWaveforms::Square)
+			{
+				waveform = Waveforms::Square;
+			}
 		}
 
-		//  Use the RampDown Waveform
-		void Channel::VibratoEffect::UseRampDownWaveform(bool retrigger)
-		{
-			Waveform = Waveforms::RampDown;
-			Retriggers = retrigger;
-		}
-
-		//  Use the Square Waveform
-		void Channel::VibratoEffect::UseSquareWaveform(bool retrigger)
-		{
-			Waveform = Waveforms::Square;
-			Retriggers = retrigger;
-		}
-
-		//  Continue the Effect
-		void Channel::VibratoEffect::Continue()
-		{
-			Enabled = true;
-		}
 
 		//  Set the Effect
 		void Channel::VibratoEffect::Set(float amplitude, float cycles)
@@ -129,6 +120,12 @@ namespace SGE
 				Cycles = cycles;
 			}
 
+			//  If set to retrigger, reset the waveform position
+			if (Retriggers)
+			{
+				currentWaveformPosition = 0;
+			}			
+
 			//  Enable Vibrato
 			Enabled = true;
 		}
@@ -140,10 +137,10 @@ namespace SGE
 			{
 				
 				//Calculate the offset
-				offsetIncrement = offsetIncrement + (Amplitude * Waveform[CurrentWaveformPosition]);
+				offsetIncrement = offsetIncrement + (Amplitude * waveform[currentWaveformPosition]);
 
 				//Increment the vibrato waveform position
-				CurrentWaveformPosition = (int)(CurrentWaveformPosition + Cycles) % SAMPLE_RATE;
+				currentWaveformPosition = (int)(currentWaveformPosition + Cycles) % SAMPLE_RATE;
 			}
 
 			return offsetIncrement;

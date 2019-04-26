@@ -485,24 +485,27 @@ namespace SGE
 			//  Class for the Vibrato Effect
 			class VibratoEffect
 			{
-			public:
-				bool Enabled = false;
+			private:
+				const float* waveform = Waveforms::Sine;
+				unsigned int currentWaveformPosition = 0;
 
-				unsigned int CurrentWaveformPosition = 0;
+			public:
+				enum class VibratoWaveforms
+				{
+					Sine,
+					RampDown,
+					Square,
+				};
+
+				bool Enabled = false;
+				
 				float Amplitude = 0;
 				float Cycles = 0;
-				float OffsetIncrement = 0;
 
-				//  Module
-				//  Vibrato with Effect 14 - 4 settings
-				float* Waveform = Waveforms::Sine;
-				bool Retriggers = false;
+				bool Retriggers = true;
 
-				void Continue();
-				void UseSineWaveform(bool retrigger);
-				void UseRampDownWaveform(bool retrigger);
-				void UseSquareWaveform(bool retrigger);
 				void Set(float amplitude, float cycles);
+				void Waveform(VibratoWaveforms waveformToUse);
 				float Apply(float offsetIncrement);
 			};
 
