@@ -335,6 +335,12 @@ namespace SGE
 			//
 
 		public:
+
+			//
+			//  Sample Specific
+			//
+			bool CurrentSampleToRepeat = false;
+
 			//  Current Sample Buffer
 			int CurrentSampleBuffer = 0;
 
@@ -374,6 +380,8 @@ namespace SGE
 			//
 			float Volume = 1.0f;
 			float Pan = 0.0f;
+
+
 
 			//
 			//  Effects for Channels

@@ -406,7 +406,7 @@ namespace SGE
 			for (unsigned int i = 0; i < numberOfSamples; i++)
 			{
 				//  If we are currently not playing and there's actually something to play.
-				if (!Playing || SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size == 0 || !CurrentSampleBufferSet)
+				if (!Playing || !SGE::Sound::SampleBuffers[CurrentSampleBuffer])
 				{
 					//  Nothing playing, 0 out the samples
 					sampleBuffer[i] = 0;
@@ -419,7 +419,7 @@ namespace SGE
 						//  Grab the sample for the offset
 						//  Copy the sample from the source buffer to the target buffer and adjusted the volume.
 						//  If the volume effect is in use, use that volume value.
-						sampleBuffer[i] = int(SGE::Sound::SampleBuffers[CurrentSampleBuffer].Samples[(unsigned int)offset] * Volume);
+						sampleBuffer[i] = renderSampleType(SGE::Sound::SampleBuffers[CurrentSampleBuffer][(unsigned int)offset] * Volume);
 
 						//  Add to the acculumator for the average
 						//  Negate negatives since we are only interested in overall amplitude
@@ -462,22 +462,47 @@ namespace SGE
 						//  Increment Offset  Appropriately
 						offset += currentOffsetIncrement;
 
+
+						//
 						//  Check for repeating loops
+						//
 
-						//Check to see if this same is suppose to repeat and is set to do so... correctly
-						if ((SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration > 0) && ((unsigned int)offset >= (SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset + SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration)))
+						// Does this sample ever repeat?
+						if (SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset > 0)
 						{
-							//Rewind back by the repeatDuration.
-							offset -= SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration;
+							//  Has this sample already repeated before?
+							if (CurrentSampleToRepeat)
+							{
+								//  Check to see if we've gone past the repeat point
+								if ((unsigned int)offset >= (SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset + SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration))
+								{
+									//Rewind it back by the Repeat Duration
+									offset -= SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration;
+								}
+							}
+							// If it hasn't already repeated check to see if it's gone over to the end of the sample
+							else
+							{
+								//  If it's gone over the end of the sample
+								if ((int)offset >= SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size)
+								{
+									//Rewind it back to the new repeat offset
+									offset -= SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size + SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset;
+
+									//Flag that we are on repeat mode
+									CurrentSampleToRepeat = true;
+								}
+							}
 						}
-
-						//  Check to see if it's gone pass the valid bufferSize
-
-						//If not repeatable and the offset has gone past the end of the buffer
-						if ((int)offset >= SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size)
+						//  Else this sample is going to repeat if it goes over
+						else
 						{
-							//Fuck this shit we're out!
-							Stop();
+							//If not repeatable and the offset has gone past the end of the buffer
+							if ((int)offset >= SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size)
+							{
+								//Fuck this shit we're out!
+								Stop();
+							}
 						}
 					}
 				}
@@ -492,13 +517,14 @@ namespace SGE
 		void Channel::Play()
 		{
 			//If the channel is at least loaded
-			if (CurrentSampleBufferSet && SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size != 0)
+			if (CurrentSampleBufferSet && SGE::Sound::SampleBuffers[CurrentSampleBuffer])
 			{
 				//Reset the play offset
 				offset = 0;
 
 				//Set the flags properly
 				Playing = true;
+				CurrentSampleToRepeat = false;
 			}
 		}
 
@@ -507,6 +533,7 @@ namespace SGE
 		{
 			//Set the flags
 			Playing = false;
+			CurrentSampleToRepeat = false;
 
 			//Reset the playing offset
 			offset = 0;
@@ -532,6 +559,30 @@ namespace SGE
 		//
 
 		//
+		//  Overloard boolean operator
+		//
+		SampleBuffer::operator bool() const
+		{
+			if (samples == nullptr || Size == 0)
+			{
+				return false;
+			}
+			else
+			{
+				return true;
+			}
+		}
+
+		//
+		//  Overload index
+		//
+		sampleType SampleBuffer::operator[](unsigned int index)
+		{
+			return samples[index];
+		}
+
+
+		//
 		//  Create a blank buffer
 		//
 		void SampleBuffer::Create(int numOfSamples)
@@ -549,7 +600,7 @@ namespace SGE
 			//
 			// Purge any existing buffers
 			//
-			if (nullptr)
+			if (samples == nullptr)
 			{
 				this->Delete();
 			}
@@ -562,7 +613,7 @@ namespace SGE
 			this->Size = numOfSamples;
 
 			// Assign a new sample array
-			this->Samples = new sampleType[Size];
+			this->samples = new sampleType[Size];
 
 			// Zero the contents
 			this->Zero();
@@ -573,9 +624,9 @@ namespace SGE
 		//
 		void SampleBuffer::Zero()
 		{
-			if (Size > 0 && Samples != nullptr)
+			if (Size > 0 && samples != nullptr)
 			{
-				std::fill(Samples, Samples + Size, 0);
+				std::fill(samples, samples + Size, 0);
 			}
 		}
 
@@ -585,13 +636,13 @@ namespace SGE
 		void SampleBuffer::Delete()
 		{
 			// Check to see if there's anything allocated there
-			if (Samples != nullptr)
+			if (samples != nullptr)
 			{
 				// Delete the array of stuff
-				delete[] Samples;
+				delete[] samples;
 
 				// Assign nullptr to the pointer for record keeping
-				Samples = nullptr;
+				samples = nullptr;
 
 				// Set the size back to default
 				Size = 0;
@@ -609,13 +660,13 @@ namespace SGE
 		//
 		//  Load Raw Data Samples from a buffer of sampleType
 		//
-		void SampleBuffer::LoadRaw(int numOfSamples, sampleType* samples)
+		void SampleBuffer::LoadRaw(int numOfSamples, sampleType* newSamples)
 		{
 			// Create the buffer
 			this->Create(numOfSamples);
 
 			// Copy stuff over
-			std::copy(samples, samples + numOfSamples, Samples);
+			std::copy(newSamples, newSamples + numOfSamples, samples);
 		}
 
 
