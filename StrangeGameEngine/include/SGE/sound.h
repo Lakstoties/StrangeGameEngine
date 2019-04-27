@@ -295,10 +295,10 @@ namespace SGE
 			int Size = 0;
 			
 			//  The offeset the sample will repeat at.
-			unsigned int RepeatOffset = 0;
+			float RepeatOffset = 0;
 
 			//  The duration of the repeat
-			unsigned int RepeatDuration = 0;
+			float RepeatDuration = 0;
 
 			//  Create a blank buffer of a certain sample size
 			void SGEAPI Create(int numOfSamples);

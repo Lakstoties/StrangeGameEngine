@@ -198,7 +198,6 @@ namespace SGE
 				public:
 					unsigned char Sample = 0;
 					unsigned int Period = 0;
-					bool Plays = false;
 					Effect Effect;
 				};
 

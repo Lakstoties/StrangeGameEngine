@@ -315,7 +315,7 @@ namespace SGE
 					SGE::Sound::SampleBuffers[sampleMap[i]].RepeatOffset = modFile.samples[i].repeatOffset;
 
 					//Because of mod file weirdness check to make sure the duration is more than 1.
-					SGE::Sound::SampleBuffers[sampleMap[i]].RepeatDuration = modFile.samples[i].repeatLength > 1 ? modFile.samples[i].repeatLength : 0;
+					SGE::Sound::SampleBuffers[sampleMap[i]].RepeatDuration = (float) (modFile.samples[i].repeatLength > 1 ? modFile.samples[i].repeatLength : 0);
 				}
 
 
@@ -435,59 +435,62 @@ namespace SGE
 						//
 						for (int CurrentChannel = 0; CurrentChannel < 4; CurrentChannel++)
 						{
-							//
-							//  Keep track to see if the channel needs to play again
-							//
-							Channel[CurrentChannel].Plays = false;
 
+							//
+							//  Check for period changes on each channel
+							//
+
+							//
+							//  Check to see if period not zero
+							//  If it is zero don't change the period used in this channel
+							//  NOTE:  Effect 3 does some weird stuff, the period is target note to shift to but it does NOT trigger a play effect
+
+							if (modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].period != 0)
+							{
+								//Set the period
+								Channel[CurrentChannel].Period = modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].period;
+
+								//
+								//   Period Slides don't actually play the note, but use the period as a value for the effect
+								//
+								if (Channel[CurrentChannel].Effect.Type != 0x3 && Channel[CurrentChannel].Effect.Type != 0x5)
+								{
+									//Convert the period to offset timing interval in relation to system sampling rate
+									//Using NTSC sampling
+									SGE::Sound::Channels[channelMap[CurrentChannel]].offsetIncrement = PeriodToOffsetIncrement(Channel[CurrentChannel].Period);
+								}
+
+								// If there's a period listed, we play the sample new.
+								SGE::Sound::Channels[channelMap[CurrentChannel]].Play();
+							}
 
 							//
 							//  Check for sample changes on each channel
 							//
-
-							//
-							//  If the new sample is 0, then use the previous sample
-							//  Hence, don't change it.
-							//
-							if (modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].sample == 0)
+							if (modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].sample != 0)
 							{
+								//
+								//  Check to see if the previous sample was the same as the new one
+								//
 
-							}
-
-							//
-							//  If the new sample is the same as the last
-							//  Set the volume, and play it if it already isn't
-							//
-							else if (modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].sample == Channel[CurrentChannel].Sample)
-							{
-								//Set sample volume
-								SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = float(modFile.samples[Channel[CurrentChannel].Sample - 1].volume) / 64.0f;
-
-								if (!SGE::Sound::Channels[channelMap[CurrentChannel]].Playing)
+								if (Channel[CurrentChannel].Sample != modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].sample)
 								{
-									Channel[CurrentChannel].Plays = true;
+									//Otherwise, channel up the sample used, effectively reseting the channel to the sample settings.
+									//Stop this channel
+									SGE::Sound::Channels[channelMap[CurrentChannel]].Stop();
+
+									// Set the sample
+									Channel[CurrentChannel].Sample = modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].sample;
+
+									//Switch to the sample
+									SGE::Sound::Channels[channelMap[CurrentChannel]].SetSampleBuffer(sampleMap[Channel[CurrentChannel].Sample - 1]);
+
+									//Start playing the new sample
+									SGE::Sound::Channels[channelMap[CurrentChannel]].Play();
 								}
-							}
-
-							//
-							//  Else this is a new sample, let's play it like a new one
-							//
-							else
-							{
-								// Set the sample
-								Channel[CurrentChannel].Sample = modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].sample;
-
-								//Otherwise, channel up the sample used, effectively reseting the channel to the sample settings.
-								//Stop this channel
-								SGE::Sound::Channels[channelMap[CurrentChannel]].Stop();
-
-								//Switch to the sample
-								SGE::Sound::Channels[channelMap[CurrentChannel]].SetSampleBuffer(sampleMap[Channel[CurrentChannel].Sample - 1]);
 
 								//Set sample volume
 								SGE::Sound::Channels[channelMap[CurrentChannel]].Volume = float(modFile.samples[Channel[CurrentChannel].Sample - 1].volume) / 64.0f;
-
-								Channel[CurrentChannel].Plays = true;
 							}
 
 
@@ -499,37 +502,7 @@ namespace SGE
 							Channel[CurrentChannel].Effect.Parse(modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].effect);
 
 
-							//
-							//  Check for period changes on each channel
-							//
 
-							//
-							//  Check to see if period not zero
-							//  If it is zero don't change the period used in this channel
-							//  NOTE:  Effect 3 does some weird stuff, the period is target note to shift to but it does NOT trigger a play effect
-
-							if (modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].period > 0)
-							{
-								//Set the period
-								Channel[CurrentChannel].Period = modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].period;
-
-								//
-								//   Period Slides don't actually play the note, but use the period as a value for the effect
-								//
-								if (Channel[CurrentChannel].Effect.Type != 0x3 && Channel[CurrentChannel].Effect.Type != 0x5)
-								{
-									//If non-zero, change the period used
-									//Changing periods, so stop the current stuff
-									SGE::Sound::Channels[channelMap[CurrentChannel]].Stop();
-
-									//Convert the period to offset timing interval in relation to system sampling rate
-									//Using NTSC sampling
-									SGE::Sound::Channels[channelMap[CurrentChannel]].offsetIncrement = PeriodToOffsetIncrement(Channel[CurrentChannel].Period);
-
-									//Channel plays
-									Channel[CurrentChannel].Plays = true;
-								}
-							}
 
 							//
 							//Turn off any channel based rendering effects for now
@@ -895,22 +868,6 @@ namespace SGE
 							}
 						}
 
-						//
-						//  Playback trigger point
-						//  Positioned here to make sure all the settings are good across all the channels before triggering all of them.
-						//  Otherwise, there's a slight chance for some very minor desychronization to occur.
-						//
-
-						//  Go through all the channels
-						for (int c = 0; c < 4; c++)
-						{
-							//  If there was a sample or period mentioned, play it if it is not equal to 0
-							if (Channel[c].Plays)
-							{
-								//  Play it
-								SGE::Sound::Channels[channelMap[c]].Play();
-							}
-						}
 						//
 						//  Wait for the next division
 						//

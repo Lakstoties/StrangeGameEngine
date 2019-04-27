@@ -468,13 +468,13 @@ namespace SGE
 						//
 
 						// Does this sample ever repeat?
-						if (SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset > 0)
+						if (SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration > 0)
 						{
 							//  Has this sample already repeated before?
 							if (CurrentSampleToRepeat)
 							{
 								//  Check to see if we've gone past the repeat point
-								if ((unsigned int)offset >= (SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset + SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration))
+								if (offset >= (SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset + SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration))
 								{
 									//Rewind it back by the Repeat Duration
 									offset -= SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration;
