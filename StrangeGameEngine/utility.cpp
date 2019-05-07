@@ -437,14 +437,22 @@ namespace SGE
 						{
 
 							//
+							//  Check for any effect chanages on the channel.
+							//
+
+							//Parse out the effect
+							Channel[CurrentChannel].Effect.Parse(modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].effect);
+
+							//
 							//  Check for period changes on each channel
 							//
+
 
 							//
 							//  Check to see if period not zero
 							//  If it is zero don't change the period used in this channel
 							//  NOTE:  Effect 3 does some weird stuff, the period is target note to shift to but it does NOT trigger a play effect
-
+													   							 
 							if (modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].period != 0)
 							{
 								//Set the period
@@ -494,15 +502,6 @@ namespace SGE
 							}
 
 
-							//
-							//  Check for any effect chanages on the channel.
-							//
-
-							//Parse out the effect
-							Channel[CurrentChannel].Effect.Parse(modFile.patterns[modFile.patternTable[Location.Position]][Location.Division][CurrentChannel].effect);
-
-
-
 
 							//
 							//Turn off any channel based rendering effects for now
@@ -547,20 +546,20 @@ namespace SGE
 								{
 									//  NOTE:  Slides are divided by 42 to allow smoother transitions.  It is the answer.
 									SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
-										(float)Channel[CurrentChannel].Period,
+										(float)MOD_NOTE_PERIODS::B3,
 										DEFAULT_SAMPLES_TICK / 42,
-										-(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 42.0f,
-										NTSC_TUNING);
+										(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 42.0f,
+										NTSC_TUNING / 2);
 								}
 								//  Configure Slide Down or Effect 2 / 0x2
 								else if (Channel[CurrentChannel].Effect.Type == 0x2)
 								{
 									//  NOTE:  Slides are divided by 42 to allow smoother transitions.  It is the answer.
 									SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Set(
-										0,
+										(float)MOD_NOTE_PERIODS::C1,
 										DEFAULT_SAMPLES_TICK / 42,
 										(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 42.0f,
-										NTSC_TUNING);
+										NTSC_TUNING / 2);
 								}
 								//  Configure the Slide to Note of Effect 3 / 0x3
 								else if (Channel[CurrentChannel].Effect.Type == 0x3)
@@ -574,7 +573,7 @@ namespace SGE
 											(float)Channel[CurrentChannel].Period,
 											DEFAULT_SAMPLES_TICK / 42,
 											(Channel[CurrentChannel].Effect.X * 16 + Channel[CurrentChannel].Effect.Y) / 42.0f,
-											NTSC_TUNING);
+											NTSC_TUNING / 2);
 									}
 
 									// Or continue the previous one towards the current note
@@ -584,7 +583,7 @@ namespace SGE
 											(float)Channel[CurrentChannel].Period,
 											SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.SampleInterval,
 											SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Delta,
-											NTSC_TUNING);
+											NTSC_TUNING / 2);
 									}
 								}
 								//  Configure the Vibrato Effect or Effect 4 / 0x4

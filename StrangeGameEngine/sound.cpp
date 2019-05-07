@@ -180,7 +180,7 @@ namespace SGE
 				if (CurrentSamples >= SampleInterval)
 				{
 					//  Convert the offset increment to a period in relationship to 1 second
-					float offsetPeriod = (PeriodBasis / (offsetIncrement * SGE::Sound::SAMPLE_RATE * 2));
+					float offsetPeriod = PeriodBasis / (SGE::Sound::SAMPLE_RATE * offsetIncrement);
 
 					//  Do we have a target period
 					if (Target != 0)
@@ -226,7 +226,7 @@ namespace SGE
 					}
 
 					//  Flip it back to an offset increment
-					offsetIncrement = PeriodBasis / (offsetPeriod * SGE::Sound::SAMPLE_RATE * 2);
+					offsetIncrement = PeriodBasis / (offsetPeriod * SGE::Sound::SAMPLE_RATE);
 
 					//  Reset the counter
 					CurrentSamples %= SampleInterval;

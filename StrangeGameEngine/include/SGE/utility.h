@@ -50,79 +50,81 @@ namespace SGE
 			//  Components relevent to Module Tracker parts of the sound system
 			//
 
+			//
 			// A list of Module Tracker Format periods
-			const unsigned int MOD_NOTE_PERIOD[] =
+			const static enum class MOD_NOTE_PERIODS : unsigned int
 			{
 				//Octave 0 - Historically, unsupported.
-				1712,	//C
-				1616,	//C#
-				1525,	//D
-				1440,	//D#
-				1357,	//E
-				1281,	//F
-				1209,	//F#
-				1141,	//G
-				1077,	//G#
-				1017,	//A
-				961,	//A#
-				907,	//B
+				C0 = 1712,	//C
+				CS0 = 1616,	//C#
+				D0 = 1525,	//D
+				DS0 = 1440,	//D#
+				E0 = 1357,	//E
+				F0 = 1281,	//F
+				FS0 = 1209,	//F#
+				G0 = 1141,	//G
+				GS0 = 1077,	//G#
+				A0 = 1017,	//A
+				AS0 = 961,	//A#
+				B0 = 907,	//B
 
 				//Octave 1
-				856,	//C
-				808,	//C#
-				762,	//D
-				720,	//D#
-				678,	//E
-				640,	//F
-				604,	//F#
-				570,	//G
-				538,	//G#
-				508,	//A
-				480,	//A#
-				453,	//B
+				C1 = 856,	//C
+				CS1 = 808,	//C#
+				D1 = 762,	//D
+				DS1 = 720,	//D#
+				E1 = 678,	//E
+				F1 = 640,	//F
+				FS1 = 604,	//F#
+				G1 = 570,	//G
+				GS1 = 538,	//G#
+				A1 = 508,	//A
+				AS1 = 480,	//A#
+				B1 = 453,	//B
 
 				//Octave 2
-				428,	//C
-				404,	//C#
-				381,	//D
-				360,	//D#
-				339,	//E
-				320,	//F
-				302,	//F#
-				285,	//G
-				269,	//G#
-				254,	//A
-				240,	//A#
-				226,	//B
+				C2 = 428,	//C
+				CS2 = 404,	//C#
+				D2 = 381,	//D
+				DS2 = 360,	//D#
+				E2 = 339,	//E
+				F2 = 320,	//F
+				FS2 = 302,	//F#
+				G2 = 285,	//G
+				GS2 = 269,	//G#
+				A2 = 254,	//A
+				AS2 = 240,	//A#
+				B2 = 226,	//B
 
 				//Octave 3
-				214,	//C
-				202,	//C#
-				190,	//D
-				180,	//D#
-				170,	//E
-				160,	//F
-				151,	//F#
-				143,	//G
-				135,	//G#
-				127,	//A
-				120,	//A#
-				113,	//B
+				C3 = 214,	//C
+				CS3 = 202,	//C#
+				D3 = 190,	//D
+				DS3 = 180,	//D#
+				E3 = 170,	//E
+				F3 = 160,	//F
+				FS3 = 151,	//F#
+				G3 = 143,	//G
+				GS3 = 135,	//G#
+				A3 = 127,	//A
+				AS3 = 120,	//A#
+				B3 = 113,	//B
 
 				//Octave 4 - Historically Unsupported
-				107,	//C
-				101,	//C#
-				95,		//D
-				90,		//D#
-				85,		//E
-				80,		//F
-				76,		//F#
-				71,		//G
-				67,		//G#
-				64,		//A
-				60,		//A#
-				57		//B
+				C4 = 107,	//C
+				CS4 = 101,	//C#
+				D4 = 95,	//D
+				DS4 = 90,	//D#
+				E4 = 85,	//E
+				F4 = 80,	//F
+				FS4 = 76,	//F#
+				G4 = 71,	//G
+				GS4 = 67,	//G#
+				A4 = 64,	//A
+				AS4 = 60,	//A#
+				B4 = 57	//B
 			};
+
 
 			// A list of Tracker Music MODule file conversation notes.
 			// Tuning frequency for NTSC screens for Mod files

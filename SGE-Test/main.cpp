@@ -112,7 +112,7 @@ void InputTest(bool& testInputRunning)
 
 	//SGE::Sound::Channels[28].Muted = true;
 	//SGE::Sound::Channels[29].Muted = true;
-	//SGE::Sound::Channels[31].Muted = true;
+	//SGE::Sound::Channels[30].Muted = true;
 
 	testMenu.CursorOn();
 
