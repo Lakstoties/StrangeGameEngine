@@ -10,12 +10,12 @@ namespace SGE
 	{
 		TextBox::TextBoxData& TextBox::operator ()(int row, int column)
 		{
-			return Characters[row][column];
+			return Characters[(row * columns) + column];
 		}
 
 		TextBox::TextBoxData TextBox::operator ()(int row, int column) const
 		{
-			return Characters[row][column];
+			return Characters[(row * columns) + column];
 		}
 
 
@@ -53,24 +53,13 @@ namespace SGE
 
 			}
 
-			//
-			//  Draw the character background colors
-			//
-			//for (int i = (int)startRow; i < (int)endRow; i++)
-			//{
-			//	for (int j = (int)startColumn; j < (int)endColumn; j++)
-			//	{
-			//		SGE::Render::DrawBox(XPosition + j * RowSpacing, YPosition + i * ColumnSpacing, RowSpacing, ColumnSpacing, Characters[i][j].BackColor);
-			//	}
-			//}
-
 			//Draw the characters
 			for (int i = (int)startRow; i < (int)endRow; i++)
 			{
 				for (int j = (int)startColumn; j < (int)endColumn; j++)
 				{
 					//Draw the characters upon the screen
-					SGE::Render::Draw8x8CharacterFilled(SGE::Render::CHARACTER_8x8_ROM[(unsigned char)Characters[i][j].Character], XPosition + j * ColumnSpacing, YPosition + i * RowSpacing, Characters[i][j].ForeColor, Characters[i][j].BackColor);
+					SGE::Render::Draw8x8CharacterFilled(SGE::Render::CHARACTER_8x8_ROM[(unsigned char)Characters[(i * columns) + j].Character], XPosition + j * ColumnSpacing, YPosition + i * RowSpacing, Characters[(i * columns) + j].ForeColor, Characters[(i * columns) + j].BackColor);
 				}
 			}
 		}
@@ -96,13 +85,17 @@ namespace SGE
 			rows = newRows;
 
 			//
-			//  Create new buffers
+			//  Create new buffer
 			//
 
-			//
-			//  Characters
-			//
-			Characters.resize(rows, std::vector<TextBoxData>(columns));
+			if (Characters != nullptr)
+			{
+				//  Welp there's stuff there already
+				delete[] Characters;
+				Characters = nullptr;
+			}
+
+			Characters = new TextBoxData[columns * rows];
 		}
 
 		//
@@ -116,6 +109,18 @@ namespace SGE
 			//  Set the positions
 			XPosition = xPosition;
 			YPosition = yPosition;
+		}
+
+		//
+		//  Deconstructor
+		//
+		TextBox::~TextBox()
+		{
+			if (Characters != nullptr)
+			{
+				delete[] Characters;
+				Characters = nullptr;
+			}
 		}
 	}
 

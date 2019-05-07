@@ -27,7 +27,7 @@ namespace SGE
 			//
 			//  2D Vector of TextBoxData to hold all the bits.
 			//
-			std::vector<std::vector<TextBoxData>> Characters;
+			TextBoxData* Characters = nullptr;
 
 		public:
 
@@ -48,6 +48,8 @@ namespace SGE
 			int YPosition = 0;
 
 			SGEAPI TextBox(unsigned int numberOfRows, unsigned int numberOfColumns, int xPosition, int yPosition);
+
+			SGEAPI ~TextBox();
 
 			SGEAPI void Draw();
 			SGEAPI void CreateBuffers(unsigned int newRows, unsigned int newColumns);

@@ -405,104 +405,102 @@ namespace SGE
 			//  Starting at the offset, copy over samples to the buffer.
 			for (unsigned int i = 0; i < numberOfSamples; i++)
 			{
-				//  If we are currently not playing and there's actually something to play.
-				if (!Playing || !SGE::Sound::SampleBuffers[CurrentSampleBuffer])
+				//  Check to see if
+				if (!SGE::Sound::SampleBuffers[CurrentSampleBuffer] ||	// There's a sample to play
+					!Playing ||											// We are not playing something
+					Muted ||											// We are muted
+					Delay.Apply())										// We are delayed
 				{
 					//  Nothing playing, 0 out the samples
 					sampleBuffer[i] = 0;
 				}
 				else
 				{	
-					//  If we are NOT delayed.
-					if (!Delay.Apply())
-					{
-						//  Grab the sample for the offset
-						//  Copy the sample from the source buffer to the target buffer and adjusted the volume.
-						//  If the volume effect is in use, use that volume value.
-						sampleBuffer[i] = renderSampleType(SGE::Sound::SampleBuffers[CurrentSampleBuffer][(unsigned int)offset] * Volume);
+					//  Grab the sample for the offset
+					//  Copy the sample from the source buffer to the target buffer and adjusted the volume.
+					//  If the volume effect is in use, use that volume value.
+					sampleBuffer[i] = renderSampleType(SGE::Sound::SampleBuffers[CurrentSampleBuffer][(unsigned int)offset] * Volume);
 
-						//  Add to the acculumator for the average
-						//  Negate negatives since we are only interested in overall amplitude
-						currentSampleAverage += abs(sampleBuffer[i]);
+					//  Add to the acculumator for the average
+					//  Negate negatives since we are only interested in overall amplitude
+					currentSampleAverage += abs(sampleBuffer[i]);
 
-						//
-						//  Calculate the next offset based on the appropriate increment
-						//
+					//
+					//  Calculate the next offset based on the appropriate increment
+					//
 
-						//
-						//  Apply Volume Slide Effect
-						//
-						Volume = VolumeSlide.Apply(Volume);
+					//
+					//  Apply Volume Slide Effect
+					//
+					Volume = VolumeSlide.Apply(Volume);
 
-						//
-						//  Apply Cut Effect
-						//
-						Volume = Cut.Apply(Volume);
+					//
+					//  Apply Cut Effect
+					//
+					Volume = Cut.Apply(Volume);
 
 											   						 
-						//
-						//  Effect Pipeline, that affects offset Increments
-						//
+					//
+					//  Effect Pipeline, that affects offset Increments
+					//
 
-						//  Apply Retrigger Effect
-						//  This effect changes the offset
-						offset = Retrigger.Apply(offset);
+					//  Apply Retrigger Effect
+					//  This effect changes the offset
+					offset = Retrigger.Apply(offset);
 
-						//  Apply Period Slide Effect, if active
-						//  This changes the offsetIncrement for the channel, hence it write it
-						offsetIncrement = PeriodSlide.Apply(offsetIncrement);
+					//  Apply Period Slide Effect, if active
+					//  This changes the offsetIncrement for the channel, hence it write it
+					offsetIncrement = PeriodSlide.Apply(offsetIncrement);
 
-						//  Apply the Arpeggio Effect, if active
-						currentOffsetIncrement = Arpeggio.Apply(offsetIncrement);
+					//  Apply the Arpeggio Effect, if active
+					currentOffsetIncrement = Arpeggio.Apply(offsetIncrement);
 
-						//  Apply the Vibrato Effect, if active
+					//  Apply the Vibrato Effect, if active
+					currentOffsetIncrement = Vibrato.Apply(currentOffsetIncrement);
 
-						currentOffsetIncrement = Vibrato.Apply(currentOffsetIncrement);
-
-						//  Increment Offset  Appropriately
-						offset += currentOffsetIncrement;
+					//  Increment Offset  Appropriately
+					offset += currentOffsetIncrement;
 
 
-						//
-						//  Check for repeating loops
-						//
+					//
+					//  Check for repeating loops
+					//
 
-						// Does this sample ever repeat?
-						if (SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration > 0)
+					// Does this sample ever repeat?
+					if (SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration > 0)
+					{
+						//  Has this sample already repeated before?
+						if (CurrentSampleToRepeat)
 						{
-							//  Has this sample already repeated before?
-							if (CurrentSampleToRepeat)
+							//  Check to see if we've gone past the repeat point
+							if (offset >= (SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset + SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration))
 							{
-								//  Check to see if we've gone past the repeat point
-								if (offset >= (SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset + SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration))
-								{
-									//Rewind it back by the Repeat Duration
-									offset -= SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatDuration;
-								}
-							}
-							// If it hasn't already repeated check to see if it's gone over to the end of the sample
-							else
-							{
-								//  If it's gone over the end of the sample
-								if ((int)offset >= SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size)
-								{
-									//Rewind it back to the new repeat offset
-									offset -= SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size + SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset;
-
-									//Flag that we are on repeat mode
-									CurrentSampleToRepeat = true;
-								}
+								//Rewind it back by the Repeat Duration
+								offset = SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset;
 							}
 						}
-						//  Else this sample is going to repeat if it goes over
+						// If it hasn't already repeated check to see if it's gone over to the end of the sample
 						else
 						{
-							//If not repeatable and the offset has gone past the end of the buffer
+							//  If it's gone over the end of the sample
 							if ((int)offset >= SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size)
 							{
-								//Fuck this shit we're out!
-								Stop();
+								//Rewind it back to the new repeat offset
+								offset = SGE::Sound::SampleBuffers[CurrentSampleBuffer].RepeatOffset;
+
+								//Flag that we are on repeat mode
+								CurrentSampleToRepeat = true;
 							}
+						}
+					}
+					//  Else this sample is going to repeat if it goes over
+					else
+					{
+						//If not repeatable and the offset has gone past the end of the buffer
+						if ((int)offset >= SGE::Sound::SampleBuffers[CurrentSampleBuffer].Size)
+						{
+							//Fuck this shit we're out!
+							Stop();
 						}
 					}
 				}

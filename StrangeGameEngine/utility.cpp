@@ -312,10 +312,10 @@ namespace SGE
 					}
 
 					//Apply repeat data
-					SGE::Sound::SampleBuffers[sampleMap[i]].RepeatOffset = modFile.samples[i].repeatOffset;
+					SGE::Sound::SampleBuffers[sampleMap[i]].RepeatOffset = modFile.samples[i].repeatOffset * 2;
 
 					//Because of mod file weirdness check to make sure the duration is more than 1.
-					SGE::Sound::SampleBuffers[sampleMap[i]].RepeatDuration = (float) (modFile.samples[i].repeatLength > 1 ? modFile.samples[i].repeatLength : 0);
+					SGE::Sound::SampleBuffers[sampleMap[i]].RepeatDuration = (float) (modFile.samples[i].repeatLength > 1 ? modFile.samples[i].repeatLength * 2 : 0);
 				}
 
 
@@ -733,18 +733,22 @@ namespace SGE
 									if (Channel[CurrentChannel].Effect.X == 0x0)
 									{
 										//  Place holder for setting filter
+										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", Channel[CurrentChannel].Effect.Type, Channel[CurrentChannel].Effect.X, Channel[CurrentChannel].Effect.Y);
 									}
 									else if (Channel[CurrentChannel].Effect.X == 0x1)
 									{
 										//  Place holder for Fineslide up
+										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", Channel[CurrentChannel].Effect.Type, Channel[CurrentChannel].Effect.X, Channel[CurrentChannel].Effect.Y);
 									}
 									else if (Channel[CurrentChannel].Effect.X == 0x2)
 									{
 										//  Place holder for Fineslide down
+										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", Channel[CurrentChannel].Effect.Type, Channel[CurrentChannel].Effect.X, Channel[CurrentChannel].Effect.Y);
 									}
 									else if (Channel[CurrentChannel].Effect.X == 0x3)
 									{
 										//  Place holder for Glissasndo On/Off
+										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", Channel[CurrentChannel].Effect.Type, Channel[CurrentChannel].Effect.X, Channel[CurrentChannel].Effect.Y);
 									}
 									//  Set the Vibrato waveform
 									else if (Channel[CurrentChannel].Effect.X == 0x4)
@@ -768,6 +772,7 @@ namespace SGE
 										else if (Channel[CurrentChannel].Effect.Y == 3)
 										{
 											//  Place holder for random selection with retrigger
+											SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", Channel[CurrentChannel].Effect.Type, Channel[CurrentChannel].Effect.X, Channel[CurrentChannel].Effect.Y);
 										}
 
 										// Set if it triggers or not
@@ -783,18 +788,22 @@ namespace SGE
 									else if (Channel[CurrentChannel].Effect.X == 0x5)
 									{
 										//  Place holder for Set finetune value
+										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", Channel[CurrentChannel].Effect.Type, Channel[CurrentChannel].Effect.X, Channel[CurrentChannel].Effect.Y);
 									}
 									else if (Channel[CurrentChannel].Effect.X == 0x6)
 									{
 										//  Place holder for Loop Pattern
+										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", Channel[CurrentChannel].Effect.Type, Channel[CurrentChannel].Effect.X, Channel[CurrentChannel].Effect.Y);
 									}
 									else if (Channel[CurrentChannel].Effect.X == 0x7)
 									{
 										//  Place holder for Set Tremolo Waveform
+										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", Channel[CurrentChannel].Effect.Type, Channel[CurrentChannel].Effect.X, Channel[CurrentChannel].Effect.Y);
 									}
 									else if (Channel[CurrentChannel].Effect.X == 0x8)
 									{
 										//  Unused
+										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", Channel[CurrentChannel].Effect.Type, Channel[CurrentChannel].Effect.X, Channel[CurrentChannel].Effect.Y);
 									}
 									//  Retrigger Sample
 									else if (Channel[CurrentChannel].Effect.X == 0x9)
@@ -844,10 +853,12 @@ namespace SGE
 									else if (Channel[CurrentChannel].Effect.X == 0xE)
 									{
 										//  Place holder for delay pattern
+										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", Channel[CurrentChannel].Effect.Type, Channel[CurrentChannel].Effect.X, Channel[CurrentChannel].Effect.Y);
 									}
 									else if (Channel[CurrentChannel].Effect.X == 0xF)
 									{
 										//  Place holder for invert loop
+										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", Channel[CurrentChannel].Effect.Type, Channel[CurrentChannel].Effect.X, Channel[CurrentChannel].Effect.Y);
 									}
 								}
 

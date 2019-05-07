@@ -381,6 +381,8 @@ namespace SGE
 			float Volume = 1.0f;
 			float Pan = 0.0f;
 
+			bool Muted = false;
+
 
 
 			//

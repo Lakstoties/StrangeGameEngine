@@ -101,14 +101,18 @@ void InputTest(bool& testInputRunning)
 	SGE::Utility::ModuleTrackerMusic::ModulePlayer* modulePlayerTest3 = new SGE::Utility::ModuleTrackerMusic::ModulePlayer();
 	
 	//Load up the module files
-	modulePlayerTest->Load((char*)"hyper.mod");
-	modulePlayerTest2->Load((char*)"yehat.mod");
-	modulePlayerTest3->Load((char*)"marucmbt.mod");
+	modulePlayerTest->Load((char*)"aurora.mod");
+	modulePlayerTest2->Load((char*)"enigma.mod");
+	modulePlayerTest3->Load((char*)"stardstm.mod");
 
 	//Connect up to the sound system
 	modulePlayerTest->Connect(12, 64);
 	modulePlayerTest2->Connect(24, 128);
 	modulePlayerTest3->Connect(28, 192);
+
+	//SGE::Sound::Channels[28].Muted = true;
+	//SGE::Sound::Channels[29].Muted = true;
+	//SGE::Sound::Channels[31].Muted = true;
 
 	testMenu.CursorOn();
 
