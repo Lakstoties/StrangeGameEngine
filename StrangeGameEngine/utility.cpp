@@ -312,7 +312,7 @@ namespace SGE
 					}
 
 					//Apply repeat data
-					SGE::Sound::SampleBuffers[sampleMap[i]].RepeatOffset = modFile.samples[i].repeatOffset * 2;
+					SGE::Sound::SampleBuffers[sampleMap[i]].RepeatOffset = (float) modFile.samples[i].repeatOffset * 2;
 
 					//Because of mod file weirdness check to make sure the duration is more than 1.
 					SGE::Sound::SampleBuffers[sampleMap[i]].RepeatDuration = (float) (modFile.samples[i].repeatLength > 1 ? modFile.samples[i].repeatLength * 2 : 0);

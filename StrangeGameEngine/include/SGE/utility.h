@@ -52,7 +52,7 @@ namespace SGE
 
 			//
 			// A list of Module Tracker Format periods
-			const static enum class MOD_NOTE_PERIODS : unsigned int
+			const enum class MOD_NOTE_PERIODS : unsigned int
 			{
 				//Octave 0 - Historically, unsupported.
 				C0 = 1712,	//C

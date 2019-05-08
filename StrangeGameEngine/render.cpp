@@ -62,7 +62,7 @@ namespace SGE
 		//
 		void DrawString(
 			const char* characters,							//Char pointer to a null terminated character byte string
-			const unsigned long long characterROM[],		//64-bit Character ROM array to map characters against
+			const unsigned long long characterROM[256],		//64-bit Character ROM array to map characters against
 			const int characterSpacing,						//The amount space to give each character, standard spacing is 8 to go along with the 8X8 character size
 			const int targetX,								//Target X location to start drawing from (Upper Left Corner)
 			const int targetY,								//Target Y location to start drawing from (Upper Left Corner)
@@ -76,6 +76,28 @@ namespace SGE
 			{
 				//Call the Draw the 8x8 character
 				Draw8x8Character(characterROM[(unsigned char)characters[stringPosition]], targetX + stringPosition*characterSpacing, targetY, targetColor);
+
+				//Move to the next position in the string
+				stringPosition++;
+			}
+		}
+
+		void SGEAPI DrawString8x16(
+			const char* characters, 
+			const unsigned long long characterROM[256][2], 
+			const int characterSpacing, 
+			const int targetX, 
+			const int targetY, 
+			const SGE::Display::Video::pixel& color)
+		{
+			//Initialize the stringPosition to the starting point for any string.
+			int stringPosition = 0;
+
+			//While we haven't hit the null termination for the string.
+			while (characters[stringPosition] != 0)
+			{
+				//Call the Draw the 8x8 character
+				Draw8x16Character(characterROM[(unsigned char)characters[stringPosition]], targetX + stringPosition * characterSpacing, targetY, color);
 
 				//Move to the next position in the string
 				stringPosition++;
@@ -131,6 +153,19 @@ namespace SGE
 				}
 			}
 		}
+
+		void SGEAPI Draw8x16CharacterFilled(const unsigned long long character[2], const int targetX, const int targetY, const SGE::Display::Video::pixel targetForegroundColor, const SGE::Display::Video::pixel targetBackgroundColor)
+		{
+			//Pretty simple process, just use what's already there.
+
+			//  Draw the top half
+			Draw8x8CharacterFilled(character[0], targetX, targetY, targetForegroundColor, targetBackgroundColor);
+
+			//  Draw the bottom half
+			Draw8x8CharacterFilled(character[1], targetX, targetY + 8, targetForegroundColor, targetBackgroundColor);
+		}
+
+
 
 
 
@@ -195,6 +230,21 @@ namespace SGE
 			}
 		}
 
+		//
+		//  Draw 8 x 16 Character
+		//
+		void SGEAPI Draw8x16Character(const unsigned long long character[2], const int targetX, const int targetY, const SGE::Display::Video::pixel color)
+		{
+			//Pretty simple process, just use what's already there.
+
+			//  Draw the top half
+			Draw8x8Character(character[0], targetX, targetY, color);
+
+			//  Draw the bottom half
+			Draw8x8Character(character[1], targetX, targetY + 8, color);
+		}
+
+			   
 		//
 		//  Draw Block Data - copy a block of image data over
 		//

@@ -247,7 +247,7 @@ void InputTest(bool& testInputRunning)
 	//
 	SGE::GUI::TextBox terminal(25, 80, 645, 525);
 
-	terminal.CurrentCharacterROM = SGE::Render::CHARACTER_CGA_ROM;
+	terminal.CurrentCharacterROM = SGE::Render::CHARACTER_CGA_8x8_ROM;
 
 	std::chrono::nanoseconds deltaTime = std::chrono::nanoseconds(0);
 
@@ -353,9 +353,8 @@ void InputTest(bool& testInputRunning)
 		SGE::Render::DrawVectorShape(testingOffsetX, testingOffsetY, 15.0, 28, letterSVectorPoints, 0x0080FF00);
 
 		//Info up in the corner
-		SGE::Render::DrawString((char*)"Strange Game Engine Demo", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 10, 0x0080FF80);
-		SGE::Render::DrawString((char*)"Version: 0.01", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 20, 0x0080FF80);
-		SGE::Render::DrawString((char*)"\"It actually works!\" Ed.", SGE::Render::CHARACTER_8x8_ROM, 6, 160, 30, 0x0080FF80);
+		SGE::Render::DrawString8x16((char*)"Strange Game Engine Demo   Version: 0.05", SGE::Render::CHARACTER_VGA_8x16_ROM, 8, 160, 5, 0x0080FF80);
+		SGE::Render::DrawString((char*)"\"It actually works!\" Ed.", SGE::Render::CHARACTER_CGA_8x8_ROM, 7, 160, 30, 0x0080FF80);
 
 		//
 		//Draw Mouse Status Box
