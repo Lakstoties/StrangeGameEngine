@@ -22,6 +22,8 @@ namespace SGE
 				SGE::Display::Video::pixel BackColor = 0;
 			};
 
+			const unsigned long long* CurrentCharacterROM = nullptr;
+
 		private:
 
 			//

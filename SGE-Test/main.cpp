@@ -247,6 +247,8 @@ void InputTest(bool& testInputRunning)
 	//
 	SGE::GUI::TextBox terminal(25, 80, 645, 525);
 
+	terminal.CurrentCharacterROM = SGE::Render::CHARACTER_CGA_ROM;
+
 	std::chrono::nanoseconds deltaTime = std::chrono::nanoseconds(0);
 
 	std::chrono::time_point<std::chrono::steady_clock> startTime;

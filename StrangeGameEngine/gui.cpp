@@ -59,7 +59,7 @@ namespace SGE
 				for (int j = (int)startColumn; j < (int)endColumn; j++)
 				{
 					//Draw the characters upon the screen
-					SGE::Render::Draw8x8CharacterFilled(SGE::Render::CHARACTER_8x8_ROM[(unsigned char)Characters[(i * columns) + j].Character], XPosition + j * ColumnSpacing, YPosition + i * RowSpacing, Characters[(i * columns) + j].ForeColor, Characters[(i * columns) + j].BackColor);
+					SGE::Render::Draw8x8CharacterFilled(CurrentCharacterROM[(unsigned char)Characters[(i * columns) + j].Character], XPosition + j * ColumnSpacing, YPosition + i * RowSpacing, Characters[(i * columns) + j].ForeColor, Characters[(i * columns) + j].BackColor);
 				}
 			}
 		}
@@ -103,6 +103,9 @@ namespace SGE
 		//
 		TextBox::TextBox(unsigned int numberOfRows, unsigned int numberOfColumns, int xPosition, int yPosition)
 		{
+			//Set Default Character room
+			CurrentCharacterROM = SGE::Render::CHARACTER_8x8_ROM;
+
 			//  Create the buffers
 			CreateBuffers(numberOfRows, numberOfColumns);
 

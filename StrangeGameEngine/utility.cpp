@@ -729,10 +729,14 @@ namespace SGE
 									//  Check the Effect's X setting to see what exact effect they want
 									//
 
+
+									//  This is for enabling or disabling a lowpass filter on actual hardware
+									//  Most people usually just disabled this thing and moved on.
 									if (Channel[CurrentChannel].Effect.X == 0x0)
 									{
-										//  Place holder for setting filter
-										SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: %d X: %d Y: %d\n", Channel[CurrentChannel].Effect.Type, Channel[CurrentChannel].Effect.X, Channel[CurrentChannel].Effect.Y);
+										//
+										//  Do nothing...  NOOP!
+										//										
 									}
 									else if (Channel[CurrentChannel].Effect.X == 0x1)
 									{
