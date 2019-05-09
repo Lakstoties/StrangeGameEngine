@@ -110,10 +110,6 @@ void InputTest(bool& testInputRunning)
 	modulePlayerTest2->Connect(24, 128);
 	modulePlayerTest3->Connect(28, 192);
 
-	//SGE::Sound::Channels[28].Muted = true;
-	//SGE::Sound::Channels[29].Muted = true;
-	//SGE::Sound::Channels[30].Muted = true;
-
 	testMenu.CursorOn();
 
 	//Create a previous keyboard state
@@ -247,7 +243,8 @@ void InputTest(bool& testInputRunning)
 	//
 	SGE::GUI::TextBox terminal(25, 80, 645, 525);
 
-	terminal.CurrentCharacterROM = SGE::Render::CHARACTER_CGA_8x8_ROM;
+	terminal.CurrentCharacterROM = (unsigned long long *)&SGE::Render::CHARACTER_VGA_8x16_ROM;
+	terminal.CurrentCellSize = SGE::GUI::TextBox::CellSize::Mode8x16;
 
 	std::chrono::nanoseconds deltaTime = std::chrono::nanoseconds(0);
 
@@ -567,7 +564,7 @@ void InputTest(bool& testInputRunning)
 		//  Wait a little after each iteration
 		//
 		//std::this_thread::sleep_for(std::chrono::milliseconds(15));
-		SGE::Utility::Timer::AccurateWaitForMilliseconds(15, false);
+		SGE::Utility::Timer::AccurateWaitForMilliseconds(10, false);
 
 	}
 }

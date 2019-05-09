@@ -45,7 +45,8 @@ namespace SGE
 			//
 			//  Classic Named Colors from 3/4 bit days
 			//
-			namespace Named
+
+			enum Named : SGE::Display::Video::pixel
 			{
 				//
 				//  Values in use are from the standard defined for PuTTY
@@ -54,27 +55,27 @@ namespace SGE
 				//
 
 				//  Regular Colors
-				//  Data Formating Notes						  XXBBGGRR
-				const SGE::Display::Video::pixel Black =		0x00000000;
-				const SGE::Display::Video::pixel Red =			0x000000BB;
-				const SGE::Display::Video::pixel Green =		0x0000BB00;
-				const SGE::Display::Video::pixel Yellow =		0x0000BBBB;
-				const SGE::Display::Video::pixel Blue =			0x00BB0000;
-				const SGE::Display::Video::pixel Magenta =		0x00BB00BB;
-				const SGE::Display::Video::pixel Cyan =			0x00BBBB00;
-				const SGE::Display::Video::pixel White =		0x00BBBBBB;
+				//  Data Formating Notes	  XXBBGGRR
+				Black =						0x00000000,
+				Red =						0x000000BB,
+				Green =						0x0000BB00,
+				Yellow =					0x0000BBBB,
+				Blue =						0x00BB0000,
+				Magenta =					0x00BB00BB,
+				Cyan =						0x00BBBB00,
+				White =						0x00BBBBBB,
 
 				//  Bright Colors
-				//  Data Formating Notes						  XXBBGGRR
-				const SGE::Display::Video::pixel BrightBlack =	0x00555555;
-				const SGE::Display::Video::pixel BrightRed =	0x005555FF;
-				const SGE::Display::Video::pixel BrightGreen =	0x0055FF55;
-				const SGE::Display::Video::pixel BrightYellow = 0x0055FFFF;
-				const SGE::Display::Video::pixel BrightBlue =	0x00FF5555;
-				const SGE::Display::Video::pixel BrightMagenta =0x00FF55FF;
-				const SGE::Display::Video::pixel BrightCyan =	0x00FFFF55;
-				const SGE::Display::Video::pixel BrightWhite =	0x00FFFFFF;
-			}
+				//  Data Formating Notes	  XXBBGGRR
+				BrightBlack =				0x00555555,
+				BrightRed =					0x005555FF,
+				BrightGreen =				0x0055FF55,
+				BrightYellow =				0x0055FFFF,
+				BrightBlue =				0x00FF5555,
+				BrightMagenta =				0x00FF55FF,
+				BrightCyan =				0x00FFFF55,
+				BrightWhite =				0x00FFFFFF
+			};
 
 
 			//

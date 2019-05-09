@@ -52,14 +52,28 @@ namespace SGE
 				//Divide by 8
 
 			}
-
-			//Draw the characters
-			for (int i = (int)startRow; i < (int)endRow; i++)
+			if (CurrentCellSize == CellSize::Mode8x8)
 			{
-				for (int j = (int)startColumn; j < (int)endColumn; j++)
+				//Draw the characters
+				for (int i = (int)startRow; i < (int)endRow; i++)
 				{
-					//Draw the characters upon the screen
-					SGE::Render::Draw8x8CharacterFilled(CurrentCharacterROM[(unsigned char)Characters[(i * columns) + j].Character], XPosition + j * ColumnSpacing, YPosition + i * RowSpacing, Characters[(i * columns) + j].ForeColor, Characters[(i * columns) + j].BackColor);
+					for (int j = (int)startColumn; j < (int)endColumn; j++)
+					{
+						//Draw the characters upon the screen
+						SGE::Render::Draw8x8CharacterFilled(CurrentCharacterROM[(unsigned char)Characters[(i * columns) + j].Character], XPosition + j * 8, YPosition + i * 8, Characters[(i * columns) + j].ForeColor, Characters[(i * columns) + j].BackColor);
+					}
+				}
+			}
+			else if (CurrentCellSize == CellSize::Mode8x16)
+			{
+				//Draw the characters
+				for (int i = (int)startRow; i < (int)endRow; i++)
+				{
+					for (int j = (int)startColumn; j < (int)endColumn; j++)
+					{
+						//Draw the characters upon the screen
+						SGE::Render::Draw8x16CharacterFilled(&CurrentCharacterROM[(unsigned char)Characters[(i * columns) + j].Character * 2], XPosition + j * 8, YPosition + i * 16, Characters[(i * columns) + j].ForeColor, Characters[(i * columns) + j].BackColor);
+					}
 				}
 			}
 		}

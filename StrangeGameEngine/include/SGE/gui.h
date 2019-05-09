@@ -24,6 +24,14 @@ namespace SGE
 
 			const unsigned long long* CurrentCharacterROM = nullptr;
 
+			enum class CellSize
+			{
+				Mode8x8,
+				Mode8x16
+			};
+			
+			CellSize CurrentCellSize = CellSize::Mode8x8;
+
 		private:
 
 			//
@@ -38,12 +46,6 @@ namespace SGE
 
 			//  The number of columns in the text box
 			unsigned int columns = 0;
-
-			//  The spacing between characters between columns
-			unsigned int ColumnSpacing = 8;
-
-			//  The spacing between character between rows
-			unsigned int RowSpacing = 8;
 
 			//Upper Left corner to align to
 			int XPosition = 0;
