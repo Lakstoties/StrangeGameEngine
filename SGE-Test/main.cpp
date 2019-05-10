@@ -466,10 +466,10 @@ void InputTest(bool& testInputRunning)
 		SGE::Display::AllowRefresh();
 
 		//Check to see if Enter is pressed and where the menu cursor is
-		if (SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::KEY_ENTER])
+		if (SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::ENTER])
 		{
 			//If the Enter key wasn't pressed before
-			if (!lastKeyboardState[SGE::Inputs::Keymap::KEY_ENTER])
+			if (!lastKeyboardState[SGE::Inputs::Keymap::ENTER])
 			{
 				//Check to see where the cursor is and perform the action
 
@@ -508,14 +508,14 @@ void InputTest(bool& testInputRunning)
 
 		//System Master Volume
 		//Decrease volume
-		if (SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::KEY_Z])
+		if (SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::Z])
 		{
 			SGE::Sound::MasterVolume -= .01f;
 			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Sound, "Master Volume: %f\n", SGE::Sound::MasterVolume);
 		}
 
 		//Increase volume
-		if (SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::KEY_X])
+		if (SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::X])
 		{
 			SGE::Sound::MasterVolume += .01f;
 			SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Sound, "Master Volume: %f\n", SGE::Sound::MasterVolume);
@@ -524,29 +524,29 @@ void InputTest(bool& testInputRunning)
 
 		//Select box stuff
 		//If the Down key state has changed and it wasn't pressed previously
-		if (lastKeyboardState[SGE::Inputs::Keymap::KEY_DOWN] != SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::KEY_DOWN] &&
-			!lastKeyboardState[SGE::Inputs::Keymap::KEY_DOWN])
+		if (lastKeyboardState[SGE::Inputs::Keymap::DOWN] != SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::DOWN] &&
+			!lastKeyboardState[SGE::Inputs::Keymap::DOWN])
 		{
 			testMenu.NextSelection();
 		}
 
 		//If the Up key state has changed and it wasn't pressed previously
-		if (lastKeyboardState[SGE::Inputs::Keymap::KEY_UP] != SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::KEY_UP] &&
-			!lastKeyboardState[SGE::Inputs::Keymap::KEY_UP])
+		if (lastKeyboardState[SGE::Inputs::Keymap::UP] != SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::UP] &&
+			!lastKeyboardState[SGE::Inputs::Keymap::UP])
 		{
 			testMenu.PreviousSelection();
 		}
 
 		//If the Left key state has changed and it wasn't pressed previously
-		if (lastKeyboardState[SGE::Inputs::Keymap::KEY_LEFT] != SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::KEY_LEFT] &&
-			!lastKeyboardState[SGE::Inputs::Keymap::KEY_LEFT])
+		if (lastKeyboardState[SGE::Inputs::Keymap::LEFT] != SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::LEFT] &&
+			!lastKeyboardState[SGE::Inputs::Keymap::LEFT])
 		{
 			testMenu.MoveCursor(testMenu.GetCursorLocation() - 1);
 		}
 
 		//If the Right key state has changed and it wasn't pressed previously
-		if (lastKeyboardState[SGE::Inputs::Keymap::KEY_RIGHT] != SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::KEY_RIGHT] &&
-			!lastKeyboardState[SGE::Inputs::Keymap::KEY_RIGHT])
+		if (lastKeyboardState[SGE::Inputs::Keymap::RIGHT] != SGE::Inputs::Keyboard::Status[SGE::Inputs::Keymap::RIGHT] &&
+			!lastKeyboardState[SGE::Inputs::Keymap::RIGHT])
 		{
 			testMenu.MoveCursor(testMenu.GetCursorLocation() + 1);
 		}

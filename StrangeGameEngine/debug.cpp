@@ -552,55 +552,55 @@ namespace SGE
 			//
 
 			//  Escape
-			DrawKeyboardKey(xCornerPosition + DEFAULT_BORDER, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"Esc", SGE::Inputs::Keymap::KEY_ESCAPE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + DEFAULT_BORDER, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"Esc", SGE::Inputs::Keymap::ESCAPE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 
 			//  F1
-			DrawKeyboardKey(xCornerPosition + 30, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F1", SGE::Inputs::Keymap::KEY_F1, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 30, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F1", SGE::Inputs::Keymap::F1, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  F2
-			DrawKeyboardKey(xCornerPosition + 50, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F2", SGE::Inputs::Keymap::KEY_F2, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 50, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F2", SGE::Inputs::Keymap::F2, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  F3
-			DrawKeyboardKey(xCornerPosition + 70, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F3", SGE::Inputs::Keymap::KEY_F3, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 70, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F3", SGE::Inputs::Keymap::F3, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  F4
-			DrawKeyboardKey(xCornerPosition + 90, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F4", SGE::Inputs::Keymap::KEY_F4, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 90, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F4", SGE::Inputs::Keymap::F4, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 
 			//  F5
-			DrawKeyboardKey(xCornerPosition + 115, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F5", SGE::Inputs::Keymap::KEY_F5, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 115, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F5", SGE::Inputs::Keymap::F5, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  F6
-			DrawKeyboardKey(xCornerPosition + 135, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F6", SGE::Inputs::Keymap::KEY_F6, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 135, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F6", SGE::Inputs::Keymap::F6, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  F7
-			DrawKeyboardKey(xCornerPosition + 155, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F7", SGE::Inputs::Keymap::KEY_F7, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 155, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F7", SGE::Inputs::Keymap::F7, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  F8
-			DrawKeyboardKey(xCornerPosition + 175, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F8", SGE::Inputs::Keymap::KEY_F8, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 175, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F8", SGE::Inputs::Keymap::F8, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 
 			//  F9
-			DrawKeyboardKey(xCornerPosition + 200, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F9", SGE::Inputs::Keymap::KEY_F9, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 200, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F9", SGE::Inputs::Keymap::F9, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  F10
-			DrawKeyboardKey(xCornerPosition + 220, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F10", SGE::Inputs::Keymap::KEY_F10, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 220, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F10", SGE::Inputs::Keymap::F10, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  F11
-			DrawKeyboardKey(xCornerPosition + 240, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F11", SGE::Inputs::Keymap::KEY_F11, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 240, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F11", SGE::Inputs::Keymap::F11, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  F12
-			DrawKeyboardKey(xCornerPosition + 260, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F12", SGE::Inputs::Keymap::KEY_F12, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 260, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"F12", SGE::Inputs::Keymap::F12, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  Pnt
-			DrawKeyboardKey(xCornerPosition + 395, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"Pnt", SGE::Inputs::Keymap::KEY_PRINT_SCREEN, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 395, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"Pnt", SGE::Inputs::Keymap::PRINT_SCREEN, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  SLk
-			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"SLk", SGE::Inputs::Keymap::KEY_SCROLL_LOCK, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"SLk", SGE::Inputs::Keymap::SCROLL_LOCK, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  Pse
-			DrawKeyboardKey(xCornerPosition + 435, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"Pse", SGE::Inputs::Keymap::KEY_PAUSE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 435, yCornerPosition + DEFAULT_Y_ROW_1, (char *)"Pse", SGE::Inputs::Keymap::PAUSE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 
 			//
@@ -608,284 +608,284 @@ namespace SGE
 			//
 
 			//  `
-			DrawKeyboardKey(xCornerPosition + DEFAULT_BORDER, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"~ `", SGE::Inputs::Keymap::KEY_GRAVE_ACCENT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + DEFAULT_BORDER, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"~ `", SGE::Inputs::Keymap::GRAVE_ACCENT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  1
-			DrawKeyboardKey(xCornerPosition + 25, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"1 !", SGE::Inputs::Keymap::KEY_1, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 25, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"1 !", SGE::Inputs::Keymap::ONE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  2
-			DrawKeyboardKey(xCornerPosition + 45, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"2 @", SGE::Inputs::Keymap::KEY_2, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 45, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"2 @", SGE::Inputs::Keymap::TWO, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  3
-			DrawKeyboardKey(xCornerPosition + 65, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"3 #", SGE::Inputs::Keymap::KEY_3, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 65, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"3 #", SGE::Inputs::Keymap::THREE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  4
-			DrawKeyboardKey(xCornerPosition + 85, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"4 $", SGE::Inputs::Keymap::KEY_4, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 85, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"4 $", SGE::Inputs::Keymap::FOUR, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  5
-			DrawKeyboardKey(xCornerPosition + 105, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"5 %", SGE::Inputs::Keymap::KEY_5, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 105, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"5 %", SGE::Inputs::Keymap::FIVE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  6
-			DrawKeyboardKey(xCornerPosition + 125, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"6 ^", SGE::Inputs::Keymap::KEY_6, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 125, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"6 ^", SGE::Inputs::Keymap::SIX, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  7
-			DrawKeyboardKey(xCornerPosition + 145, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"7 &", SGE::Inputs::Keymap::KEY_7, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 145, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"7 &", SGE::Inputs::Keymap::SEVEN, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  8
-			DrawKeyboardKey(xCornerPosition + 165, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"8 *", SGE::Inputs::Keymap::KEY_8, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 165, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"8 *", SGE::Inputs::Keymap::EIGHT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  9
-			DrawKeyboardKey(xCornerPosition + 185, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"9 (", SGE::Inputs::Keymap::KEY_9, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 185, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"9 (", SGE::Inputs::Keymap::NINE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  0
-			DrawKeyboardKey(xCornerPosition + 205, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"0 )", SGE::Inputs::Keymap::KEY_0, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 205, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"0 )", SGE::Inputs::Keymap::ZERO, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  -
-			DrawKeyboardKey(xCornerPosition + 225, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"- _", SGE::Inputs::Keymap::KEY_MINUS, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 225, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"- _", SGE::Inputs::Keymap::MINUS, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  =
-			DrawKeyboardKey(xCornerPosition + 245, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"+ =", SGE::Inputs::Keymap::KEY_EQUAL, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 245, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"+ =", SGE::Inputs::Keymap::EQUAL, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  BkS  (Backspace) Part 1
-			DrawKeyboardKey(xCornerPosition + 265, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"Bck Spc", SGE::Inputs::Keymap::KEY_BACKSPACE, DEFAULT_KEY_WIDTH + 21, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 265, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"Bck Spc", SGE::Inputs::Keymap::BACKSPACE, DEFAULT_KEY_WIDTH + 21, DEFAULT_KEY_HEIGHT);
 
 			//  Ins
-			DrawKeyboardKey(xCornerPosition + 310, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"Ins", SGE::Inputs::Keymap::KEY_INSERT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 310, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"Ins", SGE::Inputs::Keymap::INSERT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  Hom
-			DrawKeyboardKey(xCornerPosition + 330, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"Hom", SGE::Inputs::Keymap::KEY_HOME, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 330, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"Hom", SGE::Inputs::Keymap::HOME, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  PgU
-			DrawKeyboardKey(xCornerPosition + 350, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"PgU", SGE::Inputs::Keymap::KEY_PAGE_UP, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 350, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"PgU", SGE::Inputs::Keymap::PAGE_UP, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  NmL  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 375, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"NmL", SGE::Inputs::Keymap::KEY_NUM_LOCK, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 375, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"NmL", SGE::Inputs::Keymap::NUM_LOCK, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  /  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 395, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"/", SGE::Inputs::Keymap::KEY_KP_DIVIDE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 395, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"/", SGE::Inputs::Keymap::KP_DIVIDE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  *  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"*", SGE::Inputs::Keymap::KEY_KP_MULTIPLY, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"*", SGE::Inputs::Keymap::KP_MULTIPLY, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  -  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 435, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"-", SGE::Inputs::Keymap::KEY_KP_SUBTRACT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 435, yCornerPosition + DEFAULT_Y_ROW_2, (char *)"-", SGE::Inputs::Keymap::KP_SUBTRACT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//
 			//  Third Row
 			//
 
 			//  Tab
-			DrawKeyboardKey(xCornerPosition + DEFAULT_BORDER, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"Tab", SGE::Inputs::Keymap::KEY_TAB, DEFAULT_KEY_WIDTH + 10, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + DEFAULT_BORDER, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"Tab", SGE::Inputs::Keymap::TAB, DEFAULT_KEY_WIDTH + 10, DEFAULT_KEY_HEIGHT);
 
 			//  Q
-			DrawKeyboardKey(xCornerPosition + 35, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"Q", SGE::Inputs::Keymap::KEY_Q, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 35, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"Q", SGE::Inputs::Keymap::Q, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  W
-			DrawKeyboardKey(xCornerPosition + 55, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"W", SGE::Inputs::Keymap::KEY_W, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 55, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"W", SGE::Inputs::Keymap::W, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  E
-			DrawKeyboardKey(xCornerPosition + 75, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"E", SGE::Inputs::Keymap::KEY_E, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 75, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"E", SGE::Inputs::Keymap::E, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  R
-			DrawKeyboardKey(xCornerPosition + 95, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"R", SGE::Inputs::Keymap::KEY_R, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 95, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"R", SGE::Inputs::Keymap::R, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  T
-			DrawKeyboardKey(xCornerPosition + 115, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"T", SGE::Inputs::Keymap::KEY_T, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 115, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"T", SGE::Inputs::Keymap::T, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  Y
-			DrawKeyboardKey(xCornerPosition + 135, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"Y", SGE::Inputs::Keymap::KEY_Y, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 135, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"Y", SGE::Inputs::Keymap::Y, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  U
-			DrawKeyboardKey(xCornerPosition + 155, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"U", SGE::Inputs::Keymap::KEY_U, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 155, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"U", SGE::Inputs::Keymap::U, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  I
-			DrawKeyboardKey(xCornerPosition + 175, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"I", SGE::Inputs::Keymap::KEY_I, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 175, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"I", SGE::Inputs::Keymap::I, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  O
-			DrawKeyboardKey(xCornerPosition + 195, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"O", SGE::Inputs::Keymap::KEY_O, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 195, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"O", SGE::Inputs::Keymap::O, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  P
-			DrawKeyboardKey(xCornerPosition + 215, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"P", SGE::Inputs::Keymap::KEY_P, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 215, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"P", SGE::Inputs::Keymap::P, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  [
-			DrawKeyboardKey(xCornerPosition + 235, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"[", SGE::Inputs::Keymap::KEY_LEFT_BRACKET, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 235, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"[", SGE::Inputs::Keymap::LEFT_BRACKET, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  ]
-			DrawKeyboardKey(xCornerPosition + 255, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"]", SGE::Inputs::Keymap::KEY_RIGHT_BRACKET, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 255, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"]", SGE::Inputs::Keymap::RIGHT_BRACKET, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  "\"
-			DrawKeyboardKey(xCornerPosition + 275, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"\\ |", SGE::Inputs::Keymap::KEY_BACKSLASH, DEFAULT_KEY_WIDTH + 11, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 275, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"\\ |", SGE::Inputs::Keymap::BACKSLASH, DEFAULT_KEY_WIDTH + 11, DEFAULT_KEY_HEIGHT);
 
 			//  Del
-			DrawKeyboardKey(xCornerPosition + 310, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"Del", SGE::Inputs::Keymap::KEY_DELETE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 310, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"Del", SGE::Inputs::Keymap::DELETE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  End
-			DrawKeyboardKey(xCornerPosition + 330, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"End", SGE::Inputs::Keymap::KEY_END, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 330, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"End", SGE::Inputs::Keymap::END, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  PgD
-			DrawKeyboardKey(xCornerPosition + 350, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"PgD", SGE::Inputs::Keymap::KEY_PAGE_DOWN, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 350, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"PgD", SGE::Inputs::Keymap::PAGE_DOWN, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  7  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 375, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"7", SGE::Inputs::Keymap::KEY_KP_7, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 375, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"7", SGE::Inputs::Keymap::KP_7, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  8  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 395, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"8", SGE::Inputs::Keymap::KEY_KP_8, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 395, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"8", SGE::Inputs::Keymap::KP_8, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  9  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"9", SGE::Inputs::Keymap::KEY_KP_9, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"9", SGE::Inputs::Keymap::KP_9, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  +  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 435, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"+", SGE::Inputs::Keymap::KEY_KP_ADD, DEFAULT_KEY_WIDTH, 2 * DEFAULT_KEY_HEIGHT + 1);
+			DrawKeyboardKey(xCornerPosition + 435, yCornerPosition + DEFAULT_Y_ROW_3, (char *)"+", SGE::Inputs::Keymap::KP_ADD, DEFAULT_KEY_WIDTH, 2 * DEFAULT_KEY_HEIGHT + 1);
 
 			//
 			//  Fourth Row
 			//
 
 			//  Cap Lck
-			DrawKeyboardKey(xCornerPosition + DEFAULT_BORDER, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"CapLck", SGE::Inputs::Keymap::KEY_CAPS_LOCK, DEFAULT_KEY_WIDTH + 15, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + DEFAULT_BORDER, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"CapLck", SGE::Inputs::Keymap::CAPS_LOCK, DEFAULT_KEY_WIDTH + 15, DEFAULT_KEY_HEIGHT);
 
 			//  A
-			DrawKeyboardKey(xCornerPosition + 40, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"A", SGE::Inputs::Keymap::KEY_A, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 40, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"A", SGE::Inputs::Keymap::A, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  S
-			DrawKeyboardKey(xCornerPosition + 60, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"S", SGE::Inputs::Keymap::KEY_S, DEFAULT_KEY_WIDTH , DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 60, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"S", SGE::Inputs::Keymap::S, DEFAULT_KEY_WIDTH , DEFAULT_KEY_HEIGHT);
 
 			//  D
-			DrawKeyboardKey(xCornerPosition + 80, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"D", SGE::Inputs::Keymap::KEY_D, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 80, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"D", SGE::Inputs::Keymap::D, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  F
-			DrawKeyboardKey(xCornerPosition + 100, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"F", SGE::Inputs::Keymap::KEY_F, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 100, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"F", SGE::Inputs::Keymap::F, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  G
-			DrawKeyboardKey(xCornerPosition + 120, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"G", SGE::Inputs::Keymap::KEY_G, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 120, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"G", SGE::Inputs::Keymap::G, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  H
-			DrawKeyboardKey(xCornerPosition + 140, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"H", SGE::Inputs::Keymap::KEY_H, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 140, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"H", SGE::Inputs::Keymap::H, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  J
-			DrawKeyboardKey(xCornerPosition + 160, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"J", SGE::Inputs::Keymap::KEY_J, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 160, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"J", SGE::Inputs::Keymap::J, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  K
-			DrawKeyboardKey(xCornerPosition + 180, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"K", SGE::Inputs::Keymap::KEY_K, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 180, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"K", SGE::Inputs::Keymap::K, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  L
-			DrawKeyboardKey(xCornerPosition + 200, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"L", SGE::Inputs::Keymap::KEY_L, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 200, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"L", SGE::Inputs::Keymap::L, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  ;
-			DrawKeyboardKey(xCornerPosition + 220, yCornerPosition + DEFAULT_Y_ROW_4, (char *)";", SGE::Inputs::Keymap::KEY_SEMICOLON, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 220, yCornerPosition + DEFAULT_Y_ROW_4, (char *)";", SGE::Inputs::Keymap::SEMICOLON, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  '
-			DrawKeyboardKey(xCornerPosition + 240, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"'", SGE::Inputs::Keymap::KEY_APOSTROPHE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 240, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"'", SGE::Inputs::Keymap::APOSTROPHE, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  Enter
-			DrawKeyboardKey(xCornerPosition + 260, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"Enter", SGE::Inputs::Keymap::KEY_ENTER, DEFAULT_KEY_WIDTH + 26, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 260, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"Enter", SGE::Inputs::Keymap::ENTER, DEFAULT_KEY_WIDTH + 26, DEFAULT_KEY_HEIGHT);
 
 			//  4  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 375, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"4", SGE::Inputs::Keymap::KEY_KP_4, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 375, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"4", SGE::Inputs::Keymap::KP_4, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  5  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 395, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"5", SGE::Inputs::Keymap::KEY_KP_5, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 395, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"5", SGE::Inputs::Keymap::KP_5, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  6  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"6", SGE::Inputs::Keymap::KEY_KP_6, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + DEFAULT_Y_ROW_4, (char *)"6", SGE::Inputs::Keymap::KP_6, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//
 			//  Fifth Row
 			//
 
 			//  Shift  (Left)
-			DrawKeyboardKey(xCornerPosition + DEFAULT_BORDER, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"Shift", SGE::Inputs::Keymap::KEY_LEFT_SHIFT, DEFAULT_KEY_WIDTH + 25, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + DEFAULT_BORDER, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"Shift", SGE::Inputs::Keymap::LEFT_SHIFT, DEFAULT_KEY_WIDTH + 25, DEFAULT_KEY_HEIGHT);
 
 			//  Z
-			DrawKeyboardKey(xCornerPosition + 50, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"Z", SGE::Inputs::Keymap::KEY_Z, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 50, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"Z", SGE::Inputs::Keymap::Z, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  X
-			DrawKeyboardKey(xCornerPosition + 70, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"X", SGE::Inputs::Keymap::KEY_X, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 70, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"X", SGE::Inputs::Keymap::X, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  C
-			DrawKeyboardKey(xCornerPosition + 90, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"C", SGE::Inputs::Keymap::KEY_C, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 90, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"C", SGE::Inputs::Keymap::C, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  V
-			DrawKeyboardKey(xCornerPosition + 110, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"V", SGE::Inputs::Keymap::KEY_V, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 110, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"V", SGE::Inputs::Keymap::V, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  B
-			DrawKeyboardKey(xCornerPosition + 130, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"B", SGE::Inputs::Keymap::KEY_B, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 130, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"B", SGE::Inputs::Keymap::B, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  N
-			DrawKeyboardKey(xCornerPosition + 150, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"N", SGE::Inputs::Keymap::KEY_N, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 150, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"N", SGE::Inputs::Keymap::N, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  M
-			DrawKeyboardKey(xCornerPosition + 170, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"M", SGE::Inputs::Keymap::KEY_M, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 170, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"M", SGE::Inputs::Keymap::M, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  ,
-			DrawKeyboardKey(xCornerPosition + 190, yCornerPosition + DEFAULT_Y_ROW_5, (char *)",", SGE::Inputs::Keymap::KEY_COMMA, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 190, yCornerPosition + DEFAULT_Y_ROW_5, (char *)",", SGE::Inputs::Keymap::COMMA, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  .
-			DrawKeyboardKey(xCornerPosition + 210, yCornerPosition + DEFAULT_Y_ROW_5, (char *)".", SGE::Inputs::Keymap::KEY_PERIOD, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 210, yCornerPosition + DEFAULT_Y_ROW_5, (char *)".", SGE::Inputs::Keymap::PERIOD, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  /
-			DrawKeyboardKey(xCornerPosition + 230, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"/", SGE::Inputs::Keymap::KEY_SLASH, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 230, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"/", SGE::Inputs::Keymap::SLASH, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  Shift  (Right)
-			DrawKeyboardKey(xCornerPosition + 250, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"Shift", SGE::Inputs::Keymap::KEY_RIGHT_SHIFT, DEFAULT_KEY_WIDTH * 2 + 17, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 250, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"Shift", SGE::Inputs::Keymap::RIGHT_SHIFT, DEFAULT_KEY_WIDTH * 2 + 17, DEFAULT_KEY_HEIGHT);
 
 			//  Up
-			DrawKeyboardKey(xCornerPosition + 330, yCornerPosition + DEFAULT_Y_ROW_5, (char *)" ^ ", SGE::Inputs::Keymap::KEY_UP, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 330, yCornerPosition + DEFAULT_Y_ROW_5, (char *)" ^ ", SGE::Inputs::Keymap::UP, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  1  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 375, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"1", SGE::Inputs::Keymap::KEY_KP_1, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 375, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"1", SGE::Inputs::Keymap::KP_1, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  2  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 395, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"2", SGE::Inputs::Keymap::KEY_KP_2, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 395, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"2", SGE::Inputs::Keymap::KP_2, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  3  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"3", SGE::Inputs::Keymap::KEY_KP_3, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"3", SGE::Inputs::Keymap::KP_3, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  Enter  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 435, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"Ent", SGE::Inputs::Keymap::KEY_KP_ENTER, DEFAULT_KEY_WIDTH, 2 * DEFAULT_KEY_HEIGHT + 1);
+			DrawKeyboardKey(xCornerPosition + 435, yCornerPosition + DEFAULT_Y_ROW_5, (char *)"Ent", SGE::Inputs::Keymap::KP_ENTER, DEFAULT_KEY_WIDTH, 2 * DEFAULT_KEY_HEIGHT + 1);
 
 			//
 			//  Sixth Row
 			//
 
 			//  Ctrl  (Left)
-			DrawKeyboardKey(xCornerPosition + DEFAULT_BORDER, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Ctrl", SGE::Inputs::Keymap::KEY_LEFT_CONTROL, DEFAULT_KEY_WIDTH + 10, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + DEFAULT_BORDER, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Ctrl", SGE::Inputs::Keymap::LEFT_CONTROL, DEFAULT_KEY_WIDTH + 10, DEFAULT_KEY_HEIGHT);
 
 			//  Win  (Left)
-			DrawKeyboardKey(xCornerPosition + 35, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Win", SGE::Inputs::Keymap::KEY_LEFT_SUPER, DEFAULT_KEY_WIDTH + 5, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 35, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Win", SGE::Inputs::Keymap::LEFT_SUPER, DEFAULT_KEY_WIDTH + 5, DEFAULT_KEY_HEIGHT);
 
 			//  Alt  (Left)
-			DrawKeyboardKey(xCornerPosition + 60, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Alt", SGE::Inputs::Keymap::KEY_LEFT_ALT, DEFAULT_KEY_WIDTH + 5, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 60, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Alt", SGE::Inputs::Keymap::LEFT_ALT, DEFAULT_KEY_WIDTH + 5, DEFAULT_KEY_HEIGHT);
 
 			//  Space
-			DrawKeyboardKey(xCornerPosition + 85, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"   Space", SGE::Inputs::Keymap::KEY_SPACE, 6 * DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 85, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"   Space", SGE::Inputs::Keymap::SPACE, 6 * DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  Alt  (Right)
-			DrawKeyboardKey(xCornerPosition + 200, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Alt", SGE::Inputs::Keymap::KEY_RIGHT_ALT, DEFAULT_KEY_WIDTH + 5, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 200, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Alt", SGE::Inputs::Keymap::RIGHT_ALT, DEFAULT_KEY_WIDTH + 5, DEFAULT_KEY_HEIGHT);
 
 			//  Win  (Right)
-			DrawKeyboardKey(xCornerPosition + 225, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Win", SGE::Inputs::Keymap::KEY_RIGHT_SUPER, DEFAULT_KEY_WIDTH + 5, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 225, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Win", SGE::Inputs::Keymap::RIGHT_SUPER, DEFAULT_KEY_WIDTH + 5, DEFAULT_KEY_HEIGHT);
 
 			//  Menu
-			DrawKeyboardKey(xCornerPosition + 250, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Menu", SGE::Inputs::Keymap::KEY_MENU, DEFAULT_KEY_WIDTH + 5, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 250, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Menu", SGE::Inputs::Keymap::MENU, DEFAULT_KEY_WIDTH + 5, DEFAULT_KEY_HEIGHT);
 		
 			//  Ctrl  (Right)
-			DrawKeyboardKey(xCornerPosition + 275, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Ctrl", SGE::Inputs::Keymap::KEY_RIGHT_CONTROL, DEFAULT_KEY_WIDTH + 10, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 275, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"Ctrl", SGE::Inputs::Keymap::RIGHT_CONTROL, DEFAULT_KEY_WIDTH + 10, DEFAULT_KEY_HEIGHT);
 
 			//  Left
-			DrawKeyboardKey(xCornerPosition + 310, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"<-", SGE::Inputs::Keymap::KEY_LEFT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 310, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"<-", SGE::Inputs::Keymap::LEFT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  Down
-			DrawKeyboardKey(xCornerPosition + 330, yCornerPosition + DEFAULT_Y_ROW_6, (char *)" v ", SGE::Inputs::Keymap::KEY_DOWN, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 330, yCornerPosition + DEFAULT_Y_ROW_6, (char *)" v ", SGE::Inputs::Keymap::DOWN, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  Right
-			DrawKeyboardKey(xCornerPosition + 350, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"->", SGE::Inputs::Keymap::KEY_RIGHT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 350, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"->", SGE::Inputs::Keymap::RIGHT, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 			//  0  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 375, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"0", SGE::Inputs::Keymap::KEY_KP_0, DEFAULT_KEY_WIDTH * 2 + 1, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 375, yCornerPosition + DEFAULT_Y_ROW_6, (char *)"0", SGE::Inputs::Keymap::KP_0, DEFAULT_KEY_WIDTH * 2 + 1, DEFAULT_KEY_HEIGHT);
 
 			//  .  (Keypad)
-			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + DEFAULT_Y_ROW_6, (char *)".", SGE::Inputs::Keymap::KEY_KP_DECIMAL, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
+			DrawKeyboardKey(xCornerPosition + 415, yCornerPosition + DEFAULT_Y_ROW_6, (char *)".", SGE::Inputs::Keymap::KP_DECIMAL, DEFAULT_KEY_WIDTH, DEFAULT_KEY_HEIGHT);
 
 
 			

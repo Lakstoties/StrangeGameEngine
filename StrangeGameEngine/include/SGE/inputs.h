@@ -94,134 +94,137 @@ namespace SGE
 		///
 		///Keymap
 		///
-
-		namespace Keymap
+		enum Keymap : int
 		{
-			//Printable keys
-			extern const int KEY_SPACE;			//' ' 
-			extern const int KEY_APOSTROPHE;	// ' 
-			extern const int KEY_COMMA;			// ,
-			extern const int KEY_MINUS;			// - 
-			extern const int KEY_PERIOD;		// . 
-			extern const int KEY_SLASH;			// / 
-			extern const int KEY_0;				// 0
-			extern const int KEY_1;				// 1
-			extern const int KEY_2;				// 2
-			extern const int KEY_3;				// 3
-			extern const int KEY_4;				// 4
-			extern const int KEY_5;				// 5
-			extern const int KEY_6;				// 6
-			extern const int KEY_7;				// 7
-			extern const int KEY_8;				// 8
-			extern const int KEY_9;				// 9
-			extern const int KEY_SEMICOLON;		// ; 
-			extern const int KEY_EQUAL;			// = 
-			extern const int KEY_A;				// a/A
-			extern const int KEY_B;				// b/B
-			extern const int KEY_C;				// c/C
-			extern const int KEY_D;				// d/D
-			extern const int KEY_E;				// e/E
-			extern const int KEY_F;				// f/F
-			extern const int KEY_G;				// g/G
-			extern const int KEY_H;				// h/H
-			extern const int KEY_I;				// i/I
-			extern const int KEY_J;				// j/J
-			extern const int KEY_K;				// k/K
-			extern const int KEY_L;				// l/L
-			extern const int KEY_M;				// m/M
-			extern const int KEY_N;				// n/N
-			extern const int KEY_O;				// o/O
-			extern const int KEY_P;				// p/P
-			extern const int KEY_Q;				// q/Q
-			extern const int KEY_R;				// r/R
-			extern const int KEY_S;				// s/S
-			extern const int KEY_T;				// t/T
-			extern const int KEY_U;				// u/U
-			extern const int KEY_V;				// v/V
-			extern const int KEY_W;				// w/W
-			extern const SGEAPI int KEY_X;				// x/X
-			extern const int KEY_Y;				// y/Y
-			extern const SGEAPI int KEY_Z;				// z/Z
-			extern const int KEY_LEFT_BRACKET;	// [ 
-			extern const int KEY_BACKSLASH;		// "\" 
-			extern const int KEY_RIGHT_BRACKET;	// ] 
-			extern const int KEY_GRAVE_ACCENT;	// `
-			extern const int KEY_WORLD_1;		// non-US #1
-			extern const int KEY_WORLD_2;		// non-US #2
+			//
+			//  Printable keys
+			//
+			SPACE		= 32,	//' ' 
+			APOSTROPHE	= 39,	// ' 
+			COMMA		= 44,	// ,
+			MINUS		= 45,	// - 
+			PERIOD		= 46,	// . 
+			SLASH		= 47,	// / 
+			ZERO		= 48,	// 0
+			ONE			= 49,	// 1
+			TWO			= 50,	// 2
+			THREE		= 51,	// 3
+			FOUR		= 52,	// 4
+			FIVE		= 53,	// 5
+			SIX			= 54,	// 6
+			SEVEN		= 55,	// 7
+			EIGHT		= 56,	// 8
+			NINE		= 57,	// 9
+			SEMICOLON	= 59,	// ; 
+			EQUAL		= 61,	// = 
+			A			= 65,	// a/A
+			B			= 66,	// b/B
+			C			= 67,	// c/C
+			D			= 68,	// d/D
+			E			= 69,	// e/E
+			F			= 70,	// f/F
+			G			= 71,	// g/G
+			H			= 72,	// h/H
+			I			= 73,	// i/I
+			J			= 74,	// j/J
+			K			= 75,	// k/K
+			L			= 76,	// l/L
+			M			= 77,	// m/M
+			N			= 78,	// n/N
+			O			= 79,	// o/O
+			P			= 80,	// p/P
+			Q			= 81,	// q/Q
+			R			= 82,	// r/R
+			S			= 83,	// s/S
+			T			= 84,	// t/T
+			U			= 85,	// u/U
+			V			= 86,	// v/V
+			W			= 87,	// w/W
+			X			= 88,	// x/X
+			Y			= 89,	// y/Y
+			Z			= 90,	// z/Z
+			LEFT_BRACKET = 91,	// [ 
+			BACKSLASH	= 92,		// "\" 
+			RIGHT_BRACKET = 93,	// ] 
+			GRAVE_ACCENT = 96,	// `
+			WORLD_1		= 161,		// non-US #1
+			WORLD_2		= 162,		// non-US #2
 
+			//
 			// Function keys
-			extern const int KEY_ESCAPE;		// Esc
-			extern const SGEAPI int KEY_ENTER;			// Enter
-			extern const int KEY_TAB;			// Tab
-			extern const int KEY_BACKSPACE;		// Backspace
-			extern const int KEY_INSERT;		// Insert
-			extern const int KEY_DELETE;		// Delete
-			extern const SGEAPI int KEY_RIGHT;			// ->
-			extern const SGEAPI int KEY_LEFT;			// <-
-			extern const SGEAPI int KEY_DOWN;			// v
-			extern const SGEAPI int KEY_UP;			// ^
-			extern const SGEAPI int KEY_PAGE_UP;		// Page Up
-			extern const SGEAPI int KEY_PAGE_DOWN;		// Page Down
-			extern const int KEY_HOME;			// Home
-			extern const int KEY_END;			// End
-			extern const int KEY_CAPS_LOCK;		// Caps Lock
-			extern const int KEY_SCROLL_LOCK;	// Scroll Lock
-			extern const int KEY_NUM_LOCK;		// Num Lock
-			extern const int KEY_PRINT_SCREEN;	// Print Screen
-			extern const int KEY_PAUSE;			// Pause
-			extern const int KEY_F1;			// F1
-			extern const int KEY_F2;			// F2
-			extern const int KEY_F3;			// F3
-			extern const int KEY_F4;			// F4
-			extern const int KEY_F5;			// F5
-			extern const int KEY_F6;			// F6
-			extern const int KEY_F7;			// F7
-			extern const int KEY_F8;			// F8
-			extern const int KEY_F9;			// F9
-			extern const int KEY_F10;			// F10
-			extern const int KEY_F11;			// F11
-			extern const int KEY_F12;			// F12
-			extern const int KEY_F13;			// F13
-			extern const int KEY_F14;			// F14
-			extern const int KEY_F15;			// F15
-			extern const int KEY_F16;			// F16
-			extern const int KEY_F17;			// F17
-			extern const int KEY_F18;			// F18
-			extern const int KEY_F19;			// F19
-			extern const int KEY_F20;			// F20
-			extern const int KEY_F21;			// F21
-			extern const int KEY_F22;			// F22
-			extern const int KEY_F23;			// F23
-			extern const int KEY_F24;			// F24
-			extern const int KEY_F25;			// F25
-			extern const int KEY_KP_0;			// Keypad 0
-			extern const int KEY_KP_1;			// Keypad 1
-			extern const int KEY_KP_2;			// Keypad 2
-			extern const int KEY_KP_3;			// Keypad 3
-			extern const int KEY_KP_4;			// Keypad 4
-			extern const int KEY_KP_5;			// Keypad 5
-			extern const int KEY_KP_6;			// Keypad 6
-			extern const int KEY_KP_7;			// Keypad 7
-			extern const int KEY_KP_8;			// Keypad 8
-			extern const int KEY_KP_9;			// Keypad 9
-			extern const int KEY_KP_DECIMAL;	// Keypad .
-			extern const int KEY_KP_DIVIDE;		// Keypad /
-			extern const int KEY_KP_MULTIPLY;	// Keypad *
-			extern const int KEY_KP_SUBTRACT;	// Keypad -
-			extern const int KEY_KP_ADD;		// Keypad +
-			extern const int KEY_KP_ENTER;		// Keypad Enter
-			extern const int KEY_KP_EQUAL;		// Keypad =
-			extern const int KEY_LEFT_SHIFT;	// Left Shift
-			extern const int KEY_LEFT_CONTROL;	// Left Control
-			extern const int KEY_LEFT_ALT;		// Left Alt
-			extern const int KEY_LEFT_SUPER;	// Left Super/Windows
-			extern const int KEY_RIGHT_SHIFT;	// Right Shift	
-			extern const int KEY_RIGHT_CONTROL;	// Right Control
-			extern const int KEY_RIGHT_ALT;		// Right Alt
-			extern const int KEY_RIGHT_SUPER;	// Right Super/Windows
-			extern const int KEY_MENU;			// Menu
+			//
+			ESCAPE		= 256,	// Esc
+			ENTER		= 257,	// Enter
+			TAB			= 258,	// Tab
+			BACKSPACE	= 259,	// Backspace
+			INSERT		= 260,	// Insert
+			DELETE		= 261,	// Delete
+			RIGHT		= 262,	// ->
+			LEFT		= 263,	// <-
+			DOWN		= 264,	// v
+			UP			= 265,	// ^
+			PAGE_UP		= 266,	// Page Up
+			PAGE_DOWN	= 267,	// Page Down
+			HOME		= 268,	// Home
+			END			= 269,	// End
+			CAPS_LOCK	= 280,	// Caps Lock
+			SCROLL_LOCK = 281,	// Scroll Lock
+			NUM_LOCK	= 282,	// Num Lock
+			PRINT_SCREEN = 283,	// Print Screen
+			PAUSE		= 284,	// Pause
+			F1			= 290,	// F1
+			F2			= 291,	// F2
+			F3			= 292,	// F3
+			F4			= 293,	// F4
+			F5			= 294,	// F5
+			F6			= 295,	// F6
+			F7			= 296,	// F7
+			F8			= 297,	// F8
+			F9			= 298,	// F9
+			F10			= 299,	// F10
+			F11			= 300,	// F11
+			F12			= 301,	// F12
+			F13			= 302,	// F13
+			F14			= 303,	// F14
+			F15			= 304,	// F15
+			F16			= 305,	// F16
+			F17			= 306,	// F17
+			F18			= 307,	// F18
+			F19			= 308,	// F19
+			F20			= 309,	// F20
+			F21			= 310,	// F21
+			F22			= 311,	// F22
+			F23			= 312,	// F23
+			F24			= 313,	// F24
+			F25			= 314,	// F25
+			KP_0		= 320,	// Keypad 0
+			KP_1		= 321,	// Keypad 1
+			KP_2		= 322,	// Keypad 2
+			KP_3		= 323,	// Keypad 3
+			KP_4		= 324,	// Keypad 4
+			KP_5		= 325,	// Keypad 5
+			KP_6		= 326,	// Keypad 6
+			KP_7		= 327,	// Keypad 7
+			KP_8		= 328,	// Keypad 8
+			KP_9		= 329,	// Keypad 9
+			KP_DECIMAL	= 330,	// Keypad .
+			KP_DIVIDE	= 331,	// Keypad /
+			KP_MULTIPLY = 332,	// Keypad *
+			KP_SUBTRACT = 333,	// Keypad -
+			KP_ADD		= 334,	// Keypad +
+			KP_ENTER	= 335,	// Keypad Enter
+			KP_EQUAL	= 336,	// Keypad =
+			LEFT_SHIFT	= 340,	// Left Shift
+			LEFT_CONTROL = 341,	// Left Control
+			LEFT_ALT	= 342,	// Left Alt
+			LEFT_SUPER	= 343,	// Left Super/Windows
+			RIGHT_SHIFT = 344,	// Right Shift	
+			RIGHT_CONTROL = 345,// Right Control
+			RIGHT_ALT	= 346,	// Right Alt
+			RIGHT_SUPER = 347,	// Right Super/Windows
+			MENU		= 348,	// Menu
 
-			extern const int KEY_LAST;			// Last
-		}
+			LAST		= 348	// Last
+		};
 	}
 }
