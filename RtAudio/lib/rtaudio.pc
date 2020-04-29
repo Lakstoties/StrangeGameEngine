@@ -1,4 +1,4 @@
-prefix=C:/Users/Bryan/CMakeBuilds/9d753895-9e5b-5831-923b-f2d11afa5dc8/install/x86-Release
+prefix=C:/Users/bschuder/Desktop/rtaudio-5.1.0/out/install/x64-Release
 exec_prefix=${prefix}
 libdir=${exec_prefix}/lib
 includedir=${prefix}/include/rtaudio        
