@@ -82,7 +82,8 @@ namespace SGE
 			//  The virtual video RAM.  Publically accessible to allow other components to write to it directly.
 			//  This is by design.  
 			//
-			pixel RAM[MAX_VIDEO_RAM] = { 0 };
+			//pixel RAM[MAX_VIDEO_RAM] = { 0 };
+			pixel* RAM = NULL;
 
 			//The virtual video horizontal resolution
 			int X = 0;
@@ -178,7 +179,6 @@ namespace SGE
 			SGE::Display::ViewPortWindowY = frameBufferY - (SGE::Display::ViewPortWindowOffsetY << 1);
 		}
 
-
 		void OpenGLBoilerPlateFunction()
 		{
 			//
@@ -217,138 +217,7 @@ namespace SGE
 			glfwSwapInterval(1);
 		}
 
-		//
-		//  Compatibility Drawing Function for OpenGL 2.0 and later
-		//
-		void OpenGL20DrawFunction()
-		{
-			OpenGLBoilerPlateFunction();
-
-			//Initialize for drawing
-
-			//Create a simple handle for the Pixel Buffer Object
-			GLuint pixelBufferObject;
-
-			//Generate a Buffer
-			glGenBuffers(1, &pixelBufferObject);
-
-			//Bind the buffer to our context
-			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pixelBufferObject);
-
-			//Do some drawing.
-			while (continueDrawing)
-			{
 				//
-				//  OpenGL Window sizing, scaling, and centering!
-				//
-
-				//Check to see if this stuff has changed from previous
-				if (SGE::Display::FrameBufferChanged)
-				{
-					RecalculateViewport();
-
-					//Welp, shit has changed!  Set new the Viewport
-					glViewport(
-						//Center it in the middle of the X axis
-						SGE::Display::ViewPortWindowOffsetX,
-						//Set the Y to the origin
-						SGE::Display::ViewPortWindowOffsetY,
-						//Scale the width based on the height and aspect ratio
-						SGE::Display::ViewPortWindowX,
-						//Set the height to the frameBufferHeight
-						SGE::Display::ViewPortWindowY);
-
-					//Got it, reset the flag
-					SGE::Display::FrameBufferChanged = false;
-				}
-
-				//Upload the data for the texture to the actual video card.
-				//If the game resolution has changed, then a new texture is needed, since the texture dimensions could have changed.
-				if (GameResolutionChanged)
-				{
-					//Lock the refresh mutex
-					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
-					refreshHold.lock();
-
-					//Recreate the Buffer storage for the new video ram size
-					glBufferData(GL_PIXEL_UNPACK_BUFFER, Video::X * Video::Y * sizeof(Video::pixel), Video::RAM, GL_DYNAMIC_DRAW);
-
-					//Unlock the refresh mutex
-					refreshHold.unlock();
-
-					//Move load up the texture data from the buffer
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::X, Video::Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-
-					//Set the flag back to normal
-					GameResolutionChanged = false;
-
-					//Flag the viewport to change to properly scale the new resolution
-					FrameBufferChanged = true;
-				}
-				//Otherwise just update it
-				else
-				{
-					//Lock the refresh mutex
-					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
-					refreshHold.lock();
-
-					glBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, Video::X * Video::Y * sizeof(Video::pixel), Video::RAM);
-
-					//Unlock the refresh mutex
-					refreshHold.unlock();
-
-					//Move the data to the texture from the buffer
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, 0);
-				}
-
-
-
-				//
-				//  Start drawing the textured quad
-				//
-
-				//Clear the color buffers
-				glClear(GL_COLOR_BUFFER_BIT);
-
-				//Draw a quad
-				glBegin(GL_QUADS);
-
-				glTexCoord2f(0.0f, 1.0f);  	glVertex3f(-1.0f, -1.0f, 0.0f);		//Bottom Left
-				glTexCoord2f(1.0f, 1.0f); 	glVertex3f(1.0f, -1.0f, 0.0f);		//Bottom Right
-				glTexCoord2f(1.0f, 0.0f); 	glVertex3f(1.0f, 1.0f, 0.0f);		//Top Right
-				glTexCoord2f(0.0f, 0.0f);	glVertex3f(-1.0f, 1.0f, 0.0f);		//Top Left
-
-																				//Done Drawing that
-				glEnd();
-
-
-				//Check to see if we have a valid place to update to
-				//Or if the window should be closed.
-				if (!glfwWindowShouldClose(SGE::OSWindow))
-				{
-					//Display the new shit after we are done drawing it
-					glfwSwapBuffers(SGE::OSWindow);
-				}
-
-				//We don't have a window to swap buffers to
-				//Shut it down
-				else
-				{
-					//Done drawing this shit.
-					continueDrawing = false;
-
-					//We're out!
-					return;
-				}
-
-				//
-				//  Count the frame
-				//
-				FrameCount++;
-			}
-		}
-
-		//
 		//  Optimized Drawing Function for OpenGL 4.4 and later
 		//
 		void OpenGL44DrawFunction()
@@ -405,26 +274,18 @@ namespace SGE
 					glBufferStorage(GL_PIXEL_UNPACK_BUFFER, Video::X * Video::Y * sizeof(Video::pixel), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
 
 					//Grab the pinter to the mapped buffer range
-					pixelBufferMapping = (char*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, Video::X * Video::Y * sizeof(Video::pixel), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT | GL_MAP_FLUSH_EXPLICIT_BIT);
+					SGE::Display::Video::RAM = (SGE::Display::Video::pixel*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, Video::X * Video::Y * sizeof(Video::pixel), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
 
 					//Lock the refresh mutex
 					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
 					refreshHold.lock();
 
-					//Copy our data to it
-					//std::memcpy(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(Video::pixel));
-					std::copy(Video::RAM, Video::RAM + Video::X * Video::Y, (Video::pixel*)pixelBufferMapping);
-
-					//Unlock the refresh mutex
-					refreshHold.unlock();
-
-					//Flush the buffer and let OpenGL know the buffer has changed.
-					glFlushMappedBufferRange(pixelBufferObject, 0, Video::X * Video::Y * sizeof(Video::pixel));
-
-
 					//Move load up the texture data from the buffer
 					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::X, Video::Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 
+					//Unlock the refresh mutex
+					refreshHold.unlock();
+									   					 
 					//Set the flag back to normal
 					GameResolutionChanged = false;
 
@@ -438,18 +299,14 @@ namespace SGE
 					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
 					refreshHold.lock();
 
-					//Update the data
-					//std::memcpy(pixelBufferMapping, Video::RAM, Video::RAMSize * sizeof(Video::pixel));
-					std::copy(Video::RAM, Video::RAM + Video::X * Video::Y, (Video::pixel*)pixelBufferMapping);
+					//Move the data to the texture from the buffer
+					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+					//Wait until thE GPU is done.
+					glFinish();
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
-
-					//Flush the buffer and let OpenGL know the buffer has changed.
-					glFlushMappedBufferRange(pixelBufferObject, 0, Video::X * Video::Y * sizeof(Video::pixel));
-
-					//Move the data to the texture from the buffer
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, 0);
 				}
 
 
@@ -498,121 +355,7 @@ namespace SGE
 			}
 		}
 
-		//
-		//  Fail safe Drawing function for OpenGL 1.0
-		//
-		void FailSafeDrawFunction()
-		{
-			OpenGLBoilerPlateFunction();
-
-			//Initialize for drawing
-
-			//Do some drawing.
-			while (continueDrawing)
-			{
-				//
-				//  OpenGL Window sizing, scaling, and centering!
-				//
-
-				//Check to see if this stuff has changed from previous
-				if (SGE::Display::FrameBufferChanged)
-				{
-					RecalculateViewport();
-
-					//Welp, shit has changed!  Set new the Viewport
-					glViewport(
-						//Center it in the middle of the X axis
-						SGE::Display::ViewPortWindowOffsetX,
-						//Set the Y to the origin
-						SGE::Display::ViewPortWindowOffsetY,
-						//Scale the width based on the height and aspect ratio
-						SGE::Display::ViewPortWindowX,
-						//Set the height to the frameBufferHeight
-						SGE::Display::ViewPortWindowY);
-
-					//Got it, reset the flag
-					SGE::Display::FrameBufferChanged = false;
-				}
-
-				//Upload the data for the texture to the actual video card.
-				//If the game resolution has changed, then a new texture is needed, since the texture dimensions could have changed.
-				if (GameResolutionChanged)
-				{
-					//Lock the refresh mutex
-					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
-					refreshHold.lock();
-
-					//Slow method
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::X, Video::Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, Video::RAM);
-
-					//Unlock the refresh mutex
-					refreshHold.unlock();
-
-					//Set the flag back to normal
-					GameResolutionChanged = false;
-
-					//Flag the viewport to change to properly scale the new resolution
-					FrameBufferChanged = true;
-				}
-				//Otherwise just update it
-				else
-				{
-					//Lock the refresh mutex
-					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
-					refreshHold.lock();
-
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, Video::RAM);
-
-					//Unlock the refresh mutex
-					refreshHold.unlock();
-				}
-
-
-
-				//
-				//  Start drawing the textured quad
-				//
-
-				//Clear the color buffers
-				glClear(GL_COLOR_BUFFER_BIT);
-
-				//Draw a quad
-				glBegin(GL_QUADS);
-
-				glTexCoord2f(0.0f, 1.0f);  	glVertex3f(-1.0f, -1.0f, 0.0f);		//Bottom Left
-				glTexCoord2f(1.0f, 1.0f); 	glVertex3f(1.0f, -1.0f, 0.0f);		//Bottom Right
-				glTexCoord2f(1.0f, 0.0f); 	glVertex3f(1.0f, 1.0f, 0.0f);		//Top Right
-				glTexCoord2f(0.0f, 0.0f);	glVertex3f(-1.0f, 1.0f, 0.0f);		//Top Left
-
-				//Done Drawing that
-				glEnd();
-
-
-				//Check to see if we have a valid place to update to
-				//Or if the window should be closed.
-				if (!glfwWindowShouldClose(SGE::OSWindow))
-				{
-					//Display the new shit after we are done drawing it
-					glfwSwapBuffers(SGE::OSWindow);
-				}
-
-				//We don't have a window to swap buffers to
-				//Shut it down
-				else
-				{
-					//Done drawing this shit.
-					continueDrawing = false;
-
-					//We're out!
-					return;
-				}
-
-				//
-				//  Count the frame
-				//
-				FrameCount++;
-			}
-		}
+		
 
 		//Main update thread to take what's in video RAM and dump it on the screen.
 		void UpdateThread()
@@ -641,25 +384,18 @@ namespace SGE
 			//Ideal version that used persistent mapped pixel buffer object
 			if (GLEW_VERSION_4_4)
 			{
-				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Display, "OpenGL version 4.4 detected!\n");
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Display, "OpenGL version 4.4 or greater detected!\n");
 				OpenGL44DrawFunction();
 			}
-
-			//Used Pixel Buffer Objects with basic data transfer, supported in OpenGL 2.0... So should be a safe alternative.
-			else if (GLEW_VERSION_2_0)
-			{
-				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Display, "OpenGL version 2.0 detected!\n");
-				OpenGL20DrawFunction();
-			}
-
-			//
-			//Oh sweet baby jesus, we are on a potato.  Only OpenGL 1?  Really?
-			//
 			else
 			{
-				SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Display, "OpenGL Potato Mode Engaged!\n");
-				FailSafeDrawFunction();
+				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Display, "OpenGL version 4.4 or greater NOT detect!  You need 4.4 or greater!\n");
+
+				//Can't find what we need, Leave.
+				continueDrawing = false;
+				return;
 			}
+
 		}
 
 		//

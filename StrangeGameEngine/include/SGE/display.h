@@ -50,7 +50,8 @@ namespace SGE
 			//
 			//  The virtual video RAM.  Public accessible to allow other components to write to it directly.
 			//
-			extern SGEAPI pixel RAM[MAX_VIDEO_RAM];
+			//extern SGEAPI pixel RAM[MAX_VIDEO_RAM];
+			extern SGEAPI pixel* RAM;
 
 			//
 			//  The virtual video horizontal resolution

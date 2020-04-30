@@ -85,6 +85,7 @@
       <AdditionalLibraryDirectories>..\GLFW\lib;..\RtAudio\lib;..\GLEW\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>rtaudio.lib;glfw3dll.lib;glew32s.lib;opengl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
+      <Profile>true</Profile>
     </Link>
     <Lib>
       <AdditionalLibraryDirectories>..\PortAudio\lib;..\GLFW\lib;..\GLEW\lib\Release\Win32;</AdditionalLibraryDirectories>
