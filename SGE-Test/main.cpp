@@ -250,6 +250,17 @@ void InputTest(bool& testInputRunning)
 
 	std::chrono::time_point<std::chrono::steady_clock> startTime;
 
+	//
+	//  Rolling average
+	//
+	int rollingRenderTime[100] = { 0 };
+	int rollingRenderIndex = 0;
+
+	int rollingUpdateTime[100] = { 0 };
+	int rollingUpdateIndex = 0;
+
+	int rollingRenderAverage = 0;
+	int rollingUpdateAverage = 0;
 
 	while (testInputRunning)
 	{
@@ -429,13 +440,36 @@ void InputTest(bool& testInputRunning)
 		//  Output Timer for Frame Rendering
 		//
 
+		// Calculate the rolling average
+		
+		//Capture latest values
+		rollingRenderTime[rollingRenderIndex] = SGE::Display::RenderingTimer;
+		rollingUpdateTime[rollingUpdateIndex] = SGE::Display::UpdateTimer;
+
+		rollingRenderIndex = (rollingRenderIndex + 1) % 100;
+		rollingUpdateIndex = (rollingUpdateIndex + 1) % 100;
+
+
+		rollingRenderAverage = 0;
+		rollingUpdateAverage = 0;
+
+		for (int i = 0; i < 100; i++)
+		{
+			rollingRenderAverage += rollingRenderTime[i];
+			rollingUpdateAverage += rollingUpdateTime[i];
+		}
+
+		rollingRenderAverage /= 100;
+		rollingUpdateAverage /= 100;
+
+
 		char tempTimerString[15];
 
-		sprintf_s(tempTimerString, 15, "R: %i", SGE::Display::RenderingTimer);
+		sprintf_s(tempTimerString, 15, "R: %i", rollingRenderAverage);
 
 		SGE::Render::DrawString8x16(tempTimerString, SGE::Render::CHARACTER_VGA_8x16_ROM, 8, 540, 5, 0x0080FF80);
 
-		sprintf_s(tempTimerString, 15, "U: %i", SGE::Display::UpdateTimer);
+		sprintf_s(tempTimerString, 15, "U: %i", rollingUpdateAverage);
 
 		SGE::Render::DrawString8x16(tempTimerString, SGE::Render::CHARACTER_VGA_8x16_ROM, 8, 620, 5, 0x0080FF80);
 

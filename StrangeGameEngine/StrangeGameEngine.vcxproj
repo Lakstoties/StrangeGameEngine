@@ -47,7 +47,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\GLFW\include;..\GLEW\include;..\RtAudio\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GLFW\include;..\RtAudio\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SGE_BUILD_DLL;_WIN32;GLEW_STATIC;_CRT_SECURE_NO_WARNINGS; _SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions); D_SCL_SECURE_NO_WARNINGS;</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
       <CLanguageStandard>gnu11</CLanguageStandard>
@@ -55,7 +55,7 @@
     </ClCompile>
     <Link>
       <AdditionalLibraryDirectories>..\GLFW\lib;..\RtAudio\lib;..\GLEW\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>rtaudio.lib;glfw3dll.lib;glew32s.lib;opengl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>rtaudio.lib;glfw3dll.lib;opengl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
     <Lib>
@@ -72,7 +72,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <AdditionalIncludeDirectories>..\GLFW\include;..\GLEW\include;..\RtAudio\include;</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\GLFW\include;..\RtAudio\include;</AdditionalIncludeDirectories>
       <PreprocessorDefinitions>SGE_BUILD_DLL;_WIN32;GLEW_STATIC;_CRT_SECURE_NO_WARNINGS; _SCL_SECURE_NO_WARNINGS;%(PreprocessorDefinitions); D_SCL_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <CLanguageStandard>gnu11</CLanguageStandard>
@@ -83,7 +83,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>..\GLFW\lib;..\RtAudio\lib;..\GLEW\lib\Release\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>rtaudio.lib;glfw3dll.lib;glew32s.lib;opengl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>rtaudio.lib;glfw3dll.lib;opengl32.lib;winmm.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <Profile>true</Profile>
     </Link>
