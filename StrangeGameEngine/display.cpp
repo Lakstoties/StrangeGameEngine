@@ -166,6 +166,16 @@ namespace SGE
 		unsigned int FrameCount = 0;
 
 		//
+		//  Rendering Timer
+		//
+		int RenderingTimer = 0;
+
+		//
+		//  Update Timer
+		//
+		int UpdateTimer = 0;
+
+		//
 		//  Recalculate View Port Dimensions
 		//
 		void RecalculateViewport()
@@ -255,12 +265,27 @@ namespace SGE
 			//Create a pointer to map to the memory OpenGL will grant us
 			char* pixelBufferMapping = nullptr;
 
+			// Create a variable to capture time before rendering
+			std::chrono::time_point<std::chrono::steady_clock> renderStartTime;
+
+			// Create a variable to capture time before rendering
+			std::chrono::time_point<std::chrono::steady_clock> updateStartTime;
+
+
 			//Do some drawing.
 			while (continueDrawing)
 			{
 				//
 				//  OpenGL Window sizing, scaling, and centering!
 				//
+
+				//
+				//  Rendering Timer Start
+				//
+
+				//  Mark the time
+				renderStartTime = std::chrono::steady_clock::now();
+
 
 				//Check to see if this stuff has changed from previous
 				if (SGE::Display::FrameBufferChanged)
@@ -334,6 +359,9 @@ namespace SGE
 					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
 					refreshHold.lock();
 
+					//  Mark the time
+					updateStartTime = std::chrono::steady_clock::now();
+
 					if (CurrentRenderingMode == DisplayRenderingModes::OpenGL44)
 					{
 
@@ -347,14 +375,19 @@ namespace SGE
 					if (CurrentRenderingMode == DisplayRenderingModes::OpenGL44 || CurrentRenderingMode == DisplayRenderingModes::OpenGL20)
 					{
 						glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+
+						//Wait until the GPU is done.
+						glFinish();
 					}
 					else
 					{
 						glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, Video::RAM);
 					}
 
-					//Wait until thE GPU is done.
-					glFinish();
+					//
+					// Update Time Stop
+					//
+					UpdateTimer = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - updateStartTime).count();
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
@@ -397,6 +430,11 @@ namespace SGE
 					//We're out!
 					return;
 				}
+
+				//
+				// Rendering Time Stop
+				//
+				RenderingTimer = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - renderStartTime).count();
 
 				//
 				//  Count the frame
@@ -452,6 +490,7 @@ namespace SGE
 			//
 			//  For test purposes
 			//  Manually set the rendering mode.
+			//CurrentRenderingMode = DisplayRenderingModes::OpenGL20;
 			//CurrentRenderingMode = DisplayRenderingModes::Potato;
 
 			//Ideal version that used persistent mapped pixel buffer object

@@ -80,6 +80,14 @@ namespace SGE
 		extern SGEAPI unsigned int FrameCount;
 
 		//
+		//  Time taken to render the frame in milliseconds
+		//
+		extern SGEAPI int RenderingTimer;
+
+
+		extern SGEAPI int UpdateTimer;
+
+		//
 		//  Video System Initialization
 		//
 		void SGEAPI Init(int windowX, int windowY, const char* gameTitle);

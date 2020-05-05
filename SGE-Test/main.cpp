@@ -424,6 +424,22 @@ void InputTest(bool& testInputRunning)
 		SGE::Utility::Math::RotatePointAroundPoint(spinningVertexO2.x, spinningVertexO2.y, 0, 0, spinningVertex2.x, spinningVertex2.y, spinningDegree);
 		SGE::Utility::Math::RotatePointAroundPoint(spinningVertexO3.x, spinningVertexO3.y, 0, 0, spinningVertex3.x, spinningVertex3.y, spinningDegree);
 
+
+		//
+		//  Output Timer for Frame Rendering
+		//
+
+		char tempTimerString[15];
+
+		sprintf_s(tempTimerString, 15, "R: %i", SGE::Display::RenderingTimer);
+
+		SGE::Render::DrawString8x16(tempTimerString, SGE::Render::CHARACTER_VGA_8x16_ROM, 8, 540, 5, 0x0080FF80);
+
+		sprintf_s(tempTimerString, 15, "U: %i", SGE::Display::UpdateTimer);
+
+		SGE::Render::DrawString8x16(tempTimerString, SGE::Render::CHARACTER_VGA_8x16_ROM, 8, 620, 5, 0x0080FF80);
+
+
 		//
 		//  Draw TextBox
 		//
