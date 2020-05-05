@@ -44,7 +44,7 @@ namespace SGE
 			const int MAX_RESOLUTION_HEIGHT = 1080;
 
 			// Max Video RAM size, hence the size initialized.
-			const int MAX_VIDEO_RAM = MAX_RESOLUTION_WIDTH * MAX_RESOLUTION_HEIGHT * sizeof(pixel);
+			const int MAX_VIDEO_RAM = MAX_RESOLUTION_WIDTH * MAX_RESOLUTION_HEIGHT;
 
 					   			 		  
 			//

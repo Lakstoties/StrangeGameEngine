@@ -79,11 +79,15 @@ namespace SGE
 		namespace Video
 		{
 			//
-			//  The virtual video RAM.  Publically accessible to allow other components to write to it directly.
-			//  This is by design.  
+			//  Default RAM - This is RAM that is used by default is certain optmizations are not possible.
 			//
-			//pixel RAM[MAX_VIDEO_RAM] = { 0 };
-			pixel* RAM = NULL;
+			pixel DefaultRAM[MAX_VIDEO_RAM];
+
+			//
+			//  The virtual video RAM.  Publically accessible to allow other components to write to it directly.
+			//  This is by design.  Also, it is initially set to the DefaultRAM, but can be changed later.
+			//
+			pixel* RAM = DefaultRAM;
 
 			//The virtual video horizontal resolution
 			int X = 0;
@@ -91,6 +95,19 @@ namespace SGE
 			//The virtual video vertical resolution
 			int Y = 0;
 		}
+
+
+		enum class DisplayRenderingModes : int
+		{
+			Derp = 0,
+			Potato = 10,
+			OpenGL20 = 20,
+			OpenGL44 = 44,
+			Vulkan = 99
+		};
+
+		DisplayRenderingModes CurrentRenderingMode = DisplayRenderingModes::Derp;
+
 
 		//A mutex that can be used to temporarily pause the drawing thread at a key point to allow the video ram to be updated fully.
 		//Prevents flicking and tearing by the display thread from updating mid way through writes to VRAM
@@ -179,7 +196,10 @@ namespace SGE
 			SGE::Display::ViewPortWindowY = frameBufferY - (SGE::Display::ViewPortWindowOffsetY << 1);
 		}
 
-		void OpenGLBoilerPlateFunction()
+		//
+		//  Optimized Drawing Function for OpenGL 4.4 and later
+		//
+		void OpenGLDrawFunction()
 		{
 			//
 			//Universal OpenGL commands
@@ -215,26 +235,22 @@ namespace SGE
 			//Enable VSYNC to keep the frame rate from going too ridiculous.
 			//There's no need to outpace the monitor update rate for updating the contents of the Virtual Video RAM
 			glfwSwapInterval(1);
-		}
 
-				//
-		//  Optimized Drawing Function for OpenGL 4.4 and later
-		//
-		void OpenGL44DrawFunction()
-		{
-			OpenGLBoilerPlateFunction();
-
+			//
 			//Initialize for drawing
+			//
 
 			//Experimental
 			//Create a simple handle for the Pixel Buffer Object
 			GLuint pixelBufferObject;
+			if (CurrentRenderingMode == DisplayRenderingModes::OpenGL44 || CurrentRenderingMode == DisplayRenderingModes::OpenGL20)
+			{
+				//Generate a Buffer
+				glGenBuffers(1, &pixelBufferObject);
 
-			//Generate a Buffer
-			glGenBuffers(1, &pixelBufferObject);
-
-			//Bind the buffer to our context
-			glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pixelBufferObject);
+				//Bind the buffer to our context
+				glBindBuffer(GL_PIXEL_UNPACK_BUFFER, pixelBufferObject);
+			}
 
 			//Create a pointer to map to the memory OpenGL will grant us
 			char* pixelBufferMapping = nullptr;
@@ -270,18 +286,37 @@ namespace SGE
 				//If the game resolution has changed, then a new texture is needed, since the texture dimensions could have changed.
 				if (GameResolutionChanged)
 				{
-					//Recreate the Buffer storage for the new video ram size
-					glBufferStorage(GL_PIXEL_UNPACK_BUFFER, Video::X * Video::Y * sizeof(Video::pixel), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
+					//
+					//  Setup the new texture based on the current rendering mode.
+					//
+					if (CurrentRenderingMode == DisplayRenderingModes::OpenGL44)
+					{
+						//Recreate the Buffer storage for the new video ram size
+						glBufferStorage(GL_PIXEL_UNPACK_BUFFER, Video::X * Video::Y * sizeof(Video::pixel), 0, GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
 
-					//Grab the pinter to the mapped buffer range
-					SGE::Display::Video::RAM = (SGE::Display::Video::pixel*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, Video::X * Video::Y * sizeof(Video::pixel), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
+						//Grab the pinter to the mapped buffer range
+						//  And assign it as the current Video RAM
+						SGE::Display::Video::RAM = (SGE::Display::Video::pixel*)glMapBufferRange(GL_PIXEL_UNPACK_BUFFER, 0, Video::X * Video::Y * sizeof(Video::pixel), GL_MAP_WRITE_BIT | GL_MAP_PERSISTENT_BIT);
+					}
+					else if (CurrentRenderingMode == DisplayRenderingModes::OpenGL20)
+					{
+						//Recreate the Buffer storage for the new video ram size
+						glBufferData(GL_PIXEL_UNPACK_BUFFER, Video::X * Video::Y * sizeof(Video::pixel), Video::RAM, GL_DYNAMIC_DRAW);
+					}
 
 					//Lock the refresh mutex
 					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
 					refreshHold.lock();
 
 					//Move load up the texture data from the buffer
-					glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::X, Video::Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+					if (CurrentRenderingMode == DisplayRenderingModes::OpenGL44 || CurrentRenderingMode == DisplayRenderingModes::OpenGL20)
+					{
+						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::X, Video::Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+					}
+					else
+					{
+						glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, Video::X, Video::Y, 0, GL_RGBA, GL_UNSIGNED_BYTE, Video::RAM);
+					}
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
@@ -299,8 +334,24 @@ namespace SGE
 					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
 					refreshHold.lock();
 
+					if (CurrentRenderingMode == DisplayRenderingModes::OpenGL44)
+					{
+
+					}
+					else if (CurrentRenderingMode == DisplayRenderingModes::OpenGL20)
+					{
+						glBufferSubData(GL_PIXEL_UNPACK_BUFFER, 0, Video::X * Video::Y * sizeof(Video::pixel), Video::RAM);
+					}
+
 					//Move the data to the texture from the buffer
-					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+					if (CurrentRenderingMode == DisplayRenderingModes::OpenGL44 || CurrentRenderingMode == DisplayRenderingModes::OpenGL20)
+					{
+						glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+					}
+					else
+					{
+						glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, Video::RAM);
+					}
 
 					//Wait until thE GPU is done.
 					glFinish();
@@ -308,7 +359,6 @@ namespace SGE
 					//Unlock the refresh mutex
 					refreshHold.unlock();
 				}
-
 
 
 				//
@@ -381,20 +431,49 @@ namespace SGE
 			//
 			SGE::System::Message::Output(SGE::System::Message::Levels::Information, SGE::System::Message::Sources::Display, "OpenGL Version: %s\n", glGetString(GL_VERSION));
 
-			//Ideal version that used persistent mapped pixel buffer object
+
+			//
+			//  Let's figure out what Display Mode to Use
+			//
+
 			if (GLEW_VERSION_4_4)
 			{
-				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Display, "OpenGL version 4.4 or greater detected!\n");
-				OpenGL44DrawFunction();
+				CurrentRenderingMode = DisplayRenderingModes::OpenGL44;
+			}
+			else if (GLEW_VERSION_2_0)
+			{
+				CurrentRenderingMode = DisplayRenderingModes::OpenGL20;
 			}
 			else
 			{
-				SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::Display, "OpenGL version 4.4 or greater NOT detect!  You need 4.4 or greater!\n");
-
-				//Can't find what we need, Leave.
-				continueDrawing = false;
-				return;
+				CurrentRenderingMode = DisplayRenderingModes::Potato;
 			}
+
+			//
+			//  For test purposes
+			//  Manually set the rendering mode.
+			//CurrentRenderingMode = DisplayRenderingModes::Potato;
+
+			//Ideal version that used persistent mapped pixel buffer object
+			if (CurrentRenderingMode == DisplayRenderingModes::OpenGL44)
+			{
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Display, "OpenGL version 4.4 or greater detected!\n");
+			}
+			else if (CurrentRenderingMode == DisplayRenderingModes::OpenGL20)
+			{
+				SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::Display, "OpenGL version 2.0 or greater detected!\n");
+			}
+			else
+			{
+				SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Display, "Old... OLD OpenGL detected:  Potato Mode ENGAGED!\n");
+			}
+
+
+
+			//
+			//  Start the system up
+			//
+			OpenGLDrawFunction();
 
 		}
 
