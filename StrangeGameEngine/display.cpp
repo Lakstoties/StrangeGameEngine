@@ -86,19 +86,6 @@ namespace SGE
 			int Y = 0;
 		}
 
-
-		enum class DisplayRenderingModes : int
-		{
-			Derp = 0,
-			Potato = 10,
-			OpenGL20 = 20,
-			OpenGL44 = 44,
-			Vulkan = 99
-		};
-
-		DisplayRenderingModes CurrentRenderingMode = DisplayRenderingModes::Derp;
-
-
 		//A mutex that can be used to temporarily pause the drawing thread at a key point to allow the video ram to be updated fully.
 		//Prevents flicking and tearing by the display thread from updating mid way through writes to VRAM
 		std::mutex refreshHold;
@@ -155,15 +142,19 @@ namespace SGE
 		//
 		unsigned int FrameCount = 0;
 
-		//
-		//  Rendering Timer
-		//
-		int RenderingTimer = 0;
 
 		//
-		//  Update Timer
+		//  Times of various stages
 		//
-		int UpdateTimer = 0;
+
+		// Upload Timer:  This timer measures the time it takes for the current virtual video ram to be uploaded to the GPU, in microseconds.
+		int UploadTime = 0;
+
+		//  Rendering Timer: This timer measures the time it takes for system to viewing surface for rendering.
+		int RenderTime = 0;
+
+		//  Update Timer:  This is the overall time for the entire video update process.
+		int UpdateTime = 0;
 
 		//
 		//  Recalculate View Port Dimensions
@@ -236,9 +227,13 @@ namespace SGE
 			//There's no need to outpace the monitor update rate for updating the contents of the Virtual Video RAM
 			glfwSwapInterval(1);
 
+
 			//
-			//Initialize for drawing
+			//  Time trackers
 			//
+
+			// Create a variable to capture time before rendering
+			std::chrono::time_point<std::chrono::steady_clock> uploadStartTime;
 
 			// Create a variable to capture time before rendering
 			std::chrono::time_point<std::chrono::steady_clock> renderStartTime;
@@ -253,6 +248,9 @@ namespace SGE
 				//
 				//  OpenGL Window sizing, scaling, and centering!
 				//
+
+				//  Mark the time
+				updateStartTime = std::chrono::steady_clock::now();
 
 				//Check to see if this stuff has changed from previous
 				if (SGE::Display::FrameBufferChanged)
@@ -274,7 +272,13 @@ namespace SGE
 					SGE::Display::FrameBufferChanged = false;
 				}
 
-				//Upload the data for the texture to the actual video card.
+				//
+				//  Upload CPU Virtual RAM to GPU Texture
+				//
+
+				//  Mark the time
+				uploadStartTime = std::chrono::steady_clock::now();
+
 				//If the game resolution has changed, then a new texture is needed, since the texture dimensions could have changed.
 				if (GameResolutionChanged)
 				{
@@ -301,21 +305,18 @@ namespace SGE
 					//If we can't get the lock, then there's a chance someone is working on the VideoRAM and we should wait for them to get done to prevent a tearing effect.
 					refreshHold.lock();
 
-					//  Mark the time
-					updateStartTime = std::chrono::steady_clock::now();
-
 					glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, Video::X, Video::Y, GL_RGBA, GL_UNSIGNED_BYTE, Video::RAM);
-
-					// Update Time Stop
-					UpdateTimer = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - updateStartTime).count();
 
 					//Unlock the refresh mutex
 					refreshHold.unlock();
 				}
 
+				// Upload Time Stop
+				UploadTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - uploadStartTime).count();
+
 				//
 				//  Rendering Timer Start
-				//  Mark the time
+				//
 				renderStartTime = std::chrono::steady_clock::now();
 
 				//
@@ -336,6 +337,9 @@ namespace SGE
 				//Done Drawing that
 				glEnd();
 
+				// Rendering Time Stop
+				RenderTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - renderStartTime).count();
+
 				//Check to see if we have a valid place to update to
 				//Or if the window should be closed.
 				if (!glfwWindowShouldClose(SGE::OSWindow))
@@ -355,8 +359,8 @@ namespace SGE
 					return;
 				}
 
-				// Rendering Time Stop
-				RenderingTimer = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - renderStartTime).count();
+				// Update Time Stop
+				UpdateTime = std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - updateStartTime).count();
 
 				//
 				//  Count the frame

@@ -81,10 +81,9 @@ namespace SGE
 		//
 		//  Time taken to render the frame in milliseconds
 		//
-		extern SGEAPI int RenderingTimer;
-
-
-		extern SGEAPI int UpdateTimer;
+		extern SGEAPI int UploadTime;
+		extern SGEAPI int RenderTime;
+		extern SGEAPI int UpdateTime;
 
 		//
 		//  Video System Initialization

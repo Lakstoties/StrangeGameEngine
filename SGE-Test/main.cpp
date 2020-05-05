@@ -259,8 +259,12 @@ void InputTest(bool& testInputRunning)
 	int rollingUpdateTime[100] = { 0 };
 	int rollingUpdateIndex = 0;
 
+	int rollingUploadTime[100] = { 0 };
+	int rollingUploadIndex = 0;
+
 	int rollingRenderAverage = 0;
 	int rollingUpdateAverage = 0;
+	int rollingUploadAverage = 0;
 
 	while (testInputRunning)
 	{
@@ -443,35 +447,45 @@ void InputTest(bool& testInputRunning)
 		// Calculate the rolling average
 		
 		//Capture latest values
-		rollingRenderTime[rollingRenderIndex] = SGE::Display::RenderingTimer;
-		rollingUpdateTime[rollingUpdateIndex] = SGE::Display::UpdateTimer;
+		rollingRenderTime[rollingRenderIndex] = SGE::Display::RenderTime;
+		rollingUpdateTime[rollingUpdateIndex] = SGE::Display::UpdateTime;
+		rollingUploadTime[rollingUploadIndex] = SGE::Display::UploadTime;
 
 		rollingRenderIndex = (rollingRenderIndex + 1) % 100;
 		rollingUpdateIndex = (rollingUpdateIndex + 1) % 100;
+		rollingUploadIndex = (rollingUploadIndex + 1) % 100;
 
 
 		rollingRenderAverage = 0;
 		rollingUpdateAverage = 0;
+		rollingUploadAverage = 0;
 
 		for (int i = 0; i < 100; i++)
 		{
 			rollingRenderAverage += rollingRenderTime[i];
 			rollingUpdateAverage += rollingUpdateTime[i];
+			rollingUploadAverage += rollingUploadTime[i];
 		}
 
 		rollingRenderAverage /= 100;
 		rollingUpdateAverage /= 100;
+		rollingUploadAverage /= 100;
 
 
 		char tempTimerString[15];
 
-		sprintf_s(tempTimerString, 15, "R: %i", rollingRenderAverage);
+		
+		sprintf_s(tempTimerString, 15, "Update: %i", rollingUpdateAverage);
+		SGE::Render::DrawString8x16(tempTimerString, SGE::Render::CHARACTER_VGA_8x16_ROM, 8, 700, 220, 0x0080FF80);
 
-		SGE::Render::DrawString8x16(tempTimerString, SGE::Render::CHARACTER_VGA_8x16_ROM, 8, 540, 5, 0x0080FF80);
+		sprintf_s(tempTimerString, 15, "Upload: %i", rollingUploadAverage);
+		SGE::Render::DrawString8x16(tempTimerString, SGE::Render::CHARACTER_VGA_8x16_ROM, 8, 700, 240, 0x0080FF80);
 
-		sprintf_s(tempTimerString, 15, "U: %i", rollingUpdateAverage);
+		sprintf_s(tempTimerString, 15, "Render: %i", rollingRenderAverage);
+		SGE::Render::DrawString8x16(tempTimerString, SGE::Render::CHARACTER_VGA_8x16_ROM, 8, 700, 260, 0x0080FF80);
 
-		SGE::Render::DrawString8x16(tempTimerString, SGE::Render::CHARACTER_VGA_8x16_ROM, 8, 620, 5, 0x0080FF80);
+
+
 
 
 		//
