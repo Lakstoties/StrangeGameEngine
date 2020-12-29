@@ -2,6 +2,7 @@
 #include "api.h"
 #include "sound.h"
 #include "display.h"
+#include <vector>
 
 //
 //  Strange Game Engine Main Namespace
@@ -11,7 +12,7 @@ namespace SGE
 	namespace FileFormats
 	{
 		//Struct that contains converted bitmap data from a file
-		class SGEAPI Bitmap
+		class Bitmap
 		{
 		private:
 			//File Header
@@ -37,11 +38,10 @@ namespace SGE
 			unsigned int height = 0;			//Height of the bitmap in pixels
 
 			//Data Section
-			unsigned int imageDataSize = 0;
-			SGE::Display::Video::pixel* imageData = nullptr;
+			std::vector<SGE::Display::Video::pixel> imageData;
 
 			//Default Constructor
-			Bitmap(std::string targetFilename);
+			Bitmap(const std::string& targetFilename);
 
 			//Default Destructor
 			~Bitmap();
@@ -51,7 +51,7 @@ namespace SGE
 		};
 
 		//Struct that contains converted wave data from a file
-		class SGEAPI Wave
+		class Wave
 		{
 			//
 			//  Wave File Header  (RIFF Chunk)
@@ -77,15 +77,14 @@ namespace SGE
 			unsigned short bitsPerSample = 0;		//Bit Depth, 8 = 8 bits, 16 = 16 bits, etc..
 
 		public:
-			Wave(std::string targetFilename);
+			Wave(const std::string& targetFilename);
 			~Wave();
-
-			SGE::Sound::sampleType** audioData = nullptr;
+            std::vector<std::vector<SGE::Sound::sampleType>> audioData;
 			unsigned int numberOfSamples = 0;
 		};
 
 		//Class for a module tracker file (FastTracker format)
-		class SGEAPI ModuleFile
+		class ModuleFile
 		{
 		private:
 			///
@@ -103,7 +102,7 @@ namespace SGE
 				//
 				bool ConvertSampleTo16Bit(SGE::Sound::sampleType* target);
 
-				int SampleLengthInBytes();
+				int SampleLengthInBytes() const;
 
 				char			title[23] = { 0 };					//Sample Title
 				unsigned short	lengthInWords = 0;					//Sample Length in Words (16-bit chunks)
@@ -141,7 +140,7 @@ namespace SGE
 			ModuleFile();
 			~ModuleFile();
 
-			int LoadFile(std::string targetFilename);
+			int LoadFile(const std::string& targetFilename);
 			bool ProperlyLoaded = false;
 		};
 	}

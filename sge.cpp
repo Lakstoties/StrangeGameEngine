@@ -1,7 +1,5 @@
 #include "include\SGE\sge.h"
 #include <GLFW\glfw3.h>
-#include <ctime>
-#include <chrono>
 
 //
 //  Strange Game Engine Main Namespace

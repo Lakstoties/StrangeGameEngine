@@ -14,7 +14,7 @@ namespace SGE::Display
         //
         //  Function to register callbacks
         //
-        void SGEAPI Register();
+        void Register();
     }
 
     //
@@ -45,93 +45,93 @@ namespace SGE::Display
         //
         //  The virtual video RAM.  Public accessible to allow other components to write to it directly.
         //
-        extern SGEAPI pixel RAM[MAX_VIDEO_RAM];
+        extern pixel RAM[MAX_VIDEO_RAM];
 
         //
         //  The virtual video horizontal resolution
         //
-        extern SGEAPI int X;
+        extern int X;
 
         //
         //  The virtual video vertical resolution
         //
-        extern SGEAPI int Y;
+        extern int Y;
     }
 
     //
     //  Flag to indicate the framebuffer window size has changed
     //
-    extern SGEAPI bool FrameBufferChanged;
+    extern bool FrameBufferChanged;
 
     //
     //  Flag to indicate the game resolution has changed
     //
-    extern SGEAPI bool GameResolutionChanged;
+    extern bool GameResolutionChanged;
 
     //
     //  Count of frames rendered
     //
-    extern SGEAPI unsigned int FrameCount;
+    extern unsigned int FrameCount;
 
     //
     //  Time taken to render the frame in milliseconds
     //
-    extern SGEAPI int UploadTime;
-    extern SGEAPI int RenderTime;
-    extern SGEAPI int UpdateTime;
+    extern int UploadTime;
+    extern int RenderTime;
+    extern int UpdateTime;
 
     //
     //  Video System Initialization
     //
-    void SGEAPI Init(int windowX, int windowY, const char* gameTitle);
+    void Init(int windowX, int windowY, const char* gameTitle);
 
     //
     //  Block display refresh.  Useful for preventing screen tearing from draw operations happening in the middle of a display refresh
     //
-    void SGEAPI BlockRefresh();
+    void BlockRefresh();
 
     //
     //  Allow the virtual display fresh to allow drawing to continue.
     //
-    void SGEAPI AllowRefresh();
+    void AllowRefresh();
 
     //
     //  Start the Display
     //
-    void SGEAPI Open(int newVideoX, int newVideoY);
+    void Open(int newVideoX, int newVideoY);
 
     //
     //  Stop the Display
     //
-    void SGEAPI Close();
+    void Close();
 
     //
     //  Starts the thread to grab data from the virtual video RAM and dumping it to the virtual display
     //
-    void SGEAPI StartDrawing();
+    void StartDrawing();
 
     //
     //  Stops that thread, and waits for it to join back up.
     //
-    void SGEAPI StopDrawing();
+    void StopDrawing();
 
     //
     //  Set framebuffer window size
     //
-    void SGEAPI SetWindowSize(int width, int height);
+    void SetWindowSize(int width, int height);
 
     //
     //  Change game resolution
     //
-    void SGEAPI ChangeGameResolution(int width, int height);
+    void ChangeGameResolution(int width, int height);
 
     //
     //  Hide the mouse cursor from the OS
     //
-    void SGEAPI HideOSMouseCursor();
+    void HideOSMouseCursor();
 
     //
     //  Show the mouse cursor from the OS
     //
-    void SGEAPI ShowOSMouseCursor();
+    void ShowOSMouseCursor();
 }

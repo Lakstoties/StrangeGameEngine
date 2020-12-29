@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD 20)
 include_directories(include)
 include_directories(include/SGE)
 
-add_library(StrangeGameEngine
+add_library(StrangeGameEngine SHARED
         include/SGE/api.h
         include/SGE/debug.h
         include/SGE/display.h

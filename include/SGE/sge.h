@@ -18,18 +18,18 @@ namespace SGE
 	//
 	//  Function is used to launch all parts of the game
 	//
-	void SGEAPI Launch(int displayX, int displayY, const char* gameTitle, int resolutionX, int resolutionY, void(*gameLogic)(bool &keepAlive), bool &keepAliveFlag);
+	void Launch(int displayX, int displayY, const char* gameTitle, int resolutionX, int resolutionY, void(*gameLogic)(bool &keepAlive), bool &keepAliveFlag);
 
 
 	//
 	//  Perform basic initialization of the system overall
 	//
-	void SGEAPI Startup(int windowX, int windowY, const char* gameTitle);
+	void Startup(int windowX, int windowY, const char* gameTitle);
 
 	//
 	//  Performs shutdown and termination operations
 	//
-	void SGEAPI Shutdown();
+	void Shutdown();
 
 	//
 	//  Universal Global constants for the system

@@ -58,7 +58,7 @@ namespace SGE::Render
     //  Draws a string of characters
     //
     void DrawString(
-        const std::string characters,
+        const std::string& characters,
         const unsigned long long* characterROM,		//64-bit Character ROM array to map characters against
         const int characterSpacing,						//The amount space to give each character, standard spacing is 8 to go along with the 8X8 character size
         const int targetX,								//Target X location to start drawing from (Upper Left Corner)
@@ -168,7 +168,7 @@ namespace SGE::Render
         const unsigned char* characterToDraw = (unsigned char*)character;
 
         //  Is there even a character to draw?
-        if (character == 0)
+        if (*character == 0)
         {
             //  Nothing to draw
             return;
@@ -717,7 +717,7 @@ namespace SGE::Render
         //
         //  Create a temporary array to store scaled vertexes and leave the original ones alone
         //
-        VertexPoint* tempScaledVertexes = new VertexPoint[numberOfVertexes];
+        auto* tempScaledVertexes = new VertexPoint[numberOfVertexes];
 
         //
         //  Figure out how many full triangle we have
@@ -750,7 +750,7 @@ namespace SGE::Render
     }
 
     //Uses a variant of the Bresenham algorithm to calculate the two X points along the X-axis for each Y
-    //Then mass memcpys from a created pixel buffer to fill in the gaps.
+    //Then mass memcpy from a created pixel buffer to fill in the gaps.
     void DrawFilledTriangleFast(int startX, int startY, VertexPoint vertex1, VertexPoint vertex2, VertexPoint vertex3, SGE::Display::Video::pixel color)
     {
         //

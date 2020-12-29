@@ -339,7 +339,7 @@ namespace SGE
 				//Or if the window should be closed.
 				if (!glfwWindowShouldClose(SGE::OSWindow))
 				{
-					//Display the new shit after we are done drawing it
+					//Display the new after we are done drawing it
 					glfwSwapBuffers(SGE::OSWindow);
 				}
 
@@ -347,7 +347,7 @@ namespace SGE
 				//Shut it down
 				else
 				{
-					//Done drawing this shit.
+					//Done drawing this.
 					continueDrawing = false;
 
 					//We're out!

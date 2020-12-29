@@ -88,7 +88,7 @@ void InputTest(bool& testInputRunning)
 	SGE::FileFormats::Wave* testWaveFile = new SGE::FileFormats::Wave("TestSample.wav");
 
 	// Load wave into Sample Buffer
-	SGE::Sound::SampleBuffers[0].LoadRaw(testWaveFile->numberOfSamples, testWaveFile->audioData[0]);
+	SGE::Sound::SampleBuffers[0].LoadRaw(testWaveFile->audioData[0].size(), testWaveFile->audioData[0].data());
 
 	// Set the Channel to use this sample
 	SGE::Sound::Channels[0].SetSampleBuffer(0);
@@ -325,7 +325,7 @@ void InputTest(bool& testInputRunning)
 		//
 		//  Bouncing Test Graphic
 		//
-		SGE::Render::DrawDataBlock((int)bouncingImageX, (int)bouncingImageY, testBitmap.width, testBitmap.height, testBitmap.imageData);
+		SGE::Render::DrawDataBlock((int)bouncingImageX, (int)bouncingImageY, testBitmap.width, testBitmap.height, testBitmap.imageData.data());
 
 		//
 		//  Delta changes

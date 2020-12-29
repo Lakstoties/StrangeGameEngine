@@ -53,21 +53,21 @@ namespace SGE
 			int XPosition = 0;
 			int YPosition = 0;
 
-			SGEAPI TextBox(unsigned int numberOfRows, unsigned int numberOfColumns, int xPosition, int yPosition);
+			TextBox(unsigned int numberOfRows, unsigned int numberOfColumns, int xPosition, int yPosition);
 
-			SGEAPI ~TextBox();
+			~TextBox();
 
-			SGEAPI void Draw();
-			SGEAPI void CreateBuffers(unsigned int newRows, unsigned int newColumns);
+			void Draw();
+			void CreateBuffers(unsigned int newRows, unsigned int newColumns);
 
 			//  Overload Parenthesis Operator for easy access
 
-			SGEAPI TextBoxData& operator ()(int row, int column);
-			SGEAPI TextBoxData operator ()(int row, int column) const;
+			TextBoxData& operator ()(int row, int column);
+			TextBoxData operator ()(int row, int column) const;
 		};
 	}
 
-	class SGEAPI Menu
+	class Menu
 	{
 	private:
 		int menuX;
@@ -110,7 +110,7 @@ namespace SGE
 		//Highlight Text Color
 		SGE::Display::Video::pixel highlightTextColor = 0;
 
-        Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, std::vector<std::string> targetMenuItems);
+        Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, const std::vector<std::string>& targetMenuItems);
 
 		void Draw();
 
@@ -120,7 +120,7 @@ namespace SGE
 
 		std::string GetMenuSelection();
 
-		void SetMenuSelection(std::string targetString);
+		void SetMenuSelection(const std::string& targetString);
 
 		void CursorOn();
 
@@ -128,6 +128,6 @@ namespace SGE
 
 		void MoveCursor(int location);
 
-		int GetCursorLocation();
+		int GetCursorLocation() const;
 	};
 }

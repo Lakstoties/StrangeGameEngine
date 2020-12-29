@@ -16,14 +16,9 @@ namespace SGE::FileFormats
     const int BITMAP_FILE_HEADER_SIZE = 14;
     const int BITMAP_DATA_HEADER_SIZE = 40;
 
-    Bitmap::~Bitmap()
-    {
-        //Check for imageData and delete it.
-        delete imageData;
-    }
+    Bitmap::~Bitmap() = default;
 
-
-    Bitmap::Bitmap(std::string targetFilename)
+    Bitmap::Bitmap(const std::string& targetFilename)
     {
         std::fstream bitmapFile;
         std::streamsize  readCount;
@@ -40,7 +35,6 @@ namespace SGE::FileFormats
         bitmapFile.open(targetFilename, std::ios::in | std::ios::binary);
 
         //Check to see if we got a valid file pointer
-        //if (bitmapFile == NULL)
         if (!bitmapFile)
         {
             SGE::System::Message::Output(SGE::System::Message::Levels::Error, SGE::System::Message::Sources::FileFormats, "Bitmap File Error:  Cannot open file \"" + targetFilename +"\"\n");
@@ -71,21 +65,20 @@ namespace SGE::FileFormats
         }
 
         //Read in the BMP field size in bytes
-        bitmapFile.read((char*)&bmpSize, 4);
+        bitmapFile.read((char*) &bmpSize, 4);
         readCount += bitmapFile.gcount();
 
         //Read some reserved data, application specific, not our concern really.
-        bitmapFile.read((char*)& reserved1, 2);
+        bitmapFile.read((char*) &reserved1, 2);
         readCount += bitmapFile.gcount();
 
         //Read in some more reserved data, application specific, not our concern, moving on...
-        bitmapFile.read((char*)& reserved2, 2);
+        bitmapFile.read((char*) &reserved2, 2);
         readCount += bitmapFile.gcount();
 
         //Read in the offset that should indicate where the file data should begin
-        bitmapFile.read((char*)& offset, 4);
+        bitmapFile.read((char*) &offset, 4);
         readCount += bitmapFile.gcount();
-
 
         //Check to see if we got a whole header, or if the end of file hit early
         if (readCount < BITMAP_FILE_HEADER_SIZE)
@@ -106,7 +99,6 @@ namespace SGE::FileFormats
 
         bitmapFile.read((char*)& sizeOfHeader, 4);
         readCount += bitmapFile.gcount();
-
 
         //Check to make sure this value is of some kind of known value
         //These values were pulled from the Wikipedia entry on BMP File Format
@@ -224,11 +216,7 @@ namespace SGE::FileFormats
             return;
         }
 
-
-        //
         //  Print out some common debug data
-        //
-
         SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Bitmap Load - \"" + targetFilename + "\" - Bitmap Data Offset: " + std::to_string(offset) + "\n");
         SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Bitmap Load - \"" + targetFilename + "\" - Header Size: " + std::to_string(sizeOfHeader) + "\n");
         SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Bitmap Load - \"" + targetFilename + "\" - Height: " + std::to_string(height) + "\n");
@@ -236,16 +224,11 @@ namespace SGE::FileFormats
         SGE::System::Message::Output(SGE::System::Message::Levels::Debug, SGE::System::Message::Sources::FileFormats, "Bitmap Load - \"" + targetFilename + "\" - Size: " + std::to_string(dataSize) + "\n");
 
 
-        //
         //  Go to the file offset where the image data starts
-        //
         bitmapFile.seekg(offset);
 
         //Create a spot to put the image data
-        imageData = new SGE::Display::Video::pixel[height * width];
-
-        //Set the other aspects of the image
-        imageDataSize = height * width;
+        imageData.resize(height * width);
 
         //
         //  Load data from image data section
@@ -270,8 +253,7 @@ namespace SGE::FileFormats
             }
         }
 
-        //If the whole process goes well, and has reached this point
-        //Close file
+        // If we get here, close the file.  Things should be good...?
         bitmapFile.close();
     }
 
@@ -283,26 +265,11 @@ namespace SGE::FileFormats
     const int WAVE_FILE_HEADER_SIZE = 12;
     const int WAVE_FILE_SUBCHUNK_HEADER_SIZE = 8;
 
-    //Deconstructor for a SoundSystemWaveFile
-    Wave::~Wave()
-    {
-        //If audio data actually got loaded, delete it!
-        if (audioData != nullptr)
-        {
-            for (unsigned int i = 0; i < numberOfChannels; i++)
-            {
-                //Delete the buffer for that channel's data
-                delete audioData[i];
-            }
-
-            //Finally delete the data for the array of buffer pointers
-            delete audioData;
-        }
-    }
+    Wave::~Wave() = default;
 
     //Load audio data from a file into a collection of audio buffers
     //Returns a 0 if all is well, something else if there is an error.
-    Wave::Wave(std::string targetFilename)
+    Wave::Wave(const std::string& targetFilename)
     {
         std::fstream soundFile;
         std::streamsize readCount;
@@ -622,20 +589,18 @@ namespace SGE::FileFormats
         //Calculate the number of Samples
         numberOfSamples = subChunkSize / blockAlignment;
 
-        //Create buffers to hold the data
-        //Create the pointer array for the channel buffers
-        audioData = new short*[numberOfChannels];
+        //Prepare storage for the channels of data
+        audioData.resize(numberOfChannels);
 
         //Create short arrays to hold the channel data
-        for (unsigned int i = 0; i < numberOfChannels; i++)
+        for (auto &channel : audioData)
         {
-            audioData[i] = new short[numberOfSamples];
+            channel.resize(numberOfSamples);
         }
 
         //Read the data in
         readCount = 0;
 
-        //For each sample
         for (unsigned int i = 0; i < numberOfSamples; i++)
         {
             //For each channel
@@ -668,7 +633,7 @@ namespace SGE::FileFormats
     //
     //  Function to load data from mod file
     //
-    int ModuleFile::LoadFile(std::string targetFilename)
+    int ModuleFile::LoadFile(const std::string& targetFilename)
     {
         //FILE* moduleFile;
         std::fstream moduleFile;
@@ -727,7 +692,7 @@ namespace SGE::FileFormats
             moduleFile.read((char *)&sample.lengthInWords, 2);
             totalReadCount += moduleFile.gcount();
 
-            //Flip the bits around since Amigas were Big Endian machines.
+            //Flip the bits around since Amiga computers were Big Endian machines.
             sample.lengthInWords = (((sample.lengthInWords & 0x00FFu) << 8u) | ((sample.lengthInWords & 0xFF00u) >> 8u));
 
             //Check to see if we actually read enough bytes
@@ -738,7 +703,7 @@ namespace SGE::FileFormats
                 return -3;
             }
 
-            //Read sample finetune
+            //Read sample fine-tune
             moduleFile.read((char *)&sample.finetune, 1);
             totalReadCount += moduleFile.gcount();
 
@@ -1018,7 +983,7 @@ namespace SGE::FileFormats
 
     }
 
-    int ModuleFile::MODSample::SampleLengthInBytes()
+    int ModuleFile::MODSample::SampleLengthInBytes() const
     {
         return this->lengthInWords * 2;
     }

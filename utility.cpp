@@ -248,7 +248,7 @@ namespace SGE::Utility
             }
 
             //Temporary pointer for converted sample data
-            short * temp = nullptr;
+            short* temp;
 
 
             //Convert samples over, load them up
@@ -442,7 +442,7 @@ namespace SGE::Utility
                 //Turn off Period Slide
                 SGE::Sound::Channels[channelMap[CurrentChannel]].PeriodSlide.Enabled = false;
 
-                //Turn off Retrigger Sample
+                //Turn off Re-trigger Sample
                 SGE::Sound::Channels[channelMap[CurrentChannel]].Retrigger.Enabled = false;
 
                 //
@@ -652,7 +652,7 @@ namespace SGE::Utility
                         //
 
 
-                        //  This is for enabling or disabling a lowpass filter on actual hardware
+                        //  This is for enabling or disabling a low-pass filter on actual hardware
                         //  Most people usually just disabled this thing and moved on.
                         if (Channel[CurrentChannel].Effect.X == 0x0)
                         {
@@ -662,17 +662,17 @@ namespace SGE::Utility
                         }
                         else if (Channel[CurrentChannel].Effect.X == 0x1)
                         {
-                            //  Place holder for Fineslide up
+                            //  Place holder for Fine-slide up
                             SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: " + std::to_string(Channel[CurrentChannel].Effect.Type) + " X: " + std::to_string(Channel[CurrentChannel].Effect.X) + " Y: " + std::to_string(Channel[CurrentChannel].Effect.Y) + "\n");
                         }
                         else if (Channel[CurrentChannel].Effect.X == 0x2)
                         {
-                            //  Place holder for Fineslide down
+                            //  Place holder for Fine-slide down
                             SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: " + std::to_string(Channel[CurrentChannel].Effect.Type) + " X: " + std::to_string(Channel[CurrentChannel].Effect.X) + " Y: " + std::to_string(Channel[CurrentChannel].Effect.Y) + "\n");
                         }
                         else if (Channel[CurrentChannel].Effect.X == 0x3)
                         {
-                            //  Place holder for Glissasndo On/Off
+                            //  Place holder for Glissando On/Off
                             SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: " + std::to_string(Channel[CurrentChannel].Effect.Type) + " X: " + std::to_string(Channel[CurrentChannel].Effect.X) + " Y: " + std::to_string(Channel[CurrentChannel].Effect.Y) + "\n");
                         }
                             //  Set the Vibrato waveform
@@ -681,12 +681,12 @@ namespace SGE::Utility
                             // Set the waveform to use
                             if (Channel[CurrentChannel].Effect.Y == 0 || Channel[CurrentChannel].Effect.Y == 4)
                             {
-                                // Use Sine waveform with retrigger
+                                // Use Sine waveform with re-trigger
                                 SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Waveform(SGE::Sound::Channel::VibratoEffect::VibratoWaveforms::Sine);
                             }
                             else if (Channel[CurrentChannel].Effect.Y == 1 || Channel[CurrentChannel].Effect.Y == 5)
                             {
-                                // Use Ramp Down waveform with retrigger
+                                // Use Ramp Down waveform with re-trigger
                                 SGE::Sound::Channels[channelMap[CurrentChannel]].Vibrato.Waveform(SGE::Sound::Channel::VibratoEffect::VibratoWaveforms::RampDown);
                             }
                             else if (Channel[CurrentChannel].Effect.Y == 2 || Channel[CurrentChannel].Effect.Y == 6)
@@ -696,7 +696,7 @@ namespace SGE::Utility
                             }
                             else if (Channel[CurrentChannel].Effect.Y == 3)
                             {
-                                //  Place holder for random selection with retrigger
+                                //  Place holder for random selection with re-trigger
                                 SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: " + std::to_string(Channel[CurrentChannel].Effect.Type) + " X: " + std::to_string(Channel[CurrentChannel].Effect.X) + " Y: " + std::to_string(Channel[CurrentChannel].Effect.Y) + "\n");
                             }
 
@@ -712,7 +712,7 @@ namespace SGE::Utility
                         }
                         else if (Channel[CurrentChannel].Effect.X == 0x5)
                         {
-                            //  Place holder for Set finetune value
+                            //  Place holder for Set fine-tune value
                             SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: " + std::to_string(Channel[CurrentChannel].Effect.Type) + " X: " + std::to_string(Channel[CurrentChannel].Effect.X) + " Y: " + std::to_string(Channel[CurrentChannel].Effect.Y) + "\n");
                         }
                         else if (Channel[CurrentChannel].Effect.X == 0x6)
@@ -730,7 +730,7 @@ namespace SGE::Utility
                             //  Unused
                             SGE::System::Message::Output(SGE::System::Message::Levels::Warning, SGE::System::Message::Sources::Utility, "Mod Player - Unimplemented or Unknown effect detected! Effect: " + std::to_string(Channel[CurrentChannel].Effect.Type) + " X: " + std::to_string(Channel[CurrentChannel].Effect.X) + " Y: " + std::to_string(Channel[CurrentChannel].Effect.Y) + "\n");
                         }
-                            //  Retrigger Sample
+                            //  Re-trigger Sample
                         else if (Channel[CurrentChannel].Effect.X == 0x9)
                         {
 

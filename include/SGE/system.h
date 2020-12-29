@@ -17,11 +17,11 @@ namespace SGE
 
             extern int CurrentTimerResolutionMilliseconds;
 
-            SGEAPI void AccurateWaitForMilliseconds(int milliseconds);
+            void AccurateWaitForMilliseconds(int milliseconds);
 
-            SGEAPI void SimpleWait ();
+            void SimpleWait ();
 
-            SGEAPI int DetermineCurrentTimerResolutionMilliseconds();
+            int DetermineCurrentTimerResolutionMilliseconds();
 		}
 
 		namespace Callbacks
@@ -44,17 +44,17 @@ namespace SGE
 			//  Handles output to the console and changes output format and color slightly based on severity
 			//  Severety levels:   -1 = ERROR, 0 = INFORMATION, 1 = WARNING, 2 = DEBUG
 			//
-			void SGEAPI Output(int messageLevel, const std::string source, const std::string message);
+			void Output(int messageLevel, const std::string& source, const std::string& message);
 
 			//
 			//  Starts Message System Thread to asynchronously contend with messages from the system  
 			//
-			void SGEAPI StartMessageSystem();
+			void StartMessageSystem();
 
 			//
 			//  Stops Message System Thread
 			//
-			void SGEAPI StopMessageSystem();
+			void StopMessageSystem();
 
 
 			//

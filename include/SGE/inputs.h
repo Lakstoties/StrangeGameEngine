@@ -68,12 +68,12 @@ namespace SGE
 			//
 			//  Extern to declare the keyboard key state array
 			//
-			extern bool SGEAPI Status[NUMBER_OF_KEYS];
+			extern bool Status[NUMBER_OF_KEYS];
 
 			//
 			//  Function to save the current keyboard status array to another array
 			//
-			void SGEAPI SaveStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS]);
+			void SaveStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS]);
 
 			//
 			//  Function to convert a keyboard status to ASCII characters
@@ -84,7 +84,7 @@ namespace SGE
 		//
 		//  Flag to indicate if the input handling system should keep on going.
 		//
-		extern bool SGEAPI ContinueToHandleEvents;
+		extern bool ContinueToHandleEvents;
 
 		//Start Handling Events through Main Interface
 		//This has to handled by the same thread that spawned the GUI window

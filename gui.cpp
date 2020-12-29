@@ -1,5 +1,4 @@
 #include "include\SGE\gui.h"
-#include <cstring>
 
 //
 //  Strange Game Engine Main Namespace
@@ -121,11 +120,10 @@ namespace SGE
 			YPosition = yPosition;
 		}
 
-		//  Deconstructor
 		TextBox::~TextBox() = default;
 	}
 
-	Menu::Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, std::vector<std::string> targetMenuItems)
+	Menu::Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, const std::vector<std::string>& targetMenuItems)
 	{
 		//Assign all the vales
 		menuX = targetMenuX;
@@ -172,7 +170,7 @@ namespace SGE
 			else
 			{
 				//Draw the selected text box
-				SGE::Render::DrawBox(menuXMargin, menuYMargin + (itemHeight * i), menuWidth - (margin << 1), itemHeight, highlightColor);
+				SGE::Render::DrawBox(menuXMargin, menuYMargin + (itemHeight * i), menuWidth - (margin * 2), itemHeight, highlightColor);
 
 				//Draw the selected characters
 				SGE::Render::DrawString(menuItemText[i], SGE::Render::CHARACTER_8x8_ROM, 8, menuXMargin + textBoxMargin, menuYMargin + (itemHeight * i) + textBoxMargin, highlightTextColor);
@@ -181,9 +179,9 @@ namespace SGE
 				if (cursorActive)
 				{
 					//Draw the text box for the cursor
-					SGE::Render::DrawBox(menuXMargin + textBoxMargin + 8 * rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, 8, 8, highlightTextColor);
+					SGE::Render::DrawBox(menuXMargin + textBoxMargin + 8 * (int)rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, 8, 8, highlightTextColor);
 					//Draw the selected character
-					SGE::Render::Draw8x8Character(&SGE::Render::CHARACTER_8x8_ROM[(unsigned char)menuItemText[i][rowTextCursorLocation]], menuXMargin + textBoxMargin + 8 * rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, highlightColor);
+					SGE::Render::Draw8x8Character(&SGE::Render::CHARACTER_8x8_ROM[(unsigned char)menuItemText[i][rowTextCursorLocation]], menuXMargin + textBoxMargin + 8 * (int)rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, highlightColor);
 				}
 			}
 		}
@@ -238,9 +236,9 @@ namespace SGE
 	}
 
 
-	void Menu::SetMenuSelection(std::string targetString)
+	void Menu::SetMenuSelection(const std::string& targetString)
 	{
-		if (targetString == "")
+		if (targetString.empty())
 		{
 			return;
 		}
@@ -273,9 +271,9 @@ namespace SGE
 		CheckCursorPosition();
 	}
 
-	int Menu::GetCursorLocation()
+	int Menu::GetCursorLocation() const
 	{
-		return rowTextCursorLocation;
+		return (int)rowTextCursorLocation;
 	}
 }
 

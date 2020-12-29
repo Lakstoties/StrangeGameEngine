@@ -113,7 +113,7 @@ namespace SGE::Sound
             Cycles = cycles;
         }
 
-        //  If set to retrigger, reset the waveform position
+        //  If set to re-trigger, reset the waveform position
         if (Retriggers)
         {
             currentWaveformPosition = 0;
@@ -283,10 +283,10 @@ namespace SGE::Sound
 
 
     //
-    //  Retrigger Effect Methods
+    //  Re-trigger Effect Methods
     //
 
-    //  Method to Set the Retrigger Effect
+    //  Method to Set the Re-trigger Effect
     void Channel::RetriggerEffect::Set(unsigned int sampleDestination, unsigned int sampleInterval)
     {
         SampleDestination = sampleDestination;
@@ -296,7 +296,7 @@ namespace SGE::Sound
         Enabled = true;
     }
 
-    //  Method to Apply the Retrigger Effect
+    //  Method to Apply the Re-trigger Effect
     float Channel::RetriggerEffect::Apply(float sourceOffset)
     {
         //  Check to see if we need to trigger the sample
@@ -437,7 +437,7 @@ namespace SGE::Sound
                 //  Effect Pipeline, that affects offset Increments
                 //
 
-                //  Apply Retrigger Effect
+                //  Apply Re-trigger Effect
                 //  This effect changes the offset
                 offset = Retrigger.Apply(offset);
 
@@ -782,7 +782,7 @@ namespace SGE::Sound
         unsigned int currentRightAverageLevel = 0;
 
         //Recast the output buffers
-        sampleType* outputBufferLeft =  (sampleType*)output;
+        auto* outputBufferLeft =  (sampleType*)output;
         sampleType* outputBufferRight = (sampleType*)output + frameCount;
 
         //Go through each channel and render samples
