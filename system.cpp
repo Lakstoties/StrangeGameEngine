@@ -31,7 +31,83 @@ namespace SGE
 		//
 		namespace OS
 		{
+            //
+            //  Fine grain timing bits
+            //
+            int CurrentTimerResolutionMilliseconds = DEFAULT_TIMER_RESOLUTION_MILLISECONDS;
 
+            //
+            //  Calculate the resolution of the current OS's thread scheduler in milliseconds
+            //
+            int DetermineCurrentTimerResolutionMilliseconds()
+            {
+                //  Run through a 100 thread sleeps and take the average time
+                std::chrono::high_resolution_clock::time_point startTime;
+                std::chrono::high_resolution_clock::duration sleepTime;
+                std::chrono::high_resolution_clock::duration averageSleepTime;
+
+                for (int i = 0; i < 100; i++)
+                {
+                    startTime = std::chrono::high_resolution_clock::now();
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+                    sleepTime = std::chrono::high_resolution_clock::now() - startTime;
+                    averageSleepTime += sleepTime;
+                }
+
+                averageSleepTime /= 100;
+
+                CurrentTimerResolutionMilliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(averageSleepTime).count();
+                return CurrentTimerResolutionMilliseconds;
+            }
+
+            //
+            //  A very simple sleep that triggers a small thread sleep.  Will be limited by thread scheduler resolution.
+            //
+            void SimpleWait ()
+            {
+                std::this_thread::sleep_for(std::chrono::milliseconds(1));
+            }
+
+
+            //
+            //  Crude and rough timer system.  Not really recommended to use for everything due to burning some serious CPU cycles when system clock interrupt intervals shift outside multiples of the desired wait period.
+            //
+            void AccurateWaitForMilliseconds(int milliseconds)
+            {
+                //
+                //  Figure out the designated target time to sleep to
+                //
+                std::chrono::high_resolution_clock::time_point whenToContinue = std::chrono::high_resolution_clock::now() + std::chrono::milliseconds(milliseconds);
+
+                //
+                //  Variables to keep track of the minimum sleep time, since it can vary a lot between computers
+                //
+                std::chrono::high_resolution_clock::time_point timeSleepStart;
+                std::chrono::high_resolution_clock::duration timeSlept = std::chrono::milliseconds(0);
+
+                //
+                //  Keep on trying to sleep until it looks like we are going to overshoot based on previous sleep time
+                //
+                while ((std::chrono::high_resolution_clock::now() + timeSlept) < whenToContinue)
+                {
+                    //  Record the current time
+                    timeSleepStart = std::chrono::high_resolution_clock::now();
+
+                    //  Sleep for 1 millisecond.  Totally not likely or consistent, but we'll record the actual time.
+                    std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
+                    //  How long did we actually sleep?
+                    timeSlept = std::chrono::high_resolution_clock::now() - timeSleepStart;
+                }
+
+                //
+                //  If we are still short after the sleep loop, we'll have to spinning yield lock closer to the time.
+                //
+                while (std::chrono::high_resolution_clock::now() < whenToContinue)
+                {
+                    std::this_thread::yield();
+                }
+            }
 		}
 
 		//

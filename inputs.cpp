@@ -1,8 +1,6 @@
 #include "include\SGE\inputs.h"
 #include "include\SGE\display.h"
 #include <GLFW\glfw3.h>
-#include <thread>
-#include <algorithm>
 
 //
 //  Strange Game Engine Main Namespace
@@ -25,7 +23,7 @@ namespace SGE
 		namespace Callbacks
 		{
 			//
-			//  Mouse Scrool Wheel callback for GLFW
+			//  Mouse Scroll Wheel callback for GLFW
 			//
 			void ScrollWheel(GLFWwindow* window, double xOffset, double yOffset)
 			{
@@ -40,13 +38,16 @@ namespace SGE
 			{
 				switch (action)
 				{
-				case GLFW_PRESS:
-					SGE::Inputs::Mouse::Buttons[button] = true;
-					break;
+				    case GLFW_PRESS:
+					    SGE::Inputs::Mouse::Buttons[button] = true;
+					    break;
 
-				case GLFW_RELEASE:
-					SGE::Inputs::Mouse::Buttons[button] = false;
-					break;
+				    case GLFW_RELEASE:
+					    SGE::Inputs::Mouse::Buttons[button] = false;
+					    break;
+
+					default:
+				        break;
 				}
 			}
 
@@ -89,8 +90,8 @@ namespace SGE
 				int currentFrameBufferX = 0;
 				int currentFrameBufferY = 0;
 
-				int currentFrameBufferXOffset = 0;
-				int currentFrameBufferYOffset = 0;
+				int currentFrameBufferXOffset;
+				int currentFrameBufferYOffset;
 
 				//
 				//  Get the current Frame buffer data
@@ -128,7 +129,7 @@ namespace SGE
 			void Register()
 			{
 				//
-				//  Mouse scrool wheel callback
+				//  Mouse scroll wheel callback
 				//
 				glfwSetScrollCallback(SGE::OSWindow, SGE::Inputs::Callbacks::ScrollWheel);
 
@@ -194,29 +195,8 @@ namespace SGE
 			//
 			void SaveStatus(bool targetKeyboardStatusArray[NUMBER_OF_KEYS])
 			{
-				//std::memcpy(targetKeyboardStatusArray, Status, sizeof(Status));
 				std::copy(Status, Status + NUMBER_OF_KEYS, targetKeyboardStatusArray);
 			}
-
-			//
-			//  Function to convert a keyboard status to ASCII characters
-			//
-			int StatusToASCII(bool targetKeyboardStatusArray[NUMBER_OF_KEYS], char* targetASCIIArray, int maxASCIICharacters)
-			{
-				//
-				//  Scan through array for keys that map to ASCII characters
-				//
-
-				//  Check status of modifier keys
-				
-				//  Check letter keys
-	
-
-				//  Check nubmer keys
-				
-				return 0;
-			}
-
 		}
 
 		//

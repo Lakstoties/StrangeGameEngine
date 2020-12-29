@@ -402,7 +402,7 @@ namespace SGE
 				float OffsetIncrement = 0.0f;
 
 				void Set(unsigned int sampleInterval, unsigned int semitoneX, unsigned int semitoneY);
-				float Apply(float offsetIncrement);
+				float Apply(float sourceOffsetIncrement);
 			};
 
 			ArpeggioEffect Arpeggio;
@@ -419,7 +419,7 @@ namespace SGE
 				float PeriodBasis = (float)SAMPLE_RATE;
 
 				void Set(float target, unsigned int sampleInterval, float delta, float periodBasis);
-				float Apply(float offsetIncrement);
+				float Apply(float sourceOffsetIncrement);
 			};
 
 			PeriodSlideEffect PeriodSlide;
@@ -464,7 +464,7 @@ namespace SGE
 
 				void Set(float amplitude, float cycles);
 				void Waveform(VibratoWaveforms waveformToUse);
-				float Apply(float offsetIncrement);
+				float Apply(float sourceOffsetIncrement);
 			};
 
 			VibratoEffect Vibrato;
@@ -479,7 +479,7 @@ namespace SGE
 				unsigned int SampleDestination = 0;
 
 				void Set(unsigned int sampleDestination, unsigned int sampleInterval);
-				float Apply(float offset);
+				float Apply(float sourceOffset);
 			};
 
 			RetriggerEffect Retrigger;

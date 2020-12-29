@@ -4,15 +4,10 @@
 #include <GLFW\glfw3.h>
 
 //
-//  Include threading and mutexs
+//  Include threading and mutexes
 //
 #include <thread>
 #include <mutex>
-
-//
-//  Vectors?
-//
-#include <vector>
 
 //
 //  Include display header
@@ -30,7 +25,7 @@
 namespace SGE
 {
 	//
-	//  Extern to a compoment within the SGE namespace.  It's the main GLFW window
+	//  Extern to a component within the SGE namespace.  It's the main GLFW window
 	//
 	extern GLFWwindow* OSWindow;
 
@@ -74,7 +69,7 @@ namespace SGE
 		namespace Video
 		{
 			//
-			//  The virtual video RAM.  Publically accessible to allow other components to write to it directly.
+			//  The virtual video RAM.  Publicly accessible to allow other components to write to it directly.
 			//  This is by design.  Also, it is initially set to the DefaultRAM, but can be changed later.
 			//
 			pixel RAM[MAX_VIDEO_RAM] = { 0 };
@@ -87,7 +82,7 @@ namespace SGE
 		}
 
 		//A mutex that can be used to temporarily pause the drawing thread at a key point to allow the video ram to be updated fully.
-		//Prevents flicking and tearing by the display thread from updating mid way through writes to VRAM
+		//Prevents flicking and tearing by the display thread from updating mid way through writes to Video RAM
 		std::mutex refreshHold;
 
 		//
@@ -174,8 +169,8 @@ namespace SGE
 
 			//Update the viewport sizes and offsets
 			//Calculate offsets
-			SGE::Display::ViewPortWindowOffsetX = (frameBufferX - (frameBufferY * Video::X) / Video::Y) >> 1;
-			SGE::Display::ViewPortWindowOffsetY = (frameBufferY - (frameBufferX * Video::Y) / Video::X) >> 1;
+			SGE::Display::ViewPortWindowOffsetX = (frameBufferX - (frameBufferY * Video::X) / Video::Y) / 2;
+			SGE::Display::ViewPortWindowOffsetY = (frameBufferY - (frameBufferX * Video::Y) / Video::X) / 2;
 
 			//If the Offset goes negative it needs to be hard capped or it throws off calculations.
 			if (SGE::Display::ViewPortWindowOffsetX < 0) { (SGE::Display::ViewPortWindowOffsetX = 0); }
@@ -183,8 +178,8 @@ namespace SGE
 
 			//Calculate viewport
 			//Take the framebuffer and subtract double the viewport offsets to scale appropriately for the window
-			SGE::Display::ViewPortWindowX = frameBufferX - (SGE::Display::ViewPortWindowOffsetX << 1);
-			SGE::Display::ViewPortWindowY = frameBufferY - (SGE::Display::ViewPortWindowOffsetY << 1);
+			SGE::Display::ViewPortWindowX = frameBufferX - (SGE::Display::ViewPortWindowOffsetX * 2);
+			SGE::Display::ViewPortWindowY = frameBufferY - (SGE::Display::ViewPortWindowOffsetY * 2);
 		}
 
 		//
@@ -257,7 +252,7 @@ namespace SGE
 				{
 					RecalculateViewport();
 
-					//Welp, shit has changed!  Set new the Viewport
+					//It has changed!  Set new the Viewport
 					glViewport(
 						//Center it in the middle of the X axis
 						SGE::Display::ViewPortWindowOffsetX,
@@ -409,7 +404,7 @@ namespace SGE
 			//
 			//  Create a standard Window
 			//
-			OSWindow = glfwCreateWindow(windowX, windowY, gameTitle, NULL, NULL);
+			OSWindow = glfwCreateWindow(windowX, windowY, gameTitle, nullptr, nullptr);
 
 			if (OSWindow == nullptr)
 			{
@@ -494,7 +489,7 @@ namespace SGE
 		//
 		void StartDrawing()
 		{
-			//Flag the thread to start drawiong
+			//Flag the thread to start drawing
 			continueDrawing = true;
 
 			//Launch that thread

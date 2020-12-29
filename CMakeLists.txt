@@ -54,7 +54,7 @@ target_link_libraries(SGETest StrangeGameEngine)
 #Copy test files to build directory
 configure_file(assets/TestSample.wav TestSample.wav COPYONLY)
 configure_file(assets/TestImage.bmp TestImage.bmp COPYONLY)
-configure_file(assets/aurora.mod test1.mod COPYONLY)
+configure_file(assets/hyper.mod test1.mod COPYONLY)
 configure_file(assets/enigma.mod test2.mod COPYONLY)
 configure_file(assets/stardstm.mod test3.mod COPYONLY)
 

@@ -157,6 +157,7 @@ namespace SGE
 					unsigned char Y = 0;
 
 					void Parse(unsigned short rawEffectData);
+					void Reset();
 				};
 
 				class ModuleLocation
@@ -222,6 +223,8 @@ namespace SGE
 				bool PlayerThreadActive = false;
 				std::thread* playerThread = NULL;
 
+                Effect previousEffect[4];
+
 
 				//Main functions
 				bool Load(char * filename);
@@ -232,6 +235,9 @@ namespace SGE
 				//Other fuction
 				void PlayThread();
 
+				//
+				void ProcessDivision();
+
 				//Constructor Stuff
 				ModulePlayer();
 				~ModulePlayer();
@@ -241,8 +247,6 @@ namespace SGE
 
 		namespace Timer
 		{
-			SGEAPI void AccurateWaitForMilliseconds(int milliseconds);
-
 			class SGEAPI TimerDelta
 			{
 			private:

@@ -12,10 +12,16 @@ namespace SGE
 	namespace System
 	{
 		namespace OS
-		{
-			const int TARGET_OS_TIMER_RESOLUTION_MILLISECONDS = 15;
+        {
+            const int DEFAULT_TIMER_RESOLUTION_MILLISECONDS = 15;
 
-			void SetOSTimerResolution();
+            extern int CurrentTimerResolutionMilliseconds;
+
+            SGEAPI void AccurateWaitForMilliseconds(int milliseconds);
+
+            SGEAPI void SimpleWait ();
+
+            SGEAPI int DetermineCurrentTimerResolutionMilliseconds();
 		}
 
 		namespace Callbacks

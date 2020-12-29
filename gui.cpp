@@ -60,7 +60,7 @@ namespace SGE
 					for (int j = (int)startColumn; j < (int)endColumn; j++)
 					{
 						//Draw the characters upon the screen
-						SGE::Render::Draw8x8CharacterFilled(CurrentCharacterROM[(unsigned char)Characters[(i * columns) + j].Character], XPosition + j * 8, YPosition + i * 8, Characters[(i * columns) + j].ForeColor, Characters[(i * columns) + j].BackColor);
+						SGE::Render::Draw8x8CharacterFilled(&CurrentCharacterROM[(unsigned char)Characters[(i * columns) + j].Character], XPosition + j * 8, YPosition + i * 8, Characters[(i * columns) + j].ForeColor, Characters[(i * columns) + j].BackColor);
 					}
 				}
 			}
@@ -84,7 +84,7 @@ namespace SGE
 		void TextBox::CreateBuffers(unsigned int newRows, unsigned int newColumns)
 		{
 			//
-			//  Check for any invalid row and colums sizes
+			//  Check for any invalid row and columns sizes
 			//
 			if (newRows == 0 || newColumns == 0)
 			{
@@ -92,7 +92,7 @@ namespace SGE
 			}
 
 			//
-			//  Assign new rows and colums sizes
+			//  Assign new rows and columns sizes
 			//
 
 			columns = newColumns;
@@ -101,15 +101,8 @@ namespace SGE
 			//
 			//  Create new buffer
 			//
-
-			if (Characters != nullptr)
-			{
-				//  Welp there's stuff there already
-				delete[] Characters;
-				Characters = nullptr;
-			}
-
-			Characters = new TextBoxData[columns * rows];
+			Characters.clear();
+			Characters.resize(newRows * newColumns);
 		}
 
 		//
@@ -128,20 +121,11 @@ namespace SGE
 			YPosition = yPosition;
 		}
 
-		//
 		//  Deconstructor
-		//
-		TextBox::~TextBox()
-		{
-			if (Characters != nullptr)
-			{
-				delete[] Characters;
-				Characters = nullptr;
-			}
-		}
+		TextBox::~TextBox() = default;
 	}
 
-	Menu::Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, int targetNumberOfSelections, char** targetMenuItems)
+	Menu::Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, std::vector<std::string> targetMenuItems)
 	{
 		//Assign all the vales
 		menuX = targetMenuX;
@@ -151,31 +135,16 @@ namespace SGE
 		margin = targetMargin;
 		itemHeight = targetItemHeight;
 		textBoxMargin = targetTextBoxMargin;
-		numberOfSelections = targetNumberOfSelections;
+		numberOfSelections = targetMenuItems.size();
 
 		//Grab the values from the char arrays
-		menuItemText = new char*[numberOfSelections];
-
-		size_t tempCount = 0;
-
-		for (int i = 0; i < numberOfSelections; i++)
-		{
-			//Grab the target menu item's length
-			tempCount = strlen(targetMenuItems[i]) + 1;
-
-			//Create a place to put the new item
-			menuItemText[i] = new char[tempCount];
-
-			//Copy it over
-			strcpy(menuItemText[i], targetMenuItems[i]);
-		}
+		menuItemText = targetMenuItems;
 
 		//Derived bits that once need to be calculated once or so...
 		menuXMargin = menuX + margin;
 		menuYMargin = menuY + margin;
 
 		//Set up the cursor info
-
 		cursorActive = false;
 		rowTextCursorLocation = 0;
 	}
@@ -214,7 +183,7 @@ namespace SGE
 					//Draw the text box for the cursor
 					SGE::Render::DrawBox(menuXMargin + textBoxMargin + 8 * rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, 8, 8, highlightTextColor);
 					//Draw the selected character
-					SGE::Render::Draw8x8Character(SGE::Render::CHARACTER_8x8_ROM[(unsigned char)menuItemText[i][rowTextCursorLocation]], menuXMargin + textBoxMargin + 8 * rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, highlightColor);
+					SGE::Render::Draw8x8Character(&SGE::Render::CHARACTER_8x8_ROM[(unsigned char)menuItemText[i][rowTextCursorLocation]], menuXMargin + textBoxMargin + 8 * rowTextCursorLocation, menuYMargin + (itemHeight*i) + textBoxMargin, highlightColor);
 				}
 			}
 		}
@@ -242,69 +211,41 @@ namespace SGE
 	//If it's farther out than the text, it'll move it to the end of the text.
 	void Menu::CheckCursorPosition()
 	{
-		size_t temp = 0;
-
 		//Adjust cursor location
 		//Check the length of the next selection
-		temp = strlen(menuItemText[selection]);
 
-
-		if (rowTextCursorLocation >= temp)
+		if (rowTextCursorLocation >= menuItemText[selection].length())
 		{
-			rowTextCursorLocation = (unsigned int) temp - 1;
+			rowTextCursorLocation = (unsigned int) menuItemText[selection].length() - 1;
 		}
 	}
 
 
 
-	char* Menu::GetMenuSelection()
+	std::string Menu::GetMenuSelection()
 	{
-		size_t tempCount = 0;
-		char* tempString;
-
-		if (menuItemText == nullptr)
+		if (menuItemText.empty())
 		{
-			return nullptr;
+			return "";
 		}
 
-		if (menuItemText[selection] == nullptr)
+		if (menuItemText[selection].empty())
 		{
-			return nullptr;
+			return "";
 		}
 
-		//Get the length of the string with terminating null
-		tempCount = strlen(menuItemText[selection]) + 1;
-
-		//Create a place to put the string
-		tempString = new char[tempCount];
-
-		//Copy it over
-		strcpy(tempString, menuItemText[selection]);
-
-		return tempString;
+		return menuItemText[selection];
 	}
 
 
-	void Menu::SetMenuSelection(char* targetString)
+	void Menu::SetMenuSelection(std::string targetString)
 	{
-		size_t tempCount = 0;
-
-		if (targetString == nullptr)
+		if (targetString == "")
 		{
 			return;
 		}
 
-		//Get the length of the new string with terminating null
-		tempCount = strlen(targetString) + 1;
-
-		//Clear out old material
-		delete menuItemText[selection];
-
-		//Create a new place to put the new string
-		menuItemText[selection] = new char[tempCount];
-
-		//Copy the string over
-		strcpy(menuItemText[selection], targetString);
+		menuItemText[selection] = targetString;
 	}
 
 

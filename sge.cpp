@@ -49,6 +49,10 @@ namespace SGE
 		//
 		SGE::System::Callbacks::Register();
 
+		//
+		//  Figure out OS level timing stuff
+		//
+        SGE::System::OS::DetermineCurrentTimerResolutionMilliseconds();
 
 		//
 		//  Start up the sound system

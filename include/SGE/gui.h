@@ -1,6 +1,7 @@
 #pragma once
 #include "api.h"
 #include "render.h"
+#include <vector>
 
 //
 //  Strange Game Engine Main Namespace
@@ -15,8 +16,9 @@ namespace SGE
 			//
 			//  Nice little struct to hold all the relevant data in a sensible fashion
 			//
-			struct TextBoxData
+			class TextBoxData
 			{
+			public:
 				char Character = 0;
 				SGE::Display::Video::pixel ForeColor = 0;
 				SGE::Display::Video::pixel BackColor = 0;
@@ -37,7 +39,7 @@ namespace SGE
 			//
 			//  2D Vector of TextBoxData to hold all the bits.
 			//
-			TextBoxData* Characters = nullptr;
+			std::vector<TextBoxData> Characters;
 
 		public:
 
@@ -75,7 +77,7 @@ namespace SGE
 		int margin;
 		int itemHeight;
 		int textBoxMargin;
-		char **menuItemText;
+		std::vector<std::string> menuItemText;
 		unsigned char numberOfSelections;
 
 		//Derived bits that once need to be calculated once or so...
@@ -108,7 +110,7 @@ namespace SGE
 		//Highlight Text Color
 		SGE::Display::Video::pixel highlightTextColor = 0;
 
-		Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, int targetNumberOfSelections, char** targetMenuItems);
+        Menu(int targetMenuX, int targetMenuY, int targetMenuWidth, int targetMenuHeight, int targetMargin, int targetItemHeight, int targetTextBoxMargin, std::vector<std::string> targetMenuItems);
 
 		void Draw();
 
@@ -116,9 +118,9 @@ namespace SGE
 
 		void PreviousSelection();
 
-		char* GetMenuSelection();
+		std::string GetMenuSelection();
 
-		void SetMenuSelection(char* targetString);
+		void SetMenuSelection(std::string targetString);
 
 		void CursorOn();
 

@@ -52,19 +52,19 @@ void DrawBufferedRow(unsigned int* buffer, unsigned int bufferSize, int xPositio
 
 void InputTest(bool& testInputRunning)
 {
-	char* menuItemText[7] =
+    std::vector<std::string> menuItemText =
 	{
-		(char*)"Play: Player 1",
-		(char*)"Play: Player 2",
-		(char*)"Play: Player 3",
-		(char*)"Stop: Player 1",
-		(char*)"Stop: Player 2",
-		(char*)"Stop: Player 3",
-		(char*)"Exit Demo",		
+		"Play: Player 1",
+		"Play: Player 2",
+		"Play: Player 3",
+		"Stop: Player 1",
+		"Stop: Player 2",
+		"Stop: Player 3",
+		"Exit Demo",
 	};
 
 	//Create the test menu
-	SGE::Menu testMenu(0, 350, 150, 88, 2, 12, 2, 7, menuItemText);
+	SGE::Menu testMenu(0, 350, 150, 88, 2, 12, 2, menuItemText);
 
 	//Current Selection
 	testMenu.selection = 0;
@@ -629,7 +629,7 @@ void InputTest(bool& testInputRunning)
 		//
 		//  Wait a little after each iteration
 		//
-		SGE::Utility::Timer::AccurateWaitForMilliseconds(10);
+		SGE::System::OS::SimpleWait();
 
 	}
 }
